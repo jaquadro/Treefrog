@@ -1,0 +1,344 @@
+﻿namespace Editor
+{
+    partial class MapView
+    {
+        /// <summary> 
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose (bool disposing)
+        {
+            if (disposing && (components != null)) {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Component Designer generated code
+
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent ()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MapView));
+            this.mainContainer = new System.Windows.Forms.SplitContainer();
+            this.sideContainer = new System.Windows.Forms.SplitContainer();
+            this.upperTabControl = new System.Windows.Forms.TabControl();
+            this.tilesetPage = new System.Windows.Forms.TabPage();
+            this.tileTableMain = new System.Windows.Forms.TableLayoutPanel();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.toolStripComboBox1 = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.tilepoolPage = new System.Windows.Forms.TabPage();
+            this.objectPage = new System.Windows.Forms.TabPage();
+            this.lowerTabControl = new System.Windows.Forms.TabControl();
+            this.layerPage = new System.Windows.Forms.TabPage();
+            this.viewportControl1 = new Editor.ViewportControl();
+            this.tilesetControl = new Editor.TileControl2D();
+            this._tilePoolPane = new Editor.TilePoolPane();
+            this.viewportControl2 = new Editor.ViewportControl();
+            this.tilemapControl = new Editor.TileControl2D();
+            ((System.ComponentModel.ISupportInitialize)(this.mainContainer)).BeginInit();
+            this.mainContainer.Panel1.SuspendLayout();
+            this.mainContainer.Panel2.SuspendLayout();
+            this.mainContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sideContainer)).BeginInit();
+            this.sideContainer.Panel1.SuspendLayout();
+            this.sideContainer.Panel2.SuspendLayout();
+            this.sideContainer.SuspendLayout();
+            this.upperTabControl.SuspendLayout();
+            this.tilesetPage.SuspendLayout();
+            this.tileTableMain.SuspendLayout();
+            this.toolStrip2.SuspendLayout();
+            this.tilepoolPage.SuspendLayout();
+            this.lowerTabControl.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // mainContainer
+            // 
+            this.mainContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainContainer.Location = new System.Drawing.Point(0, 0);
+            this.mainContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.mainContainer.Name = "mainContainer";
+            // 
+            // mainContainer.Panel1
+            // 
+            this.mainContainer.Panel1.Controls.Add(this.sideContainer);
+            // 
+            // mainContainer.Panel2
+            // 
+            this.mainContainer.Panel2.Controls.Add(this.viewportControl2);
+            this.mainContainer.Size = new System.Drawing.Size(943, 612);
+            this.mainContainer.SplitterDistance = 225;
+            this.mainContainer.TabIndex = 4;
+            this.mainContainer.TabStop = false;
+            // 
+            // sideContainer
+            // 
+            this.sideContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sideContainer.Location = new System.Drawing.Point(0, 0);
+            this.sideContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.sideContainer.Name = "sideContainer";
+            this.sideContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // sideContainer.Panel1
+            // 
+            this.sideContainer.Panel1.Controls.Add(this.upperTabControl);
+            // 
+            // sideContainer.Panel2
+            // 
+            this.sideContainer.Panel2.Controls.Add(this.lowerTabControl);
+            this.sideContainer.Size = new System.Drawing.Size(225, 612);
+            this.sideContainer.SplitterDistance = 343;
+            this.sideContainer.TabIndex = 0;
+            // 
+            // upperTabControl
+            // 
+            this.upperTabControl.Controls.Add(this.tilesetPage);
+            this.upperTabControl.Controls.Add(this.tilepoolPage);
+            this.upperTabControl.Controls.Add(this.objectPage);
+            this.upperTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.upperTabControl.Location = new System.Drawing.Point(0, 0);
+            this.upperTabControl.Margin = new System.Windows.Forms.Padding(0);
+            this.upperTabControl.Name = "upperTabControl";
+            this.upperTabControl.SelectedIndex = 0;
+            this.upperTabControl.Size = new System.Drawing.Size(225, 343);
+            this.upperTabControl.TabIndex = 0;
+            // 
+            // tilesetPage
+            // 
+            this.tilesetPage.Controls.Add(this.tileTableMain);
+            this.tilesetPage.Location = new System.Drawing.Point(4, 22);
+            this.tilesetPage.Margin = new System.Windows.Forms.Padding(0);
+            this.tilesetPage.Name = "tilesetPage";
+            this.tilesetPage.Size = new System.Drawing.Size(217, 317);
+            this.tilesetPage.TabIndex = 0;
+            this.tilesetPage.Text = "Tile Sets";
+            this.tilesetPage.UseVisualStyleBackColor = true;
+            // 
+            // tileTableMain
+            // 
+            this.tileTableMain.ColumnCount = 1;
+            this.tileTableMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tileTableMain.Controls.Add(this.toolStrip2, 0, 0);
+            this.tileTableMain.Controls.Add(this.viewportControl1, 0, 1);
+            this.tileTableMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tileTableMain.Location = new System.Drawing.Point(0, 0);
+            this.tileTableMain.Margin = new System.Windows.Forms.Padding(0);
+            this.tileTableMain.Name = "tileTableMain";
+            this.tileTableMain.RowCount = 2;
+            this.tileTableMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
+            this.tileTableMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tileTableMain.Size = new System.Drawing.Size(217, 317);
+            this.tileTableMain.TabIndex = 1;
+            // 
+            // toolStrip2
+            // 
+            this.toolStrip2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripComboBox1,
+            this.toolStripButton1,
+            this.toolStripButton2,
+            this.toolStripButton3});
+            this.toolStrip2.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Padding = new System.Windows.Forms.Padding(2);
+            this.toolStrip2.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            this.toolStrip2.Size = new System.Drawing.Size(217, 28);
+            this.toolStrip2.TabIndex = 0;
+            this.toolStrip2.Text = "toolStrip2";
+            // 
+            // toolStripComboBox1
+            // 
+            this.toolStripComboBox1.BackColor = System.Drawing.SystemColors.Window;
+            this.toolStripComboBox1.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.toolStripComboBox1.Name = "toolStripComboBox1";
+            this.toolStripComboBox1.Size = new System.Drawing.Size(150, 24);
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 21);
+            this.toolStripButton1.Text = "toolStripButton1";
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(23, 20);
+            this.toolStripButton2.Text = "toolStripButton2";
+            // 
+            // toolStripButton3
+            // 
+            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
+            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton3.Name = "toolStripButton3";
+            this.toolStripButton3.Size = new System.Drawing.Size(23, 20);
+            this.toolStripButton3.Text = "toolStripButton3";
+            // 
+            // tilepoolPage
+            // 
+            this.tilepoolPage.Controls.Add(this._tilePoolPane);
+            this.tilepoolPage.Location = new System.Drawing.Point(4, 22);
+            this.tilepoolPage.Name = "tilepoolPage";
+            this.tilepoolPage.Size = new System.Drawing.Size(217, 317);
+            this.tilepoolPage.TabIndex = 2;
+            this.tilepoolPage.Text = "Tile Pools";
+            this.tilepoolPage.UseVisualStyleBackColor = true;
+            // 
+            // objectPage
+            // 
+            this.objectPage.Location = new System.Drawing.Point(4, 22);
+            this.objectPage.Name = "objectPage";
+            this.objectPage.Size = new System.Drawing.Size(206, 317);
+            this.objectPage.TabIndex = 1;
+            this.objectPage.Text = "Objects";
+            this.objectPage.UseVisualStyleBackColor = true;
+            // 
+            // lowerTabControl
+            // 
+            this.lowerTabControl.Controls.Add(this.layerPage);
+            this.lowerTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lowerTabControl.Location = new System.Drawing.Point(0, 0);
+            this.lowerTabControl.Name = "lowerTabControl";
+            this.lowerTabControl.SelectedIndex = 0;
+            this.lowerTabControl.Size = new System.Drawing.Size(225, 265);
+            this.lowerTabControl.TabIndex = 0;
+            // 
+            // layerPage
+            // 
+            this.layerPage.Location = new System.Drawing.Point(4, 22);
+            this.layerPage.Name = "layerPage";
+            this.layerPage.Padding = new System.Windows.Forms.Padding(3);
+            this.layerPage.Size = new System.Drawing.Size(217, 239);
+            this.layerPage.TabIndex = 0;
+            this.layerPage.Text = "Layers";
+            this.layerPage.UseVisualStyleBackColor = true;
+            // 
+            // viewportControl1
+            // 
+            this.viewportControl1.Control = this.tilesetControl;
+            this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.viewportControl1.Location = new System.Drawing.Point(0, 28);
+            this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
+            this.viewportControl1.Name = "viewportControl1";
+            this.viewportControl1.Size = new System.Drawing.Size(217, 289);
+            this.viewportControl1.TabIndex = 1;
+            // 
+            // tilesetControl
+            // 
+            this.tilesetControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilesetControl.Location = new System.Drawing.Point(0, 0);
+            this.tilesetControl.Margin = new System.Windows.Forms.Padding(0);
+            this.tilesetControl.Mode = Editor.TileControlMode.Click;
+            this.tilesetControl.Name = "tilesetControl";
+            this.tilesetControl.SelectBoxBrush = null;
+            this.tilesetControl.Size = new System.Drawing.Size(200, 272);
+            this.tilesetControl.TabIndex = 1;
+            this.tilesetControl.Text = "tilesetControl";
+            this.tilesetControl.TileSelectionBrush = null;
+            this.tilesetControl.TileSource = null;
+            this.tilesetControl.Zoom = 1F;
+            // 
+            // tilePoolPane1
+            // 
+            this._tilePoolPane.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._tilePoolPane.Location = new System.Drawing.Point(0, 0);
+            this._tilePoolPane.Margin = new System.Windows.Forms.Padding(0);
+            this._tilePoolPane.Name = "tilePoolPane1";
+            this._tilePoolPane.Size = new System.Drawing.Size(217, 317);
+            this._tilePoolPane.TabIndex = 0;
+            // 
+            // viewportControl2
+            // 
+            this.viewportControl2.Control = this.tilemapControl;
+            this.viewportControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.viewportControl2.Location = new System.Drawing.Point(0, 0);
+            this.viewportControl2.Margin = new System.Windows.Forms.Padding(0);
+            this.viewportControl2.Name = "viewportControl2";
+            this.viewportControl2.Size = new System.Drawing.Size(714, 612);
+            this.viewportControl2.TabIndex = 0;
+            // 
+            // tilemapControl
+            // 
+            this.tilemapControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilemapControl.Location = new System.Drawing.Point(0, 0);
+            this.tilemapControl.Margin = new System.Windows.Forms.Padding(0);
+            this.tilemapControl.Mode = Editor.TileControlMode.Click;
+            this.tilemapControl.Name = "tilemapControl";
+            this.tilemapControl.SelectBoxBrush = null;
+            this.tilemapControl.Size = new System.Drawing.Size(697, 595);
+            this.tilemapControl.TabIndex = 0;
+            this.tilemapControl.Text = "tilemapControl";
+            this.tilemapControl.TileSelectionBrush = null;
+            this.tilemapControl.TileSource = null;
+            this.tilemapControl.Zoom = 1F;
+            // 
+            // MapView
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.mainContainer);
+            this.Margin = new System.Windows.Forms.Padding(0);
+            this.Name = "MapView";
+            this.Size = new System.Drawing.Size(943, 612);
+            this.mainContainer.Panel1.ResumeLayout(false);
+            this.mainContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.mainContainer)).EndInit();
+            this.mainContainer.ResumeLayout(false);
+            this.sideContainer.Panel1.ResumeLayout(false);
+            this.sideContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.sideContainer)).EndInit();
+            this.sideContainer.ResumeLayout(false);
+            this.upperTabControl.ResumeLayout(false);
+            this.tilesetPage.ResumeLayout(false);
+            this.tileTableMain.ResumeLayout(false);
+            this.tileTableMain.PerformLayout();
+            this.toolStrip2.ResumeLayout(false);
+            this.toolStrip2.PerformLayout();
+            this.tilepoolPage.ResumeLayout(false);
+            this.lowerTabControl.ResumeLayout(false);
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.SplitContainer mainContainer;
+        private System.Windows.Forms.SplitContainer sideContainer;
+        private System.Windows.Forms.TabControl upperTabControl;
+        private System.Windows.Forms.TabPage tilesetPage;
+        private System.Windows.Forms.TableLayoutPanel tileTableMain;
+        public System.Windows.Forms.ToolStrip toolStrip2;
+        private System.Windows.Forms.ToolStripComboBox toolStripComboBox1;
+        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton toolStripButton2;
+        private System.Windows.Forms.ToolStripButton toolStripButton3;
+        private System.Windows.Forms.TabControl lowerTabControl;
+        private System.Windows.Forms.TabPage layerPage;
+        private ViewportControl viewportControl1;
+        private TileControl2D tilesetControl;
+        private ViewportControl viewportControl2;
+        private TileControl2D tilemapControl;
+        private System.Windows.Forms.TabPage objectPage;
+        private System.Windows.Forms.TabPage tilepoolPage;
+        private TilePoolPane _tilePoolPane;
+
+    }
+}
