@@ -73,9 +73,9 @@ namespace Editor
 
             // Tools
 
-            _drawTool = new DrawTool(tilesetControl, tilepoolControl, _project.TileSets["Default"], _commandHistory);
+            //_drawTool = new DrawTool(tilesetControl, tilepoolControl, _project.TileSets["Default"], _commandHistory);
             _eraseTool = new EraseTool(tilesetControl, _project.TileSets["Default"], _commandHistory);
-            _fillTool = new FillTool(tilesetControl, tilepoolControl, _project.TileSets["Default"], _commandHistory);
+            //_fillTool = new FillTool(tilesetControl, tilepoolControl, _project.TileSets["Default"], _commandHistory);
 
             // XXX
             _drawTool.Enabled = true;

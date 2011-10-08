@@ -8,6 +8,44 @@ using System.Security.Cryptography;
 
 namespace Editor.Model
 {
+    public struct LocatedTile
+    {
+        private Tile _tile;
+        private TileCoord _tileCoord;
+
+        public Tile Tile
+        {
+            get { return _tile; }
+        }
+
+        public TileCoord Location
+        {
+            get { return _tileCoord; }
+        }
+
+        public int X
+        {
+            get { return _tileCoord.X; }
+        }
+
+        public int Y
+        {
+            get { return _tileCoord.Y; }
+        }
+
+        public LocatedTile (Tile tile, int x, int y)
+        {
+            _tile = tile;
+            _tileCoord = new TileCoord(x, y);
+        }
+
+        public LocatedTile (Tile tile, TileCoord location)
+        {
+            _tile = tile;
+            _tileCoord = location;
+        }
+    }
+
     public abstract class Tile
     {
         protected TilePool _pool;
@@ -24,6 +62,21 @@ namespace Editor.Model
         public int Id
         {
             get { return _id; }
+        }
+
+        public TilePool Pool
+        {
+            get { return _pool; }
+        }
+
+        public int Height
+        {
+            get { return _pool.TileHeight; }
+        }
+
+        public int Width
+        {
+            get { return _pool.TileWidth; }
         }
 
         public virtual void Update (byte[] textureData)

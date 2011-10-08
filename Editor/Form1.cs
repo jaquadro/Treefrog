@@ -58,8 +58,8 @@ namespace Editor
             _project.Initialize(Handle);
             _project.SetupDefaults();
 
-            _tilesetView = new TilesetView(this, _project);
-            _tilesetView.Dock = DockStyle.Fill;
+            //_tilesetView = new TilesetView(this, _project);
+            //_tilesetView.Dock = DockStyle.Fill;
 
             _mapView = new MapView(_project);
             _mapView.Dock = DockStyle.Fill;

@@ -1,4 +1,5 @@
-﻿namespace Editor
+﻿using Editor.Model.Controls;
+namespace Editor
 {
     partial class TilePoolPane
     {
@@ -30,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TilePoolPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.viewportControl1 = new Editor.ViewportControl();
-            this._tileControl = new Editor.TileControl1D();
+            this._tileControl = new LayerControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this._poolComboBox = new System.Windows.Forms.ToolStripComboBox();
             this._buttonRemove = new System.Windows.Forms.ToolStripButton();
@@ -76,14 +77,10 @@
             // 
             this._tileControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._tileControl.Location = new System.Drawing.Point(0, 0);
-            this._tileControl.Mode = Editor.TileControlMode.Click;
             this._tileControl.Name = "_tileControl";
-            this._tileControl.SelectBoxBrush = null;
             this._tileControl.Size = new System.Drawing.Size(273, 431);
             this._tileControl.TabIndex = 0;
             this._tileControl.Text = "tileControl1D1";
-            this._tileControl.TileSelectionBrush = null;
-            this._tileControl.TileSource = null;
             this._tileControl.Zoom = 1F;
             // 
             // toolStrip1
@@ -170,7 +167,7 @@
 
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private ViewportControl viewportControl1;
-        private TileControl1D _tileControl;
+        private LayerControl _tileControl;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripComboBox _poolComboBox;
         private System.Windows.Forms.ToolStripButton _buttonRemove;

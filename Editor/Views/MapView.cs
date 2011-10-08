@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Editor.Model;
+using Editor.Model.Controls;
 
 namespace Editor
 {
@@ -20,6 +21,10 @@ namespace Editor
         private DrawTool _drawTool;
         private EraseTool _eraseTool;
         private FillTool _fillTool;
+
+        // TODO: Arbitrary number of layers
+        private MultiTileLayer _layer;
+        private MultiTileControlLayer _tileLayer;
 
         public MapView ()
         {
@@ -36,14 +41,22 @@ namespace Editor
 
             // Tools
 
-            _drawTool = new DrawTool(tilesetControl, _tilePoolPane.TileControl, _project.TileSets["Default"], _commandHistory);
+            _drawTool = new DrawTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
             _eraseTool = new EraseTool(tilesetControl, _project.TileSets["Default"], _commandHistory);
-            _fillTool = new FillTool(tilesetControl, _tilePoolPane.TileControl, _project.TileSets["Default"], _commandHistory);
+            _fillTool = new FillTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
 
             // XXX
             _drawTool.Enabled = true;
 
             _tilePoolPane.SetupDefault(_project);
+
+            _tileLayer = new MultiTileControlLayer(tilemapControl);
+            _tileLayer.ShouldDrawContent = LayerCondition.Always;
+            _tileLayer.ShouldDrawGrid = LayerCondition.Always;
+            _tileLayer.ShouldRespondToInput = LayerCondition.Selected;
+
+            _layer = new MultiTileLayer(16, 16, 30, 20);
+            _tileLayer.TileSource = _layer;
         }
 
         private void CommandHistoryChangedHandler (object sender, CommandHistoryEventArgs e)

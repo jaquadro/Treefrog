@@ -1,4 +1,5 @@
-﻿namespace Editor
+﻿using Editor.Model.Controls;
+namespace Editor
 {
     partial class MapView
     {
@@ -46,7 +47,7 @@
             this.tilesetControl = new Editor.TileControl2D();
             this._tilePoolPane = new Editor.TilePoolPane();
             this.viewportControl2 = new Editor.ViewportControl();
-            this.tilemapControl = new Editor.TileControl2D();
+            this.tilemapControl = new LayerControl();
             ((System.ComponentModel.ISupportInitialize)(this.mainContainer)).BeginInit();
             this.mainContainer.Panel1.SuspendLayout();
             this.mainContainer.Panel2.SuspendLayout();
@@ -280,14 +281,10 @@
             this.tilemapControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tilemapControl.Location = new System.Drawing.Point(0, 0);
             this.tilemapControl.Margin = new System.Windows.Forms.Padding(0);
-            this.tilemapControl.Mode = Editor.TileControlMode.Click;
             this.tilemapControl.Name = "tilemapControl";
-            this.tilemapControl.SelectBoxBrush = null;
             this.tilemapControl.Size = new System.Drawing.Size(697, 595);
             this.tilemapControl.TabIndex = 0;
             this.tilemapControl.Text = "tilemapControl";
-            this.tilemapControl.TileSelectionBrush = null;
-            this.tilemapControl.TileSource = null;
             this.tilemapControl.Zoom = 1F;
             // 
             // MapView
@@ -335,7 +332,7 @@
         private ViewportControl viewportControl1;
         private TileControl2D tilesetControl;
         private ViewportControl viewportControl2;
-        private TileControl2D tilemapControl;
+        private LayerControl tilemapControl;
         private System.Windows.Forms.TabPage objectPage;
         private System.Windows.Forms.TabPage tilepoolPage;
         private TilePoolPane _tilePoolPane;

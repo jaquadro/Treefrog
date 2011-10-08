@@ -17,12 +17,26 @@ namespace Editor.Model
         private Dictionary<string, TilePool> _pools;
         private Dictionary<int, TilePool> _tileIndex;
 
+
+        #region Constructors
+
         public TileRegistry (GraphicsDevice device)
         {
             _device = device;
             _pools = new Dictionary<string, TilePool>();
             _tileIndex = new Dictionary<int, TilePool>();
         }
+
+        #endregion
+
+        #region Properties
+
+        public int TileCount
+        {
+            get { return _tileIndex.Count; }
+        }
+
+        #endregion
 
         public void Reset ()
         {

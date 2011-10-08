@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Editor.Model;
 using Editor.Forms;
 using System.IO;
+using Editor.Model.Controls;
 
 namespace Editor
 {
@@ -20,6 +21,8 @@ namespace Editor
 
         private TilePool _selected;
         private TileSet1D _selectedSet;
+
+        private TileSetControlLayer _tileLayer;
 
         public TilePoolPane ()
         {
@@ -36,9 +39,17 @@ namespace Editor
             // Setup control
 
             _tileControl.BackColor = Color.SlateGray;
-            _tileControl.CanSelectRange = false;
+            _tileControl.WidthSynced = true;
+            _tileControl.Alignment = LayerControlAlignment.UpperLeft;
+
+            _tileLayer = new TileSetControlLayer(_tileControl);
+            _tileLayer.ShouldDrawContent = LayerCondition.Always;
+            _tileLayer.ShouldDrawGrid = LayerCondition.Always;
+            _tileLayer.ShouldRespondToInput = LayerCondition.Always;
+
+            /*_tileControl.CanSelectRange = false;
             _tileControl.CanSelectDisjoint = false;
-            _tileControl.Mode = TileControlMode.Select;
+            _tileControl.Mode = TileControlMode.Select;*/
 
             importNewToolStripMenuItem.Click += ImportPoolHandler;
         }
@@ -65,7 +76,8 @@ namespace Editor
             _selected = _project.TilePools["Default"];
             _selectedSet = TileSet1D.CreatePoolSet("Default", _selected);
 
-            _tileControl.TileSource = _selectedSet;
+            //_tileControl.TileSource = _selectedSet;
+            _tileLayer.TileSource = _selectedSet;
 
             // Setup list
 
@@ -76,9 +88,14 @@ namespace Editor
 
         }
 
-        public TileControl1D TileControl
+        public LayerControl TileControl
         {
             get { return _tileControl; }
+        }
+
+        public TileControlLayer TileLayer
+        {
+            get { return _tileLayer; }
         }
 
         private void PoolAddedHandler (object sender, NamedResourceEventArgs<TilePool> e)
@@ -91,7 +108,8 @@ namespace Editor
                 _selected = _pools[e.Name].TilePool;
                 _selectedSet = _pools[e.Name].TileSet;
 
-                _tileControl.TileSource = _selectedSet;
+                //_tileControl.TileSource = _selectedSet;
+                _tileLayer.TileSource = _selectedSet;
             //}
         }
 
@@ -114,7 +132,8 @@ namespace Editor
                     _selected = _pools[item].TilePool;
                     _selectedSet = _pools[item].TileSet;
 
-                    _tileControl.TileSource = _selectedSet;
+                    //_tileControl.TileSource = _selectedSet;
+                    _tileLayer.TileSource = _selectedSet;
                     break;
                 }
             }
@@ -267,7 +286,8 @@ namespace Editor
             _selected = _pools[item].TilePool;
             _selectedSet = _pools[item].TileSet;
 
-            _tileControl.TileSource = _selectedSet;
+            //_tileControl.TileSource = _selectedSet;
+            _tileLayer.TileSource = _selectedSet;
         }
     }
 }

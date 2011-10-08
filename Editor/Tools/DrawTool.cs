@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Editor.Model;
+using Editor.Model.Controls;
 
 namespace Editor
 {
     public class DrawTool : MouseTool
     {
-        private TileControl1D _source;
+        private TileControlLayer _source;
         private TileSet2D _selectedTileSet;
         private CommandHistory _commandHistory;
 
@@ -16,7 +17,7 @@ namespace Editor
         private Tile _sourceTile;
         private TileReplace2DCommand _drawCommand;
 
-        public DrawTool (TileControl2D control, TileControl1D source, TileSet2D tileset, CommandHistory commandHistory)
+        public DrawTool (TileControl2D control, TileControlLayer source, TileSet2D tileset, CommandHistory commandHistory)
             : base(control)
         {
             _selectedTileSet = tileset;
@@ -27,13 +28,13 @@ namespace Editor
         protected override void AttachHandlers ()
         {
             base.AttachHandlers();
-            _source.TileSelected += SourceTileSelected;
+            //_source.TileSelected += SourceTileSelected;
         }
 
         protected override void DetachHandlers ()
         {
             base.DetachHandlers();
-            _source.TileSelected -= SourceTileSelected;
+            //_source.TileSelected -= SourceTileSelected;
         }
 
         protected virtual void SourceTileSelectedHandler (object sender, TileEventArgs e)

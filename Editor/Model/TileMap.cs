@@ -39,7 +39,7 @@ namespace Editor.Model
             _mapHeight = 2;
 
             _layers = new List<Layer>();
-            _layers.Add(new TileLayer(TilesWide, TilesHigh));
+            _layers.Add(new MultiTileLayer(TileWidth, TileHeight, TilesWide, TilesHigh));
         }
 
         public int MapHeight

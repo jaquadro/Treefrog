@@ -9,13 +9,16 @@ using System.Windows.Forms;
 using System.IO;
 using Editor.Model;
 using Microsoft.Xna.Framework.Graphics;
+using Editor.Model.Controls;
 
 namespace Editor.Forms
 {
     public partial class ImportTilePool : Form
     {
         Project _project;
-        TileControl _tileControl;
+
+        LayerControl _layerControl;
+        TileSetControlLayer _tileLayer;
 
         TileRegistry _localRegistry;
         Stream _fileStream;
@@ -31,9 +34,17 @@ namespace Editor.Forms
 
             _buttonOK.Enabled = false;
 
-            _tileControl = new TileControl1D();
-            _tileControl.Dock = DockStyle.Fill;
-            _previewPanel.Controls.Add(_tileControl);
+            _layerControl = new LayerControl();
+            _layerControl.Dock = DockStyle.Fill;
+            _layerControl.WidthSynced = true;
+            _layerControl.Alignment = LayerControlAlignment.UpperLeft;
+
+            _tileLayer = new TileSetControlLayer(_layerControl);
+            _tileLayer.ShouldDrawContent = LayerCondition.Always;
+            _tileLayer.ShouldDrawGrid = LayerCondition.Always;
+            _tileLayer.ShouldRespondToInput = LayerCondition.Never;
+
+            _previewPanel.Controls.Add(_layerControl);
 
             GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
             _localRegistry = new TileRegistry(gds.GraphicsDevice);
@@ -115,7 +126,7 @@ namespace Editor.Forms
                 _fileStream.Position = 0;
             }
 
-            _tileControl.TileSource = null;
+            _tileLayer.TileSource = null;
 
             _localRegistry.Reset();
 
@@ -125,7 +136,7 @@ namespace Editor.Forms
                 (int)_numXMargin.Value, (int)_numYMargin.Value);
             TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
-            _tileControl.TileSource = previewSet;
+            _tileLayer.TileSource = previewSet;
 
             // Update stats
 
