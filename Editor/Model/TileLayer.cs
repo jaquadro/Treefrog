@@ -8,8 +8,28 @@ namespace Editor.Model
 {
     public abstract class Layer
     {
+        #region Fields
+
         private float _opacity;
         private bool _visible;
+
+        #endregion
+
+        #region Properties
+
+        public bool IsVisible
+        {
+            get { return _visible; }
+            set { _visible = value; }
+        }
+
+        public float Opacity
+        {
+            get { return _opacity; }
+            set { _opacity = MathHelper.Clamp(value, 0f, 1f); }
+        }
+
+        #endregion
     }
 
     public abstract class TileLayer : Layer
@@ -19,6 +39,79 @@ namespace Editor.Model
         private int _tileWidth;
         private int _tileHeight;
 
+        #endregion
+
+        #region Constructors
+
+        protected TileLayer (int tileWidth, int tileHeight)
+        {
+            _tileWidth = tileWidth;
+            _tileHeight = tileHeight;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public int TileHeight
+        {
+            get { return _tileHeight; }
+        }
+
+        public int TileWidth
+        {
+            get { return _tileWidth; }
+        }
+
+        #endregion
+    }
+
+    public class TileSetLayer : TileLayer
+    {
+        #region Fields
+
+        TileSet1D _tileSet;
+
+        #endregion
+
+        #region Constructors
+
+        public TileSetLayer (TileSet1D tileSet)
+            : base(tileSet.TileWidth, tileSet.TileHeight)
+        {
+            _tileSet = tileSet;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public int Count
+        {
+            get { return _tileSet.Count; }
+        }
+
+        public int Capacity
+        {
+            get { return _tileSet.Capacity; }
+        }
+
+        #endregion
+
+        #region Public API
+
+        public virtual IEnumerable<Tile> Tiles
+        {
+            get { return _tileSet; }
+        }
+
+        #endregion
+    }
+
+    public abstract class TileGridLayer : TileLayer
+    {
+        #region Fields
+
         private int _tilesWide;
         private int _tilesHigh;
 
@@ -26,11 +119,9 @@ namespace Editor.Model
 
         #region Constructors
 
-        protected TileLayer (int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
+        protected TileGridLayer (int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
+            : base(tileWidth, tileHeight)
         {
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
-
             _tilesWide = tilesWide;
             _tilesHigh = tilesHigh;
         }
@@ -49,14 +140,21 @@ namespace Editor.Model
             get { return _tilesWide; }
         }
 
-        public int TileHeight
-        {
-            get { return _tileHeight; }
-        }
+        #endregion
 
-        public int TileWidth
+        #region Events
+
+        public event EventHandler LayerSizeChanged;
+
+        #endregion
+
+        #region Event Dispatchers
+
+        protected void OnLayerSizeChanged (EventArgs e)
         {
-            get { return _tileWidth; }
+            if (LayerSizeChanged != null) {
+                LayerSizeChanged(this, e);
+            }
         }
 
         #endregion
@@ -137,7 +235,7 @@ namespace Editor.Model
         #endregion
     }
 
-    public class MultiTileLayer : TileLayer
+    public class MultiTileGridLayer : TileGridLayer
     {
         #region Fields
 
@@ -147,7 +245,7 @@ namespace Editor.Model
 
         #region Constructors
 
-        public MultiTileLayer (int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
+        public MultiTileGridLayer (int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
             : base(tileWidth, tileHeight, tilesWide, tilesHigh)
         {
             _tiles = new TileStack[tilesHigh, tilesWide];
@@ -179,11 +277,15 @@ namespace Editor.Model
         {
             int xs = Math.Max(region.X, 0);
             int ys = Math.Max(region.Y, 0);
-            int w = Math.Min(region.X, LayerWidth);
-            int h = Math.Min(region.Y, LayerHeight);
+            int xe = Math.Min(region.X + region.Width, LayerWidth);
+            int ye = Math.Min(region.Y + region.Height, LayerHeight);
 
-            for (int y = ys; y < ys + h; y++) {
-                for (int x = xs; x < xs + w; x++) {
+            for (int y = ys; y < ye; y++) {
+                for (int x = xs; x < xe; x++) {
+                    if (_tiles[y, x] == null) {
+                        continue;
+                    }
+
                     foreach (Tile tile in _tiles[y, x].Tiles) {
                         yield return new LocatedTile(tile, x, y);
                     }

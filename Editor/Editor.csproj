@@ -129,10 +129,14 @@
     <Compile Include="Forms\ImportTilePool.Designer.cs">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\Controls\BaseControlLayer.cs" />
     <Compile Include="Model\Controls\ControlEventArgs.cs" />
     <Compile Include="Model\Controls\LayerControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Model\Controls\MultiTileControlLayer.cs" />
+    <Compile Include="Model\Controls\TileControlLayer.cs" />
+    <Compile Include="Model\Controls\TileSetControlLayer.cs" />
     <Compile Include="Model\Design\MapState.cs" />
     <Compile Include="Model\NamedResource.cs" />
     <Compile Include="Model\NamedResourceCollection.cs" />

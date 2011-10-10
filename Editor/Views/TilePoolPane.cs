@@ -77,7 +77,7 @@ namespace Editor
             _selectedSet = TileSet1D.CreatePoolSet("Default", _selected);
 
             //_tileControl.TileSource = _selectedSet;
-            _tileLayer.TileSource = _selectedSet;
+            _tileLayer.Layer = new TileSetLayer(_selectedSet);
 
             // Setup list
 
@@ -104,12 +104,7 @@ namespace Editor
 
             //if (_poolComboBox.Items.Count == 1) {
                 _poolComboBox.SelectedItem = e.Name;
-
-                _selected = _pools[e.Name].TilePool;
-                _selectedSet = _pools[e.Name].TileSet;
-
-                //_tileControl.TileSource = _selectedSet;
-                _tileLayer.TileSource = _selectedSet;
+                SelectPool(e.Name);
             //}
         }
 
@@ -128,12 +123,7 @@ namespace Editor
             if (_poolComboBox.SelectedText == e.Name) {
                 foreach (string item in _poolComboBox.Items) {
                     _poolComboBox.SelectedItem = item;
-
-                    _selected = _pools[item].TilePool;
-                    _selectedSet = _pools[item].TileSet;
-
-                    //_tileControl.TileSource = _selectedSet;
-                    _tileLayer.TileSource = _selectedSet;
+                    SelectPool(item);
                     break;
                 }
             }
@@ -282,12 +272,20 @@ namespace Editor
         private void _poolComboBox_SelectedIndexChanged (object sender, EventArgs e)
         {
             string item = (string)_poolComboBox.SelectedItem;
+            SelectPool(item);
+        }
 
+        private void SelectPool (string item)
+        {
             _selected = _pools[item].TilePool;
             _selectedSet = _pools[item].TileSet;
 
-            //_tileControl.TileSource = _selectedSet;
-            _tileLayer.TileSource = _selectedSet;
+            _tileLayer.Layer = new TileSetLayer(_selectedSet);
+
+            _tileControl.SetScrollSmallChange(ScrollOrientation.HorizontalScroll, _selectedSet.TileWidth);
+            _tileControl.SetScrollSmallChange(ScrollOrientation.VerticalScroll, _selectedSet.TileHeight);
+            _tileControl.SetScrollLargeChange(ScrollOrientation.HorizontalScroll, _selectedSet.TileWidth * 4);
+            _tileControl.SetScrollLargeChange(ScrollOrientation.VerticalScroll, _selectedSet.TileHeight * 4);
         }
     }
 }

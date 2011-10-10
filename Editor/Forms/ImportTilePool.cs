@@ -126,7 +126,7 @@ namespace Editor.Forms
                 _fileStream.Position = 0;
             }
 
-            _tileLayer.TileSource = null;
+            _tileLayer.Layer = null;
 
             _localRegistry.Reset();
 
@@ -136,7 +136,7 @@ namespace Editor.Forms
                 (int)_numXMargin.Value, (int)_numYMargin.Value);
             TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
-            _tileLayer.TileSource = previewSet;
+            _tileLayer.Layer = new TileSetLayer(previewSet);
 
             // Update stats
 

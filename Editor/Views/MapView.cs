@@ -23,7 +23,7 @@ namespace Editor
         private FillTool _fillTool;
 
         // TODO: Arbitrary number of layers
-        private MultiTileLayer _layer;
+        private MultiTileGridLayer _layer;
         private MultiTileControlLayer _tileLayer;
 
         public MapView ()
@@ -55,8 +55,8 @@ namespace Editor
             _tileLayer.ShouldDrawGrid = LayerCondition.Always;
             _tileLayer.ShouldRespondToInput = LayerCondition.Selected;
 
-            _layer = new MultiTileLayer(16, 16, 30, 20);
-            _tileLayer.TileSource = _layer;
+            _layer = new MultiTileGridLayer(16, 16, 30, 20);
+            _tileLayer.Layer = _layer;
         }
 
         private void CommandHistoryChangedHandler (object sender, CommandHistoryEventArgs e)
@@ -68,7 +68,7 @@ namespace Editor
 
         
 
-        public new Control Control
+        public Control Control
         {
             get { return this; }
         }

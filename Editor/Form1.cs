@@ -29,7 +29,7 @@ namespace Editor
 
         private TrackBar trackBarZoom;
 
-        private TilesetView _tilesetView;
+        //private TilesetView _tilesetView;
         private MapView _mapView;
 
         private Project _project;
