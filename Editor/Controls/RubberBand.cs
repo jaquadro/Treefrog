@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Amphibian.Drawing;
 using Editor.Model;
 using Microsoft.Xna.Framework.Graphics;
+using Editor.Model.Controls;
 
 namespace Editor.Controls
 {
@@ -21,8 +22,8 @@ namespace Editor.Controls
     {
         private const int _drawOrder = 10;
 
-        private TileControl _control;
-        private ITileSource _source;
+        private LayerControl _control;
+        //private ITileSource _source;
 
         private Brush _fillBrush;
         private Brush _strokeBrush;
@@ -30,10 +31,16 @@ namespace Editor.Controls
         private Point _start;
         private Point _end;
 
-        public RubberBand (TileControl control)
+        private int _snapX;
+        private int _snapY;
+
+        public RubberBand (LayerControl control, int snapX, int snapY)
         {
             _control = control;
-            _source = control.TileSource;
+            //_source = control.TileSource;
+
+            _snapX = snapX;
+            _snapY = snapY;
 
             AttachHandlers();
         }
@@ -82,11 +89,20 @@ namespace Editor.Controls
             _end = end;
         }
 
-        protected virtual void DrawHandler (object sender, DrawEventArgs e)
+        protected virtual void DrawHandler (object sender, DrawLayerEventArgs e)
         {
             if (_fillBrush == null) {
                 _fillBrush = new SolidColorBrush(e.SpriteBatch, new Color(.2f, .75f, 1f, .3f));
             }
+
+            Rectangle region = _control.VisibleRegion;
+
+            Vector2 offset = _control.VirtualSurfaceOffset;
+            offset.X = (float)Math.Ceiling(offset.X - region.X * _control.Zoom);
+            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * _control.Zoom);
+
+            e.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+            e.SpriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
             int startx = Math.Min(_start.X, _end.X);
             int starty = Math.Min(_start.Y, _end.Y);
@@ -94,10 +110,10 @@ namespace Editor.Controls
             int endy = Math.Max(_start.Y, _end.Y) + 1;
 
             Rectangle box = new Rectangle(
-                (int)(startx * _source.TileWidth * _control.Zoom),
-                (int)(starty * _source.TileHeight * _control.Zoom),
-                (endx - startx) * (int)(_source.TileWidth * _control.Zoom),
-                (endy - starty) * (int)(_source.TileHeight * _control.Zoom));
+                (int)(startx * _snapX * _control.Zoom),
+                (int)(starty * _snapY * _control.Zoom),
+                (endx - startx) * (int)(_snapX * _control.Zoom),
+                (endy - starty) * (int)(_snapY * _control.Zoom));
 
             if (_fillBrush != null) {
                 Primitives2D.FillRectangle(e.SpriteBatch, box, _fillBrush);
@@ -106,6 +122,8 @@ namespace Editor.Controls
             if (_strokeBrush != null) {
                 Primitives2D.DrawRectangle(e.SpriteBatch, box, _strokeBrush);
             }
+
+            e.SpriteBatch.End();
         }
 
         #region IDisposable Members

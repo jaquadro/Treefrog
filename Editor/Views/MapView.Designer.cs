@@ -44,7 +44,7 @@ namespace Editor
             this.lowerTabControl = new System.Windows.Forms.TabControl();
             this.layerPage = new System.Windows.Forms.TabPage();
             this.viewportControl1 = new Editor.ViewportControl();
-            this.tilesetControl = new Editor.TileControl2D();
+            //this.tilesetControl = new Editor.TileControl2D();
             this._tilePoolPane = new Editor.TilePoolPane();
             this.viewportControl2 = new Editor.ViewportControl();
             this.tilemapControl = new LayerControl();
@@ -234,7 +234,7 @@ namespace Editor
             // 
             // viewportControl1
             // 
-            this.viewportControl1.Control = this.tilesetControl;
+            //this.viewportControl1.Control = this.tilesetControl;
             this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.viewportControl1.Location = new System.Drawing.Point(0, 28);
             this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
@@ -244,7 +244,7 @@ namespace Editor
             // 
             // tilesetControl
             // 
-            this.tilesetControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            /*this.tilesetControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tilesetControl.Location = new System.Drawing.Point(0, 0);
             this.tilesetControl.Margin = new System.Windows.Forms.Padding(0);
             this.tilesetControl.Mode = Editor.TileControlMode.Click;
@@ -255,7 +255,7 @@ namespace Editor
             this.tilesetControl.Text = "tilesetControl";
             this.tilesetControl.TileSelectionBrush = null;
             this.tilesetControl.TileSource = null;
-            this.tilesetControl.Zoom = 1F;
+            this.tilesetControl.Zoom = 1F;*/
             // 
             // tilePoolPane1
             // 
@@ -330,7 +330,7 @@ namespace Editor
         private System.Windows.Forms.TabControl lowerTabControl;
         private System.Windows.Forms.TabPage layerPage;
         private ViewportControl viewportControl1;
-        private TileControl2D tilesetControl;
+        //private TileControl2D tilesetControl;
         private ViewportControl viewportControl2;
         private LayerControl tilemapControl;
         private System.Windows.Forms.TabPage objectPage;

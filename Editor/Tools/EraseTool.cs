@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Editor.Model;
 using Editor.Controls;
 using Microsoft.Xna.Framework;
+using Editor.Model.Controls;
 
 namespace Editor
 {
@@ -18,10 +19,10 @@ namespace Editor
         private bool _selecting;
         private TileReplace2DCommand _drawCommand;
 
-        private TileControl2D _control;
+        private MultiTileControlLayer _control;
         private RubberBand _rubberBand;
 
-        public EraseTool (TileControl2D control, TileSet2D tileset, CommandHistory commandHistory)
+        public EraseTool (MultiTileControlLayer control, TileSet2D tileset, CommandHistory commandHistory)
             : base(control)
         {
             _control = control;
@@ -51,8 +52,8 @@ namespace Editor
 
                 case MouseButtons.Right:
                     _selecting = true;
-                    _rubberBand = new RubberBand(_control);
-                    _rubberBand.FillBrush = _control.CreateSolidColorBrush(new Color(1f, .25f, .25f, .5f));
+                    _rubberBand = new RubberBand(_control.Control, _control.Layer.TileWidth, _control.Layer.TileHeight);
+                    _rubberBand.FillBrush = _control.Control.CreateSolidColorBrush(new Color(1f, .25f, .25f, .5f));
                     _rubberBand.Start(new Point(e.TileLocation.X, e.TileLocation.Y));
                     break;
             }
@@ -90,9 +91,9 @@ namespace Editor
         protected override void MouseTileMoveHandler (object sender, TileMouseEventArgs e)
         {
             if (_drawing) {
-                if (e.TileLocation.X < 0 || e.TileLocation.X >= _selectedTileSet.TilesWide)
+                if (e.TileLocation.X < 0 || e.TileLocation.X >= _control.Layer.LayerWidth)
                     return;
-                if (e.TileLocation.Y < 0 || e.TileLocation.Y >= _selectedTileSet.TilesHigh)
+                if (e.TileLocation.Y < 0 || e.TileLocation.Y >= _control.Layer.LayerHeight)
                     return;
 
                 if (_selectedTileSet[e.TileLocation] != null) {
@@ -102,8 +103,8 @@ namespace Editor
             }
 
             if (_selecting) {
-                int x = Math.Max(0, Math.Min(_selectedTileSet.TilesWide - 1, e.TileLocation.X));
-                int y = Math.Max(0, Math.Min(_selectedTileSet.TilesHigh - 1, e.TileLocation.Y));
+                int x = Math.Max(0, Math.Min(_control.Layer.LayerWidth - 1, e.TileLocation.X));
+                int y = Math.Max(0, Math.Min(_control.Layer.LayerHeight - 1, e.TileLocation.Y));
 
                 _rubberBand.End(new Point(x, y));
             }

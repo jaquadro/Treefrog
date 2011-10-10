@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
 using System.Windows.Forms;
 using System.ComponentModel;
+using Amphibian.Drawing;
 
 namespace Editor.Model.Controls
 {
@@ -89,6 +90,7 @@ namespace Editor.Model.Controls
 
         public event EventHandler<DrawLayerEventArgs> DrawLayerContent;
         public event EventHandler<DrawLayerEventArgs> DrawLayerGrid;
+        public event EventHandler<DrawLayerEventArgs> DrawExtra;
         public event EventHandler VirtualSizeChanged;
         public event EventHandler ZoomChanged;
 
@@ -325,6 +327,13 @@ namespace Editor.Model.Controls
             }
         }
 
+        protected virtual void OnDrawExtra (DrawLayerEventArgs e)
+        {
+            if (DrawExtra != null) {
+                DrawExtra(this, e);
+            }
+        }
+
         protected virtual void OnVirtualSizeChanged (EventArgs e)
         {
             if (VirtualSizeChanged != null) {
@@ -431,8 +440,11 @@ namespace Editor.Model.Controls
         {
             GraphicsDevice.Clear(_backColor);
 
-            OnDrawLayerContent(new DrawLayerEventArgs(_spriteBatch));
-            OnDrawLayerGrid(new DrawLayerEventArgs(_spriteBatch));
+            DrawLayerEventArgs e = new DrawLayerEventArgs(_spriteBatch);
+
+            OnDrawLayerContent(e);
+            OnDrawLayerGrid(e);
+            OnDrawExtra(e);
         }
 
         #endregion
@@ -710,5 +722,10 @@ namespace Editor.Model.Controls
         }
 
         #endregion
+
+        public Brush CreateSolidColorBrush (Color color)
+        {
+            return new SolidColorBrush(_spriteBatch, color);
+        }
     }
 }

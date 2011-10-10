@@ -113,16 +113,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
-    <Compile Include="Controls\AmphibianGameControl.cs">
+    <None Include="Controls\AmphibianGameControl.cs">
       <SubType>Component</SubType>
-    </Compile>
+    </None>
     <Compile Include="Controls\RubberBand.cs" />
-    <Compile Include="Controls\TileControl1D.cs">
+    <None Include="Controls\TileControl1D.cs">
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\TileControl2D.cs">
+    </None>
+    <None Include="Controls\TileControl2D.cs">
       <SubType>Component</SubType>
-    </Compile>
+    </None>
     <Compile Include="Forms\ImportTilePool.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -138,18 +138,22 @@
     <Compile Include="Model\Controls\TileControlLayer.cs" />
     <Compile Include="Model\Controls\TileSetControlLayer.cs" />
     <Compile Include="Model\Design\MapState.cs" />
+    <Compile Include="Model\Layer.cs" />
+    <Compile Include="Model\MultiTileGridLayer.cs" />
     <Compile Include="Model\NamedResource.cs" />
     <Compile Include="Model\NamedResourceCollection.cs" />
     <Compile Include="Model\Project.cs" />
+    <Compile Include="Model\TileGridLayer.cs" />
     <Compile Include="Model\TileLayer.cs" />
+    <Compile Include="Model\TileSetLayer.cs" />
     <Compile Include="Model\TileSource.cs" />
     <Compile Include="Model\TileStack.cs" />
     <Compile Include="Model\TileTransform.cs" />
     <Compile Include="StandardToolbar.cs" />
     <Compile Include="TileToolbar.cs" />
-    <Compile Include="Tools\DrawTool.cs" />
+    <None Include="Tools\DrawTool.cs" />
     <Compile Include="Tools\EraseTool.cs" />
-    <Compile Include="Tools\FillTool.cs" />
+    <None Include="Tools\FillTool.cs" />
     <Compile Include="Tools\MouseTool.cs" />
     <Compile Include="Views\EventArgs.cs" />
     <Compile Include="Views\FormView.cs" />
@@ -179,9 +183,9 @@
     <None Include="app.config" />
     <None Include="EditorViewport.cs" />
     <Compile Include="Model\Tile.cs" />
-    <Compile Include="Controls\TileControl.cs">
+    <None Include="Controls\TileControl.cs">
       <SubType>Component</SubType>
-    </Compile>
+    </None>
     <Compile Include="Model\TileCoord.cs" />
     <Compile Include="Views\TileEditView.cs">
       <SubType>UserControl</SubType>
@@ -198,12 +202,12 @@
     <Compile Include="Views\TilePoolPane.Designer.cs">
       <DependentUpon>TilePoolPane.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\TilesetView.cs">
+    <None Include="Views\TilesetView.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\TilesetView.Designer.cs">
+    </None>
+    <None Include="Views\TilesetView.Designer.cs">
       <DependentUpon>TilesetView.cs</DependentUpon>
-    </Compile>
+    </None>
     <Compile Include="Controls\ViewportControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

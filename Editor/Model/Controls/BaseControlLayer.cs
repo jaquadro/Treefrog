@@ -16,7 +16,7 @@ namespace Editor.Model.Controls
 
         #region Properties
 
-        protected LayerControl Control { get; private set; }
+        public LayerControl Control { get; private set; }
 
         public bool Selected { get; set; }
         public LayerCondition ShouldDrawContent { get; set; }

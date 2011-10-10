@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Editor.Model.Controls;
 
 namespace Editor
 {
     public abstract class MouseTool : IDisposable
     {
-        private TileControl2D _control;
+        private TileControlLayer _control;
 
         private bool _enabled;
 
-        protected MouseTool (TileControl2D control)
+        protected MouseTool (TileControlLayer control)
         {
             _control = control;
         }

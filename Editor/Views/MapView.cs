@@ -18,9 +18,9 @@ namespace Editor
         // XXX: Move to individual level object
         private CommandHistory _commandHistory;
 
-        private DrawTool _drawTool;
+        //private DrawTool _drawTool;
         private EraseTool _eraseTool;
-        private FillTool _fillTool;
+        //private FillTool _fillTool;
 
         // TODO: Arbitrary number of layers
         private MultiTileGridLayer _layer;
@@ -39,24 +39,24 @@ namespace Editor
         {
             _project = project;
 
-            // Tools
-
-            _drawTool = new DrawTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
-            _eraseTool = new EraseTool(tilesetControl, _project.TileSets["Default"], _commandHistory);
-            _fillTool = new FillTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
-
-            // XXX
-            _drawTool.Enabled = true;
-
             _tilePoolPane.SetupDefault(_project);
 
             _tileLayer = new MultiTileControlLayer(tilemapControl);
             _tileLayer.ShouldDrawContent = LayerCondition.Always;
             _tileLayer.ShouldDrawGrid = LayerCondition.Always;
-            _tileLayer.ShouldRespondToInput = LayerCondition.Selected;
+            _tileLayer.ShouldRespondToInput = LayerCondition.Always;
 
             _layer = new MultiTileGridLayer(16, 16, 30, 20);
             _tileLayer.Layer = _layer;
+
+            // Tools
+
+            //_drawTool = new DrawTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
+            _eraseTool = new EraseTool(_tileLayer, _project.TileSets["Default"], _commandHistory);
+            //_fillTool = new FillTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
+
+            // XXX
+            _eraseTool.Enabled = true;
         }
 
         private void CommandHistoryChangedHandler (object sender, CommandHistoryEventArgs e)
@@ -147,26 +147,26 @@ namespace Editor
             {
                 _toolMode = value;
 
-                _drawTool.Enabled = false;
+                //_drawTool.Enabled = false;
                 _eraseTool.Enabled = false;
-                _fillTool.Enabled = false;
+                //_fillTool.Enabled = false;
 
                 switch (_toolMode) {
                     case Editor.TileToolMode.Select:
                     case Editor.TileToolMode.Stamp:
-                        tilesetControl.Mode = TileControlMode.Select;
+                        //tilesetControl.Mode = TileControlMode.Select;
                         break;
                     case Editor.TileToolMode.Draw:
-                        tilesetControl.Mode = TileControlMode.Click;
-                        _drawTool.Enabled = true;
+                        //tilesetControl.Mode = TileControlMode.Click;
+                        //_drawTool.Enabled = true;
                         break;
                     case Editor.TileToolMode.Erase:
-                        tilesetControl.Mode = TileControlMode.Click;
+                        //tilesetControl.Mode = TileControlMode.Click;
                         _eraseTool.Enabled = true;
                         break;
                     case Editor.TileToolMode.Fill:
-                        tilesetControl.Mode = TileControlMode.Click;
-                        _fillTool.Enabled = true;
+                        //tilesetControl.Mode = TileControlMode.Click;
+                        //_fillTool.Enabled = true;
                         break;
                 }
             }
