@@ -151,8 +151,8 @@
     <Compile Include="Model\TileTransform.cs" />
     <Compile Include="StandardToolbar.cs" />
     <Compile Include="TileToolbar.cs" />
-    <None Include="Tools\DrawTool.cs" />
-    <Compile Include="Tools\EraseTool.cs" />
+    <Compile Include="Tools\DrawTool.cs" />
+    <None Include="Tools\EraseTool.cs" />
     <None Include="Tools\FillTool.cs" />
     <Compile Include="Tools\MouseTool.cs" />
     <Compile Include="Views\EventArgs.cs" />

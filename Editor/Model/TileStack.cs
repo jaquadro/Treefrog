@@ -43,13 +43,22 @@ namespace Editor.Model
         }
     }
 
-    public class TileStack
+    public class TileStack : IEnumerable<Tile>
     {
         private List<Tile> _tiles;
 
         public TileStack ()
         {
             _tiles = new List<Tile>();
+        }
+
+        public TileStack (TileStack stack)
+        {
+            if (stack == null) {
+                stack = new TileStack();
+            }
+
+            _tiles = new List<Tile>(stack._tiles);
         }
 
         public Tile this[int index]
@@ -68,13 +77,15 @@ namespace Editor.Model
             get { return _tiles.Count; }
         }
 
-        public IEnumerable<Tile> Tiles
+        public Tile Top
         {
             get
             {
-                foreach (Tile tile in _tiles) {
-                    yield return tile;
+                if (_tiles.Count == 0) {
+                    return null;
                 }
+
+                return _tiles[_tiles.Count - 1];
             }
         }
 
@@ -92,5 +103,25 @@ namespace Editor.Model
         {
             _tiles.Clear();
         }
+
+        #region IEnumerable<Tile> Members
+
+        public IEnumerator<Tile> GetEnumerator ()
+        {
+            foreach (Tile t in _tiles) {
+                yield return t;
+            }
+        }
+
+        #endregion
+
+        #region IEnumerable Members
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
     }
 }

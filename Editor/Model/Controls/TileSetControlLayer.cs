@@ -104,6 +104,30 @@ namespace Editor.Model.Controls
 
         #endregion
 
+        #region Event Dispatchers
+
+        protected override void OnMouseTileClick (TileMouseEventArgs e)
+        {
+            int index = CoordToIndex(e.TileLocation.X, e.TileLocation.Y);
+            if (index >= 0 && index < _layer.Count) {
+                e = new TileMouseEventArgs(e, e.TileLocation, _layer[index]);
+            }
+
+            base.OnMouseTileClick(e);
+        }
+
+        #endregion
+
+        private int CoordToIndex (int x, int y)
+        {
+            if (Control.WidthSynced) {
+                int tilesWide = Control.Width / _layer.TileWidth;
+                return y * tilesWide + x;
+            }
+
+            throw new InvalidOperationException("Can't convert tileset coordinate to index if width not synced");
+        }
+
         /*private void CalculateVirtualSize ()
         {
             if ((Control.HeightSynced && Control.WidthSynced) || _tileSource == null) {

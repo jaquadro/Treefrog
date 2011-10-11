@@ -19,56 +19,83 @@ namespace Editor
     {
         private struct TileRecord
         {
-            public Tile Original;
-            public Tile Replacement;
+            public TileStack Original;
+            public TileStack Replacement;
 
-            public TileRecord (Tile original, Tile replacement)
+            public TileRecord (TileStack original, TileStack replacement)
             {
                 Original = original;
                 Replacement = replacement;
             }
         }
 
-        private ITileSource2D _tileSource;
+        private MultiTileGridLayer _tileSource;
         private Dictionary<TileCoord, TileRecord> _tiles;
 
-        public TileReplace2DCommand (ITileSource2D source)
+        public TileReplace2DCommand (MultiTileGridLayer source)
         {
             _tileSource = source;
             _tiles = new Dictionary<TileCoord, TileRecord>();
         }
 
-        public TileReplace2DCommand (ITileSource2D source, Dictionary<TileCoord, Tile> tileData)
+        public TileReplace2DCommand (MultiTileGridLayer source, Dictionary<TileCoord, Tile> tileData)
             : this(source)
         {
             foreach (KeyValuePair<TileCoord, Tile> kv in tileData) {
+                TileStack stack = new TileStack();
+                stack.Add(kv.Value);
+
+                _tiles[kv.Key] = new TileRecord(_tileSource[kv.Key], stack);
+            }
+        }
+
+        public TileReplace2DCommand (MultiTileGridLayer source, Dictionary<TileCoord, TileStack> tileData)
+            : this(source)
+        {
+            foreach (KeyValuePair<TileCoord, TileStack> kv in tileData) {
                 _tiles[kv.Key] = new TileRecord(_tileSource[kv.Key], kv.Value);
             }
         }
 
+        public void QueueAdd (TileCoord coord, Tile tile)
+        {
+            TileStack stack = new TileStack(_tileSource[coord]);
+            stack.Add(tile);
+
+            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+        }
+
         public void QueueReplacement (TileCoord coord, Tile replacement)
         {
-            _tiles[coord] = new TileRecord(_tileSource[coord], replacement);
+            TileStack stack = new TileStack();
+            stack.Add(replacement);
+
+            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+        }
+
+        public void QueueReplacement (TileCoord coord, TileStack replacement)
+        {
+            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), new TileStack(replacement));
         }
 
         public override void Execute ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = kv.Value.Replacement;
+                _tileSource[kv.Key] = new TileStack(kv.Value.Replacement);
             }
         }
 
         public override void Undo ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = kv.Value.Original;
+                _tileSource[kv.Key] = new TileStack(kv.Value.Original);
             }
         }
 
         public override void Redo ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = kv.Value.Replacement;
+                _tileSource[kv.Key] = new TileStack(kv.Value.Replacement);
             }
         }
     }

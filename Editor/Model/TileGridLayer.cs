@@ -101,7 +101,7 @@ namespace Editor.Model
 
         #region Checking Code
 
-        private void CheckTileFail (Tile tile)
+        protected void CheckTileFail (Tile tile)
         {
             if (!CheckTile(tile)) {
                 throw new ArgumentException(String.Format("Tried to add tile with dimenions ({0}, {1}), layer expects tile dimensions ({2}, {3})",
@@ -109,7 +109,7 @@ namespace Editor.Model
             }
         }
 
-        private void CheckBoundsFail (int x, int y)
+        protected void CheckBoundsFail (int x, int y)
         {
             if (!CheckBounds(x, y)) {
                 throw new ArgumentOutOfRangeException(String.Format("Tried to add tile at ({0}, {1}), which is outside of layer dimensions ({2}, {3})",
@@ -117,12 +117,12 @@ namespace Editor.Model
             }
         }
 
-        private bool CheckTile (Tile tile)
+        protected bool CheckTile (Tile tile)
         {
             return tile.Width == TileWidth && tile.Height == TileHeight;
         }
 
-        private bool CheckBounds (int x, int y)
+        protected bool CheckBounds (int x, int y)
         {
             return x >= 0 &&
                 y >= 0 &&

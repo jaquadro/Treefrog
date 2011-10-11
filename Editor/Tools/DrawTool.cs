@@ -7,20 +7,21 @@ using Editor.Model.Controls;
 
 namespace Editor
 {
-    public class DrawTool : MouseTool
+    public class DrawTool : TileMouseTool
     {
+        private MultiTileControlLayer _control;
         private TileControlLayer _source;
-        private TileSet2D _selectedTileSet;
+        //private TileSet2D _selectedTileSet;
         private CommandHistory _commandHistory;
 
         private bool _drawing;
         private Tile _sourceTile;
         private TileReplace2DCommand _drawCommand;
 
-        public DrawTool (TileControl2D control, TileControlLayer source, TileSet2D tileset, CommandHistory commandHistory)
+        public DrawTool (MultiTileControlLayer control, TileControlLayer source, CommandHistory commandHistory)
             : base(control)
         {
-            _selectedTileSet = tileset;
+            _control = control;
             _commandHistory = commandHistory;
             _source = source;
         }
@@ -28,24 +29,26 @@ namespace Editor
         protected override void AttachHandlers ()
         {
             base.AttachHandlers();
+            _source.MouseTileClick += SourceTileSelected;
             //_source.TileSelected += SourceTileSelected;
         }
 
         protected override void DetachHandlers ()
         {
             base.DetachHandlers();
+            _source.MouseTileClick -= SourceTileSelected;
             //_source.TileSelected -= SourceTileSelected;
         }
 
-        protected virtual void SourceTileSelectedHandler (object sender, TileEventArgs e)
+        protected virtual void SourceTileSelectedHandler (object sender, TileMouseEventArgs e)
         {
             _sourceTile = e.Tile;
         }
 
-        protected virtual void SourceTileMultiSelectedHandler (object sender, TileSelectEventArgs e)
+        /*protected virtual void SourceTileMultiSelectedHandler (object sender, TileSelectEventArgs e)
         {
             
-        }
+        }*/
 
         protected override void MouseTileDownHandler (object sender, TileMouseEventArgs e)
         {
@@ -54,7 +57,7 @@ namespace Editor
             }
 
             _drawing = true;
-            _drawCommand = new TileReplace2DCommand(_selectedTileSet);
+            _drawCommand = new TileReplace2DCommand(_control.Layer);
             MouseTileMoveHandler(sender, e);
         }
 
@@ -71,29 +74,29 @@ namespace Editor
         protected override void MouseTileMoveHandler (object sender, TileMouseEventArgs e)
         {
             if (_drawing) {
-                if (e.TileLocation.X < 0 || e.TileLocation.X >= _selectedTileSet.TilesWide)
+                if (e.TileLocation.X < 0 || e.TileLocation.X >= _control.Layer.LayerWidth)
                     return;
-                if (e.TileLocation.Y < 0 || e.TileLocation.Y >= _selectedTileSet.TilesHigh)
+                if (e.TileLocation.Y < 0 || e.TileLocation.Y >= _control.Layer.LayerHeight)
                     return;
 
-                if (_selectedTileSet[e.TileLocation] != _sourceTile) {
-                    _drawCommand.QueueReplacement(e.TileLocation, _sourceTile);
-                    _selectedTileSet[e.TileLocation] = _sourceTile;
+                if (_control.Layer[e.TileLocation] == null || _control.Layer[e.TileLocation].Top != _sourceTile) {
+                    _drawCommand.QueueAdd(e.TileLocation, _sourceTile);
+                    _control.Layer.AddTile(e.TileLocation.X, e.TileLocation.Y, _sourceTile);
                 }
             }
         }
 
         #region Private
 
-        private void SourceTileSelected (object sender, TileEventArgs e)
+        private void SourceTileSelected (object sender, TileMouseEventArgs e)
         {
             SourceTileSelectedHandler(sender, e);
         }
 
-        private void SourceTileMultiSelected (object sender, TileSelectEventArgs e)
+        /*private void SourceTileMultiSelected (object sender, TileSelectEventArgs e)
         {
             SourceTileMultiSelectedHandler(sender, e);
-        }
+        }*/
 
         #endregion
     }

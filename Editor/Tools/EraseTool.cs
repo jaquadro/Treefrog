@@ -10,7 +10,7 @@ using Editor.Model.Controls;
 
 namespace Editor
 {
-    public class EraseTool : MouseTool
+    public class EraseTool : TileMouseTool
     {
         private TileSet2D _selectedTileSet;
         private CommandHistory _commandHistory;

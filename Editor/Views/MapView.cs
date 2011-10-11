@@ -18,8 +18,8 @@ namespace Editor
         // XXX: Move to individual level object
         private CommandHistory _commandHistory;
 
-        //private DrawTool _drawTool;
-        private EraseTool _eraseTool;
+        private DrawTool _drawTool;
+        //private EraseTool _eraseTool;
         //private FillTool _fillTool;
 
         // TODO: Arbitrary number of layers
@@ -51,12 +51,12 @@ namespace Editor
 
             // Tools
 
-            //_drawTool = new DrawTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
-            _eraseTool = new EraseTool(_tileLayer, _project.TileSets["Default"], _commandHistory);
+            _drawTool = new DrawTool(_tileLayer, _tilePoolPane.TileLayer, _commandHistory);
+            //_eraseTool = new EraseTool(_tileLayer, _project.TileSets["Default"], _commandHistory);
             //_fillTool = new FillTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
 
             // XXX
-            _eraseTool.Enabled = true;
+            _drawTool.Enabled = true;
         }
 
         private void CommandHistoryChangedHandler (object sender, CommandHistoryEventArgs e)
@@ -147,8 +147,8 @@ namespace Editor
             {
                 _toolMode = value;
 
-                //_drawTool.Enabled = false;
-                _eraseTool.Enabled = false;
+                _drawTool.Enabled = false;
+                //_eraseTool.Enabled = false;
                 //_fillTool.Enabled = false;
 
                 switch (_toolMode) {
@@ -158,11 +158,11 @@ namespace Editor
                         break;
                     case Editor.TileToolMode.Draw:
                         //tilesetControl.Mode = TileControlMode.Click;
-                        //_drawTool.Enabled = true;
+                        _drawTool.Enabled = true;
                         break;
                     case Editor.TileToolMode.Erase:
                         //tilesetControl.Mode = TileControlMode.Click;
-                        _eraseTool.Enabled = true;
+                        //_eraseTool.Enabled = true;
                         break;
                     case Editor.TileToolMode.Fill:
                         //tilesetControl.Mode = TileControlMode.Click;

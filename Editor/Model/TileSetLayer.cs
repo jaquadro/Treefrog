@@ -11,6 +11,8 @@ namespace Editor.Model
 
         TileSet1D _tileSet;
 
+        private List<Tile> _index;
+
         #endregion
 
         #region Constructors
@@ -19,6 +21,7 @@ namespace Editor.Model
             : base(tileSet.TileWidth, tileSet.TileHeight)
         {
             _tileSet = tileSet;
+            SyncIndex();
         }
 
         #endregion
@@ -35,6 +38,18 @@ namespace Editor.Model
             get { return _tileSet.Capacity; }
         }
 
+        public Tile this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= _index.Count) {
+                    throw new ArgumentOutOfRangeException("index");
+                }
+
+                return _index[index];
+            }
+        }
+
         #endregion
 
         #region Public API
@@ -45,5 +60,14 @@ namespace Editor.Model
         }
 
         #endregion
+
+        private void SyncIndex ()
+        {
+            _index = new List<Tile>();
+
+            foreach (Tile t in _tileSet) {
+                _index.Add(t);
+            }
+        }
     }
 }

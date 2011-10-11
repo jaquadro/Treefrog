@@ -6,13 +6,13 @@ using Editor.Model.Controls;
 
 namespace Editor
 {
-    public abstract class MouseTool : IDisposable
+    public abstract class TileMouseTool : IDisposable
     {
         private TileControlLayer _control;
 
         private bool _enabled;
 
-        protected MouseTool (TileControlLayer control)
+        protected TileMouseTool (TileControlLayer control)
         {
             _control = control;
         }
@@ -111,7 +111,7 @@ namespace Editor
             }
         }
 
-        ~MouseTool ()
+        ~TileMouseTool ()
         {
             Dispose(false);
         }

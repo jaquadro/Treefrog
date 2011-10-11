@@ -26,6 +26,27 @@ namespace Editor.Model
 
         #region Properties
 
+        public TileStack this[TileCoord location]
+        {
+            get { return this[location.X, location.Y]; }
+            set { this[location.X, location.Y] = value; }
+        }
+
+        public TileStack this[int x, int y]
+        {
+            get
+            {
+                CheckBoundsFail(x, y);
+                return _tiles[y, x];
+            }
+
+            set
+            {
+                CheckBoundsFail(x, y);
+                _tiles[y, x] = new TileStack(value);
+            }
+        }
+
         #endregion
 
         public override IEnumerable<LocatedTile> Tiles
@@ -39,7 +60,7 @@ namespace Editor.Model
                 yield break;
             }
 
-            foreach (Tile tile in _tiles[location.Y, location.X].Tiles) {
+            foreach (Tile tile in _tiles[location.Y, location.X]) {
                 yield return new LocatedTile(tile, location);
             }
         }
@@ -57,7 +78,7 @@ namespace Editor.Model
                         continue;
                     }
 
-                    foreach (Tile tile in _tiles[y, x].Tiles) {
+                    foreach (Tile tile in _tiles[y, x]) {
                         yield return new LocatedTile(tile, x, y);
                     }
                 }
@@ -67,6 +88,11 @@ namespace Editor.Model
         public IEnumerable<LocatedTileStack> TileStacks
         {
             get { return TileStacksAt(new Rectangle(0, 0, LayerWidth, LayerHeight)); }
+        }
+
+        public TileStack TileStacksAt (TileCoord location)
+        {
+            return _tiles[location.Y, location.X];
         }
 
         public IEnumerable<LocatedTileStack> TileStacksAt (Rectangle region)
@@ -87,18 +113,26 @@ namespace Editor.Model
 
         protected override void AddTileImpl (int x, int y, Tile tile)
         {
+            if (_tiles[y, x] == null) {
+                _tiles[y, x] = new TileStack();
+            }
+
             _tiles[y, x].Remove(tile);
             _tiles[y, x].Add(tile);
         }
 
         protected override void RemoveTileImpl (int x, int y, Tile tile)
         {
-            _tiles[y, x].Remove(tile);
+            if (_tiles[y, x] != null) {
+                _tiles[y, x].Remove(tile);
+            }
         }
 
         protected override void ClearTileImpl (int x, int y)
         {
-            _tiles[y, x].Clear();
+            if (_tiles[y, x] != null) {
+                _tiles[y, x].Clear();
+            }
         }
     }
 }
