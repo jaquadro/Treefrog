@@ -2,9 +2,138 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace Editor.Model
 {
+    public class Level : INamedResource
+    {
+        private static int _lastId = 0;
+
+        #region Fields
+
+        private int _id;
+        private string _name;
+
+        private int _tileWidth;
+        private int _tileHeight;
+        private int _tilesWide;
+        private int _tilesHigh;
+
+        //private List<Layer> _layers;
+        private OrderedResourceCollection<Layer> _layers;
+
+        #endregion
+
+        #region Constructors
+
+        public Level (string name)
+            : this (++_lastId, name)
+        {
+        }
+
+        public Level (int id, string name)
+        {
+            _id = id;
+            _name = name;
+
+            _layers = new OrderedResourceCollection<Layer>();
+        }
+
+        #endregion
+
+        #region Properties
+
+        public int PixelsHigh
+        {
+            get { return _tilesHigh * _tileHeight; }
+        }
+
+        public int PixelsWide
+        {
+            get { return _tilesWide * _tileWidth; }
+        }
+
+        public int TileHeight
+        {
+            get { return _tileHeight; }
+            set { _tileHeight = value; }
+        }
+
+        public int TileWidth
+        {
+            get { return _tileWidth; }
+            set { _tileWidth = value; }
+        }
+
+        public int TilesHigh
+        {
+            get { return _tilesHigh; }
+            set { _tilesHigh = value; }
+        }
+
+        public int TilesWide
+        {
+            get { return _tilesWide; }
+            set { _tilesWide = value; }
+        }
+
+        public OrderedResourceCollection<Layer> Layers
+        {
+            get { return _layers; }
+        }
+
+        #endregion
+
+        #region XML Import / Export
+
+        public void ReadXml (XmlReader reader)
+        {
+
+        }
+
+        public void WriteXml (XmlWriter writer)
+        {
+            // <level name="" height="" width="">
+            writer.WriteStartElement("level");
+            writer.WriteAttributeString("name", _name);
+            writer.WriteAttributeString("width", _tilesWide.ToString());
+            writer.WriteAttributeString("height", _tilesHigh.ToString());
+            writer.WriteAttributeString("tilewidth", _tileWidth.ToString());
+            writer.WriteAttributeString("tileheight", _tileHeight.ToString());
+
+            //   <layers>
+            writer.WriteStartElement("layers");
+
+            foreach (Layer layer in _layers) {
+                layer.WriteXml(writer);
+            }
+
+            writer.WriteEndElement();
+            writer.WriteEndElement();
+        }
+
+        #endregion
+
+        #region INamedResource Members
+
+        public int Id
+        {
+            get { return _id; }
+        }
+
+        public string Name
+        {
+            get { return _name; }
+        }
+
+        public event EventHandler<IdChangedEventArgs> IdChanged;
+
+        public event EventHandler<NameChangedEventArgs> NameChanged;
+
+        #endregion
+    }
+
     public class TileMap : INamedResource, ITileSource2D
     {
         private static int _lastId = 0;
@@ -39,7 +168,7 @@ namespace Editor.Model
             _mapHeight = 2;
 
             _layers = new List<Layer>();
-            _layers.Add(new MultiTileGridLayer(TileWidth, TileHeight, TilesWide, TilesHigh));
+            _layers.Add(new MultiTileGridLayer(name, TileWidth, TileHeight, TilesWide, TilesHigh));
         }
 
         public int MapHeight

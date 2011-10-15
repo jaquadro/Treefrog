@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace Editor.Model
 {
@@ -17,8 +18,8 @@ namespace Editor.Model
 
         #region Constructors
 
-        public TileSetLayer (TileSet1D tileSet)
-            : base(tileSet.TileWidth, tileSet.TileHeight)
+        public TileSetLayer (string name, TileSet1D tileSet)
+            : base(name, tileSet.TileWidth, tileSet.TileHeight)
         {
             _tileSet = tileSet;
             SyncIndex();
@@ -68,6 +69,16 @@ namespace Editor.Model
             foreach (Tile t in _tileSet) {
                 _index.Add(t);
             }
+        }
+
+        public override void WriteXml (XmlWriter writer)
+        {
+            // <layer name="" type="multi">
+            writer.WriteStartElement("layer");
+            writer.WriteAttributeString("name", Name);
+            writer.WriteAttributeString("type", "tileset");
+
+            writer.WriteEndElement();
         }
     }
 }

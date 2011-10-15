@@ -30,8 +30,6 @@ namespace Editor
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TilePoolPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-            this.viewportControl1 = new Editor.ViewportControl();
-            this._tileControl = new LayerControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this._poolComboBox = new System.Windows.Forms.ToolStripComboBox();
             this._buttonRemove = new System.Windows.Forms.ToolStripButton();
@@ -39,6 +37,8 @@ namespace Editor
             this.createEmptyPoolToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._buttonEdit = new System.Windows.Forms.ToolStripButton();
+            this.viewportControl1 = new Editor.ViewportControl();
+            this._tileControl = new Editor.Model.Controls.LayerControl();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -62,26 +62,6 @@ namespace Editor
             // toolStripContainer1.TopToolStripPanel
             // 
             this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
-            // 
-            // viewportControl1
-            // 
-            this.viewportControl1.Control = this._tileControl;
-            this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.viewportControl1.Location = new System.Drawing.Point(0, 0);
-            this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
-            this.viewportControl1.Name = "viewportControl1";
-            this.viewportControl1.Size = new System.Drawing.Size(290, 448);
-            this.viewportControl1.TabIndex = 0;
-            // 
-            // _tileControl
-            // 
-            this._tileControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._tileControl.Location = new System.Drawing.Point(0, 0);
-            this._tileControl.Name = "_tileControl";
-            this._tileControl.Size = new System.Drawing.Size(273, 431);
-            this._tileControl.TabIndex = 0;
-            this._tileControl.Text = "tileControl1D1";
-            this._tileControl.Zoom = 1F;
             // 
             // toolStrip1
             // 
@@ -144,6 +124,30 @@ namespace Editor
             this._buttonEdit.Name = "_buttonEdit";
             this._buttonEdit.Size = new System.Drawing.Size(23, 22);
             this._buttonEdit.Text = "toolStripButton3";
+            // 
+            // viewportControl1
+            // 
+            this.viewportControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.viewportControl1.Control = this._tileControl;
+            this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.viewportControl1.Location = new System.Drawing.Point(0, 0);
+            this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
+            this.viewportControl1.Name = "viewportControl1";
+            this.viewportControl1.Size = new System.Drawing.Size(290, 448);
+            this.viewportControl1.TabIndex = 0;
+            // 
+            // _tileControl
+            // 
+            this._tileControl.Alignment = Editor.Model.Controls.LayerControlAlignment.Center;
+            this._tileControl.CanAutoScroll = false;
+            this._tileControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._tileControl.HeightSynced = false;
+            this._tileControl.Location = new System.Drawing.Point(0, 0);
+            this._tileControl.Name = "_tileControl";
+            this._tileControl.Size = new System.Drawing.Size(271, 429);
+            this._tileControl.TabIndex = 0;
+            this._tileControl.Text = "tileControl1D1";
+            this._tileControl.WidthSynced = false;
             // 
             // TilePoolPane
             // 

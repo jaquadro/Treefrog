@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using System.Xml;
 
 namespace Editor.Model
 {
@@ -16,8 +17,8 @@ namespace Editor.Model
 
         #region Constructors
 
-        public MultiTileGridLayer (int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
-            : base(tileWidth, tileHeight, tilesWide, tilesHigh)
+        public MultiTileGridLayer (string name, int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
+            : base(name, tileWidth, tileHeight, tilesWide, tilesHigh)
         {
             _tiles = new TileStack[tilesHigh, tilesWide];
         }
@@ -133,6 +134,16 @@ namespace Editor.Model
             if (_tiles[y, x] != null) {
                 _tiles[y, x].Clear();
             }
+        }
+
+        public override void WriteXml (XmlWriter writer)
+        {
+            // <layer name="" type="multi">
+            writer.WriteStartElement("layer");
+            writer.WriteAttributeString("name", Name);
+            writer.WriteAttributeString("type", "tilemulti");
+
+            writer.WriteEndElement();
         }
     }
 }

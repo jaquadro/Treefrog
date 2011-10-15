@@ -31,10 +31,10 @@ namespace Editor.Model
 
     public interface INamedResource
     {
-        int Id { get; }
+        //int Id { get; }
         string Name { get; }
 
-        event EventHandler<IdChangedEventArgs> IdChanged;
+        //event EventHandler<IdChangedEventArgs> IdChanged;
         event EventHandler<NameChangedEventArgs> NameChanged;
     }
 }

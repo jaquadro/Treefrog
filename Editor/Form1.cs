@@ -43,6 +43,7 @@ namespace Editor
             _standardToolbar = new StandardToolbar();
             _standardToolbar.ButtonUndo.Click += ButtonUndo;
             _standardToolbar.ButtonRedo.Click += ButtonRedo;
+            _standardToolbar.ButtonSave.Click += ButtonSave;
 
             _tileToolbar = new TileToolbar();
             _tileToolbar.ToolModeChanged += TileToolModeChangedHandler;
@@ -56,12 +57,15 @@ namespace Editor
 
             _project = new Project();
             _project.Initialize(Handle);
-            _project.SetupDefaults();
+            //_project.SetupDefaults();
 
             //_tilesetView = new TilesetView(this, _project);
             //_tilesetView.Dock = DockStyle.Fill;
 
-            _mapView = new MapView(_project);
+            Level level = new Level("Level 1");
+            _project.Levels.Add(level);
+
+            _mapView = new MapView(_project, "Level 1");
             _mapView.Dock = DockStyle.Fill;
 
             //SwitchToView(_tilesetView);
@@ -130,6 +134,8 @@ namespace Editor
             statusZoomIn.MouseLeave += buttonZoomIn_MouseLeave;
             statusZoomIn.MouseDown += buttonZoomIn_MouseDown;
             statusZoomIn.MouseUp += buttonZoomIn_MouseUp;
+
+
         }
 
         public ToolStripStatusLabel Label
@@ -248,6 +254,13 @@ namespace Editor
                     statusZoomText.Text = "800%";
                     _currentView.Zoom = 8f;
                     break;
+            }
+        }
+
+        private void ButtonSave (object sender, EventArgs e)
+        {
+            using (FileStream fs = File.OpenWrite("test.tlp")) {
+                _project.Save(fs);
             }
         }
 

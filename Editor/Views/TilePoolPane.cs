@@ -73,18 +73,17 @@ namespace Editor
 
             // Configure default selection
 
-            _selected = _project.TilePools["Default"];
-            _selectedSet = TileSet1D.CreatePoolSet("Default", _selected);
+            //_selected = _project.TilePools["Default"];
+            //_selectedSet = TileSet1D.CreatePoolSet("Default", _selected);
 
-            //_tileControl.TileSource = _selectedSet;
-            _tileLayer.Layer = new TileSetLayer(_selectedSet);
+            //_tileLayer.Layer = new TileSetLayer(_selectedSet);
 
             // Setup list
 
             foreach (TilePool pool in _project.TilePools) {
                 _poolComboBox.Items.Add(pool.Name);
             }
-            _poolComboBox.SelectedItem = _selected.Name;
+            //_poolComboBox.SelectedItem = _selected.Name;
 
         }
 
@@ -280,7 +279,7 @@ namespace Editor
             _selected = _pools[item].TilePool;
             _selectedSet = _pools[item].TileSet;
 
-            _tileLayer.Layer = new TileSetLayer(_selectedSet);
+            _tileLayer.Layer = new TileSetLayer("Selected", _selectedSet);
 
             _tileControl.SetScrollSmallChange(ScrollOrientation.HorizontalScroll, _selectedSet.TileWidth);
             _tileControl.SetScrollSmallChange(ScrollOrientation.VerticalScroll, _selectedSet.TileHeight);

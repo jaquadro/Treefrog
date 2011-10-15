@@ -14,6 +14,7 @@ namespace Editor
     public partial class MapView : UserControl, IFormView, ITileToolbarSubscriber
     {
         private Project _project;
+        private Level _level;
 
         // XXX: Move to individual level object
         private CommandHistory _commandHistory;
@@ -34,20 +35,28 @@ namespace Editor
             _commandHistory.HistoryChanged += CommandHistoryChangedHandler;
         }
 
-        public MapView (Project project) 
+        public MapView (Project project, string level) 
             : this()
         {
             _project = project;
+            _level = _project.Levels[level];
 
             _tilePoolPane.SetupDefault(_project);
+
+            _layerPane.SetupDefault(_project, level);
 
             _tileLayer = new MultiTileControlLayer(tilemapControl);
             _tileLayer.ShouldDrawContent = LayerCondition.Always;
             _tileLayer.ShouldDrawGrid = LayerCondition.Always;
             _tileLayer.ShouldRespondToInput = LayerCondition.Always;
 
-            _layer = new MultiTileGridLayer(16, 16, 30, 20);
+            _layer = new MultiTileGridLayer("Default", 16, 16, 30, 20);
             _tileLayer.Layer = _layer;
+
+            tilemapControl.SetScrollSmallChange(ScrollOrientation.HorizontalScroll, _layer.TileWidth);
+            tilemapControl.SetScrollSmallChange(ScrollOrientation.VerticalScroll, _layer.TileHeight);
+            tilemapControl.SetScrollLargeChange(ScrollOrientation.HorizontalScroll, _layer.TileWidth * 4);
+            tilemapControl.SetScrollLargeChange(ScrollOrientation.VerticalScroll, _layer.TileHeight * 4);
 
             // Tools
 

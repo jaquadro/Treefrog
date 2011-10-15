@@ -136,7 +136,7 @@ namespace Editor.Forms
                 (int)_numXMargin.Value, (int)_numYMargin.Value);
             TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
-            _tileLayer.Layer = new TileSetLayer(previewSet);
+            _tileLayer.Layer = new TileSetLayer("Preview", previewSet);
 
             // Update stats
 

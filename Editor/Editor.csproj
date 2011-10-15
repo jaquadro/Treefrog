@@ -157,6 +157,12 @@
     <Compile Include="Tools\MouseTool.cs" />
     <Compile Include="Views\EventArgs.cs" />
     <Compile Include="Views\FormView.cs" />
+    <Compile Include="Views\LayerPane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\LayerPane.Designer.cs">
+      <DependentUpon>LayerPane.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\MapView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -218,6 +224,15 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <EmbeddedResource Include="Icons\16\arrow-090.png" />
+    <EmbeddedResource Include="Icons\16\arrow-270.png" />
+    <EmbeddedResource Include="Icons\16\layer--minus.png" />
+    <EmbeddedResource Include="Icons\16\layer--plus.png" />
+    <EmbeddedResource Include="Icons\16\layers.png" />
+    <EmbeddedResource Include="Icons\16\minus.png" />
+    <EmbeddedResource Include="Icons\16\plus.png" />
+    <EmbeddedResource Include="Icons\16\game.png" />
+    <EmbeddedResource Include="Icons\16\grid.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
@@ -231,6 +246,9 @@
     <EmbeddedResource Include="Icons\paint-brush16.png" />
     <EmbeddedResource Include="Icons\paint-can16.png" />
     <EmbeddedResource Include="Icons\stamp16.png" />
+    <EmbeddedResource Include="Views\LayerPane.resx">
+      <DependentUpon>LayerPane.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\MapView.resx">
       <DependentUpon>MapView.cs</DependentUpon>
     </EmbeddedResource>

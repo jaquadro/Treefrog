@@ -17,8 +17,8 @@ namespace Editor.Model
 
         #region Constructors
 
-        protected TileGridLayer (int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
-            : base(tileWidth, tileHeight)
+        protected TileGridLayer (string name, int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
+            : base(name, tileWidth, tileHeight)
         {
             _tilesWide = tilesWide;
             _tilesHigh = tilesHigh;
