@@ -56,6 +56,10 @@ namespace Editor
                 throw new InvalidOperationException("DrawTool received MouseDown event while still active.");
             }
 
+            if (_sourceTile == null) {
+                return;
+            }
+
             _drawing = true;
             _drawCommand = new TileReplace2DCommand(_control.Layer);
             MouseTileMoveHandler(sender, e);

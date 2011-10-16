@@ -279,7 +279,7 @@ namespace Editor
             _selected = _pools[item].TilePool;
             _selectedSet = _pools[item].TileSet;
 
-            _tileLayer.Layer = new TileSetLayer("Selected", _selectedSet);
+            _tileLayer.Layer = new TileSetLayer(_selectedSet.Name, _selectedSet);
 
             _tileControl.SetScrollSmallChange(ScrollOrientation.HorizontalScroll, _selectedSet.TileWidth);
             _tileControl.SetScrollSmallChange(ScrollOrientation.VerticalScroll, _selectedSet.TileHeight);

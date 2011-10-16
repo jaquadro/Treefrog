@@ -36,7 +36,7 @@ namespace Editor.Model.Controls
     {
         #region Fields
 
-        private List<BaseControlLayer> _layers;
+        private OrderedResourceCollection<BaseControlLayer> _layers;
 
         // Graphics and Service
 
@@ -84,6 +84,10 @@ namespace Editor.Model.Controls
         private int _scrollLgChangeH;
         private int _scrollLgChangeV;
 
+        // Ordered Events
+
+        private List<Delegate> _drawContentSubscribers;
+
         #endregion
 
         #region Events
@@ -103,7 +107,7 @@ namespace Editor.Model.Controls
         {
             ControlInitialized += ControlInitializedHandler;
 
-            _layers = new List<BaseControlLayer>();
+            _layers = new OrderedResourceCollection<BaseControlLayer>();
         }
 
         public LayerControl (int vWidth, int vHeight)
@@ -390,6 +394,21 @@ namespace Editor.Model.Controls
             CheckScrollValue();
         }
 
+        internal void RemoveLayer (BaseControlLayer layer)
+        {
+            _layers.Remove(layer.Name);
+
+            layer.VirtualSizeChanged -= LayerVirtualSizeChangedHandler;
+
+            CalculateVirtualSize();
+            CheckScrollValue();
+        }
+
+        internal void ChangeLayerOrderRelative (BaseControlLayer layer, int offset)
+        {
+            _layers.ChangeIndexRelative(layer.Name, offset);
+        }
+
         private void CalculateVirtualSize ()
         {
             int vHeight = 0;
@@ -442,8 +461,16 @@ namespace Editor.Model.Controls
 
             DrawLayerEventArgs e = new DrawLayerEventArgs(_spriteBatch);
 
+            foreach (BaseControlLayer layer in _layers) {
+                layer.DrawContent(_spriteBatch);
+            }
             OnDrawLayerContent(e);
+
+            foreach (BaseControlLayer layer in _layers) {
+                layer.DrawGrid(_spriteBatch);
+            }
             OnDrawLayerGrid(e);
+
             OnDrawExtra(e);
         }
 

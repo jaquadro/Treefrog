@@ -6,10 +6,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Editor.Model.Controls
 {
-    public abstract class BaseControlLayer
+    public abstract class BaseControlLayer : INamedResource
     {
         #region Fields
 
+        private string _name;
         private Layer _layer;
 
         #endregion
@@ -29,6 +30,8 @@ namespace Editor.Model.Controls
 
         protected BaseControlLayer (LayerControl control)
         {
+            _name = Guid.NewGuid().ToString();
+
             Control = control;
             Control.AddLayer(this);
 
@@ -38,9 +41,12 @@ namespace Editor.Model.Controls
             else {
                 Control.ControlInitialized += ControlInitializedHandler;
             }
+        }
 
-            Control.DrawLayerContent += DrawContentHandler;
-            Control.DrawLayerGrid += DrawGridHandler;
+        protected BaseControlLayer (LayerControl control, Layer layer)
+            : this(control)
+        {
+            Layer = layer;
         }
 
         #endregion
@@ -86,31 +92,58 @@ namespace Editor.Model.Controls
             Initiailize();
         }
 
-        private void DrawContentHandler (object sender, DrawLayerEventArgs e)
+        #endregion
+
+        public void DrawContent (SpriteBatch spriteBatch)
         {
             if (CheckLayerCondition(ShouldDrawContent)) {
-                DrawContent(e.SpriteBatch);
+                DrawContentImpl(spriteBatch);
             }
         }
 
-        private void DrawGridHandler (object sender, DrawLayerEventArgs e)
+        public void DrawGrid (SpriteBatch spriteBatch)
         {
             if (CheckLayerCondition(ShouldDrawContent) && CheckLayerCondition(ShouldDrawGrid)) {
-                DrawGrid(e.SpriteBatch);
+                DrawGridImpl(spriteBatch);
             }
         }
-
-        #endregion
 
         protected virtual void Initiailize () { }
 
-        protected virtual void DrawContent (SpriteBatch spriteBatch) { }
+        protected virtual void DrawContentImpl (SpriteBatch spriteBatch) { }
 
-        protected virtual void DrawGrid (SpriteBatch spriteBatch) { }
+        protected virtual void DrawGridImpl (SpriteBatch spriteBatch) { }
 
         protected bool CheckLayerCondition (LayerCondition option)
         {
             return (option == LayerCondition.Always) || (option == LayerCondition.Selected && Selected);
         }
+
+        #region INamedResource Members
+
+        public string Name
+        {
+            get { return _name; }
+            private set
+            {
+                if (_name != value) {
+                    string oldName = _name;
+                    _name = value;
+
+                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
+                }
+            }
+        }
+
+        public event EventHandler<NameChangedEventArgs> NameChanged;
+
+        protected virtual void OnNameChanged (NameChangedEventArgs e)
+        {
+            if (NameChanged != null) {
+                NameChanged(this, e);
+            }
+        }
+
+        #endregion
     }
 }

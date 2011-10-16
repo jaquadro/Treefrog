@@ -27,6 +27,8 @@ namespace Editor
         private MultiTileGridLayer _layer;
         private MultiTileControlLayer _tileLayer;
 
+        #region Constructors
+
         public MapView ()
         {
             InitializeComponent();
@@ -43,30 +45,50 @@ namespace Editor
 
             _tilePoolPane.SetupDefault(_project);
 
-            _layerPane.SetupDefault(_project, level);
+            _layerPane.SetupDefault(_project, level, tilemapControl);
 
-            _tileLayer = new MultiTileControlLayer(tilemapControl);
+            /*_tileLayer = new MultiTileControlLayer(tilemapControl);
             _tileLayer.ShouldDrawContent = LayerCondition.Always;
             _tileLayer.ShouldDrawGrid = LayerCondition.Always;
-            _tileLayer.ShouldRespondToInput = LayerCondition.Always;
+            _tileLayer.ShouldRespondToInput = LayerCondition.Always;*/
 
-            _layer = new MultiTileGridLayer("Default", 16, 16, 30, 20);
-            _tileLayer.Layer = _layer;
+            //_layer = new MultiTileGridLayer("Default", 16, 16, 30, 20);
+            //_tileLayer.Layer = _layer;
 
-            tilemapControl.SetScrollSmallChange(ScrollOrientation.HorizontalScroll, _layer.TileWidth);
-            tilemapControl.SetScrollSmallChange(ScrollOrientation.VerticalScroll, _layer.TileHeight);
-            tilemapControl.SetScrollLargeChange(ScrollOrientation.HorizontalScroll, _layer.TileWidth * 4);
-            tilemapControl.SetScrollLargeChange(ScrollOrientation.VerticalScroll, _layer.TileHeight * 4);
+            _layerPane.SelectedLayerChanged += LayerSelectionChangedHandler;
 
             // Tools
 
-            _drawTool = new DrawTool(_tileLayer, _tilePoolPane.TileLayer, _commandHistory);
+            //_drawTool = new DrawTool(_tileLayer, _tilePoolPane.TileLayer, _commandHistory);
             //_eraseTool = new EraseTool(_tileLayer, _project.TileSets["Default"], _commandHistory);
             //_fillTool = new FillTool(tilesetControl, _tilePoolPane.TileLayer, _project.TileSets["Default"], _commandHistory);
 
             // XXX
-            _drawTool.Enabled = true;
+            //_drawTool.Enabled = true;
         }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void LayerSelectionChangedHandler (object sender, EventArgs e)
+        {
+            // TODO: Eventually we'll have more than tile layers
+            _layer = _layerPane.SelectedLayer as MultiTileGridLayer;
+            _tileLayer = _layerPane.SelectedControlLayer as MultiTileControlLayer;
+
+            _drawTool = new DrawTool(_tileLayer, _tilePoolPane.TileLayer, _commandHistory);
+            _drawTool.Enabled = true;
+
+            if (_layer != null) {
+                tilemapControl.SetScrollSmallChange(ScrollOrientation.HorizontalScroll, _layer.TileWidth);
+                tilemapControl.SetScrollSmallChange(ScrollOrientation.VerticalScroll, _layer.TileHeight);
+                tilemapControl.SetScrollLargeChange(ScrollOrientation.HorizontalScroll, _layer.TileWidth * 4);
+                tilemapControl.SetScrollLargeChange(ScrollOrientation.VerticalScroll, _layer.TileHeight * 4);
+            }
+        }
+
+        #endregion
 
         private void CommandHistoryChangedHandler (object sender, CommandHistoryEventArgs e)
         {
@@ -74,8 +96,6 @@ namespace Editor
         }
 
         #region IFormView Members
-
-        
 
         public Control Control
         {

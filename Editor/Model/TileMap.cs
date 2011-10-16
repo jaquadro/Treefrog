@@ -12,7 +12,6 @@ namespace Editor.Model
 
         #region Fields
 
-        private int _id;
         private string _name;
 
         private int _tileWidth;
@@ -28,16 +27,19 @@ namespace Editor.Model
         #region Constructors
 
         public Level (string name)
-            : this (++_lastId, name)
         {
-        }
-
-        public Level (int id, string name)
-        {
-            _id = id;
             _name = name;
 
             _layers = new OrderedResourceCollection<Layer>();
+        }
+
+        public Level (string name, int tileWidth, int tileHeight, int width, int height)
+            : this(name)
+        {
+            _tileWidth = tileWidth;
+            _tileHeight = tileHeight;
+            _tilesWide = width;
+            _tilesHigh = height;
         }
 
         #endregion
@@ -117,19 +119,19 @@ namespace Editor.Model
 
         #region INamedResource Members
 
-        public int Id
-        {
-            get { return _id; }
-        }
-
         public string Name
         {
             get { return _name; }
         }
 
-        public event EventHandler<IdChangedEventArgs> IdChanged;
-
         public event EventHandler<NameChangedEventArgs> NameChanged;
+
+        protected virtual void OnNameChanged (NameChangedEventArgs e)
+        {
+            if (NameChanged != null) {
+                NameChanged(this, e);
+            }
+        }
 
         #endregion
     }

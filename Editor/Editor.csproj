@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="Model\Controls\BaseControlLayer.cs" />
     <Compile Include="Model\Controls\ControlEventArgs.cs" />
+    <Compile Include="Model\Controls\ControlLayerFactory.cs" />
     <Compile Include="Model\Controls\LayerControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -142,6 +143,7 @@
     <Compile Include="Model\MultiTileGridLayer.cs" />
     <Compile Include="Model\NamedResource.cs" />
     <Compile Include="Model\NamedResourceCollection.cs" />
+    <Compile Include="Model\OrderedResourceCollection.cs" />
     <Compile Include="Model\Project.cs" />
     <Compile Include="Model\TileGridLayer.cs" />
     <Compile Include="Model\TileLayer.cs" />

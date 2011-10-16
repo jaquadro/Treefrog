@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Editor.Model;
 using System.Drawing.Drawing2D;
+using Editor.Model.Controls;
 
 namespace Editor.Views
 {
@@ -19,6 +20,11 @@ namespace Editor.Views
         Level _level;
 
         Layer _currentLayer;
+        BaseControlLayer _currentControl;
+
+        LayerControl _layerControl;
+
+        Dictionary<string, BaseControlLayer> _controlLayers;
 
         #endregion
 
@@ -27,6 +33,8 @@ namespace Editor.Views
         public LayerPane ()
         {
             InitializeComponent();
+
+            _controlLayers = new Dictionary<string, BaseControlLayer>();
 
             // Load form elements
 
@@ -51,10 +59,10 @@ namespace Editor.Views
             _buttonUp.Click += MoveUpTileLayerClickedHandler;
         }
 
-        public LayerPane (Project project, string level)
+        public LayerPane (Project project, string level, LayerControl control)
             : this()
         {
-            SetupDefault(project, level);
+            SetupDefault(project, level, control);
         }
 
         #endregion
@@ -64,6 +72,11 @@ namespace Editor.Views
         public Layer SelectedLayer
         {
             get { return _currentLayer; }
+        }
+
+        public BaseControlLayer SelectedControlLayer
+        {
+            get { return _currentControl; }
         }
 
         #endregion
@@ -101,9 +114,14 @@ namespace Editor.Views
                 Selected = true,
             };
 
-            _listControl.Items.Insert(0, layerItem);
+            MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+            clayer.ShouldDrawContent = LayerCondition.Always;
+            clayer.ShouldDrawGrid = LayerCondition.Selected;
+            clayer.ShouldRespondToInput = LayerCondition.Selected;
 
-            SelectLayer(name);
+            _controlLayers[name] = clayer;
+
+            _listControl.Items.Insert(0, layerItem);
         }
 
         private void RemoveTileLayerClickedHandler (object sender, EventArgs e)
@@ -119,6 +137,10 @@ namespace Editor.Views
                 _listControl.Items.Remove(item);
                 _level.Layers.Remove(item.Text);
 
+                BaseControlLayer clayer = _controlLayers[item.Text];
+                _controlLayers.Remove(item.Text);
+                _layerControl.RemoveLayer(clayer);
+
                 if (item.Selected) {
                     _currentLayer = null;
                 }
@@ -126,7 +148,9 @@ namespace Editor.Views
 
             if (_currentLayer == null && _listControl.Items.Count > 0) {
                 _listControl.Items[0].Selected = true;
-                //SelectLayer(_listControl.Items[0].Text);
+            }
+            else if (_currentLayer == null) {
+                OnSelectedLayerChanged(EventArgs.Empty);
             }
 
             UpdateToolbar();
@@ -140,7 +164,10 @@ namespace Editor.Views
             _listControl.Items.Remove(item);
             _listControl.Items.Insert(index + 1, item);
 
+            BaseControlLayer clayer = _controlLayers[item.Text];
+
             _level.Layers.ChangeIndexRelative(_currentLayer.Name, -1);
+            _layerControl.ChangeLayerOrderRelative(clayer, -1);
 
             UpdateToolbar();
         }
@@ -153,7 +180,10 @@ namespace Editor.Views
             _listControl.Items.Remove(item);
             _listControl.Items.Insert(index - 1, item);
 
+            BaseControlLayer clayer = _controlLayers[item.Text];
+
             _level.Layers.ChangeIndexRelative(_currentLayer.Name, 1);
+            _layerControl.ChangeLayerOrderRelative(clayer, 1);
 
             UpdateToolbar();
         }
@@ -169,10 +199,15 @@ namespace Editor.Views
 
         #endregion
 
-        public void SetupDefault (Project project, string level)
+        public void SetupDefault (Project project, string level, LayerControl control)
         {
             _project = project;
             _level = _project.Levels[level];
+
+            _layerControl = control;
+            foreach (Layer layer in _level.Layers) {
+                ControlLayerFactory.Create(layer, _layerControl);
+            }
 
             UpdateToolbar();
         }
@@ -205,6 +240,13 @@ namespace Editor.Views
             }
 
             _currentLayer = _level.Layers[name];
+
+            foreach (BaseControlLayer layer in _controlLayers.Values) {
+                layer.Selected = false;
+            }
+
+            _controlLayers[name].Selected = true;
+            _currentControl = _controlLayers[name];
 
             UpdateToolbar();
             OnSelectedLayerChanged(EventArgs.Empty);

@@ -22,6 +22,17 @@ namespace Editor.Model.Controls
         {
         }
 
+        public MultiTileControlLayer (LayerControl control, MultiTileGridLayer layer)
+            : this(control)
+        {
+            Layer = layer;
+        }
+
+        public MultiTileControlLayer (LayerControl control, Layer layer)
+            : this(control, layer as MultiTileGridLayer)
+        {
+        }
+
         #endregion
 
         #region Properties
@@ -36,7 +47,9 @@ namespace Editor.Model.Controls
                 }
 
                 _layer = value;
-                _layer.LayerSizeChanged += TileLayerSizeChangedHandler;
+                if (_layer != null) {
+                    _layer.LayerSizeChanged += TileLayerSizeChangedHandler;
+                }
 
                 base.Layer = value;
 

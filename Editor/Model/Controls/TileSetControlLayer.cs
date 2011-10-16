@@ -24,6 +24,17 @@ namespace Editor.Model.Controls
             Control.SizeChanged += ControlSizeChangedHandler;
         }
 
+        public TileSetControlLayer (LayerControl control, TileSetLayer layer)
+            : this(control)
+        {
+            Layer = layer;
+        }
+
+        public TileSetControlLayer (LayerControl control, Layer layer)
+            : this(control, layer as TileSetLayer)
+        {
+        }
+
         #endregion
 
         #region Properties

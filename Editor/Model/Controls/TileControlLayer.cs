@@ -51,6 +51,12 @@ namespace Editor.Model.Controls
             Control.MouseMove += ControlMouseMoveHandler;
         }
 
+        public TileControlLayer (LayerControl control, TileLayer layer)
+            : this(control)
+        {
+            Layer = layer;
+        }
+
         #endregion
 
         #region Properties
@@ -166,7 +172,7 @@ namespace Editor.Model.Controls
             BuildTileBrush();
         }
 
-        protected override void DrawContent (SpriteBatch spriteBatch)
+        protected override void DrawContentImpl (SpriteBatch spriteBatch)
         {
             if (_layer == null) {
                 return;
@@ -193,7 +199,7 @@ namespace Editor.Model.Controls
             spriteBatch.End();
         }
 
-        protected override void DrawGrid (SpriteBatch spriteBatch)
+        protected override void DrawGridImpl (SpriteBatch spriteBatch)
         {
             if (_layer == null) {
                 return;

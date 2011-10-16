@@ -62,7 +62,8 @@ namespace Editor
             //_tilesetView = new TilesetView(this, _project);
             //_tilesetView.Dock = DockStyle.Fill;
 
-            Level level = new Level("Level 1");
+            Level level = new Level("Level 1", 16, 16, 30, 20);
+
             _project.Levels.Add(level);
 
             _mapView = new MapView(_project, "Level 1");
