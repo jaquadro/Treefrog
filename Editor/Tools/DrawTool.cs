@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using Editor.Model;
 using Editor.Model.Controls;
+using Editor.Controls;
+using Microsoft.Xna.Framework;
 
 namespace Editor
 {
@@ -18,6 +20,8 @@ namespace Editor
         private Tile _sourceTile;
         private TileReplace2DCommand _drawCommand;
 
+        private RubberBand _rubberBand;
+
         public DrawTool (MultiTileControlLayer control, TileControlLayer source, CommandHistory commandHistory)
             : base(control)
         {
@@ -30,19 +34,36 @@ namespace Editor
         {
             base.AttachHandlers();
             _source.MouseTileClick += SourceTileSelected;
-            //_source.TileSelected += SourceTileSelected;
+
+            if (_rubberBand != null) {
+                _rubberBand.Visible = true;
+            }
         }
 
         protected override void DetachHandlers ()
         {
             base.DetachHandlers();
             _source.MouseTileClick -= SourceTileSelected;
-            //_source.TileSelected -= SourceTileSelected;
+
+            if (_rubberBand != null) {
+                _rubberBand.Visible = false;
+            }
         }
 
         protected virtual void SourceTileSelectedHandler (object sender, TileMouseEventArgs e)
         {
             _sourceTile = e.Tile;
+
+            if (_rubberBand != null) {
+                _rubberBand.Dispose();
+            }
+
+            if (_sourceTile != null) {
+                _rubberBand = new RubberBand(_source.Control, _source.Layer.TileWidth, _source.Layer.TileHeight);
+                _rubberBand.FillBrush = _control.Control.CreateSolidColorBrush(new Color(.5f, .75f, 1f, .6f));
+                _rubberBand.Start(new Point(e.TileLocation.X, e.TileLocation.Y));
+                _rubberBand.End(new Point(e.TileLocation.X, e.TileLocation.Y));
+            }
         }
 
         /*protected virtual void SourceTileMultiSelectedHandler (object sender, TileSelectEventArgs e)

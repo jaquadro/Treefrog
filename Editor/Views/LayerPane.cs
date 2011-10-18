@@ -206,7 +206,20 @@ namespace Editor.Views
 
             _layerControl = control;
             foreach (Layer layer in _level.Layers) {
-                ControlLayerFactory.Create(layer, _layerControl);
+                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                clayer.ShouldDrawContent = LayerCondition.Always;
+                clayer.ShouldDrawGrid = LayerCondition.Selected;
+                clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+                ListViewItem layerItem = new ListViewItem(layer.Name, "grid.png")
+                {
+                    Name = layer.Name,
+                    Checked = true,
+                    Selected = true,
+                };
+                _listControl.Items.Insert(0, layerItem);
+
+                _controlLayers[layer.Name] = clayer;
             }
 
             UpdateToolbar();

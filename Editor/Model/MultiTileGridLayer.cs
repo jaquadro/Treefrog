@@ -100,8 +100,8 @@ namespace Editor.Model
         {
             int xs = Math.Max(region.X, 0);
             int ys = Math.Max(region.Y, 0);
-            int w = Math.Min(region.X, LayerWidth);
-            int h = Math.Min(region.Y, LayerHeight);
+            int w = Math.Min(region.Width, LayerWidth - region.X);
+            int h = Math.Min(region.Height, LayerHeight - region.Y);
 
             for (int y = ys; y < ys + h; y++) {
                 for (int x = xs; x < xs + w; x++) {
@@ -142,6 +142,23 @@ namespace Editor.Model
             writer.WriteStartElement("layer");
             writer.WriteAttributeString("name", Name);
             writer.WriteAttributeString("type", "tilemulti");
+
+            writer.WriteStartElement("tiles");
+            foreach (LocatedTileStack ts in TileStacks) {
+                if (ts.Stack != null && ts.Stack.Count > 0) {
+                    List<int> ids = new List<int>();
+                    foreach (Tile tile in ts.Stack) {
+                        ids.Add(tile.Id);
+                    }
+                    string idSet = String.Join(",", ids);
+
+                    writer.WriteStartElement("tile");
+                    writer.WriteAttributeString("at", ts.X + "," + ts.Y);
+                    writer.WriteString(idSet);
+                    writer.WriteEndElement();
+                }
+            }
+            writer.WriteEndElement();
 
             writer.WriteEndElement();
         }

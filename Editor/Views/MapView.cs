@@ -77,6 +77,10 @@ namespace Editor
             _layer = _layerPane.SelectedLayer as MultiTileGridLayer;
             _tileLayer = _layerPane.SelectedControlLayer as MultiTileControlLayer;
 
+            if (_drawTool != null) {
+                _drawTool.Dispose();
+            }
+
             _drawTool = new DrawTool(_tileLayer, _tilePoolPane.TileLayer, _commandHistory);
             _drawTool.Enabled = true;
 

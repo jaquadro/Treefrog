@@ -34,6 +34,8 @@ namespace Editor.Controls
         private int _snapX;
         private int _snapY;
 
+        private bool _visible;
+
         public RubberBand (LayerControl control, int snapX, int snapY)
         {
             _control = control;
@@ -42,6 +44,7 @@ namespace Editor.Controls
             _snapX = snapX;
             _snapY = snapY;
 
+            _visible = true;
             AttachHandlers();
         }
 
@@ -87,6 +90,22 @@ namespace Editor.Controls
         public void End (Point end)
         {
             _end = end;
+        }
+
+        public bool Visible
+        {
+            get { return _visible; }
+            set {
+                if (_visible != value) {
+                    if (_visible) {
+                        DetachHandlers();
+                    }
+                    else {
+                        AttachHandlers();
+                    }
+                    _visible = value;
+                }
+            }
         }
 
         protected virtual void DrawHandler (object sender, DrawLayerEventArgs e)
@@ -138,7 +157,9 @@ namespace Editor.Controls
         {
             if (!this.Disposed) {
                 if (disposing) {
-                    DetachHandlers();
+                    if (Visible) {
+                        DetachHandlers();
+                    }
                 }
 
                 Disposed = true;

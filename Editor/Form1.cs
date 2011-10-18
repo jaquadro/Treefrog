@@ -44,6 +44,7 @@ namespace Editor
             _standardToolbar.ButtonUndo.Click += ButtonUndo;
             _standardToolbar.ButtonRedo.Click += ButtonRedo;
             _standardToolbar.ButtonSave.Click += ButtonSave;
+            _standardToolbar.ButtonOpen.Click += ButtonOpen;
 
             _tileToolbar = new TileToolbar();
             _tileToolbar.ToolModeChanged += TileToolModeChangedHandler;
@@ -260,9 +261,26 @@ namespace Editor
 
         private void ButtonSave (object sender, EventArgs e)
         {
-            using (FileStream fs = File.OpenWrite("test.tlp")) {
+            using (FileStream fs = File.Open("test.tlp", FileMode.Truncate, FileAccess.Write)) {
                 _project.Save(fs);
             }
+        }
+
+        private void ButtonOpen (object sender, EventArgs e)
+        {
+            using (FileStream fs = File.Open("test.tlp", FileMode.Open, FileAccess.Read)) {
+                _project = Project.Open(fs, Handle);
+            }
+
+            //Level level = new Level("Level 1", 16, 16, 30, 20);
+
+            //_project.Levels.Add(level);
+
+            _mapView = new MapView(_project, "Level 1");
+            _mapView.Dock = DockStyle.Fill;
+
+            //SwitchToView(_tilesetView);
+            SwitchToView(_mapView);
         }
 
         private void ButtonUndo (object sender, EventArgs e)

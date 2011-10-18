@@ -89,9 +89,58 @@ namespace Editor.Model
 
         #region XML Import / Export
 
-        public void ReadXml (XmlReader reader)
+        public static Level FromXml (XmlReader reader)
         {
+            List<string> reqAttrib = new List<string> {
+                "name", "width", "height", "tilewidth", "tileheight",
+            };
 
+            Dictionary<string, string> attribs = new Dictionary<string, string>();
+
+            if (reader.HasAttributes) {
+                while (reader.MoveToNextAttribute()) {
+                    attribs[reader.Name] = reader.Value;
+                }
+                reader.MoveToElement();
+            }
+
+            foreach (string name in reqAttrib) {
+                if (!attribs.ContainsKey(name)) {
+                    throw new Exception("Required attribute '" + name + "' missing in tag 'level'");
+                }
+            }
+
+            Level level = new Level(attribs["name"], Convert.ToInt32(attribs["tilewidth"]), Convert.ToInt32(attribs["tileheight"]),
+                Convert.ToInt32(attribs["width"]), Convert.ToInt32(attribs["height"]));
+
+            using (XmlReader subReader = reader.ReadSubtree()) {
+                while (subReader.Read()) {
+                    if (subReader.IsStartElement()) {
+                        switch (subReader.Name) {
+                            case "layers":
+                                AddLayerFromXml(subReader, level);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return level;
+        }
+
+        private static void AddLayerFromXml (XmlReader reader, Level level)
+        {
+            using (XmlReader subReader = reader.ReadSubtree()) {
+                while (subReader.Read()) {
+                    if (subReader.IsStartElement()) {
+                        switch (subReader.Name) {
+                            case "layer":
+                                level.Layers.Add(Layer.FromXml(subReader, level));
+                                break;
+                        }
+                    }
+                }
+            }
         }
 
         public void WriteXml (XmlWriter writer)

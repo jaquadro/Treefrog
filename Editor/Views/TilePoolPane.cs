@@ -83,6 +83,11 @@ namespace Editor
             foreach (TilePool pool in _project.TilePools) {
                 _poolComboBox.Items.Add(pool.Name);
             }
+
+            if (_poolComboBox.Items.Count > 0) {
+                SelectPool(_poolComboBox.Items[0] as string);
+                _poolComboBox.SelectedIndex = 0;
+            }
             //_poolComboBox.SelectedItem = _selected.Name;
 
         }

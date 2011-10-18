@@ -27,7 +27,8 @@ namespace Editor.Model
 
         #region Constructors
 
-        public Project () {
+        public Project () 
+        {
             _services = new ServiceContainer();
 
             _tileMaps = new NamedResourceCollection<TileMap>();
@@ -74,9 +75,22 @@ namespace Editor.Model
 
         #region XML Import / Export
 
-        public void ReadXml (XmlReader reader)
+        public static Project FromXml (XmlReader reader, IntPtr windowHandle)
         {
+            Project project = new Project();
+            project.Initialize(windowHandle);
 
+            while (reader.Read()) {
+                if (reader.IsStartElement()) {
+                    switch (reader.Name) {
+                        case "project":
+                            project.ReadXmlProject(reader);
+                            break;
+                    }
+                }
+            }
+
+            return project;
         }
 
         public void WriteXml (XmlWriter writer)
@@ -86,6 +100,11 @@ namespace Editor.Model
 
             //   <tilesets>
             writer.WriteStartElement("tilesets");
+            writer.WriteAttributeString("lastid", _registry.LastId.ToString());
+
+            foreach (TilePool pool in TilePools) {
+                pool.WriteXml(writer);
+            }
             writer.WriteEndElement();
 
             //   <templates>
@@ -102,7 +121,71 @@ namespace Editor.Model
             writer.WriteEndElement();
         }
 
+        private void ReadXmlProject (XmlReader reader)
+        {
+            while (reader.Read()) {
+                if (reader.IsStartElement()) {
+                    switch (reader.Name) {
+                        case "tilesets":
+                            ReadXmlTilesets(reader);
+                            break;
+                        case "levels":
+                            ReadXmlLevels(reader);
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void ReadXmlTilesets (XmlReader reader)
+        {
+            using (XmlReader subReader = reader.ReadSubtree()) {
+                while (subReader.Read()) {
+                    if (subReader.IsStartElement()) {
+                        switch (subReader.Name) {
+                            case "tileset":
+                                _tilePools.Add(TilePool.FromXml(subReader, _registry));
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ReadXmlLevels (XmlReader reader)
+        {
+            using (XmlReader subReader = reader.ReadSubtree()) {
+                while (subReader.Read()) {
+                    if (subReader.IsStartElement()) {
+                        switch (subReader.Name) {
+                            case "level":
+                                _levels.Add(Level.FromXml(subReader));
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
+
+        public static Project Open (Stream stream, IntPtr windowHandle)
+        {
+            XmlReaderSettings settings = new XmlReaderSettings()
+            {
+                CloseInput = true,
+                IgnoreComments = true,
+                IgnoreWhitespace = true,
+            };
+
+            XmlReader reader = XmlTextReader.Create(stream, settings);
+
+            Project project = Project.FromXml(reader, windowHandle);
+
+            reader.Close();
+
+            return project;
+        }
 
         public void Save (Stream stream)
         {
