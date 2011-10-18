@@ -57,95 +57,6 @@ namespace Editor.Model
             }
         }
 
-        public static TilePool FromXml (XmlReader reader, TileRegistry registry)
-        {
-            List<string> reqAttrib = new List<string> {
-                "name", "tilewidth", "tileheight",
-            };
-
-            Dictionary<string, string> attribs = new Dictionary<string, string>();
-
-            if (reader.HasAttributes) {
-                while (reader.MoveToNextAttribute()) {
-                    attribs[reader.Name] = reader.Value;
-                }
-                reader.MoveToElement();
-            }
-
-            foreach (string name in reqAttrib) {
-                if (!attribs.ContainsKey(name)) {
-                    throw new Exception("Required attribute '" + name + "' missing in tag 'tileset'");
-                }
-            }
-
-            TilePool pool = new TilePool(attribs["name"], registry, Convert.ToInt32(attribs["tilewidth"]), Convert.ToInt32(attribs["tileheight"]));
-
-            using (XmlReader subReader = reader.ReadSubtree()) {
-                while (!subReader.EOF) {
-                    if (subReader.IsStartElement()) {
-                        switch (subReader.Name) {
-                            case "tile":
-                                pool.AddTileFromXml(subReader);
-                                break;
-                            default:
-                                subReader.Read();
-                                break;
-                        }
-                    }
-                    else {
-                        subReader.Read();
-                    }
-                }
-            }
-
-            return pool;
-        }
-
-        private void AddTileFromXml (XmlReader reader)
-        {
-            List<string> reqAttrib = new List<string> {
-                "id",
-            };
-
-            Dictionary<string, string> attribs = new Dictionary<string, string>();
-
-            if (reader.HasAttributes) {
-                while (reader.MoveToNextAttribute()) {
-                    attribs[reader.Name] = reader.Value;
-                }
-                reader.MoveToElement();
-            }
-
-            foreach (string name in reqAttrib) {
-                if (!attribs.ContainsKey(name)) {
-                    throw new Exception("Required attribute '" + name + "' missing in tag 'tile'");
-                }
-            }
-
-            using (MemoryStream inStr = new MemoryStream()) {
-                byte[] buffer = new byte[1000];
-                int count = 0;
-
-                while ((count = reader.ReadElementContentAsBase64(buffer, 0, buffer.Length)) > 0) {
-                    inStr.Write(buffer, 0, count);
-                }
-
-                inStr.Position = 0;
-                using (MemoryStream outStr = new MemoryStream(TileWidth * TileHeight * 4)) {
-                    using (DeflateStream zstr = new DeflateStream(inStr, CompressionMode.Decompress)) {
-                        zstr.CopyTo(outStr);
-                    }
-
-                    byte[] czData = outStr.GetBuffer();
-                    if (czData.Length != TileWidth * TileHeight * 4) {
-                        throw new Exception("Unexpected length of Tile payload");
-                    }
-
-                    AddTile(czData, Convert.ToInt32(attribs["id"]));
-                }
-            }
-        }
-
         #region Properties
 
         public int Capacity
@@ -198,42 +109,6 @@ namespace Editor.Model
         }
 
         #endregion
-
-        public void WriteXml (XmlWriter writer)
-        {
-            // <project>
-            writer.WriteStartElement("tileset");
-            writer.WriteAttributeString("name", _name);
-            writer.WriteAttributeString("tilewidth", _tileWidth.ToString());
-            writer.WriteAttributeString("tileheight", _tileHeight.ToString());
-
-            foreach (int id in _tiles.Keys) {
-                TileCoord loc = _locations[id];
-                Tile tile = _tiles[id];
-
-                Rectangle texRec = new Rectangle(loc.X * _tileWidth, loc.Y * _tileHeight, _tileWidth, _tileHeight);
-                byte[] texData = new byte[TileWidth * TileHeight * 4];
-                _tileSource.GetData(0, texRec, texData, 0, texData.Length);
-
-                writer.WriteStartElement("tile");
-                writer.WriteAttributeString("id", id.ToString());
-
-                using (MemoryStream inStr = new MemoryStream(texData)) {
-                    using (MemoryStream outStr = new MemoryStream()) {
-                        using (DeflateStream zstr = new DeflateStream(outStr, CompressionMode.Compress)) {
-                            inStr.CopyTo(zstr);
-                        }
-
-                        byte[] czData = outStr.GetBuffer();
-                        writer.WriteBase64(czData, 0, czData.Length);
-                    }
-                }
-               
-                writer.WriteEndElement();
-            }
-
-            writer.WriteEndElement();
-        }
 
         IEnumerator IEnumerable.GetEnumerator ()
         {
@@ -593,6 +468,98 @@ namespace Editor.Model
         }
 
         public event EventHandler<NameChangedEventArgs> NameChanged;
+
+        #endregion
+
+        #region XML Import / Export
+
+        public static TilePool FromXml (XmlReader reader, TileRegistry registry)
+        {
+            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
+                "name", "tilewidth", "tileheight",
+            });
+
+            TilePool pool = new TilePool(attribs["name"], registry, Convert.ToInt32(attribs["tilewidth"]), Convert.ToInt32(attribs["tileheight"]));
+
+            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "tile":
+                        pool.AddTileFromXml(xmlr);
+                        return false;
+                    default:
+                        return true; // Advance reader
+                }
+            });
+
+            return pool;
+        }
+
+        public void WriteXml (XmlWriter writer)
+        {
+            // <project>
+            writer.WriteStartElement("tileset");
+            writer.WriteAttributeString("name", _name);
+            writer.WriteAttributeString("tilewidth", _tileWidth.ToString());
+            writer.WriteAttributeString("tileheight", _tileHeight.ToString());
+
+            foreach (int id in _tiles.Keys) {
+                TileCoord loc = _locations[id];
+                Tile tile = _tiles[id];
+
+                Rectangle texRec = new Rectangle(loc.X * _tileWidth, loc.Y * _tileHeight, _tileWidth, _tileHeight);
+                byte[] texData = new byte[TileWidth * TileHeight * 4];
+                _tileSource.GetData(0, texRec, texData, 0, texData.Length);
+
+                writer.WriteStartElement("tile");
+                writer.WriteAttributeString("id", id.ToString());
+
+                using (MemoryStream inStr = new MemoryStream(texData)) {
+                    using (MemoryStream outStr = new MemoryStream()) {
+                        using (DeflateStream zstr = new DeflateStream(outStr, CompressionMode.Compress)) {
+                            inStr.CopyTo(zstr);
+                        }
+
+                        byte[] czData = outStr.GetBuffer();
+                        writer.WriteBase64(czData, 0, czData.Length);
+                    }
+                }
+
+                writer.WriteEndElement();
+            }
+
+            writer.WriteEndElement();
+        }
+
+        private void AddTileFromXml (XmlReader reader)
+        {
+            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
+                "id",
+            });
+
+            using (MemoryStream inStr = new MemoryStream()) {
+                byte[] buffer = new byte[1000];
+                int count = 0;
+
+                while ((count = reader.ReadElementContentAsBase64(buffer, 0, buffer.Length)) > 0) {
+                    inStr.Write(buffer, 0, count);
+                }
+
+                inStr.Position = 0;
+                using (MemoryStream outStr = new MemoryStream(TileWidth * TileHeight * 4)) {
+                    using (DeflateStream zstr = new DeflateStream(inStr, CompressionMode.Decompress)) {
+                        zstr.CopyTo(outStr);
+                    }
+
+                    byte[] czData = outStr.GetBuffer();
+                    if (czData.Length != TileWidth * TileHeight * 4) {
+                        throw new Exception("Unexpected length of Tile payload");
+                    }
+
+                    AddTile(czData, Convert.ToInt32(attribs["id"]));
+                }
+            }
+        }
 
         #endregion
     }

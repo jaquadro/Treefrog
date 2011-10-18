@@ -73,102 +73,6 @@ namespace Editor.Model
 
         #endregion
 
-        #region XML Import / Export
-
-        public static Project FromXml (XmlReader reader, IntPtr windowHandle)
-        {
-            Project project = new Project();
-            project.Initialize(windowHandle);
-
-            while (reader.Read()) {
-                if (reader.IsStartElement()) {
-                    switch (reader.Name) {
-                        case "project":
-                            project.ReadXmlProject(reader);
-                            break;
-                    }
-                }
-            }
-
-            return project;
-        }
-
-        public void WriteXml (XmlWriter writer)
-        {
-            // <project>
-            writer.WriteStartElement("project");
-
-            //   <tilesets>
-            writer.WriteStartElement("tilesets");
-            writer.WriteAttributeString("lastid", _registry.LastId.ToString());
-
-            foreach (TilePool pool in TilePools) {
-                pool.WriteXml(writer);
-            }
-            writer.WriteEndElement();
-
-            //   <templates>
-            writer.WriteStartElement("templates");
-            writer.WriteEndElement();
-
-            //   <levels>
-            writer.WriteStartElement("levels");
-            foreach (Level level in _levels) {
-                level.WriteXml(writer);
-            }
-            writer.WriteEndElement();
-
-            writer.WriteEndElement();
-        }
-
-        private void ReadXmlProject (XmlReader reader)
-        {
-            while (reader.Read()) {
-                if (reader.IsStartElement()) {
-                    switch (reader.Name) {
-                        case "tilesets":
-                            ReadXmlTilesets(reader);
-                            break;
-                        case "levels":
-                            ReadXmlLevels(reader);
-                            break;
-                    }
-                }
-            }
-        }
-
-        private void ReadXmlTilesets (XmlReader reader)
-        {
-            using (XmlReader subReader = reader.ReadSubtree()) {
-                while (subReader.Read()) {
-                    if (subReader.IsStartElement()) {
-                        switch (subReader.Name) {
-                            case "tileset":
-                                _tilePools.Add(TilePool.FromXml(subReader, _registry));
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ReadXmlLevels (XmlReader reader)
-        {
-            using (XmlReader subReader = reader.ReadSubtree()) {
-                while (subReader.Read()) {
-                    if (subReader.IsStartElement()) {
-                        switch (subReader.Name) {
-                            case "level":
-                                _levels.Add(Level.FromXml(subReader));
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-
-        #endregion
-
         public static Project Open (Stream stream, IntPtr windowHandle)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
@@ -217,7 +121,7 @@ namespace Editor.Model
             _initalized = true;
         }
 
-        public void SetupDefaults ()
+        /*public void SetupDefaults ()
         {
             if (!_initalized) {
                 return;
@@ -232,6 +136,94 @@ namespace Editor.Model
             _tileSets.Add(defaultSet);
             _tileMaps.Add(defaultMap);
             _levels.Add(defaultLevle);
+        }*/
+
+        #region XML Import / Export
+
+        public static Project FromXml (XmlReader reader, IntPtr windowHandle)
+        {
+            Project project = new Project();
+            project.Initialize(windowHandle);
+
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "project":
+                        project.ReadXmlProject(xmlr);
+                        break;
+                }
+            });
+
+            return project;
         }
+
+        public void WriteXml (XmlWriter writer)
+        {
+            // <project>
+            writer.WriteStartElement("project");
+
+            //   <tilesets>
+            writer.WriteStartElement("tilesets");
+            writer.WriteAttributeString("lastid", _registry.LastId.ToString());
+
+            foreach (TilePool pool in TilePools) {
+                pool.WriteXml(writer);
+            }
+            writer.WriteEndElement();
+
+            //   <templates>
+            writer.WriteStartElement("templates");
+            writer.WriteEndElement();
+
+            //   <levels>
+            writer.WriteStartElement("levels");
+            foreach (Level level in _levels) {
+                level.WriteXml(writer);
+            }
+            writer.WriteEndElement();
+
+            writer.WriteEndElement();
+        }
+
+        private void ReadXmlProject (XmlReader reader)
+        {
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "tilesets":
+                        ReadXmlTilesets(xmlr);
+                        break;
+                    case "levels":
+                        ReadXmlLevels(xmlr);
+                        break;
+                }
+            });
+        }
+
+        private void ReadXmlTilesets (XmlReader reader)
+        {
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "tileset":
+                        _tilePools.Add(TilePool.FromXml(xmlr, _registry));
+                        break;
+                }
+            });
+        }
+
+        private void ReadXmlLevels (XmlReader reader)
+        {
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "level":
+                        _levels.Add(Level.FromXml(xmlr));
+                        break;
+                }
+            });
+        }
+
+        #endregion
     }
 }

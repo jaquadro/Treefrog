@@ -136,6 +136,8 @@ namespace Editor.Model
             }
         }
 
+
+
         public override void WriteXml (XmlWriter writer)
         {
             // <layer name="" type="multi">

@@ -113,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="XmlHelper.cs" />
     <None Include="Controls\AmphibianGameControl.cs">
       <SubType>Component</SubType>
     </None>
