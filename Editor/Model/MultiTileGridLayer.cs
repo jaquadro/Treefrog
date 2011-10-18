@@ -136,7 +136,7 @@ namespace Editor.Model
             }
         }
 
-
+        #region XML Import / Export
 
         public override void WriteXml (XmlWriter writer)
         {
@@ -164,5 +164,53 @@ namespace Editor.Model
 
             writer.WriteEndElement();
         }
+
+        protected override bool ReadXmlElement (XmlReader reader, string name, IServiceProvider services)
+        {
+            switch (name) {
+                case "tiles":
+                    ReadXmlTiles(reader, services);
+                    return true;
+            }
+
+            return base.ReadXmlElement(reader, name, services);
+        }
+
+        private void ReadXmlTiles (XmlReader reader, IServiceProvider services)
+        {
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "tile":
+                        AddTileFromXml(xmlr, services);
+                        break;
+                }
+            });
+        }
+
+        private void AddTileFromXml (XmlReader reader, IServiceProvider services)
+        {
+            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
+                "at",
+            });
+
+            string[] coords = attribs["at"].Split(new char[] { ',' });
+
+            string idstr = reader.ReadString();
+            string[] ids = idstr.Split(new char[] { ',' });
+
+            TileRegistry registry = services.GetService(typeof(TileRegistry)) as TileRegistry;
+
+            foreach (string id in ids) {
+                int tileId = Convert.ToInt32(id);
+
+                TilePool pool = registry.PoolFromTileId(tileId);
+                Tile tile = pool.GetTile(tileId);
+
+                AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
+            }
+        }
+
+        #endregion
     }
 }

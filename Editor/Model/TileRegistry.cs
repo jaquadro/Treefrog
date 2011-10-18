@@ -38,6 +38,11 @@ namespace Editor.Model
 
         #endregion
 
+        public TilePool PoolFromTileId (int id)
+        {
+            return _tileIndex[id];
+        }
+
         public void Reset ()
         {
             _lastId = 0;

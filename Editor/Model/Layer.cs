@@ -43,26 +43,13 @@ namespace Editor.Model
 
         #endregion
 
-        public static Layer FromXml (XmlReader reader, Level level)
+        #region XML Import / Export
+
+        public static Layer FromXml (XmlReader reader, IServiceProvider services, Level level)
         {
-            List<string> reqAttrib = new List<string> {
-                "name", "type"
-            };
-
-            Dictionary<string, string> attribs = new Dictionary<string, string>();
-
-            if (reader.HasAttributes) {
-                while (reader.MoveToNextAttribute()) {
-                    attribs[reader.Name] = reader.Value;
-                }
-                reader.MoveToElement();
-            }
-
-            foreach (string name in reqAttrib) {
-                if (!attribs.ContainsKey(name)) {
-                    throw new Exception("Required attribute '" + name + "' missing in tag 'layer'");
-                }
-            }
+            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
+                "name", "type",
+            });
 
             Layer layer = null;
             switch (attribs["type"]) {
@@ -71,22 +58,21 @@ namespace Editor.Model
                     break;
             }
 
-            /*using (XmlReader subReader = reader.ReadSubtree()) {
-                while (subReader.Read()) {
-                    if (subReader.IsStartElement()) {
-                        switch (reader.Name) {
-                            case "tiles":
-
-                                break;
-                        }
-                    }
-                }
-            }*/
+            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) => {
+                return layer.ReadXmlElement(xmlr, s, services);
+            });
 
             return layer;
         }
 
         public abstract void WriteXml(XmlWriter writer);
+
+        protected virtual bool ReadXmlElement (XmlReader reader, string name, IServiceProvider services)
+        {
+            return true;
+        }
+
+        #endregion
 
         #region INamedResource Members
 

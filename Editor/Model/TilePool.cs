@@ -473,11 +473,13 @@ namespace Editor.Model
 
         #region XML Import / Export
 
-        public static TilePool FromXml (XmlReader reader, TileRegistry registry)
+        public static TilePool FromXml (XmlReader reader, IServiceProvider services)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
                 "name", "tilewidth", "tileheight",
             });
+
+            TileRegistry registry = services.GetService(typeof(TileRegistry)) as TileRegistry;
 
             TilePool pool = new TilePool(attribs["name"], registry, Convert.ToInt32(attribs["tilewidth"]), Convert.ToInt32(attribs["tileheight"]));
 

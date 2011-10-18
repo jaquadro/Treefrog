@@ -71,6 +71,11 @@ namespace Editor.Model
             get { return _registry; }
         }
 
+        public IServiceProvider Services
+        {
+            get { return _services; }
+        }
+
         #endregion
 
         public static Project Open (Stream stream, IntPtr windowHandle)
@@ -117,6 +122,8 @@ namespace Editor.Model
         public void Initialize (GraphicsDevice device)
         {
             _registry = new TileRegistry(device);
+
+            _services.AddService(typeof(TileRegistry), _registry);
 
             _initalized = true;
         }
@@ -206,7 +213,7 @@ namespace Editor.Model
             {
                 switch (s) {
                     case "tileset":
-                        _tilePools.Add(TilePool.FromXml(xmlr, _registry));
+                        _tilePools.Add(TilePool.FromXml(xmlr, _services));
                         break;
                 }
             });
@@ -218,7 +225,7 @@ namespace Editor.Model
             {
                 switch (s) {
                     case "level":
-                        _levels.Add(Level.FromXml(xmlr));
+                        _levels.Add(Level.FromXml(xmlr, _services));
                         break;
                 }
             });

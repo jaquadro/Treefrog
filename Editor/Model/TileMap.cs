@@ -107,7 +107,7 @@ namespace Editor.Model
 
         #region XML Import / Export
 
-        public static Level FromXml (XmlReader reader)
+        public static Level FromXml (XmlReader reader, IServiceProvider services)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
                 "name", "width", "height", "tilewidth", "tileheight",
@@ -120,7 +120,7 @@ namespace Editor.Model
             {
                 switch (s) {
                     case "layers":
-                        AddLayerFromXml(xmlr, level);
+                        AddLayerFromXml(xmlr, services, level);
                         break;
                 }
             });
@@ -149,13 +149,13 @@ namespace Editor.Model
             writer.WriteEndElement();
         }
 
-        private static void AddLayerFromXml (XmlReader reader, Level level)
+        private static void AddLayerFromXml (XmlReader reader, IServiceProvider services, Level level)
         {
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
                 switch (s) {
                     case "layer":
-                        level.Layers.Add(Layer.FromXml(xmlr, level));
+                        level.Layers.Add(Layer.FromXml(xmlr, services, level));
                         break;
                 }
             });
