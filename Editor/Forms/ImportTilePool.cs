@@ -13,6 +13,8 @@ using Editor.Model.Controls;
 
 namespace Editor.Forms
 {
+    using XnaColor = Microsoft.Xna.Framework.Color;
+
     public partial class ImportTilePool : Form
     {
         Project _project;
@@ -50,6 +52,10 @@ namespace Editor.Forms
             _localRegistry = new TileRegistry(gds.GraphicsDevice);
 
             _message.Text = "";
+
+            _buttonTransColor.Click += ButtonTransColorClickHandler;
+            _checkboxTransColor.Click += CheckboxTransColorClickHandler;
+            _layerControl.MouseDown += PreviewControlClickHandler;
         }
 
         private void _buttonBrowse_Click (object sender, EventArgs e)
@@ -88,6 +94,10 @@ namespace Editor.Forms
         {
             TilePool pool = LoadFile(_project.Registry);
             if (pool != null) {
+                if (_checkboxTransColor.Checked) {
+                    Color c = _buttonTransColor.Color;
+                    pool.ApplyTransparentColor(new XnaColor(c.R / 255f, c.G / 255f, c.B / 255f));
+                }
                 _project.TilePools.Add(pool);
             }
 
@@ -147,6 +157,32 @@ namespace Editor.Forms
             return preview;
         }
 
+        private void ButtonTransColorClickHandler (object sender, EventArgs e)
+        {
+            ColorDialog cd = new ColorDialog() {
+                SolidColorOnly = true,
+                Color = _buttonTransColor.Color,
+                FullOpen = true,
+            };
+
+            DialogResult result = cd.ShowDialog(this);
+
+            _buttonTransColor.Color = cd.Color;
+            _tileLayer.TransparentColor = new XnaColor(cd.Color.R / 255f, cd.Color.G / 255f, cd.Color.B / 255f);
+        }
+
+        private void CheckboxTransColorClickHandler (object sender, EventArgs e)
+        {
+            _tileLayer.UseTransparentColor = _checkboxTransColor.Checked;
+        }
+
+        private void PreviewControlClickHandler (object sender, MouseEventArgs e)
+        {
+            XnaColor color = _tileLayer.Control.GetPixel(e.X, e.Y);
+
+            _buttonTransColor.Color = Color.FromArgb(255, color.R, color.G, color.B);
+            _tileLayer.TransparentColor = color;
+        }
 
         private void _numTileHeight_ValueChanged (object sender, EventArgs e)
         {
@@ -199,6 +235,40 @@ namespace Editor.Forms
             else {
                 _message.Text = "";
             }
+        }
+
+        private void TranspButtonPaintHandler (object sender, PaintEventArgs e)
+        {
+            
+        }
+    }
+
+    public class ColorButton : Button
+    {
+        private Color _color = SystemColors.Control;
+
+        public Color Color
+        {
+            get { return _color; }
+            set
+            {
+                _color = value;
+                Invalidate();
+            }
+        }
+
+        protected override void OnPaint (PaintEventArgs pevent)
+        {
+            base.OnPaint(pevent);
+
+            Graphics g = pevent.Graphics;
+            Rectangle boxRect = new Rectangle(
+                ClientRectangle.X + 4, ClientRectangle.Y + 4, 
+                ClientRectangle.Width - 9, ClientRectangle.Height - 9
+                );
+
+            g.FillRectangle(new SolidBrush(_color), boxRect);
+            g.DrawRectangle(new Pen(Color.Black, 1), boxRect);
         }
     }
 }

@@ -460,6 +460,20 @@ namespace Editor.Model
 
         #endregion
 
+        public void ApplyTransparentColor (Color color)
+        {
+            Color[] data = new Color[_tileSource.Width * _tileSource.Height];
+            _tileSource.GetData(data);
+
+            for (int i = 0; i < data.Length; i++) {
+                if (color.R == data[i].R && color.G == data[i].G && color.B == data[i].B) {
+                    data[i].A = 0;
+                }
+            }
+
+            _tileSource.SetData(data);
+        }
+
         #region INamedResource Members
 
         public string Name

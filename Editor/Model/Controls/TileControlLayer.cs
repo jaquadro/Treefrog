@@ -27,6 +27,9 @@ namespace Editor.Model.Controls
 
         private Color _gridColor = new Color(0, 0, 0, 0.5f);
 
+        private bool _useTransColor = false;
+        private Color _transColor = new Color(0, 0, 0);
+
         #endregion
 
         #region Events
@@ -84,6 +87,40 @@ namespace Editor.Model.Controls
 
                 if (Control.Initialized) {
                     BuildTileBrush();
+                }
+            }
+        }
+
+        public Color TransparentColor
+        {
+            get { return _transColor; }
+            set
+            {
+                _transColor = value;
+
+                if (Control.Initialized && _useTransColor) {
+                    _effectTransColor.SetValue(_transColor.ToVector4());
+                }
+            }
+        }
+
+        public bool UseTransparentColor
+        {
+            get { return _useTransColor; }
+            set 
+            {
+                if (_useTransColor != value) {
+                    _useTransColor = value;
+
+                    if (Control.Initialized && _useTransColor) {
+                        _effectTrans = Control.ContentManager.Load<Effect>("TransColor");
+                        _effectTransColor = _effectTrans.Parameters["transColor"];
+                        _effectTransColor.SetValue(_transColor.ToVector4());
+                    }
+                    else {
+                        _effectTrans = null;
+                        _effectTransColor = null;
+                    }
                 }
             }
         }
@@ -165,9 +202,11 @@ namespace Editor.Model.Controls
         {
             base.Initiailize();
 
-            _effectTrans = Control.ContentManager.Load<Effect>("TransColor");
-            _effectTransColor = _effectTrans.Parameters["transColor"];
-            _effectTransColor.SetValue(Color.White.ToVector4());
+            if (_useTransColor) {
+                _effectTrans = Control.ContentManager.Load<Effect>("TransColor");
+                _effectTransColor = _effectTrans.Parameters["transColor"];
+                _effectTransColor.SetValue(_transColor.ToVector4());
+            }
 
             BuildTileBrush();
         }
@@ -184,7 +223,7 @@ namespace Editor.Model.Controls
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
             spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
             Rectangle tileRegion = new Rectangle(

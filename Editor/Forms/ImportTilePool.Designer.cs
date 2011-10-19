@@ -61,6 +61,8 @@
             this._buttonCancel = new System.Windows.Forms.Button();
             this._buttonOK = new System.Windows.Forms.Button();
             this._message = new System.Windows.Forms.Label();
+            this._checkboxTransColor = new System.Windows.Forms.CheckBox();
+            this._buttonTransColor = new Editor.Forms.ColorButton();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -362,6 +364,8 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this._checkboxTransColor);
+            this.groupBox3.Controls.Add(this._buttonTransColor);
             this.groupBox3.Controls.Add(this.tableLayoutPanel3);
             this.groupBox3.Controls.Add(this._previewPanel);
             this.groupBox3.Location = new System.Drawing.Point(12, 190);
@@ -499,6 +503,26 @@
             this._message.TabIndex = 5;
             this._message.Text = "Message";
             // 
+            // _checkboxTransColor
+            // 
+            this._checkboxTransColor.AutoSize = true;
+            this._checkboxTransColor.Location = new System.Drawing.Point(254, 222);
+            this._checkboxTransColor.Name = "_checkboxTransColor";
+            this._checkboxTransColor.Size = new System.Drawing.Size(132, 17);
+            this._checkboxTransColor.TabIndex = 3;
+            this._checkboxTransColor.Text = "Use Transparent Color";
+            this._checkboxTransColor.UseVisualStyleBackColor = true;
+            // 
+            // _buttonTransColor
+            // 
+            this._buttonTransColor.Color = System.Drawing.SystemColors.Control;
+            this._buttonTransColor.Location = new System.Drawing.Point(395, 218);
+            this._buttonTransColor.Name = "_buttonTransColor";
+            this._buttonTransColor.Size = new System.Drawing.Size(35, 23);
+            this._buttonTransColor.TabIndex = 2;
+            this._buttonTransColor.Text = "button1";
+            this._buttonTransColor.UseVisualStyleBackColor = true;
+            // 
             // ImportTilePool
             // 
             this.AcceptButton = this._buttonOK;
@@ -536,6 +560,7 @@
             ((System.ComponentModel.ISupportInitialize)(this._numYSpacing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._numXSpacing)).EndInit();
             this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
             this.ResumeLayout(false);
@@ -579,5 +604,7 @@
         private System.Windows.Forms.Button _buttonCancel;
         private System.Windows.Forms.Button _buttonOK;
         private System.Windows.Forms.Label _message;
+        private ColorButton _buttonTransColor;
+        private System.Windows.Forms.CheckBox _checkboxTransColor;
     }
 }

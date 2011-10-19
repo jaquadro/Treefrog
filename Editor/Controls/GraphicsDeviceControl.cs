@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Editor
 {
     using Color = System.Drawing.Color;
+    using XnaColor = Microsoft.Xna.Framework.Color;
     using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
     public abstract class GraphicsDeviceControl : Control
@@ -216,5 +217,22 @@ namespace Editor
         protected abstract void Draw ();
 
         #endregion
+
+        public XnaColor GetPixel (int x, int y)
+        {
+            RenderTarget2D target = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
+
+            GraphicsDevice.SetRenderTarget(target);
+            HandleDeviceReset();
+
+            Draw();
+
+            GraphicsDevice.SetRenderTarget(null);
+
+            XnaColor[] data = new XnaColor[1];
+            target.GetData(0, new Rectangle(x, y, 1, 1), data, 0, data.Length);
+
+            return data[0];
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace Editor
     /// <summary>
     /// A collection of helper methods for parsing XML trees.
     /// </summary>
-    public class XmlHelper
+    public static class XmlHelper
     {
         /// <summary>
         /// Read all top-level elements in a sub-tree, invoking an action on each element.
