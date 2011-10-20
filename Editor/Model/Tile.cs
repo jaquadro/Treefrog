@@ -37,6 +37,7 @@ namespace Editor.Model
         {
             _tile = tile;
             _tileCoord = new TileCoord(x, y);
+
         }
 
         public LocatedTile (Tile tile, TileCoord location)
@@ -50,6 +51,7 @@ namespace Editor.Model
     {
         protected TilePool _pool;
         private int _id;
+        private NamedResourceCollection<Property> _properties;
 
         protected List<DependentTile> _dependents;
 
@@ -57,6 +59,7 @@ namespace Editor.Model
         {
             _id = id;
             _pool = pool;
+            _properties = new NamedResourceCollection<Property>();
         }
 
         public int Id
@@ -77,6 +80,11 @@ namespace Editor.Model
         public int Width
         {
             get { return _pool.TileWidth; }
+        }
+
+        public NamedResourceCollection<Property> Properties
+        {
+            get { return _properties; }
         }
 
         public virtual void Update (byte[] textureData)

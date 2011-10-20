@@ -50,6 +50,11 @@ namespace Editor.Model
             _nameMap = new Dictionary<string, T>();
         }
 
+        public int Count
+        {
+            get { return _nameMap.Count; }
+        }
+
         public T this[string name]
         {
             get

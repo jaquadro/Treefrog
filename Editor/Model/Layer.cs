@@ -16,6 +16,8 @@ namespace Editor.Model
         private float _opacity;
         private bool _visible;
 
+        private NamedResourceCollection<Property> _properties;
+
         #endregion
 
         #region Constructors
@@ -23,6 +25,7 @@ namespace Editor.Model
         public Layer (string name)
         {
             _name = name;
+            _properties = new NamedResourceCollection<Property>();
         }
 
         #endregion
@@ -39,6 +42,11 @@ namespace Editor.Model
         {
             get { return _opacity; }
             set { _opacity = MathHelper.Clamp(value, 0f, 1f); }
+        }
+
+        public NamedResourceCollection<Property> Properties
+        {
+            get { return _properties; }
         }
 
         #endregion

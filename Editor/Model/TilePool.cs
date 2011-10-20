@@ -34,11 +34,14 @@ namespace Editor.Model
         private Dictionary<int, TileCoord> _locations;
         private List<TileCoord> _openLocations;
 
+        private NamedResourceCollection<Property> _properties;
+
         protected TilePool ()
         {
             _tiles = new Dictionary<int, Tile>();
             _locations = new Dictionary<int, TileCoord>();
             _openLocations = new List<TileCoord>();
+            _properties = new NamedResourceCollection<Property>();
         }
 
         public TilePool (string name, TileRegistry registry, int tileWidth, int tileHeight)
@@ -106,6 +109,11 @@ namespace Editor.Model
         public bool EnforceSetDimensions
         {
             get { return false; }
+        }
+
+        public NamedResourceCollection<Property> Properties
+        {
+            get { return _properties; }
         }
 
         #endregion

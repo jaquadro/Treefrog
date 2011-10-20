@@ -21,6 +21,7 @@ namespace Editor.Model
 
         //private List<Layer> _layers;
         private OrderedResourceCollection<Layer> _layers;
+        private NamedResourceCollection<Property> _properties;
 
         #endregion
 
@@ -31,6 +32,7 @@ namespace Editor.Model
             _name = name;
 
             _layers = new OrderedResourceCollection<Layer>();
+            _properties = new NamedResourceCollection<Property>();
         }
 
         public Level (string name, int tileWidth, int tileHeight, int width, int height)
@@ -85,6 +87,11 @@ namespace Editor.Model
             get { return _layers; }
         }
 
+        public NamedResourceCollection<Property> Properties
+        {
+            get { return _properties; }
+        }
+
         #endregion
 
         #region INamedResource Members
@@ -122,6 +129,9 @@ namespace Editor.Model
                     case "layers":
                         AddLayerFromXml(xmlr, services, level);
                         break;
+                    case "properties":
+                        AddPropertyFromXml(xmlr, level);
+                        break;
                 }
             });
 
@@ -145,6 +155,15 @@ namespace Editor.Model
                 layer.WriteXml(writer);
             }
 
+            //   <properties> [optional]
+            if (_properties.Count > 0) {
+                writer.WriteStartElement("properties");
+
+                foreach (Property property in _properties) {
+                    property.WriteXml(writer);
+                }
+            }
+
             writer.WriteEndElement();
             writer.WriteEndElement();
         }
@@ -156,6 +175,18 @@ namespace Editor.Model
                 switch (s) {
                     case "layer":
                         level.Layers.Add(Layer.FromXml(xmlr, services, level));
+                        break;
+                }
+            });
+        }
+
+        private static void AddPropertyFromXml (XmlReader reader, Level level)
+        {
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "property":
+                        level.Properties.Add(Property.FromXml(xmlr));
                         break;
                 }
             });

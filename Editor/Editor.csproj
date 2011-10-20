@@ -113,6 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="Controls\EditableListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="XmlHelper.cs" />
     <None Include="Controls\AmphibianGameControl.cs">
       <SubType>Component</SubType>
