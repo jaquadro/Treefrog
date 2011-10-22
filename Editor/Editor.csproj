@@ -116,7 +116,9 @@
     <Compile Include="Controls\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Model\PropertySet.cs" />
+    <Compile Include="Model\Level.cs" />
+    <Compile Include="Model\Property.cs" />
+    <Compile Include="Model\PropertyProvider.cs" />
     <Compile Include="Views\PropertyPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -192,7 +194,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GraphicsDeviceService.cs" />
-    <Compile Include="Model\TileMap.cs" />
+    <None Include="Model\TileMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ServiceContainer.cs" />

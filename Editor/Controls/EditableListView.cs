@@ -236,7 +236,7 @@ namespace Editor.Controls
             for (int i = 0; i < order.Length; i++) {
                 ColumnHeader col = Columns[order[i]];
                 if (col.Index == subItem) {
-                    return new Rectangle(subItemX, itemBounds.Top, Columns[order[i]].Width, itemBounds.Height);
+                    return new Rectangle(subItemX, itemBounds.Top, col.Width, itemBounds.Height);
                 }
                 subItemX += col.Width;
             }

@@ -64,6 +64,10 @@ namespace Editor
             //_tilesetView.Dock = DockStyle.Fill;
 
             Level level = new Level("Level 1", 16, 16, 30, 20);
+            Property prop1 = new StringProperty("background", "dirt");
+            Property prop2 = new StringProperty("music", "rocks.ogg");
+            level.Properties.Add(prop1);
+            level.Properties.Add(prop2);
 
             _project.Levels.Add(level);
 

@@ -18,7 +18,6 @@ namespace Editor.Model
 
         private NamedResourceCollection<TilePool> _tilePools;
         private NamedResourceCollection<TileSet2D> _tileSets;
-        private NamedResourceCollection<TileMap> _tileMaps; // XX
         private NamedResourceCollection<Level> _levels;
 
         private bool _initalized;
@@ -31,7 +30,6 @@ namespace Editor.Model
         {
             _services = new ServiceContainer();
 
-            _tileMaps = new NamedResourceCollection<TileMap>();
             _tilePools = new NamedResourceCollection<TilePool>();
             _tileSets = new NamedResourceCollection<TileSet2D>();
             _levels = new NamedResourceCollection<Level>();
@@ -44,11 +42,6 @@ namespace Editor.Model
         public bool Initialized
         {
             get { return _initalized; }
-        }
-
-        public NamedResourceCollection<TileMap> TileMaps
-        {
-            get { return _tileMaps; }
         }
 
         public NamedResourceCollection<TilePool> TilePools

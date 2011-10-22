@@ -8,7 +8,11 @@ namespace Editor.Model
 {
     public abstract class Property : INamedResource
     {
+        #region Fields
+
         private string _name;
+
+        #endregion
 
         #region Constructors
 
@@ -35,6 +39,8 @@ namespace Editor.Model
         }
 
         #endregion
+
+        public abstract void Parse (string value);
 
         #region INamedResource Members
 
@@ -104,6 +110,16 @@ namespace Editor.Model
                     OnValueChanged(EventArgs.Empty);
                 }
             }
+        }
+
+        public override void Parse (string value)
+        {
+            Value = value;
+        }
+
+        public override string ToString ()
+        {
+            return _value;
         }
 
         #region XML Import / Export

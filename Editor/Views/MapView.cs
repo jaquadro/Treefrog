@@ -47,6 +47,8 @@ namespace Editor
 
             _layerPane.SetupDefault(_project, level, tilemapControl);
 
+            propertyPane1.PropertyProvider = _level;
+
             /*_tileLayer = new MultiTileControlLayer(tilemapControl);
             _tileLayer.ShouldDrawContent = LayerCondition.Always;
             _tileLayer.ShouldDrawGrid = LayerCondition.Always;

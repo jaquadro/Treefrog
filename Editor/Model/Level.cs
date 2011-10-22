@@ -6,10 +6,8 @@ using System.Xml;
 
 namespace Editor.Model
 {
-    public class Level : INamedResource
+    public class Level : INamedResource, IPropertyProvider
     {
-        private static int _lastId = 0;
-
         #region Fields
 
         private string _name;
@@ -99,6 +97,15 @@ namespace Editor.Model
         public string Name
         {
             get { return _name; }
+            private set
+            {
+                if (_name != value) {
+                    string oldName = _name;
+                    _name = value;
+
+                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
+                }
+            }
         }
 
         public event EventHandler<NameChangedEventArgs> NameChanged;
@@ -108,6 +115,16 @@ namespace Editor.Model
             if (NameChanged != null) {
                 NameChanged(this, e);
             }
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void NamePropertyChangedHandler (object sender, EventArgs e)
+        {
+            StringProperty property = sender as StringProperty;
+            Name = property.Value;
         }
 
         #endregion
@@ -193,156 +210,50 @@ namespace Editor.Model
         }
 
         #endregion
-    }
 
-    public class TileMap : INamedResource, ITileSource2D
-    {
-        private static int _lastId = 0;
+        #region IPropertyProvider Members
 
-        private int _id;
-        private string _name;
-
-        private int _tileWidth;
-        private int _tileHeight;
-        private int _roomWidth;     // in tiles
-        private int _roomHeight;    // in tiles
-        private int _mapWidth;      // in rooms
-        private int _mapHeight;     // in rooms
-
-        private List<Layer> _layers;
-
-        public TileMap (string name)
-            : this(++_lastId, name)
+        private void PredefPropertyValueChangedHandler (object sender, EventArgs e)
         {
+
         }
 
-        public TileMap (int id, string name)
+        public string PropertyProviderName
         {
-            _id = id;
-            _name = name;
-
-            _tileWidth = 16;
-            _tileHeight = 16;
-            _roomWidth = 15;
-            _roomHeight = 10;
-            _mapWidth = 2;
-            _mapHeight = 2;
-
-            _layers = new List<Layer>();
-            _layers.Add(new MultiTileGridLayer(name, TileWidth, TileHeight, TilesWide, TilesHigh));
+            get { return "Level." + _name; }
         }
 
-        public int MapHeight
-        {
-            get { return _mapHeight; }
-        }
-
-        public int MapWidth
-        {
-            get { return _mapWidth; }
-        }
-
-        public int PixelsHigh
-        {
-            get { return _mapHeight * _roomHeight * _tileHeight; }
-        }
-
-        public int PixelsWide
-        {
-            get { return _mapWidth * _roomWidth * _tileWidth; }
-        }
-
-        public int RoomHeight
-        {
-            get { return _roomHeight; }
-        }
-
-        public int RoomWidth
-        {
-            get { return _roomWidth; }
-        }
-
-        public int TileHeight
-        {
-            get { return _tileHeight; }
-        }
-
-        public int TileWidth
-        {
-            get { return _tileWidth; }
-        }
-
-        public int TilesHigh
-        {
-            get { return _mapHeight * _roomHeight; }
-        }
-
-        public int TilesWide
-        {
-            get { return _mapWidth * _roomWidth; }
-        }
-
-        #region INamedResource Members
-
-        public int Id
-        {
-            get { return _id; }
-        }
-
-        public string Name
-        {
-            get { return _name; }
-        }
-
-        public event EventHandler<IdChangedEventArgs> IdChanged;
-
-        public event EventHandler<NameChangedEventArgs> NameChanged;
-
-        #endregion
-
-        #region ITileSource2D Members
-
-
-        public Tile this[TileCoord coord]
+        public IEnumerable<Property> PredefinedProperties
         {
             get
             {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
+                Property prop;
+
+                prop = new StringProperty("Name", _name);
+                prop.ValueChanged += NamePropertyChangedHandler;
+                yield return prop;
+
+                prop = new StringProperty("Tile Height", _tileHeight.ToString());
+                prop.ValueChanged += PredefPropertyValueChangedHandler;
+                yield return prop;
+
+                prop = new StringProperty("Tile Width", _tileWidth.ToString());
+                prop.ValueChanged += PredefPropertyValueChangedHandler;
+                yield return prop;
             }
         }
 
-        public IEnumerable<KeyValuePair<TileCoord, Tile>> Region (Microsoft.Xna.Framework.Rectangle rect)
+        public IEnumerable<Property> CustomProperties
+        {
+            get { return _properties; }
+        }
+
+        public void AddCustomProperty (Property property)
         {
             throw new NotImplementedException();
         }
 
-        #endregion
-
-        #region ITileSource Members
-
-        public int Count
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        #endregion
-
-        #region IEnumerable<Tile> Members
-
-        public IEnumerator<Tile> GetEnumerator ()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        public void RemoveCustomProperty (string name)
         {
             throw new NotImplementedException();
         }
