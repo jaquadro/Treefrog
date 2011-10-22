@@ -116,6 +116,10 @@
     <Compile Include="Controls\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Model\PropertySet.cs" />
+    <Compile Include="Views\PropertyPane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="XmlHelper.cs" />
     <None Include="Controls\AmphibianGameControl.cs">
       <SubType>Component</SubType>
@@ -239,6 +243,8 @@
     <EmbeddedResource Include="Icons\16\plus.png" />
     <EmbeddedResource Include="Icons\16\game.png" />
     <EmbeddedResource Include="Icons\16\grid.png" />
+    <EmbeddedResource Include="Icons\16\tag--minus.png" />
+    <EmbeddedResource Include="Icons\16\tag--plus.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
@@ -281,6 +287,9 @@
     <EmbeddedResource Include="Icons\minus16.png" />
     <EmbeddedResource Include="Icons\pencil16.png" />
     <EmbeddedResource Include="Icons\plus16.png" />
+    <EmbeddedResource Include="Views\PropertyPane.resx">
+      <DependentUpon>PropertyPane.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\TileEditView.resx">
       <DependentUpon>TileEditView.cs</DependentUpon>
     </EmbeddedResource>

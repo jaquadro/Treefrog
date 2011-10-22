@@ -521,7 +521,7 @@ namespace Editor.Model
 
         public void WriteXml (XmlWriter writer)
         {
-            // <project>
+            // <tileset>
             writer.WriteStartElement("tileset");
             writer.WriteAttributeString("name", _name);
             writer.WriteAttributeString("tilewidth", _tileWidth.ToString());

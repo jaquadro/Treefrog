@@ -29,12 +29,6 @@ namespace Editor
         private void InitializeComponent ()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MapView));
-            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Native Properties", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Custom Properties", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
-            "",
-            "Name",
-            "Value"}, -1);
             this.mainContainer = new System.Windows.Forms.SplitContainer();
             this.sideContainer = new System.Windows.Forms.SplitContainer();
             this.upperTabControl = new System.Windows.Forms.TabControl();
@@ -45,18 +39,15 @@ namespace Editor
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.viewportControl1 = new Editor.ViewportControl();
             this.tilepoolPage = new System.Windows.Forms.TabPage();
+            this._tilePoolPane = new Editor.TilePoolPane();
             this.objectPage = new System.Windows.Forms.TabPage();
             this.lowerTabControl = new System.Windows.Forms.TabControl();
             this.layerPage = new System.Windows.Forms.TabPage();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.viewportControl1 = new Editor.ViewportControl();
-            this._tilePoolPane = new Editor.TilePoolPane();
             this._layerPane = new Editor.Views.LayerPane();
-            this.editableListView1 = new Editor.Controls.EditableListView();
-            this._colPropLabel = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._colPropName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._colPropValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.propertyPane1 = new Editor.Views.PropertyPane();
             this.viewportControl2 = new Editor.ViewportControl();
             this.tilemapControl = new Editor.Model.Controls.LayerControl();
             ((System.ComponentModel.ISupportInitialize)(this.mainContainer)).BeginInit();
@@ -206,6 +197,16 @@ namespace Editor
             this.toolStripButton3.Size = new System.Drawing.Size(23, 20);
             this.toolStripButton3.Text = "toolStripButton3";
             // 
+            // viewportControl1
+            // 
+            this.viewportControl1.Control = null;
+            this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.viewportControl1.Location = new System.Drawing.Point(0, 28);
+            this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
+            this.viewportControl1.Name = "viewportControl1";
+            this.viewportControl1.Size = new System.Drawing.Size(217, 289);
+            this.viewportControl1.TabIndex = 1;
+            // 
             // tilepoolPage
             // 
             this.tilepoolPage.Controls.Add(this._tilePoolPane);
@@ -216,6 +217,15 @@ namespace Editor
             this.tilepoolPage.TabIndex = 2;
             this.tilepoolPage.Text = "Tile Pools";
             this.tilepoolPage.UseVisualStyleBackColor = true;
+            // 
+            // _tilePoolPane
+            // 
+            this._tilePoolPane.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._tilePoolPane.Location = new System.Drawing.Point(0, 0);
+            this._tilePoolPane.Margin = new System.Windows.Forms.Padding(0);
+            this._tilePoolPane.Name = "_tilePoolPane";
+            this._tilePoolPane.Size = new System.Drawing.Size(215, 316);
+            this._tilePoolPane.TabIndex = 0;
             // 
             // objectPage
             // 
@@ -250,37 +260,6 @@ namespace Editor
             this.layerPage.Text = "Layers";
             this.layerPage.UseVisualStyleBackColor = true;
             // 
-            // tabPage1
-            // 
-            this.tabPage1.Controls.Add(this.editableListView1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(0);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(0, 2, 2, 1);
-            this.tabPage1.Size = new System.Drawing.Size(217, 239);
-            this.tabPage1.TabIndex = 1;
-            this.tabPage1.Text = "Properties";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // viewportControl1
-            // 
-            this.viewportControl1.Control = null;
-            this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.viewportControl1.Location = new System.Drawing.Point(0, 28);
-            this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
-            this.viewportControl1.Name = "viewportControl1";
-            this.viewportControl1.Size = new System.Drawing.Size(217, 289);
-            this.viewportControl1.TabIndex = 1;
-            // 
-            // _tilePoolPane
-            // 
-            this._tilePoolPane.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._tilePoolPane.Location = new System.Drawing.Point(0, 0);
-            this._tilePoolPane.Margin = new System.Windows.Forms.Padding(0);
-            this._tilePoolPane.Name = "_tilePoolPane";
-            this._tilePoolPane.Size = new System.Drawing.Size(215, 316);
-            this._tilePoolPane.TabIndex = 0;
-            // 
             // _layerPane
             // 
             this._layerPane.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -290,47 +269,27 @@ namespace Editor
             this._layerPane.Size = new System.Drawing.Size(215, 238);
             this._layerPane.TabIndex = 0;
             // 
-            // editableListView1
+            // tabPage1
             // 
-            this.editableListView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this._colPropLabel,
-            this._colPropName,
-            this._colPropValue});
-            this.editableListView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editableListView1.DoubleClickActivation = true;
-            this.editableListView1.FullRowSelect = true;
-            listViewGroup1.Header = "Native Properties";
-            listViewGroup1.Name = "_groupNative";
-            listViewGroup2.Header = "Custom Properties";
-            listViewGroup2.Name = "_groupCustom";
-            this.editableListView1.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup1,
-            listViewGroup2});
-            listViewItem1.Group = listViewGroup1;
-            this.editableListView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
-            this.editableListView1.Location = new System.Drawing.Point(0, 2);
-            this.editableListView1.Margin = new System.Windows.Forms.Padding(0);
-            this.editableListView1.Name = "editableListView1";
-            this.editableListView1.Size = new System.Drawing.Size(215, 236);
-            this.editableListView1.TabIndex = 0;
-            this.editableListView1.UseCompatibleStateImageBehavior = false;
-            this.editableListView1.View = System.Windows.Forms.View.Details;
+            this.tabPage1.Controls.Add(this.propertyPane1);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(0);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
+            this.tabPage1.Size = new System.Drawing.Size(217, 239);
+            this.tabPage1.TabIndex = 1;
+            this.tabPage1.Text = "Properties";
+            this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // _colPropLabel
+            // propertyPane1
             // 
-            this._colPropLabel.Text = "";
-            this._colPropLabel.Width = 0;
-            // 
-            // _colPropName
-            // 
-            this._colPropName.Text = "Name";
-            this._colPropName.Width = 100;
-            // 
-            // _colPropValue
-            // 
-            this._colPropValue.Text = "Value";
-            this._colPropValue.Width = 111;
+            this.propertyPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertyPane1.Location = new System.Drawing.Point(0, 0);
+            this.propertyPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.propertyPane1.Name = "propertyPane1";
+            this.propertyPane1.PropertyProvider = null;
+            this.propertyPane1.Size = new System.Drawing.Size(215, 238);
+            this.propertyPane1.TabIndex = 0;
             // 
             // viewportControl2
             // 
@@ -409,10 +368,7 @@ namespace Editor
         private TilePoolPane _tilePoolPane;
         private Views.LayerPane _layerPane;
         private System.Windows.Forms.TabPage tabPage1;
-        private Controls.EditableListView editableListView1;
-        private System.Windows.Forms.ColumnHeader _colPropLabel;
-        private System.Windows.Forms.ColumnHeader _colPropName;
-        private System.Windows.Forms.ColumnHeader _colPropValue;
+        private Views.PropertyPane propertyPane1;
 
     }
 }
