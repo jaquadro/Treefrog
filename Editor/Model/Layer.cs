@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace Editor.Model
 {
-    public abstract class Layer : INamedResource
+    public abstract class Layer : INamedResource, IPropertyProvider
     {
         #region Fields
 
@@ -47,6 +47,85 @@ namespace Editor.Model
         public NamedResourceCollection<Property> Properties
         {
             get { return _properties; }
+        }
+
+        #endregion
+
+        #region IPropertyProvider Members
+
+        public string PropertyProviderName
+        {
+            get { return "Layer." + _name; }
+        }
+
+        public IEnumerable<Property> PredefinedProperties
+        {
+            get 
+            {
+                yield return LookupProperty("Name");
+                yield return LookupProperty("Opacity");
+                yield return LookupProperty("Visible");
+            }
+        }
+
+        public IEnumerable<Property> CustomProperties
+        {
+            get { return _properties; }
+        }
+
+        public PropertyCategory LookupPropertyCategory (string name)
+        {
+            switch (name) {
+                case "Name":
+                case "Opacity":
+                case "Visible":
+                    return PropertyCategory.Predefined;
+                default:
+                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
+            }
+        }
+
+        public Property LookupProperty (string name)
+        {
+            Property prop;
+
+            switch (name) {
+                case "Name":
+                    prop = new StringProperty("Name", _name);
+                    return prop;
+
+                case "Opacity":
+                    prop = new NumberProperty("Opacity", _opacity);
+                    return prop;
+
+                case "Visible":
+                    prop = new BoolProperty("Visible", _visible);
+                    return prop;
+
+                default:
+                    return _properties.Contains(name) ? _properties[name] : null;
+            }
+        }
+
+        public void AddCustomProperty (Property property)
+        {
+            if (property == null) {
+                throw new ArgumentNullException("The property is null.");
+            }
+            if (_properties.Contains(property.Name)) {
+                throw new ArgumentException("A property with the same name already exists.");
+            }
+
+            _properties.Add(property);
+        }
+
+        public void RemoveCustomProperty (string name)
+        {
+            if (name == null) {
+                throw new ArgumentNullException("The name is null.");
+            }
+
+            _properties.Remove(name);
         }
 
         #endregion

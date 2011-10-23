@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace Editor.Model
@@ -301,19 +299,9 @@ namespace Editor.Model
         {
             get
             {
-                Property prop;
-
-                prop = new StringProperty("Name", _name);
-                prop.ValueChanged += NamePropertyChangedHandler;
-                yield return prop;
-
-                prop = new StringProperty("Tile Height", _tileHeight.ToString());
-                prop.ValueChanged += PredefPropertyValueChangedHandler;
-                yield return prop;
-
-                prop = new StringProperty("Tile Width", _tileWidth.ToString());
-                prop.ValueChanged += PredefPropertyValueChangedHandler;
-                yield return prop;
+                yield return LookupProperty("name");
+                yield return LookupProperty("tile_height");
+                yield return LookupProperty("tile_width");
             }
         }
 
@@ -323,6 +311,53 @@ namespace Editor.Model
         public IEnumerable<Property> CustomProperties
         {
             get { return _properties; }
+        }
+
+        /// <summary>
+        /// Determines whether a given property is predefined, custom, or doesn't exist in this object.
+        /// </summary>
+        /// <param name="name">The name of a property to look up.</param>
+        /// <returns>The category that the property falls into.</returns>
+        public PropertyCategory LookupPropertyCategory (string name)
+        {
+            switch (name) {
+                case "name":
+                case "tile_height":
+                case "tile_width":
+                    return PropertyCategory.Predefined;
+                default:
+                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
+            }
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Property"/> given its name.
+        /// </summary>
+        /// <param name="name">The name of a property to look up.</param>
+        /// <returns>Returns either a predefined or custom <see cref="Property"/>, or <c>null</c> if the property doesn't exist.</returns>
+        public Property LookupProperty (string name)
+        {
+            Property prop;
+
+            switch (name) {
+                case "name":
+                    prop = new StringProperty("name", _name);
+                    prop.ValueChanged += NamePropertyChangedHandler;
+                    return prop;
+
+                case "tile_height":
+                    prop = new NumberProperty("tile_height", _tileHeight);
+                    prop.ValueChanged += PredefPropertyValueChangedHandler;
+                    return prop;
+
+                case "tile_width":
+                    prop = new NumberProperty("tile_width", _tileWidth);
+                    prop.ValueChanged += PredefPropertyValueChangedHandler;
+                    return prop;
+
+                default:
+                    return _properties.Contains(name) ? _properties[name] : null;
+            }
         }
 
         /// <summary>
@@ -439,12 +474,14 @@ namespace Editor.Model
 
         private static void AddPropertyFromXml (XmlReader reader, Level level)
         {
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
             {
                 switch (s) {
                     case "property":
                         level.Properties.Add(Property.FromXml(xmlr));
-                        break;
+                        return false;
+                    default:
+                        return true;
                 }
             });
         }

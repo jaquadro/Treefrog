@@ -35,7 +35,27 @@ namespace Editor.Controls
         }
     }
 
-    class EditableListView : ListView
+    public class ListViewSubItemEx : ListViewItem.ListViewSubItem
+    {
+        public ListViewSubItemEx ()
+            : base()
+        {
+        }
+
+        public ListViewSubItemEx (ListViewItem owner, string text)
+            : base(owner, text)
+        {
+        }
+
+        public ListViewSubItemEx (ListViewItem owner, string text, Color foreColor, Color backColor, Font font)
+            : base(owner, text, foreColor, backColor, font)
+        {
+        }
+
+        public bool ReadOnly { get; set; }
+    }
+
+    public class EditableListView : ListView
     {
         // ListView messages
         private const int LVM_FIRST                 = 0x1000;

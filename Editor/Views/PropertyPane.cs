@@ -52,6 +52,9 @@ namespace Editor.Views
 
             _propertyList.SubItemClicked += PropertyListSubItemClickHandler;
             _propertyList.SubItemEndEditing += PropertyListEndEditingHandler;
+
+            _buttonAddProp.Click += ButtonAddPropClickHandler;
+            _buttonRemoveProp.Click += ButtonRemovePropClickHandler;
         }
 
         #endregion
@@ -85,7 +88,9 @@ namespace Editor.Views
             _propertyList.Items.Clear();
 
             foreach (Property prop in _propertyProvider.PredefinedProperties) {
-                ListViewItem item = new ListViewItem(new string[] { "", prop.Name, prop.ToString()});
+                ListViewItem item = new ListViewItem();
+                item.SubItems.Add(new ListViewSubItemEx(item, prop.Name) { ReadOnly = true });
+                item.SubItems.Add(prop.ToString());
                 item.Group = _groupPredefined;
                 _propertyList.Items.Add(item);
             }
@@ -118,6 +123,11 @@ namespace Editor.Views
         #region Event Handlers
 
         private void PropertyListSubItemClickHandler (object sender, SubItemEventArgs e) {
+            ListViewSubItemEx subEx = e.Item.SubItems[e.SubItem] as ListViewSubItemEx;
+            if (subEx != null && subEx.ReadOnly) {
+                return;
+            }
+
             TextBox econtrol = new TextBox { Parent = this };
 
             _propertyList.StartEditing(econtrol, e.Item, e.SubItem);
@@ -125,21 +135,81 @@ namespace Editor.Views
 
         private void PropertyListEndEditingHandler (object sender, SubItemEndEditingEventArgs e)
         {
-            if (e.SubItem != 2) {
-                return;
-            }
-
             string name = e.Item.SubItems[1].Text;
 
-            foreach (Property prop in _propertyProvider.PredefinedProperties) {
-                if (prop.Name == name) {
-                    prop.Parse(e.DisplayText);
-                    break;
+            if (e.Item.Group == _groupPredefined) {
+                foreach (Property prop in _propertyProvider.PredefinedProperties) {
+                    if (prop.Name == name) {
+                        if (e.SubItem == 2) {
+                            prop.Parse(e.DisplayText);
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (e.Item.Group == _groupCustom) {
+                foreach (Property prop in _propertyProvider.CustomProperties) {
+                    if (prop.Name == name) {
+                        switch (e.SubItem) {
+                            case 1:
+                                prop.Name = e.DisplayText;
+                                break;
+                            case 2:
+                                prop.Parse(e.DisplayText);
+                                break;
+                        }
+                        break;
+                    }
                 }
             }
         }
 
+        private void ButtonAddPropClickHandler (object sender, EventArgs e)
+        {
+            StringProperty prop = new StringProperty(FindDefaultName(), "");
+
+            ListViewItem item = new ListViewItem(_groupCustom);
+            item.SubItems.Add(new ListViewItem.ListViewSubItem(item, prop.Name));
+            item.SubItems.Add(new ListViewItem.ListViewSubItem(item, prop.Value));
+
+            _propertyList.Items.Add(item);
+            _propertyProvider.AddCustomProperty(prop);
+        }
+
+        private void ButtonRemovePropClickHandler (object sender, EventArgs e)
+        {
+            List<ListViewItem> remList = new List<ListViewItem>();
+
+            foreach (ListViewItem item in _propertyList.SelectedItems) {
+                if (item.Group == _groupCustom) {
+                    remList.Add(item);
+                    _propertyProvider.RemoveCustomProperty(item.SubItems[1].Text);
+                }
+            }
+
+            foreach (ListViewItem item in remList) {
+                _propertyList.Items.Remove(item);
+            }
+        }
+
         #endregion
+
+        private string FindDefaultName ()
+        {
+            List<string> names = new List<string>();
+            foreach (ListViewItem item in _propertyList.Items) {
+                names.Add(item.SubItems[1].Text);
+            }
+
+            int i = 0;
+            while (true) {
+                string name = "Property " + ++i;
+                if (names.Contains(name)) {
+                    continue;
+                }
+                return name;
+            }
+        }
 
         private void InitializeComponent ()
         {
@@ -219,6 +289,7 @@ namespace Editor.Views
             this._propertyList.TabIndex = 0;
             this._propertyList.UseCompatibleStateImageBehavior = false;
             this._propertyList.View = System.Windows.Forms.View.Details;
+            this._propertyList.MultiSelect = false;
             // 
             // _colLabel
             // 

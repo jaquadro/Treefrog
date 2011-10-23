@@ -80,6 +80,10 @@ namespace Editor.Model
             switch (type) {
                 case "string":
                     return StringProperty.FromXml(reader, attribs["name"]);
+                case "number":
+                    return NumberProperty.FromXml(reader, attribs["name"]);
+                case "flag":
+                    return BoolProperty.FromXml(reader, attribs["name"]);
             }
 
             return null;
@@ -126,7 +130,7 @@ namespace Editor.Model
 
         public static StringProperty FromXml (XmlReader reader, string name)
         {
-            string value = reader.ReadString();
+            string value = reader.ReadElementContentAsString();
             return new StringProperty(name, value);
         }
 
@@ -135,6 +139,110 @@ namespace Editor.Model
             writer.WriteStartElement("property");
             writer.WriteAttributeString("name", Name);
             writer.WriteString(Value);
+            writer.WriteEndElement();
+        }
+
+        #endregion
+    }
+
+    public class NumberProperty : Property
+    {
+        private float _value;
+
+        public NumberProperty (string name, float value)
+            : base(name)
+        {
+            _value = value;
+        }
+
+        public float Value
+        {
+            get { return _value; }
+            set
+            {
+                if (_value != value) {
+                    _value = value;
+                    OnValueChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        public override void Parse (string value)
+        {
+            Value = Convert.ToSingle(value);
+        }
+
+        public override string ToString ()
+        {
+            return _value.ToString("#.###");
+        }
+
+        #region XML Import / Export
+
+        public static NumberProperty FromXml (XmlReader reader, string name)
+        {
+            float value = reader.ReadElementContentAsFloat();
+            return new NumberProperty(name, value);
+        }
+
+        public override void WriteXml (XmlWriter writer)
+        {
+            writer.WriteStartElement("property");
+            writer.WriteAttributeString("name", Name);
+            writer.WriteAttributeString("type", "number");
+            writer.WriteValue(Value);
+            writer.WriteEndElement();
+        }
+
+        #endregion
+    }
+
+    public class BoolProperty : Property
+    {
+        private bool _value;
+
+        public BoolProperty (string name, bool value)
+            : base(name)
+        {
+            _value = value;
+        }
+
+        public bool Value
+        {
+            get { return _value; }
+            set
+            {
+                if (_value != value) {
+                    _value = value;
+                    OnValueChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        public override void Parse (string value)
+        {
+            Value = Convert.ToBoolean(value);
+        }
+
+        public override string ToString ()
+        {
+            return _value.ToString();
+        }
+
+        #region XML Import / Export
+
+        public static BoolProperty FromXml (XmlReader reader, string name)
+        {
+            bool value = reader.ReadElementContentAsBoolean();
+            return new BoolProperty(name, value);
+        }
+
+        public override void WriteXml (XmlWriter writer)
+        {
+            writer.WriteStartElement("property");
+            writer.WriteAttributeString("name", Name);
+            writer.WriteAttributeString("type", "flag");
+            writer.WriteValue(Value);
             writer.WriteEndElement();
         }
 
