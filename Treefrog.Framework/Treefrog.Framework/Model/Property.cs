@@ -4,6 +4,9 @@ using System.Xml;
 
 namespace Treefrog.Framework.Model
 {
+    /// <summary>
+    /// A generic named property base class.
+    /// </summary>
     public abstract class Property : INamedResource
     {
         #region Fields
@@ -14,7 +17,11 @@ namespace Treefrog.Framework.Model
 
         #region Constructors
 
-        public Property (string name)
+        /// <summary>
+        /// Creates a new <see cref="Property"/> instance with a given name.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        protected Property (string name)
         {
             _name = name;
         }
@@ -23,12 +30,19 @@ namespace Treefrog.Framework.Model
 
         #region Events
 
+        /// <summary>
+        /// Occurs when the property's underlying value is changed.
+        /// </summary>
         public event EventHandler ValueChanged;
 
         #endregion
 
         #region Event Dispatchers
 
+        /// <summary>
+        /// Raises the <see cref="ValueChanged"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnValueChanged (EventArgs e)
         {
             if (ValueChanged != null) {
@@ -38,10 +52,18 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        /// <summary>
+        /// Parses a given string value into the underlying data type and assign it as the property's value.
+        /// </summary>
+        /// <param name="value">A string representation of the value to assign.</param>
+        /// <exception cref="ArgumentException">Thrown when the underlying conversion fails.  Check InnerException for specific failure information.</exception>
         public abstract void Parse (string value);
 
         #region INamedResource Members
 
+        /// <summary>
+        /// Gets or sets the name of the property.
+        /// </summary>
         public string  Name
         {
             get { return _name; }
@@ -55,8 +77,15 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        /// <summary>
+        /// Occurs when the property's name is changed.
+        /// </summary>
         public event EventHandler<NameChangedEventArgs>  NameChanged;
 
+        /// <summary>
+        /// Raises the <see cref="NameChanged"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> containing the event data.</param>
         protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
             if (NameChanged != null) {
@@ -68,6 +97,11 @@ namespace Treefrog.Framework.Model
 
         #region XML Import / Export
 
+        /// <summary>
+        /// Creates a new <see cref="Property"/> object from an XML data stream.
+        /// </summary>
+        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
+        /// <returns>A concrete <see cref="Property"/> object, dependent on the type attribute of the property element that was parsed.</returns>
         public static Property FromXml (XmlReader reader)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
@@ -87,21 +121,36 @@ namespace Treefrog.Framework.Model
             return null;
         }
 
+        /// <summary>
+        /// Writes an XML representation of the concrete <see cref="Property"/> instance to the given XML data stream.
+        /// </summary>
+        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
         public abstract void WriteXml (XmlWriter writer);
 
         #endregion
     }
 
+    /// <summary>
+    /// A concrete <see cref="Property"/> type that represents a <see cref="String"/> value.
+    /// </summary>
     public class StringProperty : Property
     {
         private string _value;
 
+        /// <summary>
+        /// Creates a new <see cref="StringProperty"/> instance from a given name and value.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="value">The value of the property.</param>
         public StringProperty (string name, string value)
             : base(name)
         {
             _value = value;
         }
 
+        /// <summary>
+        /// Gets or sets the value of the property.
+        /// </summary>
         public string Value
         {
             get { return _value; }
@@ -114,11 +163,16 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        /// <inherit/>
         public override void Parse (string value)
         {
             Value = value;
         }
 
+        /// <summary>
+        /// Returns the property's value as a <see cref="String"/>.
+        /// </summary>
+        /// <returns>A <see cref="String"/> representation of the property's value.</returns>
         public override string ToString ()
         {
             return _value;
@@ -126,12 +180,22 @@ namespace Treefrog.Framework.Model
 
         #region XML Import / Export
 
+        /// <summary>
+        /// Creates a new <see cref="StringProperty"/> object from an XML data stream.
+        /// </summary>
+        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
+        /// <param name="name">The name to give the new <see cref="StringProperty"/>.</param>
+        /// <returns>A <see cref="StringProperty"/> object with the given name and XML-derived value.</returns>
         public static StringProperty FromXml (XmlReader reader, string name)
         {
             string value = reader.ReadElementContentAsString();
             return new StringProperty(name, value);
         }
 
+        /// <summary>
+        /// Writes an XML representation of the <see cref="StringProperty"/> instance to the given XML data stream.
+        /// </summary>
+        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
         public override void WriteXml (XmlWriter writer)
         {
             writer.WriteStartElement("property");
@@ -143,16 +207,27 @@ namespace Treefrog.Framework.Model
         #endregion
     }
 
+    /// <summary>
+    /// A concrete <see cref="Property"/> type that represents a numeric <see cref="Single"/> value.
+    /// </summary>
     public class NumberProperty : Property
     {
         private float _value;
 
+        /// <summary>
+        /// Creates a new <see cref="NumberProperty"/> instance from a given name and value.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="value">The value of the property.</param>
         public NumberProperty (string name, float value)
             : base(name)
         {
             _value = value;
         }
 
+        /// <summary>
+        /// Gets or sets the value of the property.
+        /// </summary>
         public float Value
         {
             get { return _value; }
@@ -165,11 +240,21 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        /// <inherit/>
         public override void Parse (string value)
         {
-            Value = Convert.ToSingle(value);
+            try {
+                Value = Convert.ToSingle(value);
+            }
+            catch (Exception e) {
+                throw new ArgumentException("Failed to convert value to this property's value type.", e);
+            }
         }
 
+        /// <summary>
+        /// Returns the property's value as a <see cref="String"/>.
+        /// </summary>
+        /// <returns>A <see cref="String"/> representation of the property's value.</returns>
         public override string ToString ()
         {
             return _value.ToString("#.###");
@@ -177,12 +262,22 @@ namespace Treefrog.Framework.Model
 
         #region XML Import / Export
 
+        /// <summary>
+        /// Creates a new <see cref="NumberProperty"/> object from an XML data stream.
+        /// </summary>
+        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
+        /// <param name="name">The name to give the new <see cref="NumberProperty"/>.</param>
+        /// <returns>A <see cref="NumberProperty"/> object with the given name and XML-derived value.</returns>
         public static NumberProperty FromXml (XmlReader reader, string name)
         {
             float value = reader.ReadElementContentAsFloat();
             return new NumberProperty(name, value);
         }
 
+        /// <summary>
+        /// Writes an XML representation of the <see cref="NumberProperty"/> instance to the given XML data stream.
+        /// </summary>
+        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
         public override void WriteXml (XmlWriter writer)
         {
             writer.WriteStartElement("property");
@@ -195,16 +290,27 @@ namespace Treefrog.Framework.Model
         #endregion
     }
 
+    /// <summary>
+    /// A concrete <see cref="Property"/> type that represents a <see cref="Boolean"/> value.
+    /// </summary>
     public class BoolProperty : Property
     {
         private bool _value;
 
+        /// <summary>
+        /// Creates a new <see cref="BoolProperty"/> instance from a given name and value.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="value">The value of the property.</param>
         public BoolProperty (string name, bool value)
             : base(name)
         {
             _value = value;
         }
 
+        /// <summary>
+        /// Gets or sets the value of the property.
+        /// </summary>
         public bool Value
         {
             get { return _value; }
@@ -217,11 +323,21 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        /// <inherit/>
         public override void Parse (string value)
         {
-            Value = Convert.ToBoolean(value);
+            try {
+                Value = Convert.ToBoolean(value);
+            }
+            catch (Exception e) {
+                throw new ArgumentException("Failed to convert value to this property's value type.", e);
+            }
         }
 
+        /// <summary>
+        /// Returns the property's value as a <see cref="String"/>.
+        /// </summary>
+        /// <returns>A <see cref="String"/> representation of the property's value.</returns>
         public override string ToString ()
         {
             return _value.ToString();
@@ -229,12 +345,22 @@ namespace Treefrog.Framework.Model
 
         #region XML Import / Export
 
+        /// <summary>
+        /// Creates a new <see cref="CoolProperty"/> object from an XML data stream.
+        /// </summary>
+        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
+        /// <param name="name">The name to give the new <see cref="BoolProperty"/>.</param>
+        /// <returns>A <see cref="BoolProperty"/> object with the given name and XML-derived value.</returns>
         public static BoolProperty FromXml (XmlReader reader, string name)
         {
             bool value = reader.ReadElementContentAsBoolean();
             return new BoolProperty(name, value);
         }
 
+        /// <summary>
+        /// Writes an XML representation of the <see cref="BoolProperty"/> instance to the given XML data stream.
+        /// </summary>
+        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
         public override void WriteXml (XmlWriter writer)
         {
             writer.WriteStartElement("property");

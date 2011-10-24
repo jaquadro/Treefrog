@@ -427,9 +427,9 @@ namespace Treefrog.Framework.Model
         }
 
         /// <summary>
-        /// Writes an Xml representation of this <see cref="Level"/> object to the given XML data stream.
+        /// Writes an XML representation of this <see cref="Level"/> object to the given XML data stream.
         /// </summary>
-        /// <param name="writer">An XmlWriter to write the level data into.</param>
+        /// <param name="writer">An <see cref="XmlWriter"/> to write the level data into.</param>
         public void WriteXml (XmlWriter writer)
         {
             // <level name="" height="" width="">
