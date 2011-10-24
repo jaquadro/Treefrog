@@ -116,13 +116,9 @@
     <Compile Include="Controls\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <None Include="Model\Level.cs" />
-    <None Include="Model\Property.cs" />
-    <None Include="Model\PropertyProvider.cs" />
     <Compile Include="Views\PropertyPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <None Include="XmlHelper.cs" />
     <None Include="Controls\AmphibianGameControl.cs">
       <SubType>Component</SubType>
     </None>
@@ -149,18 +145,7 @@
     <Compile Include="Model\Controls\TileControlLayer.cs" />
     <Compile Include="Model\Controls\TileSetControlLayer.cs" />
     <Compile Include="Model\Design\MapState.cs" />
-    <None Include="Model\Layer.cs" />
-    <None Include="Model\MultiTileGridLayer.cs" />
-    <None Include="Model\NamedResource.cs" />
-    <None Include="Model\NamedResourceCollection.cs" />
-    <None Include="Model\OrderedResourceCollection.cs" />
-    <None Include="Model\Project.cs" />
-    <None Include="Model\TileGridLayer.cs" />
-    <None Include="Model\TileLayer.cs" />
     <Compile Include="Model\TileSetLayer.cs" />
-    <None Include="Model\TileSource.cs" />
-    <None Include="Model\TileStack.cs" />
-    <None Include="Model\TileTransform.cs" />
     <Compile Include="StandardToolbar.cs" />
     <Compile Include="TileToolbar.cs" />
     <Compile Include="Tools\DrawTool.cs" />
@@ -196,23 +181,17 @@
     <Compile Include="GraphicsDeviceService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <None Include="ServiceContainer.cs" />
     <None Include="app.config" />
     <None Include="EditorViewport.cs" />
-    <None Include="Model\Tile.cs" />
     <None Include="Controls\TileControl.cs">
       <SubType>Component</SubType>
     </None>
-    <None Include="Model\TileCoord.cs" />
     <Compile Include="Views\TileEditView.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\TileEditView.Designer.cs">
       <DependentUpon>TileEditView.cs</DependentUpon>
     </Compile>
-    <None Include="Model\TilePool.cs" />
-    <None Include="Model\TileRegistry.cs" />
-    <None Include="Model\TileSet.cs" />
     <Compile Include="Views\TilePoolPane.cs">
       <SubType>UserControl</SubType>
     </Compile>

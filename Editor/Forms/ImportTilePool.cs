@@ -149,6 +149,7 @@ namespace Editor.Forms
             //TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
             _tileLayer.Layer = new TileSetLayer("Preview", preview);
+            _tileLayer.ShouldDrawGrid = LayerCondition.Always;
 
             // Update stats
 

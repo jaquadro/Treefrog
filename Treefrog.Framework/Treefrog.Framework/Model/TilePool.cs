@@ -62,7 +62,7 @@ namespace Treefrog.Framework.Model
 
         public int Capacity
         {
-            get { return _openLocations.Count; }
+            get { return _openLocations.Count + _locations.Count; }
         }
 
         public int Count

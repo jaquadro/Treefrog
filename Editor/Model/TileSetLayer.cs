@@ -12,7 +12,6 @@ namespace Editor.Model
     {
         #region Fields
 
-        //TileSet1D _tileSet;
         TilePool _pool;
 
         private List<Tile> _index;
