@@ -104,14 +104,6 @@ namespace Treefrog.Framework.Model
             writer.Close();
         }
 
-        /*public void Initialize (IntPtr windowHandle)
-        {
-            GraphicsDeviceService gds = GraphicsDeviceService.AddRef(windowHandle, 128, 128);
-            _services.AddService(typeof(IGraphicsDeviceService), gds);
-
-            Initialize(gds.GraphicsDevice);
-        }*/
-
         public void Initialize (GraphicsDevice device)
         {
             _registry = new TileRegistry(device);

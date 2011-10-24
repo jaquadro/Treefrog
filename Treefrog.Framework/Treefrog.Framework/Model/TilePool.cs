@@ -20,6 +20,8 @@ namespace Treefrog.Framework.Model
     {
         private const int _initFactor = 4;
 
+        #region Fields
+
         private string _name;
 
         private TileRegistry _registry;
@@ -33,6 +35,10 @@ namespace Treefrog.Framework.Model
         private List<TileCoord> _openLocations;
 
         private NamedResourceCollection<Property> _properties;
+
+        #endregion
+
+        #region Constructors
 
         protected TilePool ()
         {
@@ -57,6 +63,8 @@ namespace Treefrog.Framework.Model
                 }
             }
         }
+
+        #endregion
 
         #region Properties
 
@@ -86,55 +94,6 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
-
-        /*#region ITileSource Properties
-
-        public int Count
-        {
-            get { return _tiles.Count; }
-        }
-
-        public int TileWidth
-        {
-            get { return _tileWidth; }
-        }
-
-        public int TileHeight
-        {
-            get { return _tileHeight; }
-        }
-
-        public int TilesWide
-        {
-            get { return _tileSource.Width / _tileWidth; }
-        }
-
-        public int TilesHigh
-        {
-            get { return _tileSource.Height / _tileHeight; }
-        }
-
-        public int PixelsWide
-        {
-            get { return _tileSource.Width; }
-        }
-
-        public int PixelsHigh
-        {
-            get { return _tileSource.Height; }
-        }
-
-        public bool EnforceSetDimensions
-        {
-            get { return false; }
-        }
-
-        public NamedResourceCollection<Property> Properties
-        {
-            get { return _properties; }
-        }
-
-        #endregion */
 
         IEnumerator IEnumerable.GetEnumerator ()
         {
