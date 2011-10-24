@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor.Model
 {
@@ -10,7 +12,8 @@ namespace Editor.Model
     {
         #region Fields
 
-        TileSet1D _tileSet;
+        //TileSet1D _tileSet;
+        TilePool _pool;
 
         private List<Tile> _index;
 
@@ -18,10 +21,10 @@ namespace Editor.Model
 
         #region Constructors
 
-        public TileSetLayer (string name, TileSet1D tileSet)
-            : base(name, tileSet.TileWidth, tileSet.TileHeight)
+        public TileSetLayer (string name, TilePool pool)
+            : base(name, pool.TileWidth, pool.TileHeight)
         {
-            _tileSet = tileSet;
+            _pool = pool;
             SyncIndex();
         }
 
@@ -31,12 +34,12 @@ namespace Editor.Model
 
         public int Count
         {
-            get { return _tileSet.Count; }
+            get { return _pool.Count; }
         }
 
         public int Capacity
         {
-            get { return _tileSet.Capacity; }
+            get { return _pool.Capacity; }
         }
 
         public Tile this[int index]
@@ -57,7 +60,7 @@ namespace Editor.Model
 
         public virtual IEnumerable<Tile> Tiles
         {
-            get { return _tileSet; }
+            get { return _pool; }
         }
 
         #endregion
@@ -66,7 +69,7 @@ namespace Editor.Model
         {
             _index = new List<Tile>();
 
-            foreach (Tile t in _tileSet) {
+            foreach (Tile t in _pool) {
                 _index.Add(t);
             }
         }

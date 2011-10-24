@@ -70,7 +70,7 @@ namespace Treefrog.Framework.Model
             _tileIndex.Remove(id);
         }
 
-        internal GraphicsDevice GraphicsDevice
+        public GraphicsDevice GraphicsDevice
         {
             get { return _device; }
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor.Model.Controls
 {

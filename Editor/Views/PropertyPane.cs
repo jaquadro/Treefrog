@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using System.Drawing;
 using Editor.Model;
 using Editor.Controls;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor.Views
 {

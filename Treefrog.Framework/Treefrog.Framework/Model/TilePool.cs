@@ -65,6 +65,11 @@ namespace Treefrog.Framework.Model
             get { return _openLocations.Count; }
         }
 
+        public int Count
+        {
+            get { return _tiles.Count; }
+        }
+
         public NamedResourceCollection<Property> Properties
         {
             get { return _properties; }

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
+using Treefrog.Framework.Model.Support;
 
 namespace Editor.Model.Controls
 {

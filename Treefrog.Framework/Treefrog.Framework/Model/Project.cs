@@ -116,6 +116,7 @@ namespace Treefrog.Framework.Model
         {
             _registry = new TileRegistry(device);
 
+            _services.AddService(typeof(IGraphicsDeviceService), device);
             _services.AddService(typeof(TileRegistry), _registry);
 
             _initalized = true;

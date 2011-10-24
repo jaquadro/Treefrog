@@ -7,9 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using Editor.Model;
 using Microsoft.Xna.Framework.Graphics;
+using Editor.Model;
 using Editor.Model.Controls;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor.Forms
 {
@@ -144,9 +146,9 @@ namespace Editor.Forms
                 (int)_numTileWidth.Value, (int)_numTileHeight.Value, 
                 (int)_numXSpacing.Value, (int)_numYSpacing.Value,
                 (int)_numXMargin.Value, (int)_numYMargin.Value);
-            TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
+            //TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
-            _tileLayer.Layer = new TileSetLayer("Preview", previewSet);
+            _tileLayer.Layer = new TileSetLayer("Preview", preview);
 
             // Update stats
 

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Editor.Model;
 using Editor.Model.Controls;
 using Editor.Controls;
 using Microsoft.Xna.Framework;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor
 {

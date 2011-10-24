@@ -9,8 +9,8 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
-using Editor.Model;
-
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor
 {
@@ -56,8 +56,10 @@ namespace Editor
 
             // Other
 
+            GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
+
             _project = new Project();
-            _project.Initialize(Handle);
+            _project.Initialize(gds.GraphicsDevice);
             //_project.SetupDefaults();
 
             //_tilesetView = new TilesetView(this, _project);
@@ -272,8 +274,10 @@ namespace Editor
 
         private void ButtonOpen (object sender, EventArgs e)
         {
+            GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
+
             using (FileStream fs = File.Open("test.tlp", FileMode.Open, FileAccess.Read)) {
-                _project = Project.Open(fs, Handle);
+                _project = Project.Open(fs, gds.GraphicsDevice);
             }
 
             //Level level = new Level("Level 1", 16, 16, 30, 20);

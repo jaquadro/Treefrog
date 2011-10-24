@@ -6,8 +6,9 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Editor.Model;
 using Editor.Model.Controls;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor
 {

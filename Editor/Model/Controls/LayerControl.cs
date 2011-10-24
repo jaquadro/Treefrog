@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework;
 using System.Windows.Forms;
 using System.ComponentModel;
 using Amphibian.Drawing;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
 
 namespace Editor.Model.Controls
 {
