@@ -11,11 +11,6 @@ using Treefrog.Framework.Model;
 
 namespace Editor.Views
 {
-    public class PropertyPanelProperties : PanelProperties
-    {
-
-    }
-
     public class PropertyPane : UserControl
     {
         private ToolStripContainer toolStripContainer1;
@@ -64,6 +59,8 @@ namespace Editor.Views
             _buttonRemoveProp.Click += ButtonRemovePropClickHandler;
 
             _data = new PropertyPanelProperties();
+
+            UpdateToolbar();
         }
 
         #endregion
@@ -208,6 +205,25 @@ namespace Editor.Views
 
         #endregion
 
+        public void Deactivate ()
+        {
+            _propertyProvider = null;
+            _propertyList.Items.Clear();
+
+            UpdateToolbar();
+        }
+
+        public void Activate (LevelState level, PanelProperties properties)
+        {
+            PropertyProvider = level.Level;
+
+            if (properties is LayerPanelProperties) {
+                _data = properties as PropertyPanelProperties;
+            }
+
+            UpdateToolbar();
+        }
+
         private string FindDefaultName ()
         {
             List<string> names = new List<string>();
@@ -223,6 +239,12 @@ namespace Editor.Views
                 }
                 return name;
             }
+        }
+
+        private void UpdateToolbar ()
+        {
+            _buttonAddProp.Enabled = (_propertyProvider != null);
+            _buttonRemoveProp.Enabled = (_propertyProvider != null && _propertyList.SelectedItems.Count > 0);
         }
 
         private void InitializeComponent ()
@@ -386,5 +408,10 @@ namespace Editor.Views
             this.ResumeLayout(false);
 
         }
+    }
+
+    public class PropertyPanelProperties : PanelProperties
+    {
+
     }
 }

@@ -11,11 +11,6 @@ using Treefrog.Framework.Model;
 
 namespace Editor.Views
 {
-    public class LayerPanelProperties : PanelProperties
-    {
-        public string SelectedLayer { get; set; }
-    }
-
     public partial class LayerPane : UserControl, IEditorPanel
     {
         #region Fields
@@ -65,6 +60,8 @@ namespace Editor.Views
             _buttonUp.Click += MoveUpTileLayerClickedHandler;
 
             _data = new LayerPanelProperties();
+
+            UpdateToolbar();
         }
 
         public LayerPane (Project project, string level, LayerControl control)
@@ -336,9 +333,9 @@ namespace Editor.Views
 
         private void UpdateToolbar ()
         {
-            _buttonAdd.Enabled = (_listControl != null);
-            _buttonRemove.Enabled = (_listControl != null && _listControl.Items.Count > 0);
-            _buttonCopy.Enabled = (_listControl != null && _listControl.Items.Count > 0);
+            _buttonAdd.Enabled = (_layerControl != null);
+            _buttonRemove.Enabled = (_layerControl != null && _listControl.Items.Count > 0);
+            _buttonCopy.Enabled = (_layerControl != null && _listControl.Items.Count > 0);
 
             if (_currentLayer == null) {
                 _buttonUp.Enabled = false;
@@ -392,5 +389,10 @@ namespace Editor.Views
 
             base.WndProc(ref m);
         }
+    }
+
+    public class LayerPanelProperties : PanelProperties
+    {
+        public string SelectedLayer { get; set; }
     }
 }

@@ -45,11 +45,11 @@ namespace Editor
             _project = project;
             _level = _project.Levels[level];
 
-            _tilePoolPane.SetupDefault(_project);
+            //_tilePoolPane.SetupDefault(_project);
 
-            _layerPane.SetupDefault(_project, level, tilemapControl);
+            //_layerPane.SetupDefault(_project, level, tilemapControl);
 
-            propertyPane1.PropertyProvider = _level;
+            //propertyPane1.PropertyProvider = _level;
 
             /*_tileLayer = new MultiTileControlLayer(tilemapControl);
             _tileLayer.ShouldDrawContent = LayerCondition.Always;
@@ -59,7 +59,7 @@ namespace Editor
             //_layer = new MultiTileGridLayer("Default", 16, 16, 30, 20);
             //_tileLayer.Layer = _layer;
 
-            _layerPane.SelectedLayerChanged += LayerSelectionChangedHandler;
+            //_layerPane.SelectedLayerChanged += LayerSelectionChangedHandler;
 
             // Tools
 
@@ -71,6 +71,12 @@ namespace Editor
             //_drawTool.Enabled = true;
         }
 
+        public MapView (EditorState editor)
+            : this()
+        {
+
+        }
+
         #endregion
 
         #region Event Handlers
@@ -78,7 +84,7 @@ namespace Editor
         private void LayerSelectionChangedHandler (object sender, EventArgs e)
         {
             // TODO: Eventually we'll have more than tile layers
-            _layer = _layerPane.SelectedLayer as MultiTileGridLayer;
+            /*_layer = _layerPane.SelectedLayer as MultiTileGridLayer;
             _tileLayer = _layerPane.SelectedControlLayer as MultiTileControlLayer;
 
             if (_drawTool != null) {
@@ -93,7 +99,7 @@ namespace Editor
                 tilemapControl.SetScrollSmallChange(ScrollOrientation.VerticalScroll, _layer.TileHeight);
                 tilemapControl.SetScrollLargeChange(ScrollOrientation.HorizontalScroll, _layer.TileWidth * 4);
                 tilemapControl.SetScrollLargeChange(ScrollOrientation.VerticalScroll, _layer.TileHeight * 4);
-            }
+            }*/
         }
 
         #endregion

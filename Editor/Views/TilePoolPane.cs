@@ -15,11 +15,6 @@ using Treefrog.Framework.Model;
 
 namespace Editor
 {
-    public class TilePoolPanelProperties : PanelProperties
-    {
-
-    }
-
     public partial class TilePoolPane : UserControl
     {
         private Project _project;
@@ -178,6 +173,45 @@ namespace Editor
             }*/
         }
 
+        public void Deactivate ()
+        {
+            _project = null;
+            _selected = null;
+
+            _pools = null;
+            _tileLayer = null;
+        }
+
+        public void Activate (LevelState level, PanelProperties properties)
+        {
+            _project = level.Project;
+
+            _pools = new TilePoolCollection(_project.TilePools);
+            _pools.PoolAdded += PoolAddedHandler;
+            _pools.PoolRemoved += PoolRemovedHandler;
+            _pools.PoolRemapped += PoolRemappedHandler;
+
+            _pools.Synchronize(_project.TilePools);
+
+            // Configure default selection
+
+            //_selected = _project.TilePools["Default"];
+            //_selectedSet = TileSet1D.CreatePoolSet("Default", _selected);
+
+            //_tileLayer.Layer = new TileSetLayer(_selectedSet);
+
+            // Setup list
+
+            foreach (TilePool pool in _project.TilePools) {
+                _poolComboBox.Items.Add(pool.Name);
+            }
+
+            if (_poolComboBox.Items.Count > 0) {
+                SelectPool(_poolComboBox.Items[0] as string);
+                _poolComboBox.SelectedIndex = 0;
+            }
+        }
+
         private class TilePoolRecord
         {
             private INamedResource _resource;
@@ -306,5 +340,10 @@ namespace Editor
             _tileControl.SetScrollLargeChange(ScrollOrientation.HorizontalScroll, _selected.TileWidth * 4);
             _tileControl.SetScrollLargeChange(ScrollOrientation.VerticalScroll, _selected.TileHeight * 4);
         }
+    }
+
+    public class TilePoolPanelProperties : PanelProperties
+    {
+
     }
 }

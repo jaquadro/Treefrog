@@ -34,6 +34,8 @@ namespace Editor
 
         private Project _project;
 
+        private EditorState _editor;
+
         public Form1 ()
         {
             InitializeComponent();
@@ -56,7 +58,15 @@ namespace Editor
 
             // Other
 
+            _editor = new EditorState();
+
+            splitContainer1.Panel2.Controls.Add(_editor.MainTabControl);
+            splitContainer2.Panel1.Controls.Add(_editor.UpperLeftTabControl);
+            splitContainer2.Panel2.Controls.Add(_editor.LowerLeftTabControl);
+
             GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
+
+            
 
             _project = new Project();
             _project.Initialize(gds.GraphicsDevice);
@@ -72,6 +82,8 @@ namespace Editor
             level.Properties.Add(prop2);
 
             _project.Levels.Add(level);
+
+            _editor.LoadProject(_project);
 
             _mapView = new MapView(_project, "Level 1");
             _mapView.Dock = DockStyle.Fill;
