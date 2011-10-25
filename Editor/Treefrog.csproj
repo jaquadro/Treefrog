@@ -116,6 +116,7 @@
     <Compile Include="Controls\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Editor.cs" />
     <Compile Include="Views\PropertyPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -182,7 +183,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <None Include="app.config" />
-    <None Include="EditorViewport.cs" />
     <None Include="Controls\TileControl.cs">
       <SubType>Component</SubType>
     </None>

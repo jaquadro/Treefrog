@@ -48,8 +48,11 @@ namespace Editor
             this._layerPane = new Editor.Views.LayerPane();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.propertyPane1 = new Editor.Views.PropertyPane();
+            this.tabControl1 = new TabControlEx();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.viewportControl2 = new Editor.ViewportControl();
             this.tilemapControl = new Editor.Model.Controls.LayerControl();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.mainContainer)).BeginInit();
             this.mainContainer.Panel1.SuspendLayout();
             this.mainContainer.Panel2.SuspendLayout();
@@ -66,6 +69,8 @@ namespace Editor
             this.lowerTabControl.SuspendLayout();
             this.layerPage.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainContainer
@@ -81,7 +86,7 @@ namespace Editor
             // 
             // mainContainer.Panel2
             // 
-            this.mainContainer.Panel2.Controls.Add(this.viewportControl2);
+            this.mainContainer.Panel2.Controls.Add(this.tabControl1);
             this.mainContainer.Size = new System.Drawing.Size(943, 612);
             this.mainContainer.SplitterDistance = 225;
             this.mainContainer.TabIndex = 4;
@@ -291,6 +296,30 @@ namespace Editor
             this.propertyPane1.Size = new System.Drawing.Size(215, 238);
             this.propertyPane1.TabIndex = 0;
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 0);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(714, 612);
+            this.tabControl1.TabIndex = 1;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.viewportControl2);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(0);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.tabPage2.Size = new System.Drawing.Size(706, 586);
+            this.tabPage2.TabIndex = 0;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
             // viewportControl2
             // 
             this.viewportControl2.Control = this.tilemapControl;
@@ -298,7 +327,7 @@ namespace Editor
             this.viewportControl2.Location = new System.Drawing.Point(0, 0);
             this.viewportControl2.Margin = new System.Windows.Forms.Padding(0);
             this.viewportControl2.Name = "viewportControl2";
-            this.viewportControl2.Size = new System.Drawing.Size(714, 612);
+            this.viewportControl2.Size = new System.Drawing.Size(706, 585);
             this.viewportControl2.TabIndex = 0;
             // 
             // tilemapControl
@@ -310,10 +339,20 @@ namespace Editor
             this.tilemapControl.Location = new System.Drawing.Point(0, 0);
             this.tilemapControl.Margin = new System.Windows.Forms.Padding(0);
             this.tilemapControl.Name = "tilemapControl";
-            this.tilemapControl.Size = new System.Drawing.Size(697, 595);
+            this.tilemapControl.Size = new System.Drawing.Size(689, 568);
             this.tilemapControl.TabIndex = 0;
             this.tilemapControl.Text = "tilemapControl";
             this.tilemapControl.WidthSynced = false;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(706, 586);
+            this.tabPage3.TabIndex = 1;
+            this.tabPage3.Text = "tabPage3";
+            this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // MapView
             // 
@@ -341,6 +380,8 @@ namespace Editor
             this.lowerTabControl.ResumeLayout(false);
             this.layerPage.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -369,6 +410,9 @@ namespace Editor
         private Views.LayerPane _layerPane;
         private System.Windows.Forms.TabPage tabPage1;
         private Views.PropertyPane propertyPane1;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPage3;
 
     }
 }

@@ -752,6 +752,17 @@ namespace Editor.Model.Controls
 
         #endregion
 
+        public BaseControlLayer FindLayer (string name)
+        {
+            foreach (BaseControlLayer layer in _layers) {
+                if (layer.Layer.Name == name) {
+                    return layer;
+                }
+            }
+
+            return null;
+        }
+
         public Brush CreateSolidColorBrush (Color color)
         {
             return new SolidColorBrush(_spriteBatch, color);

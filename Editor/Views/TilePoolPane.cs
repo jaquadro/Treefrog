@@ -15,6 +15,11 @@ using Treefrog.Framework.Model;
 
 namespace Editor
 {
+    public class TilePoolPanelProperties : PanelProperties
+    {
+
+    }
+
     public partial class TilePoolPane : UserControl
     {
         private Project _project;
@@ -25,6 +30,8 @@ namespace Editor
         //private TileSet1D _selectedSet;
 
         private TileSetControlLayer _tileLayer;
+
+        private TilePoolPanelProperties _data;
 
         public TilePoolPane ()
         {
@@ -54,6 +61,8 @@ namespace Editor
             _tileControl.Mode = TileControlMode.Select;*/
 
             importNewToolStripMenuItem.Click += ImportPoolHandler;
+
+            _data = new TilePoolPanelProperties();
         }
 
         public TilePoolPane (Project project)
@@ -102,6 +111,11 @@ namespace Editor
         public TileControlLayer TileLayer
         {
             get { return _tileLayer; }
+        }
+
+        public PanelProperties PanelProperties
+        {
+            get { return _data; }
         }
 
         private void PoolAddedHandler (object sender, NamedResourceEventArgs<TilePool> e)

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 using Editor.Model.Controls;
@@ -13,7 +11,12 @@ using Treefrog.Framework.Model;
 
 namespace Editor.Views
 {
-    public partial class LayerPane : UserControl
+    public class LayerPanelProperties : PanelProperties
+    {
+        public string SelectedLayer { get; set; }
+    }
+
+    public partial class LayerPane : UserControl, IEditorPanel
     {
         #region Fields
 
@@ -26,6 +29,8 @@ namespace Editor.Views
         LayerControl _layerControl;
 
         Dictionary<string, BaseControlLayer> _controlLayers;
+
+        private LayerPanelProperties _data;
 
         #endregion
 
@@ -58,6 +63,8 @@ namespace Editor.Views
             _buttonRemove.Click += RemoveTileLayerClickedHandler;
             _buttonDown.Click += MoveDownTileLayerClickedHandler;
             _buttonUp.Click += MoveUpTileLayerClickedHandler;
+
+            _data = new LayerPanelProperties();
         }
 
         public LayerPane (Project project, string level, LayerControl control)
@@ -78,6 +85,11 @@ namespace Editor.Views
         public BaseControlLayer SelectedControlLayer
         {
             get { return _currentControl; }
+        }
+
+        public PanelProperties PanelProperties
+        {
+            get { return _data; }
         }
 
         #endregion
@@ -200,6 +212,62 @@ namespace Editor.Views
 
         #endregion
 
+        public void Deactivate ()
+        {
+            _project = null;
+            _level = null;
+            _layerControl = null;
+
+            _currentControl = null;
+            _currentLayer = null;
+
+            _listControl.Items.Clear();
+
+            _data.SelectedLayer = null;
+
+            UpdateToolbar();
+        }
+
+        public void Activate (LevelState level, PanelProperties properties)
+        {
+            _project = level.Project;
+            _level = level.Level;
+            _layerControl = level.LayerControl;
+
+            if (properties is LayerPanelProperties) {
+                _data = properties as LayerPanelProperties;
+            }
+
+            foreach (Layer layer in _level.Layers) {
+                ListViewItem layerItem = new ListViewItem(layer.Name, "grid.png")
+                {
+                    Name = layer.Name,
+                    Checked = true,
+                    Selected = true,
+                };
+                _listControl.Items.Insert(0, layerItem);
+
+                BaseControlLayer clayer = _layerControl.FindLayer(layer.Name);
+                if (clayer == null) {
+                    throw new Exception("Expected matching BaseControlLayer!");
+                }
+
+                _controlLayers[layer.Name] = clayer;
+            }
+
+            if (_data.SelectedLayer != null) {
+                SelectLayer(_data.SelectedLayer);
+            }
+            else {
+                foreach (Layer layer in _level.Layers) {
+                    SelectLayer(layer.Name);
+                    break;
+                }
+            }
+
+            UpdateToolbar();
+        }
+
         public void SetupDefault (Project project, string level, LayerControl control)
         {
             _project = project;
@@ -268,8 +336,9 @@ namespace Editor.Views
 
         private void UpdateToolbar ()
         {
-            _buttonRemove.Enabled = (_listControl.Items.Count > 0);
-            _buttonCopy.Enabled = (_listControl.Items.Count > 0);
+            _buttonAdd.Enabled = (_listControl != null);
+            _buttonRemove.Enabled = (_listControl != null && _listControl.Items.Count > 0);
+            _buttonCopy.Enabled = (_listControl != null && _listControl.Items.Count > 0);
 
             if (_currentLayer == null) {
                 _buttonUp.Enabled = false;

@@ -11,7 +11,10 @@ using Treefrog.Framework.Model;
 
 namespace Editor.Views
 {
-    
+    public class PropertyPanelProperties : PanelProperties
+    {
+
+    }
 
     public class PropertyPane : UserControl
     {
@@ -30,6 +33,8 @@ namespace Editor.Views
 
         private ListViewGroup _groupPredefined;
         private ListViewGroup _groupCustom;
+
+        private PropertyPanelProperties _data;
 
         #region Constructors
 
@@ -57,6 +62,8 @@ namespace Editor.Views
 
             _buttonAddProp.Click += ButtonAddPropClickHandler;
             _buttonRemoveProp.Click += ButtonRemovePropClickHandler;
+
+            _data = new PropertyPanelProperties();
         }
 
         #endregion
@@ -73,6 +80,11 @@ namespace Editor.Views
                     OnPropertyProviderChanged(EventArgs.Empty);
                 }
             }
+        }
+
+        public PanelProperties PanelProperties
+        {
+            get { return _data; }
         }
 
         #endregion
