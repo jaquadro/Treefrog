@@ -13,9 +13,19 @@ namespace Editor
     public interface IEditorPanel
     {
         void Deactivate ();
-        void Activate (LevelState level, PanelProperties properties);
+        //void Activate (LevelState level, PanelProperties properties);
 
         PanelProperties PanelProperties { get; }
+    }
+
+    public interface IProjectPanel : IEditorPanel
+    {
+        void Activate (EditorState level, PanelProperties properties);
+    }
+
+    public interface ILevelPanel : IEditorPanel
+    {
+        void Activate (LevelState level, PanelProperties properties);
     }
 
     public class PanelProperties
@@ -32,20 +42,23 @@ namespace Editor
         private Project _project;
         private Level _level;
 
-        private LayerControl _layerControl;
+        //private LayerControl _layerControl;
         private CommandHistory _commandHistory;
 
         private Dictionary<Type, PanelProperties> _panelProperties;
 
+        private LevelPanel _levelPanel;
+
         #endregion
 
-        public LevelState (EditorState editor, Project project, Level level)
+        public LevelState (EditorState editor, Project project, Level level, LevelPanel panel)
         {
             _editor = editor;
             _project = project;
             _level = level;
+            _levelPanel = panel;
 
-            _layerControl = new LayerControl();
+            //_layerControl = new LayerControl();
             _commandHistory = new CommandHistory();
 
             _panelProperties = new Dictionary<Type, PanelProperties>();
@@ -67,7 +80,7 @@ namespace Editor
 
         public LayerControl LayerControl
         {
-            get { return _layerControl; }
+            get { return _levelPanel.LayerControl; }
         }
 
         public CommandHistory CommandHistory
@@ -80,7 +93,7 @@ namespace Editor
         public void Initialize ()
         {
             foreach (Layer layer in _level.Layers) {
-                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                MultiTileControlLayer clayer = new MultiTileControlLayer(_levelPanel.LayerControl, layer);
                 clayer.ShouldDrawContent = LayerCondition.Always;
                 clayer.ShouldDrawGrid = LayerCondition.Selected;
                 clayer.ShouldRespondToInput = LayerCondition.Selected;
@@ -95,14 +108,14 @@ namespace Editor
         {
             _editor.LayerPanel.Activate(this, _panelProperties[_editor.LayerPanel.GetType()]);  // Of type 'LevelPanel'
             _editor.PropertyPanel.Activate(this, _panelProperties[_editor.PropertyPanel.GetType()]); // Of type 'Panel'
-            _editor.TilePoolPanel.Activate(this, _panelProperties[_editor.TilePoolPanel.GetType()]); // Of type 'ProjectPanel'
+            //_editor.TilePoolPanel.Activate(this, _panelProperties[_editor.TilePoolPanel.GetType()]); // Of type 'ProjectPanel'
         }
 
         public void Deactivate ()
         {
             _panelProperties[_editor.LayerPanel.GetType()] = _editor.LayerPanel.PanelProperties;
             _panelProperties[_editor.PropertyPanel.GetType()] = _editor.PropertyPanel.PanelProperties;
-            _panelProperties[_editor.TilePoolPanel.GetType()] = _editor.TilePoolPanel.PanelProperties;
+            //_panelProperties[_editor.TilePoolPanel.GetType()] = _editor.TilePoolPanel.PanelProperties;
         }
     }
 
@@ -156,6 +169,11 @@ namespace Editor
         #endregion
 
         #region Properties
+
+        public Project Project
+        {
+            get { return _project; }
+        }
 
         public TabControl MainTabControl
         {
@@ -214,6 +232,10 @@ namespace Editor
 
             _contentPages.Clear();
             _tabControlMain.TabPages.Clear();
+
+            _panelLayers.Deactivate();
+            _panelProperties.Deactivate();
+            _panelTilePools.Deactivate();
         }
 
         public void LoadProject (Project project)
@@ -222,11 +244,23 @@ namespace Editor
 
             _levels = new Dictionary<string, LevelState>();
             foreach (Level level in _project.Levels) {
-                _levels[level.Name] = new LevelState(this, project, level);
+                LevelPanel panel = new LevelPanel();
+                InitializePanelControl(panel);
+
+                _levels[level.Name] = new LevelState(this, project, level, panel);
                 if (_curLevel == null) {
                     _curLevel = _levels[level.Name];
                 }
+
+                TabPage levelPage = new TabPage(level.Name);
+                InitializeTabPage(levelPage, panel);
+                levelPage.Padding = new Padding(0);
+
+                _contentPages.Add(levelPage);
+                _tabControlMain.TabPages.Add(levelPage);
             }
+
+            TilePoolPanel.Activate(this, null); // Of type 'ProjectPanel'
 
             if (_curLevel != null) {
                 _curLevel.Activate();

@@ -179,12 +179,12 @@ namespace Editor
             _selected = null;
 
             _pools = null;
-            _tileLayer = null;
+            _tileLayer.Layer = null;
         }
 
-        public void Activate (LevelState level, PanelProperties properties)
+        public void Activate (EditorState project, PanelProperties properties)
         {
-            _project = level.Project;
+            _project = project.Project;
 
             _pools = new TilePoolCollection(_project.TilePools);
             _pools.PoolAdded += PoolAddedHandler;

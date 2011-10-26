@@ -292,15 +292,18 @@ namespace Editor
                 _project = Project.Open(fs, gds.GraphicsDevice);
             }
 
+            _editor.UnloadProject();
+            _editor.LoadProject(_project);
+
             //Level level = new Level("Level 1", 16, 16, 30, 20);
 
             //_project.Levels.Add(level);
 
-            _mapView = new MapView(_project, "Level 1");
-            _mapView.Dock = DockStyle.Fill;
+            //_mapView = new MapView(_project, "Level 1");
+            //_mapView.Dock = DockStyle.Fill;
 
             //SwitchToView(_tilesetView);
-            SwitchToView(_mapView);
+            //SwitchToView(_mapView);
         }
 
         private void ButtonUndo (object sender, EventArgs e)

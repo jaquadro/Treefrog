@@ -296,6 +296,14 @@ namespace Editor.Model.Controls
             }
         }
 
+        public IEnumerable<BaseControlLayer> ControlLayers
+        {
+            get
+            {
+                return _layers;
+            }
+        }
+
         // Scrolling
 
         /// <summary>

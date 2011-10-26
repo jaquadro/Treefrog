@@ -117,6 +117,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Editor.cs" />
+    <Compile Include="Views\LevelPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\LevelPanel.Designer.cs">
+      <DependentUpon>LevelPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\PropertyPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -225,6 +231,9 @@
     <EmbeddedResource Include="Icons\16\grid.png" />
     <EmbeddedResource Include="Icons\16\tag--minus.png" />
     <EmbeddedResource Include="Icons\16\tag--plus.png" />
+    <EmbeddedResource Include="Icons\16\applications-blue--asterisk.png" />
+    <EmbeddedResource Include="Icons\16\map--asterisk.png" />
+    <EmbeddedResource Include="Icons\16\disks.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
@@ -240,6 +249,9 @@
     <EmbeddedResource Include="Icons\stamp16.png" />
     <EmbeddedResource Include="Views\LayerPane.resx">
       <DependentUpon>LayerPane.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\LevelPanel.resx">
+      <DependentUpon>LevelPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MapView.resx">
       <DependentUpon>MapView.cs</DependentUpon>

@@ -13,7 +13,8 @@ namespace Editor
     {
         private ToolStrip _strip;
 
-        private ToolStripButton _tbNew;
+        private ToolStripButton _tbNewProject;
+        private ToolStripDropDownButton _tbNewItem;
         private ToolStripButton _tbOpen;
         private ToolStripButton _tbSave;
 
@@ -34,7 +35,12 @@ namespace Editor
         {
             _assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            _tbNew = CreateButton("New Project (Ctrl+N)", "Editor.Icons.document16.png");
+            _tbNewProject = CreateButton("New Project (Ctrl+N)", "Editor.Icons._16.applications-blue--asterisk.png");
+            _tbNewItem = CreateDropDownButton("Add New Item", "Editor.Icons._16.map--asterisk.png");
+            _tbNewItem.DropDownItems.AddRange(new ToolStripItem[] {
+                DropDownMenuItem("Add New Level", "Editor.Icons._16.map--asterisk.png"),
+                DropDownMenuItem("Add New Tile Pool", "Editor.Icons.color-swatch16.png"),
+            });
             _tbOpen = CreateButton("Open Project (Ctrl+O)", "Editor.Icons.folder-horizontal-open16.png");
             _tbSave = CreateButton("Save Project (Ctrl+S)", "Editor.Icons.disk16.png");
             _tbCut = CreateButton("Cut (Ctrl+X)", "Editor.Icons.scissors16.png");
@@ -48,7 +54,7 @@ namespace Editor
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
-                _tbNew, _tbOpen, _tbSave, new ToolStripSeparator(),
+                _tbNewProject, _tbNewItem, _tbOpen, _tbSave, new ToolStripSeparator(),
                 _tbCut, _tbCopy, _tbPaste, new ToolStripSeparator(),
                 _tbUndo, _tbRedo, new ToolStripSeparator(),
                 _tbTileMode, _tbSetMode, _tbMapMode
@@ -62,7 +68,7 @@ namespace Editor
 
         public ToolStripButton ButtonNew
         {
-            get { return _tbNew; }
+            get { return _tbNewProject; }
         }
 
         public ToolStripButton ButtonOpen
@@ -125,6 +131,41 @@ namespace Editor
             button.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
 
             return button;
+        }
+
+        private ToolStripSplitButton CreateSplitButton (string text, string resource)
+        {
+            ToolStripSplitButton button = new ToolStripSplitButton();
+
+            button.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            button.Size = new Size(22, 22);
+            button.Text = text;
+            button.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+
+            return button;
+        }
+
+        private ToolStripDropDownButton CreateDropDownButton (string text, string resource)
+        {
+            ToolStripDropDownButton button = new ToolStripDropDownButton();
+
+            button.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            button.Size = new Size(22, 22);
+            button.Text = text;
+            button.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+
+            return button;
+        }
+
+        private ToolStripMenuItem DropDownMenuItem (string text, string resource)
+        {
+            ToolStripMenuItem item = new ToolStripMenuItem();
+
+            item.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+            item.Text = text;
+            item.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+
+            return item;
         }
     }
 }

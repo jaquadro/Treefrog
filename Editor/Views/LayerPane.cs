@@ -235,6 +235,10 @@ namespace Editor.Views
                 _data = properties as LayerPanelProperties;
             }
 
+            foreach (BaseControlLayer layer in _layerControl.ControlLayers) {
+                _controlLayers[layer.Layer.Name] = layer;
+            }
+
             foreach (Layer layer in _level.Layers) {
                 ListViewItem layerItem = new ListViewItem(layer.Name, "grid.png")
                 {
@@ -244,12 +248,9 @@ namespace Editor.Views
                 };
                 _listControl.Items.Insert(0, layerItem);
 
-                BaseControlLayer clayer = _layerControl.FindLayer(layer.Name);
-                if (clayer == null) {
+                if (!_controlLayers.ContainsKey(layer.Name)) {
                     throw new Exception("Expected matching BaseControlLayer!");
                 }
-
-                _controlLayers[layer.Name] = clayer;
             }
 
             if (_data.SelectedLayer != null) {
@@ -326,6 +327,11 @@ namespace Editor.Views
 
             _controlLayers[name].Selected = true;
             _currentControl = _controlLayers[name];
+
+            if (!_listControl.Items[name].Selected) {
+                _listControl.SelectedItems.Clear();
+                _listControl.Items[name].Selected = true;
+            }
 
             UpdateToolbar();
             OnSelectedLayerChanged(EventArgs.Empty);
