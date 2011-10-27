@@ -8,63 +8,6 @@ using Editor.Model.Controls;
 
 namespace Editor
 {
-    public class LayerPresentation
-    {
-        public Layer CurrentLayer { get; }
-        public BaseControlLayer CurrentControl { get; }
-    }
-
-    public class TilePoolPresentation
-    {
-        public TilePool CurrentTilePool { get; }
-        public TileSetControlLayer CurrentControl { get; }
-    }
-
-    public class LevelPresentation
-    {
-        public Level Level { get; }
-        public LayerControl LayerControl { get; }
-
-        public LayerPresentation LayerInfo { get; }
-        public TilePoolPresentation TilePoolInfo { get; }
-
-        public float Zoom { get; }
-    }
-
-    public class ProjectPresentation
-    {
-        public Project Project { get; }
-
-        public LevelPresentation CurrentLevel { get; }
-    }
-
-    public class LevelController
-    {
-        private LevelPresentation _levelModel;
-        private LevelPanel _levelView;
-
-        private void LayerAddHandler (object sender, EventArgs e);
-        private void LayerRemoveHandler (object sender, EventArgs e);
-        private void LayerSelectionChangedHandler (object sender, EventArgs e);
-        private void LayerMoveUpHandler (object sender, EventArgs e);
-        private void LayerMoveDownHandler (object sender, EventArgs e);
-
-        private void TilePoolSelectionChangedHandler (object sender, EventArgs e);
-        private void TilePoolTileMouseClickHandler (object sender, TileMouseEventArgs e);
-
-        private void LevelTileMouseClickHandler (object sender, TileMouseEventArgs e);  // Tools
-        private void LevelTileMouseDownHandler (object sender, TileMouseEventArgs e); // Tools
-        private void LevelTileMouseUpHandler (object sender, TileMouseEventArgs e); // Tools
-        private void LevelTileMouseMoveHandler (object sender, TileMouseEventArgs e); // Tools, Reporting
-
-        private void LevelZoomChangedHandler (object sender, EventArgs e);
-    }
-
-    public class ProjectController
-    {
-
-    }
-
     public class LevelState
     {
         #region Fields
