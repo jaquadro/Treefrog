@@ -60,6 +60,9 @@ namespace Editor
 
             _editor = new EditorState();
 
+            _editor.ContentActivated += EditorActivateContent;
+            _editor.ContentDeactivated += EditorDeactivateContent;
+
             splitContainer1.Panel2.Controls.Add(_editor.MainTabControl);
             splitContainer2.Panel1.Controls.Add(_editor.UpperLeftTabControl);
             splitContainer2.Panel2.Controls.Add(_editor.LowerLeftTabControl);
@@ -241,40 +244,88 @@ namespace Editor
             if (_currentView == null)
                 return;
 
+            float zoom = 1f;
+
             switch (trackBarZoom.Value) {
                 case 0: 
                     statusZoomText.Text = "25%";
-                    _currentView.Zoom = 0.25f;
+                    zoom = 0.25f;
                     break;
                 case 1: 
                     statusZoomText.Text = "50%";
-                    _currentView.Zoom = 0.5f;
+                    zoom = 0.5f;
                     break;
                 case 2: 
                     statusZoomText.Text = "100%";
-                    _currentView.Zoom = 1f;
+                    zoom = 1f;
                     break;
                 case 3: 
                     statusZoomText.Text = "200%";
-                    _currentView.Zoom = 2f;
+                    zoom = 2f;
                     break;
                 case 4: 
                     statusZoomText.Text = "300%";
-                    _currentView.Zoom = 3f;
+                    zoom = 3f;
                     break;
                 case 5: 
                     statusZoomText.Text = "400%";
-                    _currentView.Zoom = 4f;
+                    zoom = 4f;
                     break;
                 case 6: 
                     statusZoomText.Text = "600%";
-                    _currentView.Zoom = 6f;
+                    zoom = 6f;
                     break;
                 case 7: 
                     statusZoomText.Text = "800%";
-                    _currentView.Zoom = 8f;
+                    zoom = 8f;
                     break;
             }
+
+            if (_editor.CurrentZoomableControl != null) {
+                _editor.CurrentZoomableControl.Zoom = zoom;
+            }
+        }
+
+        private void ZoomableControlZoomChangedHandler (object sender, EventArgs e)
+        {
+            if (_editor.CurrentZoomableControl != sender) {
+                throw new Exception("Unexpected ZoomChanged event");
+            }
+
+            UpdateZoomState(_editor.CurrentZoomableControl.Zoom);
+        }
+
+        private void UpdateZoomState (float zoom)
+        {
+            List<float> valid = new List<float> { .25f, .5f, 1f, 2f, 3f, 4f, 6f, 8f };
+            List<string> text = new List<string> { "25%", "50%", "100%", "200%", "300%", "400%", "600%", "800%" };
+
+            if (!valid.Contains(zoom)) {
+                foreach (float f in valid) {
+                    if (zoom >= f) {
+                        zoom = f;
+                    }
+                }
+            }
+
+            int index = valid.FindIndex((f) => { return f == zoom; });
+            if (trackBarZoom != null) {
+                trackBarZoom.Value = index;
+            }
+        }
+
+        private void EditorActivateContent (object sender, EventArgs e)
+        {
+            if (_editor.CurrentZoomableControl != null) {
+                _editor.CurrentZoomableControl.ZoomChanged += ZoomableControlZoomChangedHandler;
+
+                UpdateZoomState(_editor.CurrentZoomableControl.Zoom);
+            }
+        }
+
+        private void EditorDeactivateContent (object sender, EventArgs e)
+        {
+            
         }
 
         private void ButtonSave (object sender, EventArgs e)
@@ -294,16 +345,6 @@ namespace Editor
 
             _editor.UnloadProject();
             _editor.LoadProject(_project);
-
-            //Level level = new Level("Level 1", 16, 16, 30, 20);
-
-            //_project.Levels.Add(level);
-
-            //_mapView = new MapView(_project, "Level 1");
-            //_mapView.Dock = DockStyle.Fill;
-
-            //SwitchToView(_tilesetView);
-            //SwitchToView(_mapView);
         }
 
         private void ButtonUndo (object sender, EventArgs e)

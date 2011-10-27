@@ -117,6 +117,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Editor.cs" />
+    <Compile Include="LevelState.cs" />
     <Compile Include="Views\LevelPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

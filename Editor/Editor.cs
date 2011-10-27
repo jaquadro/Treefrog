@@ -10,6 +10,31 @@ using System.Drawing;
 
 namespace Editor
 {
+    public interface IZoomable
+    {
+        float Zoom { get; set; }
+
+        event EventHandler ZoomChanged;
+    }
+
+    public class DataReportEventArgs : EventArgs
+    {
+        public string Key { get; private set; }
+        public string Value { get; private set; }
+
+        public DataReportEventArgs (string key, string value)
+            : base()
+        {
+            Key = key;
+            Value = value;
+        }
+    }
+
+    public interface IDataReporter
+    {
+        event EventHandler<DataReportEventArgs> DataReport;
+    }
+
     public interface IEditorPanel
     {
         void Deactivate ();
@@ -33,91 +58,7 @@ namespace Editor
 
     }
 
-    public class LevelState
-    {
-        #region Fields
 
-        private EditorState _editor;
-
-        private Project _project;
-        private Level _level;
-
-        //private LayerControl _layerControl;
-        private CommandHistory _commandHistory;
-
-        private Dictionary<Type, PanelProperties> _panelProperties;
-
-        private LevelPanel _levelPanel;
-
-        #endregion
-
-        public LevelState (EditorState editor, Project project, Level level, LevelPanel panel)
-        {
-            _editor = editor;
-            _project = project;
-            _level = level;
-            _levelPanel = panel;
-
-            //_layerControl = new LayerControl();
-            _commandHistory = new CommandHistory();
-
-            _panelProperties = new Dictionary<Type, PanelProperties>();
-
-            Initialize();
-        }
-
-        #region Properties
-
-        public Project Project
-        {
-            get { return _project; }
-        }
-
-        public Level Level
-        {
-            get { return _level; }
-        }
-
-        public LayerControl LayerControl
-        {
-            get { return _levelPanel.LayerControl; }
-        }
-
-        public CommandHistory CommandHistory
-        {
-            get { return _commandHistory; }
-        }
-
-        #endregion
-
-        public void Initialize ()
-        {
-            foreach (Layer layer in _level.Layers) {
-                MultiTileControlLayer clayer = new MultiTileControlLayer(_levelPanel.LayerControl, layer);
-                clayer.ShouldDrawContent = LayerCondition.Always;
-                clayer.ShouldDrawGrid = LayerCondition.Selected;
-                clayer.ShouldRespondToInput = LayerCondition.Selected;
-            }
-
-            _panelProperties[_editor.LayerPanel.GetType()] = null;
-            _panelProperties[_editor.PropertyPanel.GetType()] = null;
-            _panelProperties[_editor.TilePoolPanel.GetType()] = null;
-        }
-
-        public void Activate ()
-        {
-            _editor.LayerPanel.Activate(this, _panelProperties[_editor.LayerPanel.GetType()]);  // Of type 'LevelPanel'
-            _editor.PropertyPanel.Activate(this, _panelProperties[_editor.PropertyPanel.GetType()]); // Of type 'Panel'
-            //_editor.TilePoolPanel.Activate(this, _panelProperties[_editor.TilePoolPanel.GetType()]); // Of type 'ProjectPanel'
-        }
-
-        public void Deactivate ()
-        {
-            _panelProperties[_editor.LayerPanel.GetType()] = _editor.LayerPanel.PanelProperties;
-            _panelProperties[_editor.PropertyPanel.GetType()] = _editor.PropertyPanel.PanelProperties;
-            //_panelProperties[_editor.TilePoolPanel.GetType()] = _editor.TilePoolPanel.PanelProperties;
-        }
-    }
 
     public enum EditorContentType
     {
@@ -223,6 +164,60 @@ namespace Editor
             }
         }
 
+        public IZoomable CurrentZoomableControl
+        {
+            get
+            {
+                if (_curLevel == null) {
+                    return null;
+                }
+
+                return _curLevel.LevelPanel;
+            }
+        }
+
+        #endregion
+
+        #region Events
+
+        public event EventHandler ProjectUnloaded;
+        public event EventHandler ProjectLoaded;
+
+        public event EventHandler ContentActivated;
+        public event EventHandler ContentDeactivated;
+
+        #endregion
+
+        #region Event Dispatchers
+
+        protected virtual void OnProjectLoaded (EventArgs e)
+        {
+            if (ProjectLoaded != null) {
+                ProjectLoaded(this, e);
+            }
+        }
+
+        protected virtual void OnProjectUnloaded (EventArgs e)
+        {
+            if (ProjectUnloaded != null) {
+                ProjectUnloaded(this, e);
+            }
+        }
+
+        protected virtual void OnContentActivated (EventArgs e)
+        {
+            if (ContentActivated != null) {
+                ContentActivated(this, e);
+            }
+        }
+
+        protected virtual void OnContentDeactivated (EventArgs e)
+        {
+            if (ContentDeactivated != null) {
+                ContentDeactivated(this, e);
+            }
+        }
+
         #endregion
 
         public void UnloadProject ()
@@ -236,6 +231,8 @@ namespace Editor
             _panelLayers.Deactivate();
             _panelProperties.Deactivate();
             _panelTilePools.Deactivate();
+
+            OnProjectUnloaded(EventArgs.Empty);
         }
 
         public void LoadProject (Project project)
@@ -264,8 +261,13 @@ namespace Editor
 
             if (_curLevel != null) {
                 _curLevel.Activate();
+                OnContentActivated(EventArgs.Empty);
             }
+
+            OnProjectLoaded(EventArgs.Empty);
         }
+
+
 
         #region Form Initialization
 
