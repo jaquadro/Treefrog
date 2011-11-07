@@ -8,24 +8,15 @@ using System.Drawing.Drawing2D;
 using Editor.Model.Controls;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Editor.A.Presentation;
 
 namespace Editor.Views
 {
-    public partial class LayerPane : UserControl, IEditorPanel
+    public partial class LayerPane : UserControl
     {
         #region Fields
 
-        Project _project;
-        Level _level;
-
-        Layer _currentLayer;
-        BaseControlLayer _currentControl;
-
-        LayerControl _layerControl;
-
-        Dictionary<string, BaseControlLayer> _controlLayers;
-
-        private LayerPanelProperties _data;
+        private ILayerListPresenter _controller;
 
         #endregion
 
@@ -35,7 +26,7 @@ namespace Editor.Views
         {
             InitializeComponent();
 
-            _controlLayers = new Dictionary<string, BaseControlLayer>();
+            ResetComponent();
 
             // Load form elements
 
@@ -50,152 +41,75 @@ namespace Editor.Views
             _menuNewTileLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.grid.png"));
             _menuNewObjectLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.game.png"));
 
-            _listControl.Items.Clear();
-            _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
+            // Wire events
 
             _menuNewTileLayer.Click += NewTileLayerClickedHandler;
 
-            _buttonRemove.Click += RemoveTileLayerClickedHandler;
-            _buttonDown.Click += MoveDownTileLayerClickedHandler;
-            _buttonUp.Click += MoveUpTileLayerClickedHandler;
+            _buttonRemove.Click += RemoveLayerClickedHandler;
+            _buttonCopy.Click += CloneLayerClickedHandler;
+            _buttonDown.Click += MoveLayerDownClickedHandler;
+            _buttonUp.Click += MoveLayerUpClickedHandler;
 
-            _data = new LayerPanelProperties();
-
-            UpdateToolbar();
-        }
-
-        public LayerPane (Project project, string level, LayerControl control)
-            : this()
-        {
-            SetupDefault(project, level, control);
+            _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
         }
 
         #endregion
 
-        #region Properties
+        public void BindController (ILayerListPresenter controller) {
+            if (_controller == controller) {
+                return;
+            }
 
-        public Layer SelectedLayer
-        {
-            get { return _currentLayer; }
-        }
+            if (_controller != null) {
+                _controller.SyncLayerActions -= SyncLayerActionsHandler;
+                _controller.SyncLayerList -= SyncLayerListHandler;
+                _controller.SyncLayerSelection -= SyncLayerSelectionHandler;
+            }
 
-        public BaseControlLayer SelectedControlLayer
-        {
-            get { return _currentControl; }
-        }
+            _controller = controller;
 
-        public PanelProperties PanelProperties
-        {
-            get { return _data; }
-        }
+            if (_controller != null) {
+                _controller.SyncLayerActions += SyncLayerActionsHandler;
+                _controller.SyncLayerList += SyncLayerListHandler;
+                _controller.SyncLayerSelection += SyncLayerSelectionHandler;
 
-        #endregion
-
-        #region Events
-
-        public event EventHandler SelectedLayerChanged;
-
-        #endregion
-
-        #region Event Dispatchers
-
-        protected virtual void OnSelectedLayerChanged (EventArgs e)
-        {
-            if (SelectedLayerChanged != null) {
-                SelectedLayerChanged(this, e);
+                _controller.RefreshLayerList();
+            }
+            else {
+                ResetComponent();
             }
         }
-
-        #endregion
 
         #region Event Handlers
 
-        private void NewTileLayerClickedHandler (object sender, EventArgs e)
+        public void NewTileLayerClickedHandler (object sender, EventArgs e)
         {
-            string name = FindDefaultName();
-
-            MultiTileGridLayer layer = new MultiTileGridLayer(name, _level.TileWidth, _level.TileHeight, _level.TilesWide, _level.TilesHigh);
-            _level.Layers.Add(layer);
-
-            ListViewItem layerItem = new ListViewItem(name, "grid.png")
-            {
-                Name = name,
-                Checked = true,
-                Selected = true,
-            };
-
-            MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
-            clayer.ShouldDrawContent = LayerCondition.Always;
-            clayer.ShouldDrawGrid = LayerCondition.Selected;
-            clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-            _controlLayers[name] = clayer;
-
-            _listControl.Items.Insert(0, layerItem);
+            if (_controller != null)
+                _controller.ActionAddLayer();
         }
 
-        private void RemoveTileLayerClickedHandler (object sender, EventArgs e)
+        public void RemoveLayerClickedHandler (object sender, EventArgs e)
         {
-            // Buffer items
-            List<ListViewItem> items = new List<ListViewItem>();
-            foreach (ListViewItem item in _listControl.SelectedItems) {
-                items.Add(item);
-            }
-
-            // Remove items
-            foreach (ListViewItem item in items) {
-                _listControl.Items.Remove(item);
-                _level.Layers.Remove(item.Text);
-
-                BaseControlLayer clayer = _controlLayers[item.Text];
-                _controlLayers.Remove(item.Text);
-                _layerControl.RemoveLayer(clayer);
-
-                if (item.Selected) {
-                    _currentLayer = null;
-                }
-            }
-
-            if (_currentLayer == null && _listControl.Items.Count > 0) {
-                _listControl.Items[0].Selected = true;
-            }
-            else if (_currentLayer == null) {
-                OnSelectedLayerChanged(EventArgs.Empty);
-            }
-
-            UpdateToolbar();
+            if (_controller != null)
+                _controller.ActionRemoveSelectedLayer();
         }
 
-        private void MoveDownTileLayerClickedHandler (object sender, EventArgs e)
+        public void CloneLayerClickedHandler (object sender, EventArgs e)
         {
-            ListViewItem item = _listControl.Items[_currentLayer.Name];
-            int index = item.Index;
-
-            _listControl.Items.Remove(item);
-            _listControl.Items.Insert(index + 1, item);
-
-            BaseControlLayer clayer = _controlLayers[item.Text];
-
-            _level.Layers.ChangeIndexRelative(_currentLayer.Name, -1);
-            _layerControl.ChangeLayerOrderRelative(clayer, -1);
-
-            UpdateToolbar();
+            if (_controller != null)
+                _controller.ActionCloneSelectedLayer();
         }
 
-        private void MoveUpTileLayerClickedHandler (object sender, EventArgs e)
+        public void MoveLayerUpClickedHandler (object sender, EventArgs e)
         {
-            ListViewItem item = _listControl.Items[_currentLayer.Name];
-            int index = item.Index;
+            if (_controller != null)
+                _controller.ActionMoveSelectedLayerUp();
+        }
 
-            _listControl.Items.Remove(item);
-            _listControl.Items.Insert(index - 1, item);
-
-            BaseControlLayer clayer = _controlLayers[item.Text];
-
-            _level.Layers.ChangeIndexRelative(_currentLayer.Name, 1);
-            _layerControl.ChangeLayerOrderRelative(clayer, 1);
-
-            UpdateToolbar();
+        public void MoveLayerDownClickedHandler (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.ActionMoveSelectedLayerDown();
         }
 
         private void SelectedItemChangedHandler (object sender, ListViewItemSelectionChangedEventArgs e)
@@ -204,175 +118,81 @@ namespace Editor.Views
                 return;
             }
 
-            SelectLayer(e.Item.Text);
+            if (_controller != null) {
+                _controller.ActionSelectLayer(e.Item.Name);
+            }
+        }
+
+        public void SyncLayerActionsHandler (object sender, EventArgs e)
+        {
+            if (_controller != null) {
+                _buttonAdd.Enabled = _controller.CanAddLayer;
+                _buttonCopy.Enabled = _controller.CanCloneSelectedLayer;
+                _buttonRemove.Enabled = _controller.CanRemoveSelectedLayer;
+                _buttonUp.Enabled = _controller.CanMoveSelectedLayerUp;
+                _buttonDown.Enabled = _controller.CanMoveSelectedLayerDown;
+            }
+        }
+
+        public void SyncLayerListHandler (object sender, EventArgs e)
+        {
+            _listControl.ItemSelectionChanged -= SelectedItemChangedHandler;
+
+            _listControl.Items.Clear();
+
+            if (_controller != null) {
+                Stack<ListViewItem> items = new Stack<ListViewItem>();
+
+                foreach (Layer layer in _controller.LayerList) {
+                    ListViewItem layerItem = new ListViewItem(layer.Name, 0)
+                    {
+                        Name = layer.Name,
+                        Checked = true,
+                    };
+
+                    if (layer == _controller.SelectedLayer) {
+                        layerItem.Selected = true;
+                    }
+
+                    items.Push(layerItem);
+                }
+
+                while (items.Count > 0) {
+                    _listControl.Items.Add(items.Pop());
+                }
+            }
+
+            _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
+        }
+
+        public void SyncLayerSelectionHandler (object sender, EventArgs e)
+        {
+            _listControl.ItemSelectionChanged -= SelectedItemChangedHandler;
+
+            foreach (ListViewItem item in _listControl.Items) {
+                if (_controller.SelectedLayer == null || item.Name != _controller.SelectedLayer.Name) {
+                    item.Selected = false;
+                }
+                else {
+                    item.Selected = true;
+                }
+            }
+
+            _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
         }
 
         #endregion
 
-        public void Deactivate ()
+        private void ResetComponent ()
         {
-            _project = null;
-            _level = null;
-            _layerControl = null;
-
-            _currentControl = null;
-            _currentLayer = null;
-
             _listControl.Items.Clear();
 
-            _data.SelectedLayer = null;
-
-            UpdateToolbar();
+            _buttonAdd.Enabled = false;
+            _buttonCopy.Enabled = false;
+            _buttonDown.Enabled = false;
+            _buttonUp.Enabled = false;
+            _buttonRemove.Enabled = false;
         }
-
-        public void Activate (LevelState level, PanelProperties properties)
-        {
-            _project = level.Project;
-            _level = level.Level;
-            _layerControl = level.LayerControl;
-
-            if (properties is LayerPanelProperties) {
-                _data = properties as LayerPanelProperties;
-            }
-
-            foreach (BaseControlLayer layer in _layerControl.ControlLayers) {
-                _controlLayers[layer.Layer.Name] = layer;
-            }
-
-            foreach (Layer layer in _level.Layers) {
-                ListViewItem layerItem = new ListViewItem(layer.Name, "grid.png")
-                {
-                    Name = layer.Name,
-                    Checked = true,
-                    Selected = true,
-                };
-                _listControl.Items.Insert(0, layerItem);
-
-                if (!_controlLayers.ContainsKey(layer.Name)) {
-                    throw new Exception("Expected matching BaseControlLayer!");
-                }
-            }
-
-            if (_data.SelectedLayer != null) {
-                SelectLayer(_data.SelectedLayer);
-            }
-            else {
-                foreach (Layer layer in _level.Layers) {
-                    SelectLayer(layer.Name);
-                    break;
-                }
-            }
-
-            UpdateToolbar();
-        }
-
-        public void SetupDefault (Project project, string level, LayerControl control)
-        {
-            _project = project;
-            _level = _project.Levels[level];
-
-            _layerControl = control;
-            foreach (Layer layer in _level.Layers) {
-                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
-                clayer.ShouldDrawContent = LayerCondition.Always;
-                clayer.ShouldDrawGrid = LayerCondition.Selected;
-                clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-                ListViewItem layerItem = new ListViewItem(layer.Name, "grid.png")
-                {
-                    Name = layer.Name,
-                    Checked = true,
-                    Selected = true,
-                };
-                _listControl.Items.Insert(0, layerItem);
-
-                _controlLayers[layer.Name] = clayer;
-            }
-
-            UpdateToolbar();
-        }
-
-        private string FindDefaultName ()
-        {
-            List<string> names = new List<string>();
-            foreach (ListViewItem item in _listControl.Items) {
-                names.Add(item.Text);
-            }
-
-            int i = 0;
-            while (true) {
-                string name = "Tile Layer " + ++i;
-                if (names.Contains(name)) {
-                    continue;
-                }
-                return name;
-            }
-        }
-
-        private void SelectLayer (string name)
-        {
-            if (_currentLayer != null && _currentLayer.Name == name) {
-                return;
-            }
-
-            if (!_level.Layers.Contains(name)) {
-                throw new InvalidOperationException("Attempted to select a non-existent layer");
-            }
-
-            _currentLayer = _level.Layers[name];
-
-            foreach (BaseControlLayer layer in _controlLayers.Values) {
-                layer.Selected = false;
-            }
-
-            _controlLayers[name].Selected = true;
-            _currentControl = _controlLayers[name];
-
-            if (!_listControl.Items[name].Selected) {
-                _listControl.SelectedItems.Clear();
-                _listControl.Items[name].Selected = true;
-            }
-
-            UpdateToolbar();
-            OnSelectedLayerChanged(EventArgs.Empty);
-        }
-
-        private void UpdateToolbar ()
-        {
-            _buttonAdd.Enabled = (_layerControl != null);
-            _buttonRemove.Enabled = (_layerControl != null && _listControl.Items.Count > 0);
-            _buttonCopy.Enabled = (_layerControl != null && _listControl.Items.Count > 0);
-
-            if (_currentLayer == null) {
-                _buttonUp.Enabled = false;
-                _buttonDown.Enabled = false;
-            }
-            else {
-                _buttonDown.Enabled = (_listControl.Items[_currentLayer.Name].Index < _listControl.Items.Count - 1);
-                _buttonUp.Enabled = (_listControl.Items[_currentLayer.Name].Index > 0);
-            }
-        }
-
-        // Too painful to deal with for now
-        /*private void listView1_DrawItem (object sender, DrawListViewItemEventArgs e)
-        {
-            if ((e.State & ListViewItemStates.Selected) != 0) {
-                // Draw the background and focus rectangle for a selected item.
-                e.Graphics.FillRectangle(Brushes.Maroon, e.Bounds);
-                e.DrawFocusRectangle();
-            }
-            else {
-                // Draw the background for an unselected item.
-                using (SolidBrush brush = new SolidBrush(SystemColors.Highlight)) {
-                    e.Graphics.FillRectangle(brush, e.Bounds);
-                }
-            }
-
-            // Draw the item text for views other than the Details view.
-            if (_listControl.View != View.Details) {
-                e.DrawText();
-            }
-        }*/
     }
 
     public class LayerListView : ListView
@@ -397,8 +217,8 @@ namespace Editor.Views
         }
     }
 
-    public class LayerPanelProperties : PanelProperties
+    /*public class LayerPanelProperties : PanelProperties
     {
         public string SelectedLayer { get; set; }
-    }
+    }*/
 }

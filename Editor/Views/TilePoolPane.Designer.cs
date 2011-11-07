@@ -81,7 +81,6 @@ namespace Editor
             // 
             this._poolComboBox.Name = "_poolComboBox";
             this._poolComboBox.Size = new System.Drawing.Size(121, 25);
-            this._poolComboBox.SelectedIndexChanged += new System.EventHandler(this._poolComboBox_SelectedIndexChanged);
             // 
             // _buttonRemove
             // 

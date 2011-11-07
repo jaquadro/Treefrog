@@ -65,7 +65,7 @@ namespace Editor.Model.Controls
                     return (Control.Height / _layer.TileHeight) * _layer.TileHeight;
                 }
                 else if (Control.WidthSynced) {
-                    int tilesWide = Control.Width / _layer.TileWidth;
+                    int tilesWide = Math.Max(1, Control.Width / _layer.TileWidth);
                     return ((_layer.Capacity + tilesWide - 1) / tilesWide) * _layer.TileHeight;
                 }
 
@@ -85,7 +85,7 @@ namespace Editor.Model.Controls
                     return (Control.Width / _layer.TileWidth) * _layer.TileWidth;
                 }
                 else if (Control.HeightSynced) {
-                    int tilesHigh = Control.Height / _layer.TileHeight;
+                    int tilesHigh = Math.Max(1, Control.Height / _layer.TileHeight);
                     return ((_layer.Capacity + tilesHigh - 1) / tilesHigh) * _layer.TileWidth;
                 }
 

@@ -93,13 +93,13 @@ namespace Editor
 
         public void Activate ()
         {
-            _editor.LayerPanel.Activate(this, _panelProperties[_editor.LayerPanel.GetType()]);  // Of type 'LevelPanel'
+            //_editor.LayerPanel.Activate(this, _panelProperties[_editor.LayerPanel.GetType()]);  // Of type 'LevelPanel'
             _editor.PropertyPanel.Activate(this, _panelProperties[_editor.PropertyPanel.GetType()]); // Of type 'Panel'
         }
 
         public void Deactivate ()
         {
-            _panelProperties[_editor.LayerPanel.GetType()] = _editor.LayerPanel.PanelProperties;
+            //_panelProperties[_editor.LayerPanel.GetType()] = _editor.LayerPanel.PanelProperties;
             _panelProperties[_editor.PropertyPanel.GetType()] = _editor.PropertyPanel.PanelProperties;
         }
     }

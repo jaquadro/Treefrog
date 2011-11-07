@@ -112,12 +112,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="A\Controls\WinEx\TabControlEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="A\Presentation\EditorPresenter.cs" />
+    <Compile Include="A\Presentation\ILayerListPresenter.cs" />
+    <Compile Include="A\Presentation\IPropertyListPresenter.cs" />
+    <Compile Include="A\Presentation\ITilePoolListPresenter.cs" />
+    <Compile Include="A\Presentation\LevelPresenter.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Controls\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Editor.cs" />
-    <Compile Include="LevelState.cs" />
+    <None Include="Editor.cs" />
+    <None Include="LevelState.cs" />
+    <Compile Include="Mvc.cs" />
     <Compile Include="Views\LevelPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -168,12 +177,12 @@
     <Compile Include="Views\LayerPane.Designer.cs">
       <DependentUpon>LayerPane.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\MapView.cs">
+    <None Include="Views\MapView.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\MapView.Designer.cs">
+    </None>
+    <None Include="Views\MapView.Designer.cs">
       <DependentUpon>MapView.cs</DependentUpon>
-    </Compile>
+    </None>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -235,6 +244,14 @@
     <EmbeddedResource Include="Icons\16\applications-blue--asterisk.png" />
     <EmbeddedResource Include="Icons\16\map--asterisk.png" />
     <EmbeddedResource Include="Icons\16\disks.png" />
+    <EmbeddedResource Include="Icons\16\cross.png" />
+    <EmbeddedResource Include="Icons\16\selection-select.png" />
+    <EmbeddedResource Include="Icons\16\selection.png" />
+    <EmbeddedResource Include="Icons\16\arrow-turn-180-left.png" />
+    <EmbeddedResource Include="Icons\16\arrow-turn.png" />
+    <EmbeddedResource Include="Icons\16\clipboard-paste.png" />
+    <EmbeddedResource Include="Icons\16\documents.png" />
+    <EmbeddedResource Include="Icons\16\scissors.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>

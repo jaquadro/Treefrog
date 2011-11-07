@@ -35,6 +35,9 @@ namespace Treefrog.Framework.Model
 
             _layers = new OrderedResourceCollection<Layer>();
             _properties = new NamedResourceCollection<Property>();
+
+            _layers.ResourceAdded += LayerAddedHandler;
+            _layers.ResourceRemoved += LayerRemovedHandler;
         }
 
         /// <summary>
@@ -189,6 +192,16 @@ namespace Treefrog.Framework.Model
         /// </summary>
         public event EventHandler SizeChanged;
 
+        /// <summary>
+        /// Occurs when a new layer is added to the level.
+        /// </summary>
+        public event EventHandler<NamedResourceEventArgs<Layer>> LayerAdded;
+
+        /// <summary>
+        /// Occurs when a layer is removed from the level.
+        /// </summary>
+        public event EventHandler<NamedResourceEventArgs<Layer>> LayerRemoved;
+
         #endregion
 
         #region Event Dispatchers
@@ -228,6 +241,28 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        /// <summary>
+        /// Raises the <see cref="LayerAdded"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="NamedResourceEventArgs{Layer}"/> containing the name of the added layer.</param>
+        protected virtual void OnLayerAdded (NamedResourceEventArgs<Layer> e)
+        {
+            if (LayerAdded != null) {
+                LayerAdded(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="LayerRemoved"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="NamedResourceEventArgs{Layer}"/> containing the name of the removed layer.</param>
+        protected virtual void OnLayerRemoved (NamedResourceEventArgs<Layer> e)
+        {
+            if (LayerRemoved != null) {
+                LayerRemoved(this, e);
+            }
+        }
+
         #endregion
 
         #region Event Handlers
@@ -236,6 +271,16 @@ namespace Treefrog.Framework.Model
         {
             StringProperty property = sender as StringProperty;
             Name = property.Value;
+        }
+
+        private void LayerAddedHandler (object sender, NamedResourceEventArgs<Layer> e)
+        {
+            OnLayerAdded(e);
+        }
+
+        private void LayerRemovedHandler (object sender, NamedResourceEventArgs<Layer> e)
+        {
+            OnLayerRemoved(e);
         }
 
         #endregion

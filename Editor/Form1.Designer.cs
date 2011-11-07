@@ -1,4 +1,5 @@
-﻿namespace Editor
+﻿using Editor.A.Controls.WinEx;
+namespace Editor
 {
     partial class Form1
     {
@@ -52,6 +53,15 @@
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabControl2 = new System.Windows.Forms.TabControl();
+            this._tabTilePools = new System.Windows.Forms.TabPage();
+            this.tilePoolPane1 = new Editor.TilePoolPane();
+            this.tabControlEx1 = new TabControlEx();
+            this._tabLayers = new System.Windows.Forms.TabPage();
+            this._tabProperties = new System.Windows.Forms.TabPage();
+            this.layerPane1 = new Editor.Views.LayerPane();
+            this.propertyPane1 = new Editor.Views.PropertyPane();
             this.menuBar.SuspendLayout();
             this.statusBar.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
@@ -64,6 +74,11 @@
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabControl2.SuspendLayout();
+            this._tabTilePools.SuspendLayout();
+            this._tabLayers.SuspendLayout();
+            this._tabProperties.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuBar
@@ -149,7 +164,7 @@
             // pasteToolStripMenuItem
             // 
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-            this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
+            this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
             this.pasteToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.pasteToolStripMenuItem.Text = "&Paste";
             // 
@@ -285,7 +300,6 @@
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Margin = new System.Windows.Forms.Padding(0);
             this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.TabStop = false;
             // 
             // splitContainer1.Panel1
             // 
@@ -293,9 +307,11 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.tabControlEx1);
             this.splitContainer1.Size = new System.Drawing.Size(1024, 579);
             this.splitContainer1.SplitterDistance = 291;
             this.splitContainer1.TabIndex = 0;
+            this.splitContainer1.TabStop = false;
             // 
             // splitContainer2
             // 
@@ -304,16 +320,120 @@
             this.splitContainer2.Margin = new System.Windows.Forms.Padding(0);
             this.splitContainer2.Name = "splitContainer2";
             this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            this.splitContainer2.TabStop = false;
             // 
             // splitContainer2.Panel1
             // 
+            this.splitContainer2.Panel1.Controls.Add(this.tabControl1);
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.tabControl2);
             this.splitContainer2.Size = new System.Drawing.Size(291, 579);
             this.splitContainer2.SplitterDistance = 283;
             this.splitContainer2.TabIndex = 0;
+            this.splitContainer2.TabStop = false;
+            // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this._tabTilePools);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 0);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(291, 283);
+            this.tabControl1.TabIndex = 0;
+            this.tabControl1.TabStop = false;
+            // 
+            // tabControl2
+            // 
+            this.tabControl2.Controls.Add(this._tabLayers);
+            this.tabControl2.Controls.Add(this._tabProperties);
+            this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl2.Location = new System.Drawing.Point(0, 0);
+            this.tabControl2.Margin = new System.Windows.Forms.Padding(0);
+            this.tabControl2.Name = "tabControl2";
+            this.tabControl2.SelectedIndex = 0;
+            this.tabControl2.Size = new System.Drawing.Size(291, 292);
+            this.tabControl2.TabIndex = 0;
+            this.tabControl2.TabStop = false;
+            // 
+            // _tabTilePools
+            // 
+            this._tabTilePools.Controls.Add(this.tilePoolPane1);
+            this._tabTilePools.Location = new System.Drawing.Point(4, 22);
+            this._tabTilePools.Margin = new System.Windows.Forms.Padding(0);
+            this._tabTilePools.Name = "_tabTilePools";
+            this._tabTilePools.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
+            this._tabTilePools.Size = new System.Drawing.Size(283, 257);
+            this._tabTilePools.TabIndex = 0;
+            this._tabTilePools.Text = "Tile Pools";
+            this._tabTilePools.UseVisualStyleBackColor = true;
+            // 
+            // tilePoolPane1
+            // 
+            this.tilePoolPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
+            this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.tilePoolPane1.Name = "tilePoolPane1";
+            this.tilePoolPane1.Size = new System.Drawing.Size(281, 256);
+            this.tilePoolPane1.TabIndex = 0;
+            this.tilePoolPane1.TabStop = false;
+            // 
+            // tabControlEx1
+            // 
+            this.tabControlEx1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlEx1.Location = new System.Drawing.Point(0, 0);
+            this.tabControlEx1.Margin = new System.Windows.Forms.Padding(0);
+            this.tabControlEx1.Name = "tabControlEx1";
+            this.tabControlEx1.SelectedIndex = 0;
+            this.tabControlEx1.Size = new System.Drawing.Size(729, 579);
+            this.tabControlEx1.TabIndex = 0;
+            this.tabControlEx1.TabStop = false;
+            // 
+            // _tabLayers
+            // 
+            this._tabLayers.Controls.Add(this.layerPane1);
+            this._tabLayers.Location = new System.Drawing.Point(4, 22);
+            this._tabLayers.Margin = new System.Windows.Forms.Padding(0);
+            this._tabLayers.Name = "_tabLayers";
+            this._tabLayers.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
+            this._tabLayers.Size = new System.Drawing.Size(283, 266);
+            this._tabLayers.TabIndex = 0;
+            this._tabLayers.Text = "Layers";
+            this._tabLayers.UseVisualStyleBackColor = true;
+            // 
+            // _tabProperties
+            // 
+            this._tabProperties.Controls.Add(this.propertyPane1);
+            this._tabProperties.Location = new System.Drawing.Point(4, 22);
+            this._tabProperties.Margin = new System.Windows.Forms.Padding(0);
+            this._tabProperties.Name = "_tabProperties";
+            this._tabProperties.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
+            this._tabProperties.Size = new System.Drawing.Size(283, 266);
+            this._tabProperties.TabIndex = 1;
+            this._tabProperties.Text = "Properties";
+            this._tabProperties.UseVisualStyleBackColor = true;
+            // 
+            // layerPane1
+            // 
+            this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layerPane1.Location = new System.Drawing.Point(0, 0);
+            this.layerPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.layerPane1.Name = "layerPane1";
+            this.layerPane1.Size = new System.Drawing.Size(281, 265);
+            this.layerPane1.TabIndex = 0;
+            this.layerPane1.TabStop = false;
+            // 
+            // propertyPane1
+            // 
+            this.propertyPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertyPane1.Location = new System.Drawing.Point(0, 0);
+            this.propertyPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.propertyPane1.Name = "propertyPane1";
+            this.propertyPane1.Size = new System.Drawing.Size(281, 265);
+            this.propertyPane1.TabIndex = 0;
+            this.propertyPane1.TabStop = false;
             // 
             // Form1
             // 
@@ -341,6 +461,11 @@
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
+            this.tabControl2.ResumeLayout(false);
+            this._tabTilePools.ResumeLayout(false);
+            this._tabLayers.ResumeLayout(false);
+            this._tabProperties.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -373,6 +498,15 @@
         private System.Windows.Forms.ToolStripMenuItem selectNoneToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl tabControl2;
+        private TabControlEx tabControlEx1;
+        private System.Windows.Forms.TabPage _tabTilePools;
+        private TilePoolPane tilePoolPane1;
+        private System.Windows.Forms.TabPage _tabLayers;
+        private Views.LayerPane layerPane1;
+        private System.Windows.Forms.TabPage _tabProperties;
+        private Views.PropertyPane propertyPane1;
     }
 }
 

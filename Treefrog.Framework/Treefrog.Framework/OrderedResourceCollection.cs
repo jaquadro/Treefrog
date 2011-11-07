@@ -18,6 +18,15 @@ namespace Treefrog.Framework
             _order = new List<string>();
         }
 
+        public int IndexOf (string name)
+        {
+            if (!_order.Contains(name)) {
+                throw new ArgumentException("No resource with the given name", "name");
+            }
+
+            return _order.IndexOf(name);
+        }
+
         protected override void OnResourceAdded (NamedResourceEventArgs<T> e)
         {
             _order.Add(e.Name);

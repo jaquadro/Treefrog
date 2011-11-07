@@ -228,7 +228,7 @@ namespace Editor
             _contentPages.Clear();
             _tabControlMain.TabPages.Clear();
 
-            _panelLayers.Deactivate();
+            //_panelLayers.Deactivate();
             _panelProperties.Deactivate();
             _panelTilePools.Deactivate();
 

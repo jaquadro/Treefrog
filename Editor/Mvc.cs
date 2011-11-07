@@ -372,7 +372,7 @@ namespace Editor
         #endregion
     }
 
-    public class LevelController
+    /*public class LevelController
     {
         private LevelPresentation _levelModel;
         private LevelPanel _levelView;
@@ -405,5 +405,5 @@ namespace Editor
 
         private void TilePoolAddHandler (object sender, EventArgs e);
         private void TilePoolRemoveHandler (object sender, EventArgs e);
-    }
+    }*/
 }

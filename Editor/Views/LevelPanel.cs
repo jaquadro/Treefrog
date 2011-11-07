@@ -7,15 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Editor.Model.Controls;
+using Editor.A.Presentation;
 
 namespace Editor.Views
 {
-    public partial class LevelPanel : UserControl, IZoomable, IDataReporter
+    public partial class LevelPanel : UserControl
     {
         #region Fields
 
-        private LevelController _controller;
-        private LevelPresentation _levelInfo;
+        //private LevelController _controller;
+        //private LevelPresentation _levelInfo;
+        private ILevelPresenter _controller;
 
         #endregion
 
@@ -25,18 +27,36 @@ namespace Editor.Views
         {
             InitializeComponent();
 
-            layerControl1.ZoomChanged += LayerControlZoomChangedHandler;
+            //layerControl1.ZoomChanged += LayerControlZoomChangedHandler;
             
         }
 
         #endregion
 
+        public void BindController (ILevelPresenter controller)
+        {
+            _controller = controller;
+
+            viewportControl1.ContentPanel.Controls.Clear();
+
+            if (_controller != null && _controller.LayerControl != null) {
+                _controller.LayerControl.Dock = DockStyle.Fill;
+
+                viewportControl1.ContentPanel.Controls.Add(_controller.LayerControl);
+            }
+        }
+
+        private void ResetComponent ()
+        {
+            viewportControl1.ContentPanel.Controls.Clear();
+        }
+
         #region Properties
 
-        public LayerControl LayerControl
+        /*public LayerControl LayerControl
         {
             get { return layerControl1; }
-        }
+        }*/
 
         #endregion
 
@@ -49,6 +69,7 @@ namespace Editor.Views
 
         #endregion
 
+        /*
         #region IZoomable Members
 
         public float Zoom
@@ -107,5 +128,6 @@ namespace Editor.Views
         #endregion
 
         #endregion
+         * */
     }
 }

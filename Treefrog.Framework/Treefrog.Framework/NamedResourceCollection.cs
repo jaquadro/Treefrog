@@ -80,7 +80,7 @@ namespace Treefrog.Framework
 
         public bool Contains (string name)
         {
-            return _nameMap.ContainsKey(name);
+            return name != null && _nameMap.ContainsKey(name);
         }
 
         public void Remove (string name)

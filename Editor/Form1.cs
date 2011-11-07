@@ -11,6 +11,8 @@ using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Editor.A.Presentation;
+using Editor.Views;
 
 namespace Editor
 {
@@ -30,11 +32,13 @@ namespace Editor
         private TrackBar trackBarZoom;
 
         //private TilesetView _tilesetView;
-        private MapView _mapView;
+        //private MapView _mapView;
 
         private Project _project;
 
-        private EditorState _editor;
+        //private EditorState _editor;
+
+        private EditorPresenter _editor;
 
         public Form1 ()
         {
@@ -43,13 +47,13 @@ namespace Editor
             // Toolbars
 
             _standardToolbar = new StandardToolbar();
-            _standardToolbar.ButtonUndo.Click += ButtonUndo;
+            /*_standardToolbar.ButtonUndo.Click += ButtonUndo;
             _standardToolbar.ButtonRedo.Click += ButtonRedo;
             _standardToolbar.ButtonSave.Click += ButtonSave;
-            _standardToolbar.ButtonOpen.Click += ButtonOpen;
+            _standardToolbar.ButtonOpen.Click += ButtonOpen;*/
 
             _tileToolbar = new TileToolbar();
-            _tileToolbar.ToolModeChanged += TileToolModeChangedHandler;
+            //_tileToolbar.ToolModeChanged += TileToolModeChangedHandler;
 
             toolStripContainer1.TopToolStripPanel.Controls.AddRange(new Control[] {
                 _standardToolbar.Strip, 
@@ -58,18 +62,16 @@ namespace Editor
 
             // Other
 
-            _editor = new EditorState();
+            //_editor = new EditorState();
 
-            _editor.ContentActivated += EditorActivateContent;
-            _editor.ContentDeactivated += EditorDeactivateContent;
+            //_editor.ContentActivated += EditorActivateContent;
+            //_editor.ContentDeactivated += EditorDeactivateContent;
 
-            splitContainer1.Panel2.Controls.Add(_editor.MainTabControl);
-            splitContainer2.Panel1.Controls.Add(_editor.UpperLeftTabControl);
-            splitContainer2.Panel2.Controls.Add(_editor.LowerLeftTabControl);
+            //splitContainer1.Panel2.Controls.Add(_editor.MainTabControl);
+            //splitContainer2.Panel1.Controls.Add(_editor.UpperLeftTabControl);
+            //splitContainer2.Panel2.Controls.Add(_editor.LowerLeftTabControl);
 
             GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
-
-            
 
             _project = new Project();
             _project.Initialize(gds.GraphicsDevice);
@@ -86,18 +88,42 @@ namespace Editor
 
             _project.Levels.Add(level);
 
-            _editor.LoadProject(_project);
+            level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 30, 20));
 
-            _mapView = new MapView(_project, "Level 1");
-            _mapView.Dock = DockStyle.Fill;
+            Level level2 = new Level("Level 2", 16, 16, 80, 30);
+            _project.Levels.Add(level2);
+
+            level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 80, 30));
+
+            _editor = new EditorPresenter(_project);
+            _editor.SyncContentTabs += SyncContentTabsHandler;
+            _editor.SyncContentView += SyncContentViewHandler;
+
+            _editor.RefreshEditor();
+
+            //_editor.LoadProject(_project);
+
+            //_mapView = new MapView(_project, "Level 1");
+            //_mapView.Dock = DockStyle.Fill;
 
             //SwitchToView(_tilesetView);
-            SwitchToView(_mapView);
+            //SwitchToView(_mapView);
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
             statusCoord.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.status-loc.png"));
             statusCoord.ImageScaling = ToolStripItemImageScaling.None;
+
+            redoToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-turn.png"));
+            undoToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-turn-180-left.png"));
+
+            cutToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.scissors.png"));
+            copyToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.documents.png"));
+            pasteToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.clipboard-paste.png"));
+            deleteToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.cross.png"));
+
+            selectAllToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.selection-select.png"));
+            selectNoneToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.selection.png"));
 
             // TilesetView
 
@@ -145,7 +171,7 @@ namespace Editor
             statusZoomOut.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.minus-circle16.png"));
             statusZoomOut.DisplayStyle = ToolStripItemDisplayStyle.Image;
 
-            trackBarZoom.Scroll += trackBarZoom_Scroll;
+            /*trackBarZoom.Scroll += trackBarZoom_Scroll;
             trackBarZoom.ValueChanged += trackBarZoom_ValueChanged;
 
             statusZoomOut.MouseEnter += buttonZoomOut_MouseEnter;
@@ -156,12 +182,44 @@ namespace Editor
             statusZoomIn.MouseEnter += buttonZoomIn_MouseEnter;
             statusZoomIn.MouseLeave += buttonZoomIn_MouseLeave;
             statusZoomIn.MouseDown += buttonZoomIn_MouseDown;
-            statusZoomIn.MouseUp += buttonZoomIn_MouseUp;
-
-
+            statusZoomIn.MouseUp += buttonZoomIn_MouseUp;*/
         }
 
-        public ToolStripStatusLabel Label
+        private void SyncContentTabsHandler (object sender, EventArgs e)
+        {
+            foreach (ILevelPresenter lp in _editor.OpenContent) {
+                TabPage page = new TabPage("Level");
+                tabControlEx1.TabPages.Add(page);
+
+                LevelPanel lpanel = new LevelPanel();
+                lpanel.BindController(lp);
+                lpanel.Dock = DockStyle.Fill;
+
+                page.Controls.Add(lpanel);
+            }
+        }
+
+        private void SyncContentViewHandler (object sender, EventArgs e)
+        {
+            ILevelPresenter lp = _editor.CurrentLevel;
+
+            foreach (TabPage page in tabControlEx1.TabPages) {
+                if (page.Text == lp.LayerControl.Name) {
+                    tabControlEx1.SelectedTab = page;
+                }
+            }
+
+            if (_editor.CanShowLayerPanel)
+                layerPane1.BindController(_editor.CurrentLayerListPresenter);
+
+            if (_editor.CanShowTilePoolPanel)
+                tilePoolPane1.BindController(_editor.CurrentTilePoolListPresenter);
+
+            if (_editor.CanShowPropertyPanel)
+                propertyPane1.BindController(_editor.CurrentPropertyListPresenter);
+        }
+
+        /*public ToolStripStatusLabel Label
         {
             get { return toolStripStatusLabel1; }
         }
@@ -170,12 +228,6 @@ namespace Editor
         {
             get { return statusCoord; }
         }
-
-        /*private void amphibianGameControl1_MouseMove (object sender, MouseEventArgs e)
-        {
-            canvas.mousex = e.X;
-            canvas.mousey = e.Y;
-        }*/
 
         private void splitContainer1_SplitterMoved (object sender, SplitterEventArgs e)
         {
@@ -281,18 +333,18 @@ namespace Editor
                     break;
             }
 
-            if (_editor.CurrentZoomableControl != null) {
-                _editor.CurrentZoomableControl.Zoom = zoom;
-            }
+            //if (_editor.CurrentZoomableControl != null) {
+            //    _editor.CurrentZoomableControl.Zoom = zoom;
+            //}
         }
 
         private void ZoomableControlZoomChangedHandler (object sender, EventArgs e)
         {
-            if (_editor.CurrentZoomableControl != sender) {
-                throw new Exception("Unexpected ZoomChanged event");
-            }
+            //if (_editor.CurrentZoomableControl != sender) {
+            //    throw new Exception("Unexpected ZoomChanged event");
+            //}
 
-            UpdateZoomState(_editor.CurrentZoomableControl.Zoom);
+            //UpdateZoomState(_editor.CurrentZoomableControl.Zoom);
         }
 
         private void UpdateZoomState (float zoom)
@@ -316,11 +368,11 @@ namespace Editor
 
         private void EditorActivateContent (object sender, EventArgs e)
         {
-            if (_editor.CurrentZoomableControl != null) {
-                _editor.CurrentZoomableControl.ZoomChanged += ZoomableControlZoomChangedHandler;
+            //if (_editor.CurrentZoomableControl != null) {
+            //    _editor.CurrentZoomableControl.ZoomChanged += ZoomableControlZoomChangedHandler;
 
-                UpdateZoomState(_editor.CurrentZoomableControl.Zoom);
-            }
+            //    UpdateZoomState(_editor.CurrentZoomableControl.Zoom);
+            //}
         }
 
         private void EditorDeactivateContent (object sender, EventArgs e)
@@ -343,8 +395,8 @@ namespace Editor
                 _project = Project.Open(fs, gds.GraphicsDevice);
             }
 
-            _editor.UnloadProject();
-            _editor.LoadProject(_project);
+            //_editor.UnloadProject();
+            //_editor.LoadProject(_project);
         }
 
         private void ButtonUndo (object sender, EventArgs e)
@@ -396,7 +448,7 @@ namespace Editor
             _currentView.CommandHistoryChanged += FormCommandHistoryChangedHandler;
 
             _currentView.Display();
-        }
+        }*/
     }
 
 

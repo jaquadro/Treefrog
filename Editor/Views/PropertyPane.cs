@@ -8,6 +8,7 @@ using Editor.Model;
 using Editor.Controls;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Editor.A.Presentation;
 
 namespace Editor.Views
 {
@@ -24,17 +25,18 @@ namespace Editor.Views
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripTextBox toolStripTextBox1;
 
-        private IPropertyProvider _propertyProvider;
+        private IPropertyListPresenter _controller;
 
         private ListViewGroup _groupPredefined;
         private ListViewGroup _groupCustom;
 
-        private PropertyPanelProperties _data;
-
         #region Constructors
 
-        public PropertyPane () {
+        public PropertyPane () 
+        {
             InitializeComponent();
+
+            ResetComponent();
 
             // Load form elements
 
@@ -44,78 +46,50 @@ namespace Editor.Views
             _buttonRemoveProp.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.tag--minus.png"));
 
             // Setup control
+
             _groupPredefined = new ListViewGroup("Predefined Properties");
             _groupCustom = new ListViewGroup("Custom Properties");
 
             _propertyList.Groups.Add(_groupPredefined);
             _propertyList.Groups.Add(_groupCustom);
 
-            _propertyList.Items.Clear();
+            // Wire events
 
             _propertyList.SubItemClicked += PropertyListSubItemClickHandler;
             _propertyList.SubItemEndEditing += PropertyListEndEditingHandler;
+            _propertyList.SelectedIndexChanged += PropertyListSelectionHandler;
 
             _buttonAddProp.Click += ButtonAddPropClickHandler;
             _buttonRemoveProp.Click += ButtonRemovePropClickHandler;
-
-            _data = new PropertyPanelProperties();
-
-            UpdateToolbar();
         }
 
         #endregion
 
-        #region Properties
-
-        public IPropertyProvider PropertyProvider
+        public void BindController (IPropertyListPresenter controller)
         {
-            get { return _propertyProvider; }
-            set 
-            {
-                if (_propertyProvider != value) {
-                    _propertyProvider = value;
-                    OnPropertyProviderChanged(EventArgs.Empty);
-                }
+            if (_controller == controller) {
+                return;
+            }
+
+            if (_controller != null) {
+                _controller.SyncPropertyActions -= SyncPropertyActionsHandler;
+                _controller.SyncPropertyList -= SyncPropertyListHandler;
+            }
+
+            _controller = controller;
+
+            if (_controller != null) {
+                _controller.SyncPropertyActions += SyncPropertyActionsHandler;
+                _controller.SyncPropertyList += SyncPropertyListHandler;
+
+                _controller.RefreshPropertyList();
+            }
+            else {
+                ResetComponent();
             }
         }
-
-        public PanelProperties PanelProperties
-        {
-            get { return _data; }
-        }
-
-        #endregion
-
-        #region Events
-
-        public event EventHandler PropertyProviderChanged;
-
-        #endregion
 
         #region Event Dispatchers
-
-        protected virtual void OnPropertyProviderChanged (EventArgs e)
-        {
-            _propertyList.Items.Clear();
-
-            foreach (Property prop in _propertyProvider.PredefinedProperties) {
-                ListViewItem item = new ListViewItem();
-                item.SubItems.Add(new ListViewSubItemEx(item, prop.Name) { ReadOnly = true });
-                item.SubItems.Add(prop.ToString());
-                item.Group = _groupPredefined;
-                _propertyList.Items.Add(item);
-            }
-
-            foreach (Property prop in _propertyProvider.CustomProperties) {
-                ListViewItem item = new ListViewItem(new string[] { "", prop.Name, prop.ToString()});
-                item.Group = _groupCustom;
-                _propertyList.Items.Add(item);
-            }
-
-            if (PropertyProviderChanged != null) {
-                PropertyProviderChanged(this, e);
-            }
-        }
 
         protected override void OnSizeChanged (EventArgs e)
         {
@@ -133,6 +107,55 @@ namespace Editor.Views
 
         #region Event Handlers
 
+        private void SyncPropertyActionsHandler (object sender, EventArgs e)
+        {
+            if (_controller != null) {
+                _buttonAddProp.Enabled = _controller.CanAddProperty;
+                _buttonRemoveProp.Enabled = _controller.CanRemoveSelectedProperty;
+            }
+        }
+
+        private void SyncPropertyListHandler (object sender, EventArgs e)
+        {
+            if (_propertyList.Editing) {
+                return;
+            }
+
+            _propertyList.Items.Clear();
+
+            foreach (Property prop in _controller.PredefinedProperties) {
+                ListViewItem item = new ListViewItem();
+                item.SubItems.Add(new ListViewSubItemEx(item, prop.Name) { ReadOnly = true });
+                item.SubItems.Add(prop.ToString());
+                item.Group = _groupPredefined;
+                if (_controller.SelectedProperty != null && _controller.SelectedProperty == prop) {
+                    item.Selected = true;
+                }
+
+                _propertyList.Items.Add(item);
+            }
+
+            foreach (Property prop in _controller.CustomProperties) {
+                ListViewItem item = new ListViewItem(new string[] { "", prop.Name, prop.ToString() });
+                item.Group = _groupCustom;
+                if (_controller.SelectedProperty != null && _controller.SelectedProperty == prop) {
+                    item.Selected = true;
+                }
+
+                _propertyList.Items.Add(item);
+            }
+        }
+
+        private void PropertyListSelectionHandler (object sender, EventArgs e)
+        {
+            if (_controller != null) {
+                foreach (ListViewItem item in _propertyList.SelectedItems) {
+                    _controller.ActionSelectProperty(item.SubItems[1].Text);
+                    break;
+                }
+            }
+        }
+
         private void PropertyListSubItemClickHandler (object sender, SubItemEventArgs e) {
             ListViewSubItemEx subEx = e.Item.SubItems[e.SubItem] as ListViewSubItemEx;
             if (subEx != null && subEx.ReadOnly) {
@@ -146,105 +169,36 @@ namespace Editor.Views
 
         private void PropertyListEndEditingHandler (object sender, SubItemEndEditingEventArgs e)
         {
-            string name = e.Item.SubItems[1].Text;
+            
 
-            if (e.Item.Group == _groupPredefined) {
-                foreach (Property prop in _propertyProvider.PredefinedProperties) {
-                    if (prop.Name == name) {
-                        if (e.SubItem == 2) {
-                            prop.Parse(e.DisplayText);
-                            break;
-                        }
-                    }
-                }
+            if (e.SubItem == 1 && _controller.CanRenameSelectedProperty) {
+                _controller.ActionRenameSelectedProperty(e.DisplayText);
             }
-            else if (e.Item.Group == _groupCustom) {
-                foreach (Property prop in _propertyProvider.CustomProperties) {
-                    if (prop.Name == name) {
-                        switch (e.SubItem) {
-                            case 1:
-                                prop.Name = e.DisplayText;
-                                break;
-                            case 2:
-                                prop.Parse(e.DisplayText);
-                                break;
-                        }
-                        break;
-                    }
-                }
+            else if (e.SubItem == 2 && _controller.CanEditSelectedProperty) {
+                _controller.ActionEditSelectedProperty(e.DisplayText);
             }
         }
 
         private void ButtonAddPropClickHandler (object sender, EventArgs e)
         {
-            StringProperty prop = new StringProperty(FindDefaultName(), "");
-
-            ListViewItem item = new ListViewItem(_groupCustom);
-            item.SubItems.Add(new ListViewItem.ListViewSubItem(item, prop.Name));
-            item.SubItems.Add(new ListViewItem.ListViewSubItem(item, prop.Value));
-
-            _propertyList.Items.Add(item);
-            _propertyProvider.AddCustomProperty(prop);
+            if (_controller != null)
+                _controller.ActionAddCustomProperty();
         }
 
         private void ButtonRemovePropClickHandler (object sender, EventArgs e)
         {
-            List<ListViewItem> remList = new List<ListViewItem>();
-
-            foreach (ListViewItem item in _propertyList.SelectedItems) {
-                if (item.Group == _groupCustom) {
-                    remList.Add(item);
-                    _propertyProvider.RemoveCustomProperty(item.SubItems[1].Text);
-                }
-            }
-
-            foreach (ListViewItem item in remList) {
-                _propertyList.Items.Remove(item);
-            }
+            if (_controller != null)
+                _controller.ActionRemoveSelectedProperty();
         }
 
         #endregion
 
-        public void Deactivate ()
+        private void ResetComponent ()
         {
-            _propertyProvider = null;
             _propertyList.Items.Clear();
 
-            UpdateToolbar();
-        }
-
-        public void Activate (LevelState level, PanelProperties properties)
-        {
-            PropertyProvider = level.Level;
-
-            if (properties is LayerPanelProperties) {
-                _data = properties as PropertyPanelProperties;
-            }
-
-            UpdateToolbar();
-        }
-
-        private string FindDefaultName ()
-        {
-            List<string> names = new List<string>();
-            foreach (ListViewItem item in _propertyList.Items) {
-                names.Add(item.SubItems[1].Text);
-            }
-
-            int i = 0;
-            while (true) {
-                string name = "Property " + ++i;
-                if (names.Contains(name)) {
-                    continue;
-                }
-                return name;
-            }
-        }
-
-        private void UpdateToolbar ()
-        {
-            _buttonAddProp.Enabled = (_propertyProvider != null);
-            _buttonRemoveProp.Enabled = (_propertyProvider != null && _propertyList.SelectedItems.Count > 0);
+            _buttonAddProp.Enabled = false;
+            _buttonRemoveProp.Enabled = false;
         }
 
         private void InitializeComponent ()
@@ -408,10 +362,5 @@ namespace Editor.Views
             this.ResumeLayout(false);
 
         }
-    }
-
-    public class PropertyPanelProperties : PanelProperties
-    {
-
     }
 }

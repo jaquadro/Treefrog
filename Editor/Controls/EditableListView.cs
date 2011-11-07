@@ -105,6 +105,11 @@ namespace Editor.Controls
             set { _doubleClickActivation = value; }
         }
 
+        public bool Editing
+        {
+            get { return _editControl != null; }
+        }
+
         #endregion
 
         #region Events
