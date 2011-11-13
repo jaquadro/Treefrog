@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Microsoft.Xna.Framework;
 
 namespace Editor.Model.Controls
 {
@@ -74,14 +75,23 @@ namespace Editor.Model.Controls
 
         public event EventHandler VirtualSizeChanged;
 
+        public event EventHandler<DrawLayerEventArgs> DrawExtraCallback;
+
         #endregion
 
         #region Event Dispatchers
 
-        public virtual void OnVirutalSizeChanged (EventArgs e)
+        protected virtual void OnVirutalSizeChanged (EventArgs e)
         {
             if (VirtualSizeChanged != null) {
                 VirtualSizeChanged(this, e);
+            }
+        }
+
+        protected virtual void OnDrawExtraContent (DrawLayerEventArgs e)
+        {
+            if (DrawExtraCallback != null) {
+                DrawExtraCallback(this, e);
             }
         }
 
@@ -110,11 +120,33 @@ namespace Editor.Model.Controls
             }
         }
 
+        public void DrawExtra (SpriteBatch spriteBatch)
+        {
+            if (CheckLayerCondition(ShouldDrawContent)) {
+                DrawExtraImpl(spriteBatch);
+            }
+        }
+
         protected virtual void Initiailize () { }
 
         protected virtual void DrawContentImpl (SpriteBatch spriteBatch) { }
 
         protected virtual void DrawGridImpl (SpriteBatch spriteBatch) { }
+
+        protected virtual void DrawExtraImpl (SpriteBatch spriteBatch) {
+            Rectangle region = Control.VisibleRegion;
+
+            Vector2 offset = Control.VirtualSurfaceOffset;
+            offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
+            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+
+            OnDrawExtraContent(new DrawLayerEventArgs(spriteBatch));
+
+            spriteBatch.End();
+        }
 
         protected bool CheckLayerCondition (LayerCondition option)
         {

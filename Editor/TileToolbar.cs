@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.IO;
 using System.Drawing;
+using Editor.A.Presentation;
 
 namespace Editor
 {
@@ -16,16 +17,6 @@ namespace Editor
         Erase,
         Fill,
         Stamp
-    }
-
-    public class TileToolModeEventArgs : EventArgs
-    {
-        public TileToolMode TileToolMode { get; private set; }
-
-        public TileToolModeEventArgs (TileToolMode mode)
-        {
-            TileToolMode = mode;
-        }
     }
 
     class TileToolbar
@@ -45,12 +36,12 @@ namespace Editor
 
         private Assembly _assembly;
 
-        private TileToolMode _toolMode;
-
-        public event EventHandler<TileToolModeEventArgs> ToolModeChanged;
+        private ILevelToolsPresenter _controller;
 
         public TileToolbar ()
         {
+            // Construction
+
             _assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
             _tbSelect = CreateButton("Select Tool (C)", "Editor.Icons.cursor16.png");
@@ -70,87 +61,69 @@ namespace Editor
                 _tbFlipH, _tbFlipV, _tbRotateLeft, _tbRotateRight
             });
 
+            ResetComponent();
+
             _tbSelect.Click += SelectButtonClickHandler;
             _tbDraw.Click += DrawButtonClickHandler;
             _tbErase.Click += EraseButtonClickHandler;
             _tbFill.Click += FillButtonClickHandler;
             _tbStamp.Click += StampButtonClickHandler;
 
-            ToolMode = TileToolMode.Draw;
+            //ToolMode = TileToolMode.Draw;
         }
 
-        public ToolStrip Strip
+        public void BindController (ILevelToolsPresenter controller)
         {
-            get { return _strip; }
+            if (_controller == controller) {
+                return;
+            }
+
+            if (_controller != null) {
+                _controller.SyncLevelToolsActions -= SyncLevelToolsActionsHandler;
+            }
+
+            _controller = controller;
+
+            if (_controller != null) {
+                _controller.SyncLevelToolsActions += SyncLevelToolsActionsHandler;
+
+                _controller.RefreshLevelTools();
+            }
+            else {
+                ResetComponent();
+            }
         }
 
-        public ToolStripButton ButtonSelect
+        private void ResetComponent ()
         {
-            get { return _tbSelect; }
+            _tbSelect.Enabled = false;
+            _tbDraw.Enabled = false;
+            _tbErase.Enabled = false;
+            _tbFill.Enabled = false;
+            _tbStamp.Enabled = false;
+
+            _tbFlipH.Enabled = false;
+            _tbFlipV.Enabled = false;
+            _tbRotateLeft.Enabled = false;
+            _tbRotateRight.Enabled = false;
         }
 
-        public ToolStripButton ButtonDraw
+        private void SyncLevelToolsActionsHandler (object sender, EventArgs e)
         {
-            get { return _tbDraw; }
-        }
+            if (_controller != null) {
+                _tbSelect.Enabled = _controller.CanSelect;
+                _tbDraw.Enabled = _controller.CanDraw;
+                _tbErase.Enabled = _controller.CanErase;
+                _tbFill.Enabled = _controller.CanFill;
+                _tbStamp.Enabled = _controller.CanStamp;
 
-        public ToolStripButton ButtonErase
-        {
-            get { return _tbErase; }
-        }
+                _tbSelect.Checked = false;
+                _tbDraw.Checked = false;
+                _tbErase.Checked = false;
+                _tbStamp.Checked = false;
+                _tbFill.Checked = false;
 
-        public ToolStripButton ButtonFill
-        {
-            get { return _tbFill; }
-        }
-
-        public ToolStripButton ButtonStamp
-        {
-            get { return _tbStamp; }
-        }
-
-        public ToolStripButton ButtonFlipH
-        {
-            get { return _tbFlipH; }
-        }
-
-        public ToolStripButton ButtonFlipV
-        {
-            get { return _tbFlipV; }
-        }
-
-        public ToolStripButton ButtonRotateLeft
-        {
-            get { return _tbRotateLeft; }
-        }
-
-        public ToolStripButton ButtonRotateRight
-        {
-            get { return _tbRotateRight; }
-        }
-
-        public TileToolMode ToolMode
-        {
-            get { return _toolMode; }
-            set
-            {
-                if (_toolMode == value)
-                    return;
-
-                _toolMode = value;
-
-                if (_tbSelect.Checked) 
-                    _tbSelect.Checked = false;
-                if (_tbDraw.Checked)
-                    _tbDraw.Checked = false;
-                if (_tbErase.Checked)
-                    _tbErase.Checked = false;
-                if (_tbFill.Checked)
-                    _tbFill.Checked = false;
-                if (_tbStamp.Checked)
-                    _tbStamp.Checked = false;
-
-                switch (value) {
+                switch (_controller.ActiveTileTool) {
                     case TileToolMode.Select:
                         _tbSelect.Checked = true;
                         break;
@@ -167,41 +140,42 @@ namespace Editor
                         _tbStamp.Checked = true;
                         break;
                 }
-
-                OnTileModeChanged(new TileToolModeEventArgs(_toolMode));
             }
         }
 
-        protected void OnTileModeChanged (TileToolModeEventArgs e)
+        public ToolStrip Strip
         {
-            if (ToolModeChanged != null) {
-                ToolModeChanged(this, e);
-            }
+            get { return _strip; }
         }
 
         private void SelectButtonClickHandler (object sender, EventArgs e)
         {
-            ToolMode = TileToolMode.Select;
+            if (_controller != null)
+                _controller.ActionToggleSelect();
         }
 
         private void DrawButtonClickHandler (object sender, EventArgs e)
         {
-            ToolMode = TileToolMode.Draw;
+            if (_controller != null)
+                _controller.ActionToggleDraw();
         }
 
         private void EraseButtonClickHandler (object sender, EventArgs e)
         {
-            ToolMode = TileToolMode.Erase;
+            if (_controller != null)
+                _controller.ActionToggleErase();
         }
 
         private void FillButtonClickHandler (object sender, EventArgs e)
         {
-            ToolMode = TileToolMode.Fill;
+            if (_controller != null)
+                _controller.ActionToggleFill();
         }
 
         private void StampButtonClickHandler (object sender, EventArgs e)
         {
-            ToolMode = TileToolMode.Stamp;
+            if (_controller != null)
+                _controller.ActionToggleStamp();
         }
 
         private ToolStripButton CreateButton (string text, string resource)

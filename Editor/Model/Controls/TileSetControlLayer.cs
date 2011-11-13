@@ -131,6 +131,27 @@ namespace Editor.Model.Controls
 
         #endregion
 
+        public TileCoord TileToCoord (Tile tile)
+        {
+            int tilesWide = Control.Width / _layer.TileWidth;
+
+            int pointX = 0;
+            int pointY = 0;
+
+            foreach (Tile t in _layer.Tiles) {
+                if (tile == t) {
+                    return new TileCoord(pointX, pointY);
+                }
+
+                if (++pointX >= tilesWide) {
+                    pointX = 0;
+                    pointY++;
+                }
+            }
+
+            throw new ArgumentException("The tile does not exist in the layer.", "tile");
+        }
+
         private int CoordToIndex (int x, int y)
         {
             if (Control.WidthSynced) {
@@ -184,6 +205,17 @@ namespace Editor.Model.Controls
                     pointX = 0;
                     pointY++;
                 }
+            }
+        }
+
+        protected override Tile GetTile (TileCoord coord)
+        {
+            try {
+                int index = CoordToIndex(coord.X, coord.Y);
+                return _layer[index];
+            }
+            catch (Exception) {
+                return null;
             }
         }
 

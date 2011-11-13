@@ -141,28 +141,32 @@ namespace Editor.Model.Controls
         private void ControlMouseClickHandler (object sender, MouseEventArgs e)
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
-                OnMouseTileClick(new TileMouseEventArgs(e, MouseToTileCoords(new Point(e.X, e.Y))));
+                TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
+                OnMouseTileClick(new TileMouseEventArgs(e, coords, GetTile(coords)));
             }
         }
 
         private void ControlMouseUpHandler (object sender, MouseEventArgs e)
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
-                OnMouseTileUp(new TileMouseEventArgs(e, MouseToTileCoords(new Point(e.X, e.Y))));
+                TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
+                OnMouseTileUp(new TileMouseEventArgs(e, coords, GetTile(coords)));
             }
         }
 
         private void ControlMouseDownHandler (object sender, MouseEventArgs e)
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
-                OnMouseTileDown(new TileMouseEventArgs(e, MouseToTileCoords(new Point(e.X, e.Y))));
+                TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
+                OnMouseTileDown(new TileMouseEventArgs(e, coords, GetTile(coords)));
             }
         }
 
         private void ControlMouseMoveHandler (object sender, MouseEventArgs e)
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
-                OnMouseTileMove(new TileMouseEventArgs(e, MouseToTileCoords(new Point(e.X, e.Y))));
+                TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
+                OnMouseTileMove(new TileMouseEventArgs(e, coords, GetTile(coords)));
             }
         }
 
@@ -291,6 +295,11 @@ namespace Editor.Model.Controls
         }
 
         protected virtual void DrawTiles (SpriteBatch spriteBatch, Rectangle tileRegion) { }
+
+        protected virtual Tile GetTile (TileCoord coord) 
+        { 
+            return null; 
+        }
 
         protected abstract Func<int, int, bool> TileInRegionPredicate (Rectangle tileRegion);
 

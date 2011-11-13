@@ -8,10 +8,6 @@ using Editor.Forms;
 
 namespace Editor.A.Presentation
 {
-    public interface ILevelPresenter {
-        LayerControl LayerControl { get; }
-    }
-
     public interface IEditorPresenter
     {
         bool CanShowLayerPanel { get; }
@@ -21,6 +17,8 @@ namespace Editor.A.Presentation
         ILayerListPresenter CurrentLayerListPresenter { get; }
         IPropertyListPresenter CurrentPropertyListPresenter { get; }
         ITilePoolListPresenter CurrentTilePoolListPresenter { get; }
+
+        ILevelToolsPresenter CurrentLevelToolsPresenter { get; }
 
         IEnumerable<ILevelPresenter> OpenContent { get; }
 
@@ -39,14 +37,19 @@ namespace Editor.A.Presentation
 
         private PropertyListPresenter _propertyList;
 
+        private LevelToolsPresenter _levelTools;
+
         public EditorPresenter (Project project)
         {
             _project = project;
 
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
+            _selectedTiles = new Dictionary<string, Tile>();
 
             _propertyList = new PropertyListPresenter();
+
+            _levelTools = new LevelToolsPresenter(this);
 
             foreach (Level level in _project.Levels) {
                 LevelPresenter pres = new LevelPresenter(this, level);
@@ -108,6 +111,11 @@ namespace Editor.A.Presentation
             get { return this; }
         }
 
+        public ILevelToolsPresenter CurrentLevelToolsPresenter
+        {
+            get { return _levelTools; }
+        }
+
         public IEnumerable<ILevelPresenter> OpenContent
         {
             get 
@@ -149,6 +157,7 @@ namespace Editor.A.Presentation
         #region Fields
 
         private string _selectedPool;
+        private Dictionary<string, Tile> _selectedTiles;
 
         #endregion
 
@@ -184,6 +193,17 @@ namespace Editor.A.Presentation
             }
         }
 
+        public Tile SelectedTile
+        {
+            get
+            {
+                TilePool pool = SelectedTilePool;
+                return (pool != null && _selectedTiles.ContainsKey(_selectedPool))
+                    ? _selectedTiles[_selectedPool]
+                    : null;
+            }
+        }
+
         #endregion
 
         #region Events
@@ -191,6 +211,8 @@ namespace Editor.A.Presentation
         public event EventHandler SyncTilePoolActions;
 
         public event EventHandler SyncTilePoolList;
+
+        public event EventHandler SyncTilePoolControl;
 
         #endregion
 
@@ -207,6 +229,13 @@ namespace Editor.A.Presentation
         {
             if (SyncTilePoolList != null) {
                 SyncTilePoolList(this, e);
+            }
+        }
+
+        protected virtual void OnSyncTilePoolControl (EventArgs e)
+        {
+            if (SyncTilePoolControl != null) {
+                SyncTilePoolControl(this, e);
             }
         }
 
@@ -232,6 +261,7 @@ namespace Editor.A.Presentation
 
             OnSyncTilePoolActions(EventArgs.Empty);
             OnSyncTilePoolList(EventArgs.Empty);
+            OnSyncTilePoolControl(EventArgs.Empty);
         }
 
         public void ActionRemoveSelectedTilePool ()
@@ -248,6 +278,7 @@ namespace Editor.A.Presentation
 
             OnSyncTilePoolActions(EventArgs.Empty);
             OnSyncTilePoolList(EventArgs.Empty);
+            OnSyncTilePoolControl(EventArgs.Empty);
         }
 
         public void ActionSelectTilePool (string name)
@@ -260,12 +291,22 @@ namespace Editor.A.Presentation
             }
         }
 
+        public void ActionSelectTile (Tile tile)
+        {
+            if (SelectedTilePool != null) {
+                _selectedTiles[_selectedPool] = tile;
+
+                OnSyncTilePoolControl(EventArgs.Empty);
+            }
+        }
+
         #endregion
 
         public void RefreshTilePoolList ()
         {
             OnSyncTilePoolActions(EventArgs.Empty);
             OnSyncTilePoolList(EventArgs.Empty);
+            OnSyncTilePoolControl(EventArgs.Empty);
         }
 
         #endregion

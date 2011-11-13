@@ -481,6 +481,9 @@ namespace Editor.Model.Controls
             }
             OnDrawLayerGrid(e);
 
+            foreach (BaseControlLayer layer in _layers) {
+                layer.DrawExtra(_spriteBatch);
+            }
             OnDrawExtra(e);
         }
 

@@ -120,6 +120,8 @@
     <Compile Include="A\Presentation\IPropertyListPresenter.cs" />
     <Compile Include="A\Presentation\ITilePoolListPresenter.cs" />
     <Compile Include="A\Presentation\LevelPresenter.cs" />
+    <Compile Include="A\Presentation\LevelToolsPresenter.cs" />
+    <Compile Include="A\Presentation\PresentationInterface.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Controls\EditableListView.cs">
       <SubType>Component</SubType>
@@ -127,6 +129,7 @@
     <None Include="Editor.cs" />
     <None Include="LevelState.cs" />
     <Compile Include="Mvc.cs" />
+    <Compile Include="Tools\LevelPres.cs" />
     <Compile Include="Views\LevelPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

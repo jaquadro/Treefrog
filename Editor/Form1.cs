@@ -217,6 +217,8 @@ namespace Editor
 
             if (_editor.CanShowPropertyPanel)
                 propertyPane1.BindController(_editor.CurrentPropertyListPresenter);
+
+            _tileToolbar.BindController(_editor.CurrentLevelToolsPresenter);
         }
 
         /*public ToolStripStatusLabel Label

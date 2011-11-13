@@ -10,9 +10,15 @@ using Editor.Model.Controls;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Editor.A.Presentation;
+using Amphibian.Drawing;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Editor
 {
+    using XColor = Microsoft.Xna.Framework.Color;
+    using XRectangle = Microsoft.Xna.Framework.Rectangle;
+
     public partial class TilePoolPane : UserControl
     {
         #region Fields
@@ -20,6 +26,10 @@ namespace Editor
         private ITilePoolListPresenter _controller;
 
         private TileSetControlLayer _tileLayer;
+
+        private TileCoord _selectedTileCoord;
+
+        private Amphibian.Drawing.Brush _selectBrush;
 
         #endregion
 
@@ -41,7 +51,7 @@ namespace Editor
 
             // Setup control
 
-            _tileControl.BackColor = Color.SlateGray;
+            _tileControl.BackColor = System.Drawing.Color.SlateGray;
             _tileControl.WidthSynced = true;
             _tileControl.Alignment = LayerControlAlignment.UpperLeft;
 
@@ -56,6 +66,11 @@ namespace Editor
             _buttonRemove.Click += RemoveTilePoolClickedHandler;
 
             _poolComboBox.SelectedIndexChanged += SelectTilePoolHandler;
+
+            _tileLayer.DrawExtraCallback += DrawSelectedTileIndicators;
+
+            _tileLayer.MouseTileDown += TileControlMouseDownHandler;
+            _tileLayer.VirtualSizeChanged += TileLayerResized;
         }
 
         #endregion
@@ -69,6 +84,7 @@ namespace Editor
             if (_controller != null) {
                 _controller.SyncTilePoolActions -= SyncTilePoolActionsHandler;
                 _controller.SyncTilePoolList -= SyncTilePoolListHandler;
+                _controller.SyncTilePoolControl -= SyncTilePoolControlHandler;
             }
 
             _controller = controller;
@@ -76,6 +92,7 @@ namespace Editor
             if (_controller != null) {
                 _controller.SyncTilePoolActions += SyncTilePoolActionsHandler;
                 _controller.SyncTilePoolList += SyncTilePoolListHandler;
+                _controller.SyncTilePoolControl += SyncTilePoolControlHandler;
 
                 _controller.RefreshTilePoolList();
             }
@@ -102,6 +119,13 @@ namespace Editor
         {
             if (_controller != null)
                 _controller.ActionSelectTilePool((string)_poolComboBox.SelectedItem);
+        }
+
+        private void TileControlMouseDownHandler (object sender, TileMouseEventArgs e)
+        {
+            if (_controller != null) {
+                _controller.ActionSelectTile(e.Tile);
+            }
         }
 
         private void SyncTilePoolActionsHandler (object sender, EventArgs e)
@@ -131,7 +155,49 @@ namespace Editor
             }
         }
 
+        private void SyncTilePoolControlHandler (object sender, EventArgs e)
+        {
+            Tile selected = _controller.SelectedTile;
+            if (selected != null) {
+                _selectedTileCoord = _tileLayer.TileToCoord(selected);
+            }
+        }
+
+        private void TileLayerResized (object sender, EventArgs e)
+        {
+            if (_controller != null && _tileLayer.Layer != null) {
+                Tile selected = _controller.SelectedTile;
+                if (selected != null) {
+                    _selectedTileCoord = _tileLayer.TileToCoord(selected);
+                }
+            }
+        }
+
         #endregion
+
+        private void DrawSelectedTileIndicators (object sender, DrawLayerEventArgs e)
+        {
+            if (_controller == null) {
+                return;
+            }
+
+            Tile selectedTile = _controller.SelectedTile;
+            if (_tileControl != null && _tileLayer != null && selectedTile != null) {
+                if (_selectBrush == null) {
+                    _selectBrush = _tileControl.CreateSolidColorBrush(new XColor(0.1f, 0.5f, 1f, 0.75f));
+                }
+
+                int x = _selectedTileCoord.X;
+                int y = _selectedTileCoord.Y;
+
+                Primitives2D.FillRectangle(e.SpriteBatch, new XRectangle(
+                    (int)(_selectedTileCoord.X * selectedTile.Width * _tileControl.Zoom),
+                    (int)(_selectedTileCoord.Y * selectedTile.Height * _tileControl.Zoom),
+                    (int)(selectedTile.Width * _tileControl.Zoom),
+                    (int)(selectedTile.Height * _tileControl.Zoom)),
+                    _selectBrush);
+            }
+        }
 
         private void ResetComponent ()
         {
