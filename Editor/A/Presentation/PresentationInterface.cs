@@ -90,7 +90,9 @@ namespace Editor.A.Presentation
 
         public void ActionSaveProject (string path)
         {
-            throw new NotImplementedException();
+            using (FileStream fs = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write)) {
+                _editor.Save(fs);
+            }
         }
 
         public event EventHandler SyncStandardToolsActions;

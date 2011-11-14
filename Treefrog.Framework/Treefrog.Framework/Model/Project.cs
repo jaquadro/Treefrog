@@ -33,6 +33,9 @@ namespace Treefrog.Framework.Model
             _tilePools = new NamedResourceCollection<TilePool>();
             //_tileSets = new NamedResourceCollection<TileSet2D>();
             _levels = new NamedResourceCollection<Level>();
+
+            _tilePools.Modified += TilePoolsModifiedHandler;
+            _levels.Modified += LevelsModifiedHandler;
         }
 
         #endregion
@@ -67,6 +70,44 @@ namespace Treefrog.Framework.Model
         public IServiceProvider Services
         {
             get { return _services; }
+        }
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Occurs when the internal state of the Project is modified.
+        /// </summary>
+        public event EventHandler Modified;
+
+        #endregion
+
+        #region Event Dispatchers
+
+        /// <summary>
+        /// Raises the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
+            }
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void TilePoolsModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
+        }
+
+        private void LevelsModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
         }
 
         #endregion

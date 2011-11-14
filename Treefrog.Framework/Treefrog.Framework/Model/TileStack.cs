@@ -83,6 +83,30 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        /// Occurs when the internal state of the TileStack is modified.
+        /// </summary>
+        public event EventHandler Modified;
+
+        #endregion
+
+        #region Event Dispatchers
+
+        /// <summary>
+        /// Raises the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Adds a new <see cref="Tile"/> to the top of the stack.
         /// </summary>
@@ -90,6 +114,7 @@ namespace Treefrog.Framework.Model
         public void Add (Tile tile)
         {
             _tiles.Add(tile);
+            OnModified(EventArgs.Empty);
         }
 
         /// <summary>
@@ -99,6 +124,7 @@ namespace Treefrog.Framework.Model
         public void Remove (Tile tile)
         {
             _tiles.Remove(tile);
+            OnModified(EventArgs.Empty);
         }
 
         /// <summary>
@@ -107,6 +133,7 @@ namespace Treefrog.Framework.Model
         public void Clear ()
         {
             _tiles.Clear();
+            OnModified(EventArgs.Empty);
         }
 
         #region IEnumerable<Tile> Members

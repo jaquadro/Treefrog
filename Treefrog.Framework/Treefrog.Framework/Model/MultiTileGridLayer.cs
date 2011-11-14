@@ -30,7 +30,10 @@ namespace Treefrog.Framework.Model
         public TileStack this[TileCoord location]
         {
             get { return this[location.X, location.Y]; }
-            set { this[location.X, location.Y] = value; }
+            set
+            {
+                this[location.X, location.Y] = value;
+            }
         }
 
         public TileStack this[int x, int y]
@@ -44,8 +47,25 @@ namespace Treefrog.Framework.Model
             set
             {
                 CheckBoundsFail(x, y);
+
+                if (_tiles[y, x] != null) {
+                    _tiles[y, x].Modified -= TileStackModifiedHandler;
+                }
+
                 _tiles[y, x] = new TileStack(value);
+                _tiles[y, x].Modified += TileStackModifiedHandler;
+
+                OnModified(EventArgs.Empty);
             }
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void TileStackModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
         }
 
         #endregion
@@ -116,6 +136,7 @@ namespace Treefrog.Framework.Model
         {
             if (_tiles[y, x] == null) {
                 _tiles[y, x] = new TileStack();
+                _tiles[y, x].Modified += TileStackModifiedHandler;
             }
 
             _tiles[y, x].Remove(tile);

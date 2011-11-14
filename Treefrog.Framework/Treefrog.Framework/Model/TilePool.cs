@@ -46,6 +46,8 @@ namespace Treefrog.Framework.Model
             _locations = new Dictionary<int, TileCoord>();
             _openLocations = new List<TileCoord>();
             _properties = new NamedResourceCollection<Property>();
+
+            _properties.Modified += PropertiesModifiedHandler;
         }
 
         public TilePool (string name, TileRegistry registry, int tileWidth, int tileHeight)
@@ -94,6 +96,11 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        private void PropertiesModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
+        }
 
         IEnumerator IEnumerable.GetEnumerator ()
         {
@@ -468,10 +475,20 @@ namespace Treefrog.Framework.Model
 
         public event EventHandler<NameChangedEventArgs> NameChanged;
 
+        public event EventHandler Modified;
+
         protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
             if (NameChanged != null) {
                 NameChanged(this, e);
+            }
+            OnModified(EventArgs.Empty);
+        }
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
             }
         }
 

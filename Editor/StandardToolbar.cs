@@ -66,6 +66,7 @@ namespace Editor
             ResetStandardComponent();
 
             _tbOpen.Click += ButtonOpenClickHandler;
+            _tbSave.Click += ButtonSaveClickHandler;
         }
 
         public void BindStandardToolsController (IStandardToolsPresenter controller)
@@ -107,13 +108,28 @@ namespace Editor
         {
             if (_stdController != null) {
                 OpenFileDialog ofd = new OpenFileDialog();
-                ofd.Title = "Open Project Files";
+                ofd.Title = "Open Project File";
                 ofd.Filter = "Treefrog Project Files|*.tlp";
                 ofd.Multiselect = false;
                 ofd.RestoreDirectory = false;
 
                 if (ofd.ShowDialog() == DialogResult.OK) {
                     _stdController.ActionOpenProject(ofd.FileName);
+                }
+            }
+        }
+
+        private void ButtonSaveClickHandler (object sender, EventArgs e)
+        {
+            if (_stdController != null) {
+                SaveFileDialog ofd = new SaveFileDialog();
+                ofd.Title = "Save Project File";
+                ofd.Filter = "Treefrog Project Files|*.tlp";
+                ofd.OverwritePrompt = true;
+                ofd.RestoreDirectory = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK) {
+                    _stdController.ActionSaveProject(ofd.FileName);
                 }
             }
         }

@@ -98,6 +98,7 @@ namespace Editor
             _editor = new EditorPresenter();
             _editor.SyncContentTabs += SyncContentTabsHandler;
             _editor.SyncContentView += SyncContentViewHandler;
+            _editor.SyncModified += SyncProjectModified;
 
             _editor.NewDefault();
 
@@ -220,6 +221,16 @@ namespace Editor
 
             _tileToolbar.BindController(_editor.CurrentLevelToolsPresenter);
             _standardToolbar.BindStandardToolsController(_editor.CurrentStandardToolsPresenter);
+        }
+
+        private void SyncProjectModified (object sender, EventArgs e)
+        {
+            if (_editor.Modified) {
+                base.Text = "Treefrog [*]";
+            }
+            else {
+                base.Text = "Treefrog";
+            }
         }
 
         /*public ToolStripStatusLabel Label

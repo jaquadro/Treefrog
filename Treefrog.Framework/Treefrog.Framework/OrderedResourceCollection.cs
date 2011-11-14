@@ -55,6 +55,7 @@ namespace Treefrog.Framework
             if (ResourceOrderChanged != null) {
                 ResourceOrderChanged(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         public override IEnumerator<T> GetEnumerator ()

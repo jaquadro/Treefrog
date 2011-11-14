@@ -26,6 +26,7 @@ namespace Treefrog.Framework.Model
         {
             _name = name;
             _properties = new NamedResourceCollection<Property>();
+            _properties.Modified += CustomPropertiesModifiedHandler;
         }
 
         #endregion
@@ -35,18 +36,64 @@ namespace Treefrog.Framework.Model
         public bool IsVisible
         {
             get { return _visible; }
-            set { _visible = value; }
+            set
+            {
+                if (_visible != value) {
+                    _visible = value;
+                    OnModified(EventArgs.Empty);
+                }
+            }
         }
 
         public float Opacity
         {
             get { return _opacity; }
-            set { _opacity = MathHelper.Clamp(value, 0f, 1f); }
+            set
+            {
+                float opac = MathHelper.Clamp(value, 0f, 1f);
+                if (_opacity != opac) {
+                    _opacity = opac;
+                    OnModified(EventArgs.Empty);
+                }
+            }
         }
 
         public NamedResourceCollection<Property> Properties
         {
             get { return _properties; }
+        }
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Occurs when the internal state of the Layer is modified.
+        /// </summary>
+        public event EventHandler Modified;
+
+        #endregion
+
+        #region Event Dispatchers
+
+        /// <summary>
+        /// Raises the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
+            }
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void CustomPropertiesModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
         }
 
         #endregion
@@ -175,6 +222,7 @@ namespace Treefrog.Framework.Model
             if (NameChanged != null) {
                 NameChanged(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         #endregion

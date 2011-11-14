@@ -48,6 +48,7 @@ namespace Treefrog.Framework.Model
             if (ValueChanged != null) {
                 ValueChanged(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         #endregion
@@ -83,6 +84,11 @@ namespace Treefrog.Framework.Model
         public event EventHandler<NameChangedEventArgs>  NameChanged;
 
         /// <summary>
+        /// Occurs when the property is modified.
+        /// </summary>
+        public event EventHandler Modified;
+
+        /// <summary>
         /// Raises the <see cref="NameChanged"/> event.
         /// </summary>
         /// <param name="e">An <see cref="EventArgs"/> containing the event data.</param>
@@ -90,6 +96,18 @@ namespace Treefrog.Framework.Model
         {
             if (NameChanged != null) {
                 NameChanged(this, e);
+            }
+            OnModified(EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> containing the event data.</param>
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
             }
         }
 

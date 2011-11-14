@@ -32,5 +32,6 @@ namespace Treefrog.Framework
         string Name { get; }
 
         event EventHandler<NameChangedEventArgs> NameChanged;
+        event EventHandler Modified;
     }
 }

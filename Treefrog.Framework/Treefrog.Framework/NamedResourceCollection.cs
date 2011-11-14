@@ -43,6 +43,8 @@ namespace Treefrog.Framework
         public event EventHandler<NamedResourceEventArgs<T>> ResourceRemoved;
         public event EventHandler<NamedResourceEventArgs<T>> ResourceRemapped;
 
+        public event EventHandler Modified;
+
         public NamedResourceCollection ()
         {
             _nameMap = new Dictionary<string, T>();
@@ -74,6 +76,7 @@ namespace Treefrog.Framework
             _nameMap[item.Name] = item;
 
             item.NameChanged += NameChangedHandler;
+            item.Modified += ResourceModifiedHandler;
 
             OnResourceAdded(new NamedResourceEventArgs<T>(item));
         }
@@ -90,6 +93,7 @@ namespace Treefrog.Framework
                 _nameMap.Remove(item.Name);
 
                 item.NameChanged -= NameChangedHandler;
+                item.Modified -= ResourceModifiedHandler;
 
                 OnResourceRemoved(new NamedResourceEventArgs<T>(item));
             }
@@ -118,6 +122,7 @@ namespace Treefrog.Framework
             if (ResourceAdded != null) {
                 ResourceAdded(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnResourceRemoved (NamedResourceEventArgs<T> e)
@@ -125,6 +130,7 @@ namespace Treefrog.Framework
             if (ResourceRemoved != null) {
                 ResourceRemoved(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnResourceRemapped (NamedResourceEventArgs<T> e)
@@ -132,6 +138,18 @@ namespace Treefrog.Framework
             if (ResourceRemapped != null) {
                 ResourceRemapped(this, e);
             }
+        }
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
+            }
+        }
+
+        private void ResourceModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
         }
 
         #region IEnumerable<T> Members

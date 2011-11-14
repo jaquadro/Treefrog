@@ -53,6 +53,7 @@ namespace Treefrog.Framework.Model
             if (LayerSizeChanged != null) {
                 LayerSizeChanged(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         #endregion

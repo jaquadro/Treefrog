@@ -171,10 +171,20 @@ namespace Editor.Model.Controls
 
         public event EventHandler<NameChangedEventArgs> NameChanged;
 
+        public event EventHandler Modified;
+
         protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
             if (NameChanged != null) {
                 NameChanged(this, e);
+            }
+            OnModified(EventArgs.Empty);
+        }
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
             }
         }
 

@@ -6,6 +6,7 @@ using Treefrog.Framework.Model;
 using Editor.Model.Controls;
 using Editor.Forms;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Editor.A.Presentation
 {
@@ -26,11 +27,9 @@ namespace Editor.A.Presentation
 
         IEnumerable<ILevelPresenter> OpenContent { get; }
 
-        public void ActionModify ();
-
         event EventHandler SyncContentTabs;
         event EventHandler SyncContentView;
-        event EventHandler SyncModifed;
+        event EventHandler SyncModified;
 
         void RefreshEditor ();
     }
@@ -63,6 +62,13 @@ namespace Editor.A.Presentation
 
         public void NewDefault ()
         {
+            if (_project != null) {
+                _project.Modified -= ProjectModifiedHandler;
+            }
+
+            _project = EmptyProject();
+            _project.Modified += ProjectModifiedHandler;
+
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
             _selectedTiles = new Dictionary<string, Tile>();
@@ -75,12 +81,13 @@ namespace Editor.A.Presentation
 
             _openContent.Add(level.Name);
 
-            _project = EmptyProject();
             _project.Levels.Add(level);
 
             _currentLevel = "Level 1";
 
             _propertyList.Provider = level;
+
+            Modified = false;
 
             RefreshTilePoolList();
             RefreshEditor();
@@ -88,7 +95,12 @@ namespace Editor.A.Presentation
 
         public void Open (Project project)
         {
+            if (_project != null) {
+                _project.Modified -= ProjectModifiedHandler;
+            }
+
             _project = project;
+            _project.Modified += ProjectModifiedHandler;
 
             _currentLevel = null;
 
@@ -113,8 +125,18 @@ namespace Editor.A.Presentation
                 }
             }
 
+            Modified = false;
+
             RefreshTilePoolList();
             RefreshEditor();
+        }
+
+        public void Save (Stream stream)
+        {
+            if (_project != null) {
+                _project.Save(stream);
+                Modified = false;
+            }
         }
 
         private Project EmptyProject ()
@@ -162,6 +184,13 @@ namespace Editor.A.Presentation
         public bool Modified
         {
             get { return _modified; }
+            private set
+            {
+                if (_modified != value) {
+                    _modified = value;
+                    OnSyncModified(EventArgs.Empty);
+                }
+            }
         }
 
         public ILayerListPresenter CurrentLayerListPresenter
@@ -199,13 +228,9 @@ namespace Editor.A.Presentation
             }
         }
 
-        public void ActionModify ()
+        private void ProjectModifiedHandler (object sender, EventArgs e)
         {
-            if (_modified == false) {
-                _modified = true;
-
-                OnSyncModified(EventArgs.Empty);
-            }
+            Modified = true;
         }
 
         public event EventHandler SyncContentTabs;

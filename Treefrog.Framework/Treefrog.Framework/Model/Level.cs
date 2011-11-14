@@ -36,8 +36,11 @@ namespace Treefrog.Framework.Model
             _layers = new OrderedResourceCollection<Layer>();
             _properties = new NamedResourceCollection<Property>();
 
+            _properties.Modified += PropertiesModifiedHandler;
+
             _layers.ResourceAdded += LayerAddedHandler;
             _layers.ResourceRemoved += LayerRemovedHandler;
+            _layers.Modified += LayersModifiedHandler;
         }
 
         /// <summary>
@@ -202,6 +205,11 @@ namespace Treefrog.Framework.Model
         /// </summary>
         public event EventHandler<NamedResourceEventArgs<Layer>> LayerRemoved;
 
+        /// <summary>
+        /// Occurs when the internal state of the Level is modified.
+        /// </summary>
+        public event EventHandler Modified;
+
         #endregion
 
         #region Event Dispatchers
@@ -239,6 +247,7 @@ namespace Treefrog.Framework.Model
             if (SizeChanged != null) {
                 SizeChanged(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         /// <summary>
@@ -250,6 +259,7 @@ namespace Treefrog.Framework.Model
             if (LayerAdded != null) {
                 LayerAdded(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         /// <summary>
@@ -260,6 +270,18 @@ namespace Treefrog.Framework.Model
         {
             if (LayerRemoved != null) {
                 LayerRemoved(this, e);
+            }
+            OnModified(EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
             }
         }
 
@@ -281,6 +303,16 @@ namespace Treefrog.Framework.Model
         private void LayerRemovedHandler (object sender, NamedResourceEventArgs<Layer> e)
         {
             OnLayerRemoved(e);
+        }
+
+        private void PropertiesModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
+        }
+
+        private void LayersModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
         }
 
         #endregion
@@ -318,6 +350,7 @@ namespace Treefrog.Framework.Model
             if (NameChanged != null) {
                 NameChanged(this, e);
             }
+            OnModified(EventArgs.Empty);
         }
 
         #endregion
