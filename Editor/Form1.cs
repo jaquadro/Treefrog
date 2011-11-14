@@ -80,7 +80,7 @@ namespace Editor
             //_tilesetView = new TilesetView(this, _project);
             //_tilesetView.Dock = DockStyle.Fill;
 
-            Level level = new Level("Level 1", 16, 16, 30, 20);
+            /*Level level = new Level("Level 1", 16, 16, 30, 20);
             Property prop1 = new StringProperty("background", "dirt");
             Property prop2 = new StringProperty("music", "rocks.ogg");
             level.Properties.Add(prop1);
@@ -88,18 +88,18 @@ namespace Editor
 
             _project.Levels.Add(level);
 
-            level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 30, 20));
+            //level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 30, 20));
 
             Level level2 = new Level("Level 2", 16, 16, 80, 30);
-            _project.Levels.Add(level2);
+            _project.Levels.Add(level2);*/
 
-            level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 80, 30));
+            //level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 80, 30));
 
-            _editor = new EditorPresenter(_project);
+            _editor = new EditorPresenter();
             _editor.SyncContentTabs += SyncContentTabsHandler;
             _editor.SyncContentView += SyncContentViewHandler;
 
-            _editor.RefreshEditor();
+            _editor.NewDefault();
 
             //_editor.LoadProject(_project);
 
@@ -219,6 +219,7 @@ namespace Editor
                 propertyPane1.BindController(_editor.CurrentPropertyListPresenter);
 
             _tileToolbar.BindController(_editor.CurrentLevelToolsPresenter);
+            _standardToolbar.BindStandardToolsController(_editor.CurrentStandardToolsPresenter);
         }
 
         /*public ToolStripStatusLabel Label

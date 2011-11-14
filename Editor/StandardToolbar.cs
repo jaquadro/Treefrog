@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.IO;
 using System.Drawing;
+using Editor.A.Presentation;
 
 namespace Editor
 {
@@ -30,6 +31,8 @@ namespace Editor
         private ToolStripButton _tbMapMode;
 
         private Assembly _assembly;
+
+        private IStandardToolsPresenter _stdController;
 
         public StandardToolbar ()
         {
@@ -59,6 +62,40 @@ namespace Editor
                 _tbUndo, _tbRedo, new ToolStripSeparator(),
                 _tbTileMode, _tbSetMode, _tbMapMode
             });
+
+            ResetStandardComponent();
+
+            _tbOpen.Click += ButtonOpenClickHandler;
+        }
+
+        public void BindStandardToolsController (IStandardToolsPresenter controller)
+        {
+            if (_stdController == controller) {
+                return;
+            }
+
+            if (_stdController != null) {
+                _stdController.SyncStandardToolsActions -= SyncStandardToolsActionsHandler;
+            }
+
+            _stdController = controller;
+
+            if (_stdController != null) {
+                _stdController.SyncStandardToolsActions += SyncStandardToolsActionsHandler;
+
+                _stdController.RefreshStandardTools();
+            }
+            else {
+                ResetStandardComponent();
+            }
+        }
+
+        private void ResetStandardComponent ()
+        {
+            _tbNewProject.Enabled = false;
+            _tbNewItem.Enabled = false;
+            _tbOpen.Enabled = false;
+            _tbSave.Enabled = false;
         }
 
         public ToolStrip Strip
@@ -66,59 +103,28 @@ namespace Editor
             get { return _strip; }
         }
 
-        public ToolStripButton ButtonNew
+        private void ButtonOpenClickHandler (object sender, EventArgs e)
         {
-            get { return _tbNewProject; }
+            if (_stdController != null) {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Title = "Open Project Files";
+                ofd.Filter = "Treefrog Project Files|*.tlp";
+                ofd.Multiselect = false;
+                ofd.RestoreDirectory = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK) {
+                    _stdController.ActionOpenProject(ofd.FileName);
+                }
+            }
         }
 
-        public ToolStripButton ButtonOpen
+        private void SyncStandardToolsActionsHandler (object sender, EventArgs e)
         {
-            get { return _tbOpen; }
-        }
-
-        public ToolStripButton ButtonSave
-        {
-            get { return _tbSave; }
-        }
-
-        public ToolStripButton ButtonCut
-        {
-            get { return _tbCut; }
-        }
-
-        public ToolStripButton ButtonCopy
-        {
-            get { return _tbCopy; }
-        }
-
-        public ToolStripButton ButtonPaste
-        {
-            get { return _tbPaste; }
-        }
-
-        public ToolStripButton ButtonUndo
-        {
-            get { return _tbUndo; }
-        }
-
-        public ToolStripButton ButtonRedo
-        {
-            get { return _tbRedo; }
-        }
-
-        public ToolStripButton ButtonTileMode
-        {
-            get { return _tbTileMode; }
-        }
-
-        public ToolStripButton ButtonSetMode
-        {
-            get { return _tbSetMode; }
-        }
-
-        public ToolStripButton ButtonMapMode
-        {
-            get { return _tbMapMode; }
+            if (_stdController != null) {
+                _tbNewProject.Enabled = _stdController.CanCreateProject;
+                _tbOpen.Enabled = _stdController.CanOpenProject;
+                _tbSave.Enabled = _stdController.CavSaveProject;
+            }
         }
 
         private ToolStripButton CreateButton (string text, string resource)

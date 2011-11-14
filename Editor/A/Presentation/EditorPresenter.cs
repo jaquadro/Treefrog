@@ -5,6 +5,7 @@ using System.Text;
 using Treefrog.Framework.Model;
 using Editor.Model.Controls;
 using Editor.Forms;
+using System.Windows.Forms;
 
 namespace Editor.A.Presentation
 {
@@ -14,16 +15,22 @@ namespace Editor.A.Presentation
         bool CanShowPropertyPanel { get; }
         bool CanShowTilePoolPanel { get; }
 
+        bool Modified { get; }
+
         ILayerListPresenter CurrentLayerListPresenter { get; }
         IPropertyListPresenter CurrentPropertyListPresenter { get; }
         ITilePoolListPresenter CurrentTilePoolListPresenter { get; }
 
+        IStandardToolsPresenter CurrentStandardToolsPresenter { get; }
         ILevelToolsPresenter CurrentLevelToolsPresenter { get; }
 
         IEnumerable<ILevelPresenter> OpenContent { get; }
 
+        public void ActionModify ();
+
         event EventHandler SyncContentTabs;
         event EventHandler SyncContentView;
+        event EventHandler SyncModifed;
 
         void RefreshEditor ();
     }
@@ -38,18 +45,61 @@ namespace Editor.A.Presentation
         private PropertyListPresenter _propertyList;
 
         private LevelToolsPresenter _levelTools;
+        private StandardToolsPresenter _stdTools;
+
+        public EditorPresenter ()
+        {
+            _propertyList = new PropertyListPresenter();
+
+            _levelTools = new LevelToolsPresenter(this);
+            _stdTools = new StandardToolsPresenter(this);
+        }
 
         public EditorPresenter (Project project)
+            : this()
+        {
+            Open(project);
+        }
+
+        public void NewDefault ()
+        {
+            _openContent = new List<string>();
+            _levels = new Dictionary<string, LevelPresenter>();
+            _selectedTiles = new Dictionary<string, Tile>();
+
+            Level level = new Level("Level 1", 16, 16, 50, 30);
+            level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
+
+            LevelPresenter pres = new LevelPresenter(this, level);
+            _levels[level.Name] = pres;
+
+            _openContent.Add(level.Name);
+
+            _project = EmptyProject();
+            _project.Levels.Add(level);
+
+            _currentLevel = "Level 1";
+
+            _propertyList.Provider = level;
+
+            RefreshTilePoolList();
+            RefreshEditor();
+        }
+
+        public void Open (Project project)
         {
             _project = project;
+
+            _currentLevel = null;
 
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
             _selectedTiles = new Dictionary<string, Tile>();
 
-            _propertyList = new PropertyListPresenter();
-
-            _levelTools = new LevelToolsPresenter(this);
+            foreach (TilePool pool in _project.TilePools) {
+                _selectedPool = pool.Name;
+                break;
+            }
 
             foreach (Level level in _project.Levels) {
                 LevelPresenter pres = new LevelPresenter(this, level);
@@ -63,8 +113,19 @@ namespace Editor.A.Presentation
                 }
             }
 
-            OnSyncContentTabs(EventArgs.Empty);
-            OnSyncContentView(EventArgs.Empty);
+            RefreshTilePoolList();
+            RefreshEditor();
+        }
+
+        private Project EmptyProject ()
+        {
+            Form form = new Form();
+            GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
+
+            Project project = new Project();
+            project.Initialize(gds.GraphicsDevice);
+
+            return project;
         }
 
         public LevelPresenter CurrentLevel
@@ -81,6 +142,8 @@ namespace Editor.A.Presentation
 
         List<string> _openContent;
 
+        private bool _modified;
+
         public bool CanShowLayerPanel
         {
             get { return true; }
@@ -94,6 +157,11 @@ namespace Editor.A.Presentation
         public bool CanShowTilePoolPanel
         {
             get { return true; }
+        }
+
+        public bool Modified
+        {
+            get { return _modified; }
         }
 
         public ILayerListPresenter CurrentLayerListPresenter
@@ -111,6 +179,11 @@ namespace Editor.A.Presentation
             get { return this; }
         }
 
+        public IStandardToolsPresenter CurrentStandardToolsPresenter
+        {
+            get { return _stdTools; }
+        }
+
         public ILevelToolsPresenter CurrentLevelToolsPresenter
         {
             get { return _levelTools; }
@@ -126,9 +199,20 @@ namespace Editor.A.Presentation
             }
         }
 
+        public void ActionModify ()
+        {
+            if (_modified == false) {
+                _modified = true;
+
+                OnSyncModified(EventArgs.Empty);
+            }
+        }
+
         public event EventHandler SyncContentTabs;
 
         public event EventHandler SyncContentView;
+
+        public event EventHandler SyncModified;
 
         protected virtual void OnSyncContentTabs (EventArgs e)
         {
@@ -144,10 +228,18 @@ namespace Editor.A.Presentation
             }
         }
 
+        protected virtual void OnSyncModified (EventArgs e)
+        {
+            if (SyncModified != null) {
+                SyncModified(this, e);
+            }
+        }
+
         public void RefreshEditor ()
         {
             OnSyncContentTabs(EventArgs.Empty);
             OnSyncContentView(EventArgs.Empty);
+            OnSyncModified(EventArgs.Empty);
         }
 
         #endregion

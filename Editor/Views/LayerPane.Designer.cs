@@ -1,4 +1,5 @@
-﻿namespace Editor.Views
+﻿using Editor.A.Controls.WinEx;
+namespace Editor.Views
 {
     partial class LayerPane
     {

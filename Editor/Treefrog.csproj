@@ -112,6 +112,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="A\Controls\WinEx\LayerListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="A\Controls\WinEx\TabControlEx.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -123,7 +126,7 @@
     <Compile Include="A\Presentation\LevelToolsPresenter.cs" />
     <Compile Include="A\Presentation\PresentationInterface.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="Controls\EditableListView.cs">
+    <Compile Include="A\Controls\WinEx\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <None Include="Editor.cs" />
@@ -168,7 +171,7 @@
     <Compile Include="Model\TileSetLayer.cs" />
     <Compile Include="StandardToolbar.cs" />
     <Compile Include="TileToolbar.cs" />
-    <Compile Include="Tools\DrawTool.cs" />
+    <Compile Include="A\Presentation\Tools\DrawTool.cs" />
     <None Include="Tools\EraseTool.cs" />
     <None Include="Tools\FillTool.cs" />
     <Compile Include="Tools\MouseTool.cs" />
@@ -205,12 +208,6 @@
     <None Include="Controls\TileControl.cs">
       <SubType>Component</SubType>
     </None>
-    <Compile Include="Views\TileEditView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\TileEditView.Designer.cs">
-      <DependentUpon>TileEditView.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\TilePoolPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -302,9 +299,6 @@
     <EmbeddedResource Include="Icons\plus16.png" />
     <EmbeddedResource Include="Views\PropertyPane.resx">
       <DependentUpon>PropertyPane.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\TileEditView.resx">
-      <DependentUpon>TileEditView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TilePoolPane.resx">
       <DependentUpon>TilePoolPane.cs</DependentUpon>

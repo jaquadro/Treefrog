@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model;
+using System.Windows.Forms;
+using System.IO;
 
 namespace Editor.A.Presentation
 {
@@ -46,22 +48,28 @@ namespace Editor.A.Presentation
 
     public class StandardToolsPresenter : IStandardToolsPresenter
     {
+        private EditorPresenter _editor;
+
+        public StandardToolsPresenter (EditorPresenter editor)
+        {
+            _editor = editor;
+        }
 
         #region IStandardToolsPresenter Members
 
         public bool CanCreateProject
         {
-            get { throw new NotImplementedException(); }
+            get { return true; }
         }
 
         public bool CanOpenProject
         {
-            get { throw new NotImplementedException(); }
+            get { return true; }
         }
 
         public bool CavSaveProject
         {
-            get { throw new NotImplementedException(); }
+            get { return true; }
         }
 
         public void ActionCreateProject ()
@@ -71,7 +79,13 @@ namespace Editor.A.Presentation
 
         public void ActionOpenProject (string path)
         {
-            throw new NotImplementedException();
+            Form form = new Form();
+            GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
+
+            using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read)) {
+                Project project = Project.Open(fs, gds.GraphicsDevice);
+                _editor.Open(project);
+            }
         }
 
         public void ActionSaveProject (string path)
@@ -81,9 +95,16 @@ namespace Editor.A.Presentation
 
         public event EventHandler SyncStandardToolsActions;
 
+        protected virtual void OnSyncStandardToolsActions (EventArgs e)
+        {
+            if (SyncStandardToolsActions != null) {
+                SyncStandardToolsActions(this, e);
+            }
+        }
+
         public void RefreshStandardTools ()
         {
-            throw new NotImplementedException();
+            OnSyncStandardToolsActions(EventArgs.Empty);
         }
 
         #endregion

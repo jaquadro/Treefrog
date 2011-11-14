@@ -167,6 +167,8 @@ namespace Editor.A.Presentation
             if (SyncLayerSelection != null) {
                 SyncLayerSelection(this, e);
             }
+
+            _editor.CurrentLevelToolsPresenter.RefreshLevelTools();
         }
 
         #endregion
@@ -251,13 +253,14 @@ namespace Editor.A.Presentation
 
         public void ActionSelectLayer (string name)
         {
+            OnPreSyncLayerSelection(EventArgs.Empty);
+
             if (name != _selectedLayer && _level.Layers.Contains(name)) {
-                OnPreSyncLayerSelection(EventArgs.Empty);
                 _selectedLayer = name;
             }
 
             foreach (MultiTileControlLayer cl in _controlLayers.Values) {
-                cl.Selected = (cl.Layer.Name != name);
+                cl.Selected = (cl.Layer.Name == name);
             }
 
             OnSyncLayerActions(EventArgs.Empty);

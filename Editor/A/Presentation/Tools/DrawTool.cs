@@ -93,12 +93,13 @@ namespace Editor
 
         protected virtual void MouseTileDownHandler (object sender, TileMouseEventArgs e)
         {
-            if (_drawing) {
-                throw new InvalidOperationException("DrawTool received MouseDown event while still active.");
+            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
+                _drawing = false;
+                return;
             }
 
-            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
-                return;
+            if (_drawing) {
+                throw new InvalidOperationException("DrawTool received MouseDown event while still active.");
             }
 
             MultiTileGridLayer layer = CurrentLayer;
@@ -118,6 +119,7 @@ namespace Editor
         protected virtual void MouseTileUpHandler (object sender, TileMouseEventArgs e)
         {
             if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
+                _drawing = false;
                 return;
             }
 
@@ -132,6 +134,7 @@ namespace Editor
         protected virtual void MouseTileMoveHandler (object sender, TileMouseEventArgs e)
         {
             if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
+                _drawing = false;
                 return;
             }
 
