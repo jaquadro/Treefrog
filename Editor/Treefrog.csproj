@@ -112,12 +112,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="A\Controls\Composite\InfoStatus.cs" />
     <Compile Include="A\Controls\WinEx\LayerListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="A\Controls\WinEx\TabControlEx.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="A\Presentation\ContentInfoPresenter.cs" />
     <Compile Include="A\Presentation\EditorPresenter.cs" />
     <Compile Include="A\Presentation\ILayerListPresenter.cs" />
     <Compile Include="A\Presentation\IPropertyListPresenter.cs" />

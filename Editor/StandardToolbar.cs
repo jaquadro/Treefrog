@@ -26,13 +26,14 @@ namespace Editor
         private ToolStripButton _tbUndo;
         private ToolStripButton _tbRedo;
 
-        private ToolStripButton _tbTileMode;
-        private ToolStripButton _tbSetMode;
-        private ToolStripButton _tbMapMode;
+        //private ToolStripButton _tbTileMode;
+        //private ToolStripButton _tbSetMode;
+        //private ToolStripButton _tbMapMode;
 
         private Assembly _assembly;
 
         private IStandardToolsPresenter _stdController;
+        private IDocumentToolsPresenter _docController;
 
         public StandardToolbar ()
         {
@@ -51,22 +52,24 @@ namespace Editor
             _tbPaste = CreateButton("Paste (Ctrl+V)", "Editor.Icons.clipboard-paste16.png");
             _tbUndo = CreateButton("Undo (Ctrl+Z)", "Editor.Icons.arrow-turn-180-left16.png");
             _tbRedo = CreateButton("Redo (Ctrl+Y)", "Editor.Icons.arrow-turn16.png");
-            _tbTileMode = CreateButton("Tile Authoring Mode (1)", "Editor.Icons.color-swatch16.png");
-            _tbSetMode = CreateButton("TileSet Mode (2)", "Editor.Icons.table16.png");
-            _tbMapMode = CreateButton("Map Mode (3)", "Editor.Icons.map16.png");
+            //_tbTileMode = CreateButton("Tile Authoring Mode (1)", "Editor.Icons.color-swatch16.png");
+            //_tbSetMode = CreateButton("TileSet Mode (2)", "Editor.Icons.table16.png");
+            //_tbMapMode = CreateButton("Map Mode (3)", "Editor.Icons.map16.png");
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
                 _tbNewProject, _tbNewItem, _tbOpen, _tbSave, new ToolStripSeparator(),
                 _tbCut, _tbCopy, _tbPaste, new ToolStripSeparator(),
-                _tbUndo, _tbRedo, new ToolStripSeparator(),
-                _tbTileMode, _tbSetMode, _tbMapMode
+                _tbUndo, _tbRedo,
             });
 
             ResetStandardComponent();
 
             _tbOpen.Click += ButtonOpenClickHandler;
             _tbSave.Click += ButtonSaveClickHandler;
+
+            _tbUndo.Click += ButtonUndoClickHandler;
+            _tbRedo.Click += ButtonRedoClickHandler;
         }
 
         public void BindStandardToolsController (IStandardToolsPresenter controller)
@@ -91,12 +94,43 @@ namespace Editor
             }
         }
 
+        public void BindDocumentToolsController (IDocumentToolsPresenter controller)
+        {
+            if (_docController == controller) {
+                return;
+            }
+
+            if (_docController != null) {
+                _docController.SyncDocumentToolsActions -= SyncDocumentToolsActionsHandler;
+            }
+
+            _docController = controller;
+
+            if (_docController != null) {
+                _docController.SyncDocumentToolsActions += SyncDocumentToolsActionsHandler;
+
+                _docController.RefreshDocumentTools();
+            }
+            else {
+                ResetDocumentComponent();
+            }
+        }
+
         private void ResetStandardComponent ()
         {
             _tbNewProject.Enabled = false;
             _tbNewItem.Enabled = false;
             _tbOpen.Enabled = false;
             _tbSave.Enabled = false;
+        }
+
+        private void ResetDocumentComponent ()
+        {
+            _tbCut.Enabled = false;
+            _tbCopy.Enabled = false;
+            _tbPaste.Enabled = false;
+            _tbUndo.Enabled = false;
+            _tbRedo.Enabled = false;
         }
 
         public ToolStrip Strip
@@ -134,12 +168,35 @@ namespace Editor
             }
         }
 
+        private void ButtonUndoClickHandler (object sender, EventArgs e)
+        {
+            if (_docController != null)
+                _docController.ActionUndo();
+        }
+
+        private void ButtonRedoClickHandler (object sender, EventArgs e)
+        {
+            if (_docController != null)
+                _docController.ActionRedo();
+        }
+
         private void SyncStandardToolsActionsHandler (object sender, EventArgs e)
         {
             if (_stdController != null) {
                 _tbNewProject.Enabled = _stdController.CanCreateProject;
                 _tbOpen.Enabled = _stdController.CanOpenProject;
                 _tbSave.Enabled = _stdController.CavSaveProject;
+            }
+        }
+
+        private void SyncDocumentToolsActionsHandler (object sender, EventArgs e)
+        {
+            if (_docController != null) {
+                _tbCut.Enabled = _docController.CanCut;
+                _tbCopy.Enabled = _docController.CanCopy;
+                _tbPaste.Enabled = _docController.CanPaste;
+                _tbUndo.Enabled = _docController.CanUndo;
+                _tbRedo.Enabled = _docController.CanRedo;
             }
         }
 

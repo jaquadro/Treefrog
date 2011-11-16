@@ -55,8 +55,17 @@ namespace Editor
             get { return _control; }
             set
             {
-                _control = value;
                 if (_control != null) {
+                    _control.Scroll -= ControlScrollHandler;
+                    _control.ScrollPropertyChanged -= ControlVirtualSizeChangedHandler;
+                    _control.VirtualSizeChanged -= ControlVirtualSizeChangedHandler;
+                    _control.Control.Resize -= ControlVirtualSizeChangedHandler;
+                }
+
+                _control = value;
+
+                if (_control != null) {
+                    panel1.Controls.Clear();
                     panel1.Controls.Add(_control.Control);
 
                     _control.Scroll += ControlScrollHandler;

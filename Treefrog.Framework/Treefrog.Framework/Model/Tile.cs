@@ -53,7 +53,12 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public abstract void Draw (SpriteBatch spritebatch, Rectangle dest);
+        public virtual void Draw (SpriteBatch spritebatch, Rectangle dest)
+        {
+            Draw(spritebatch, dest, Color.White);
+        }
+
+        public abstract void Draw (SpriteBatch spritebatch, Rectangle dest, Color color);
     }
 
     public class PhysicalTile : Tile
@@ -68,9 +73,9 @@ namespace Treefrog.Framework.Model
             base.Update(textureData);
         }
 
-        public override void Draw (SpriteBatch spritebatch, Rectangle dest)
+        public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
         {
-            _pool.DrawTile(spritebatch, Id, dest);
+            _pool.DrawTile(spritebatch, Id, dest, color);
         }
     }
 
@@ -97,9 +102,9 @@ namespace Treefrog.Framework.Model
             _pool.SetTileTextureData(Id, xform);
         }
 
-        public override void Draw (SpriteBatch spritebatch, Rectangle dest)
+        public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
         {
-            _pool.DrawTile(spritebatch, Id, dest);
+            _pool.DrawTile(spritebatch, Id, dest, color);
         }
     }
 }

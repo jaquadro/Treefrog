@@ -252,14 +252,20 @@ namespace Treefrog.Framework.Model
             SetTileTextureData(id, data); 
         }
 
-        public void DrawTile (SpriteBatch spritebatch, int id, Rectangle dest)
+        public void DrawTile (SpriteBatch spriteBatch, int id, Rectangle dest)
+        {
+            DrawTile(spriteBatch, id, dest, Color.White);
+        }
+
+        public void DrawTile (SpriteBatch spritebatch, int id, Rectangle dest, Color color)
         {
             if (!_tiles.ContainsKey(id)) {
                 return;
             }
 
             Rectangle src = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
-            spritebatch.Draw(_tileSource, dest, src, Color.White);
+            //spritebatch.Draw(_tileSource, dest, src, Color.White);
+            spritebatch.Draw(_tileSource, dest, src, color);
         }
 
         #region Texture Management

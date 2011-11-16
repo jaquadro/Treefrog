@@ -14,7 +14,11 @@ namespace Editor.A.Presentation
 
     public interface ILevelPresenter
     {
+        IContentInfoPresenter InfoPresenter { get; }
+
         LayerControl LayerControl { get; }
+
+        CommandHistory History { get; }
     }
 
     public class LevelPresenter : ILevelPresenter, ILayerListPresenter
@@ -27,13 +31,24 @@ namespace Editor.A.Presentation
 
         private DrawTool _drawTool;
 
+        private LevelInfoPresenter _info;
+
+        private CommandHistory _history;
+
         public LevelPresenter (EditorPresenter editor, Level level)
         {
             _editor = editor;
             _level = level;
 
+            _info = new LevelInfoPresenter(this);
+
             _layerControl = new LayerControl();
+            _layerControl.MouseLeave += LayerControlMouseLeaveHandler;
+
             _controlLayers = new Dictionary<string, BaseControlLayer>();
+
+            _history = new CommandHistory();
+            _history.HistoryChanged += HistoryChangedHandler;
 
             foreach (Layer layer in _level.Layers) {
                 MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
@@ -42,12 +57,9 @@ namespace Editor.A.Presentation
                 clayer.ShouldRespondToInput = LayerCondition.Selected;
 
                 _controlLayers[layer.Name] = clayer;
-
-                if (_selectedLayer == null) {
-                    _selectedLayer = layer.Name;
-                    clayer.Selected = true;
-                }
             }
+
+            SelectLayer();
 
             _drawTool = new DrawTool(this);
             _drawTool.BindLevelToolsController(_editor.CurrentLevelToolsPresenter);
@@ -57,9 +69,19 @@ namespace Editor.A.Presentation
 
         #region ILevelPResenter Members
 
+        public IContentInfoPresenter InfoPresenter
+        {
+            get { return _info; }
+        }
+
         public LayerControl LayerControl
         {
             get { return _layerControl; }
+        }
+
+        public CommandHistory History
+        {
+            get { return _history; }
         }
 
         #endregion
@@ -69,6 +91,8 @@ namespace Editor.A.Presentation
         #region Fields
 
         private string _selectedLayer;
+        private BaseControlLayer _selectedLayerRef;
+
         private Dictionary<string, BaseControlLayer> _controlLayers;
 
         #endregion
@@ -191,12 +215,7 @@ namespace Editor.A.Presentation
 
             _controlLayers[name] = clayer;
 
-            foreach (MultiTileControlLayer cl in _controlLayers.Values) {
-                cl.Selected = false;
-            }
-
-            _selectedLayer = name;
-            clayer.Selected = true;
+            SelectLayer(name);
 
             OnSyncLayerActions(EventArgs.Empty);
             OnSyncLayerList(EventArgs.Empty);
@@ -205,18 +224,14 @@ namespace Editor.A.Presentation
 
         public void ActionRemoveSelectedLayer ()
         {
-            if (CanRemoveSelectedLayer) {
+            if (CanRemoveSelectedLayer && _controlLayers.ContainsKey(_selectedLayer)) {
                 OnPreSyncLayerSelection(EventArgs.Empty);
 
                 _level.Layers.Remove(_selectedLayer);
                 _layerControl.RemoveLayer(_controlLayers[_selectedLayer]);
                 _controlLayers.Remove(_selectedLayer);
-            }
 
-            foreach (MultiTileControlLayer cl in _controlLayers.Values) {
-                _selectedLayer = cl.Layer.Name;
-                cl.Selected = true;
-                break;
+                SelectLayer();
             }
 
             OnSyncLayerActions(EventArgs.Empty);
@@ -255,19 +270,78 @@ namespace Editor.A.Presentation
         {
             OnPreSyncLayerSelection(EventArgs.Empty);
 
-            if (name != _selectedLayer && _level.Layers.Contains(name)) {
-                _selectedLayer = name;
-            }
-
-            foreach (MultiTileControlLayer cl in _controlLayers.Values) {
-                cl.Selected = (cl.Layer.Name == name);
-            }
+            SelectLayer(name);
 
             OnSyncLayerActions(EventArgs.Empty);
             OnSyncLayerSelection(EventArgs.Empty);
         }
 
         #endregion
+
+        private void SelectLayer ()
+        {
+            SelectLayer(null);
+
+            foreach (Layer layer in _level.Layers) {
+                SelectLayer(layer.Name);
+                return;
+            }
+        }
+
+        private void SelectLayer (string layer)
+        {
+            if (_selectedLayer == layer) {
+                return;
+            }
+
+            // Unbind previously selected layer if necessary
+            if (_selectedLayerRef != null) {
+                _selectedLayerRef.Selected = false;
+
+                TileControlLayer tileLayer = _selectedLayerRef as TileControlLayer;
+                if (tileLayer != null) {
+                    tileLayer.MouseTileMove -= LayerMouseMoveHandler;
+                }
+            }
+
+            _selectedLayer = null;
+            _selectedLayerRef = null;
+
+            _info.ActionUpdateCoordinates("");
+
+            // Bind new layer
+            if (layer != null && _controlLayers.ContainsKey(layer)) {
+                _selectedLayer = layer;
+                _selectedLayerRef = _controlLayers[layer];
+
+                _selectedLayerRef.Selected = true;
+                _selectedLayerRef.ApplyScrollAttributes();
+
+                TileControlLayer tileLayer = _selectedLayerRef as TileControlLayer;
+                if (tileLayer != null) {
+                    tileLayer.MouseTileMove += LayerMouseMoveHandler;
+                }
+
+                if (!_level.Layers.Contains(layer)) {
+                    throw new InvalidOperationException("Selected a ControlLayer with no corresponding model Layer!  Selected name: " + layer);
+                }
+            }
+        }
+
+        private void LayerMouseMoveHandler (object sender, TileMouseEventArgs e)
+        {
+            _info.ActionUpdateCoordinates(e.TileLocation.X + ", " + e.TileLocation.Y);
+        }
+
+        private void LayerControlMouseLeaveHandler (object sender, EventArgs e)
+        {
+            _info.ActionUpdateCoordinates("");
+        }
+
+        private void HistoryChangedHandler (object sender, EventArgs e)
+        {
+            _editor.CurrentDocumentToolsPresenter.RefreshDocumentTools();
+        }
 
         public void RefreshLayerList ()
         {

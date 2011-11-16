@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Microsoft.Xna.Framework;
+using System.Windows.Forms;
 
 namespace Editor.Model.Controls
 {
@@ -125,6 +126,14 @@ namespace Editor.Model.Controls
             if (CheckLayerCondition(ShouldDrawContent)) {
                 DrawExtraImpl(spriteBatch);
             }
+        }
+
+        public virtual void ApplyScrollAttributes ()
+        {
+            Control.SetScrollLargeChange(ScrollOrientation.HorizontalScroll, 48);
+            Control.SetScrollLargeChange(ScrollOrientation.VerticalScroll, 48);
+            Control.SetScrollSmallChange(ScrollOrientation.HorizontalScroll, 16);
+            Control.SetScrollSmallChange(ScrollOrientation.VerticalScroll, 16);
         }
 
         protected virtual void Initiailize () { }

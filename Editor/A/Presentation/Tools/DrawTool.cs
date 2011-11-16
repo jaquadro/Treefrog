@@ -14,8 +14,6 @@ namespace Editor
 {
     public class DrawTool
     {
-        private CommandHistory _commandHistory;
-
         private ITilePoolListPresenter _pool;
         private ILevelToolsPresenter _tools;
         private LevelPresenter _level;
@@ -23,13 +21,17 @@ namespace Editor
         private bool _drawing;
         private TileReplace2DCommand _drawCommand;
 
+        private bool _drawBrush;
+        private TileCoord _mouseCoord;
+
         public DrawTool (LevelPresenter level)
         {
             _level = level;
             _level.PreSyncLayerSelection += DetachHandlers;
             _level.SyncLayerSelection += AttachHandlers;
 
-            _commandHistory = new CommandHistory();
+            _level.LayerControl.MouseEnter += MouseEnterHandler;
+            _level.LayerControl.MouseLeave += MouseLeaveHandler;
         }
 
         public void BindTileSourceController (ITilePoolListPresenter controller)
@@ -49,6 +51,7 @@ namespace Editor
                 control.MouseTileDown += MouseTileDownHandler;
                 control.MouseTileMove += MouseTileMoveHandler;
                 control.MouseTileUp += MouseTileUpHandler;
+                control.DrawExtraCallback += DrawBrush;
             }
         }
 
@@ -59,6 +62,7 @@ namespace Editor
                 control.MouseTileDown -= MouseTileDownHandler;
                 control.MouseTileMove -= MouseTileMoveHandler;
                 control.MouseTileUp -= MouseTileUpHandler;
+                control.DrawExtraCallback -= DrawBrush;
             }
         }
 
@@ -128,7 +132,7 @@ namespace Editor
             }
 
             _drawing = false;
-            _commandHistory.Execute(_drawCommand);
+            _level.History.Execute(_drawCommand);
         }
 
         protected virtual void MouseTileMoveHandler (object sender, TileMouseEventArgs e)
@@ -137,6 +141,8 @@ namespace Editor
                 _drawing = false;
                 return;
             }
+
+            _mouseCoord = e.TileLocation;
 
             if (_drawing) {
                 MultiTileGridLayer layer = CurrentLayer;
@@ -154,6 +160,41 @@ namespace Editor
                     layer.AddTile(e.TileLocation.X, e.TileLocation.Y, _pool.SelectedTile);
                 }
             }
+        }
+
+        private void MouseEnterHandler (object sender, EventArgs e)
+        {
+            _drawBrush = true;
+        }
+
+        private void MouseLeaveHandler (object sender, EventArgs e)
+        {
+            _drawBrush = false;
+        }
+
+        private void DrawBrush (object sender, DrawLayerEventArgs e)
+        {
+            if (!_drawBrush) {
+                return;
+            }
+
+            MultiTileGridLayer layer = CurrentLayer;
+            if (layer == null) {
+                return;
+            }
+
+            if (_pool.SelectedTile == null) {
+                return;
+            }
+
+            Rectangle rect = new Rectangle(
+                (int)(_mouseCoord.X * layer.TileWidth * _level.LayerControl.Zoom),
+                (int)(_mouseCoord.Y * layer.TileHeight * _level.LayerControl.Zoom),
+                (int)(layer.TileWidth * _level.LayerControl.Zoom),
+                (int)(layer.TileHeight * _level.LayerControl.Zoom)
+                );
+
+            _pool.SelectedTile.Draw(e.SpriteBatch, rect, new Color(1f, 1f, 1f, 0.5f));
         }
     }
 }

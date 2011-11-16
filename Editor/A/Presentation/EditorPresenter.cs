@@ -23,7 +23,10 @@ namespace Editor.A.Presentation
         ITilePoolListPresenter CurrentTilePoolListPresenter { get; }
 
         IStandardToolsPresenter CurrentStandardToolsPresenter { get; }
+        IDocumentToolsPresenter CurrentDocumentToolsPresenter { get; }
         ILevelToolsPresenter CurrentLevelToolsPresenter { get; }
+
+        IContentInfoPresenter ContentInfoPresenter { get; }
 
         IEnumerable<ILevelPresenter> OpenContent { get; }
 
@@ -45,6 +48,8 @@ namespace Editor.A.Presentation
 
         private LevelToolsPresenter _levelTools;
         private StandardToolsPresenter _stdTools;
+        private DocumentToolsPresenter _docTools;
+        private ContentInfoArbitrationPresenter _contentInfo;
 
         public EditorPresenter ()
         {
@@ -52,6 +57,8 @@ namespace Editor.A.Presentation
 
             _levelTools = new LevelToolsPresenter(this);
             _stdTools = new StandardToolsPresenter(this);
+            _docTools = new DocumentToolsPresenter(this);
+            _contentInfo = new ContentInfoArbitrationPresenter(this);
         }
 
         public EditorPresenter (Project project)
@@ -86,6 +93,8 @@ namespace Editor.A.Presentation
             _currentLevel = "Level 1";
 
             _propertyList.Provider = level;
+
+            _contentInfo.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -124,6 +133,8 @@ namespace Editor.A.Presentation
                     _propertyList.Provider = level; // Initial Property Provider
                 }
             }
+
+            _contentInfo.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -213,9 +224,19 @@ namespace Editor.A.Presentation
             get { return _stdTools; }
         }
 
+        public IDocumentToolsPresenter CurrentDocumentToolsPresenter
+        {
+            get { return _docTools; }
+        }
+
         public ILevelToolsPresenter CurrentLevelToolsPresenter
         {
             get { return _levelTools; }
+        }
+
+        public IContentInfoPresenter ContentInfoPresenter
+        {
+            get { return _contentInfo; }
         }
 
         public IEnumerable<ILevelPresenter> OpenContent

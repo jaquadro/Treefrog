@@ -42,7 +42,7 @@ namespace Editor.Views
             if (_controller != null && _controller.LayerControl != null) {
                 _controller.LayerControl.Dock = DockStyle.Fill;
 
-                viewportControl1.ContentPanel.Controls.Add(_controller.LayerControl);
+                viewportControl1.Control = _controller.LayerControl;
             }
         }
 

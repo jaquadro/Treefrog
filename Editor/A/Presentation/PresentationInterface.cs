@@ -44,7 +44,89 @@ namespace Editor.A.Presentation
         void RefreshDocumentTools ();
     }
 
-    
+    public class DocumentToolsPresenter : IDocumentToolsPresenter
+    {
+        private EditorPresenter _editor;
+
+        public DocumentToolsPresenter (EditorPresenter editor)
+        {
+            _editor = editor;
+        }
+
+        #region IDocumentToolsPresenter Members
+
+        public bool CanCut
+        {
+            get { return false; }
+        }
+
+        public bool CanCopy
+        {
+            get { return false; }
+        }
+
+        public bool CanPaste
+        {
+            get { return false; }
+        }
+
+        public bool CanUndo
+        {
+            get { return _editor.CurrentLevel != null ? _editor.CurrentLevel.History.CanUndo : false; }
+        }
+
+        public bool CanRedo
+        {
+            get { return _editor.CurrentLevel != null ? _editor.CurrentLevel.History.CanRedo : false; }
+        }
+
+        public void ActionCut ()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ActionCopy ()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ActionPaste ()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ActionUndo ()
+        {
+            if (_editor.CurrentLevel != null) {
+                _editor.CurrentLevel.History.Undo();
+                OnSyncDocumentToolsActions(EventArgs.Empty);
+            }
+        }
+
+        public void ActionRedo ()
+        {
+            if (_editor.CurrentLevel != null) {
+                _editor.CurrentLevel.History.Redo();
+                OnSyncDocumentToolsActions(EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler SyncDocumentToolsActions;
+
+        protected virtual void OnSyncDocumentToolsActions (EventArgs e)
+        {
+            if (SyncDocumentToolsActions != null) {
+                SyncDocumentToolsActions(this, e);
+            }
+        }
+
+        public void RefreshDocumentTools ()
+        {
+            OnSyncDocumentToolsActions(EventArgs.Empty);
+        }
+
+        #endregion
+    }
 
     public class StandardToolsPresenter : IStandardToolsPresenter
     {
