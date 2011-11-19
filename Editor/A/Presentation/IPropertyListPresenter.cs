@@ -14,6 +14,8 @@ namespace Editor.A.Presentation
         bool CanRenameSelectedProperty { get; }
         bool CanEditSelectedProperty { get; }
 
+        IPropertyProvider Provider { get; set; }
+        string ProviderName { get; }
         IEnumerable<Property> PredefinedProperties { get; }
         IEnumerable<Property> CustomProperties { get; }
         Property SelectedProperty { get; }
@@ -80,6 +82,17 @@ namespace Editor.A.Presentation
         public bool CanEditSelectedProperty
         {
             get { return _provider != null && _provider.LookupPropertyCategory(_selectedProperty) != PropertyCategory.None; }
+        }
+
+        public string ProviderName 
+        {
+            get 
+            { 
+                if (_provider == null) {
+                    return "";
+                }
+                return _provider.PropertyProviderName;
+            }
         }
 
         public IEnumerable<Property> PredefinedProperties

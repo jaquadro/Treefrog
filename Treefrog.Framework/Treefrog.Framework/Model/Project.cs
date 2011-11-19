@@ -155,23 +155,6 @@ namespace Treefrog.Framework.Model
             _initalized = true;
         }
 
-        /*public void SetupDefaults ()
-        {
-            if (!_initalized) {
-                return;
-            }
-
-            TilePool defaultPool = new TilePool("Default", _registry, 16, 16);
-            TileSet2D defaultSet = new TileSet2D("Default", defaultPool, 12, 24);
-            TileMap defaultMap = new TileMap("Default");
-            Level defaultLevle = new Level("Level 1");
-
-            _tilePools.Add(defaultPool);
-            _tileSets.Add(defaultSet);
-            _tileMaps.Add(defaultMap);
-            _levels.Add(defaultLevle);
-        }*/
-
         #region XML Import / Export
 
         public static Project FromXml (XmlReader reader, GraphicsDevice device)
@@ -236,6 +219,12 @@ namespace Treefrog.Framework.Model
 
         private void ReadXmlTilesets (XmlReader reader)
         {
+            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
+                "lastid",
+            });
+
+            _registry.LastId = Convert.ToInt32(attribs["lastid"]);
+
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
                 switch (s) {

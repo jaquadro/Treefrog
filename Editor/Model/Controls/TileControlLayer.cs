@@ -217,12 +217,8 @@ namespace Editor.Model.Controls
             BuildTileBrush();
         }
 
-        protected override void DrawContentImpl (SpriteBatch spriteBatch)
+        protected Vector2 BeginDraw (SpriteBatch spriteBatch)
         {
-            if (_layer == null) {
-                return;
-            }
-
             Rectangle region = Control.VisibleRegion;
 
             Vector2 offset = Control.VirtualSurfaceOffset;
@@ -231,6 +227,29 @@ namespace Editor.Model.Controls
 
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
             spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+
+            return offset;
+        }
+
+        protected void EndDraw (SpriteBatch spriteBatch)
+        {
+            spriteBatch.End();
+        }
+
+        protected override void DrawContentImpl (SpriteBatch spriteBatch)
+        {
+            if (_layer == null || _layer.IsVisible == false) {
+                return;
+            }
+
+            Rectangle region = Control.VisibleRegion;
+
+            /*Vector2 offset = Control.VirtualSurfaceOffset;
+            offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
+            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;*/
 
             Rectangle tileRegion = new Rectangle(
                 region.X / _layer.TileWidth,
@@ -241,7 +260,7 @@ namespace Editor.Model.Controls
 
             DrawTiles(spriteBatch, tileRegion);
 
-            spriteBatch.End();
+            //spriteBatch.End();
         }
 
         protected override void DrawGridImpl (SpriteBatch spriteBatch)

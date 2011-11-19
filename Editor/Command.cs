@@ -76,7 +76,8 @@ namespace Editor
 
         public void QueueReplacement (TileCoord coord, TileStack replacement)
         {
-            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), new TileStack(replacement));
+            replacement = (replacement != null) ? new TileStack(replacement) : null;
+            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), replacement);
         }
 
         public override void Execute ()

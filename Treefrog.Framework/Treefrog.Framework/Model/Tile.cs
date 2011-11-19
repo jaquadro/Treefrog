@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class Tile
+    public abstract class Tile : IPropertyProvider
     {
         protected TilePool _pool;
         private int _id;
@@ -19,6 +19,7 @@ namespace Treefrog.Framework.Model
             _id = id;
             _pool = pool;
             _properties = new NamedResourceCollection<Property>();
+            _properties.Modified += CustomPropertiesModifiedHandler;
         }
 
         public int Id
@@ -59,6 +60,85 @@ namespace Treefrog.Framework.Model
         }
 
         public abstract void Draw (SpriteBatch spritebatch, Rectangle dest, Color color);
+
+        #region Events
+
+        /// <summary>
+        /// Occurs when the internal state of the Layer is modified.
+        /// </summary>
+        public event EventHandler Modified;
+
+        #endregion
+
+        #region Event Dispatchers
+
+        /// <summary>
+        /// Raises the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (Modified != null) {
+                Modified(this, e);
+            }
+        }
+
+        #endregion
+
+        private void CustomPropertiesModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
+        }
+
+        #region IPropertyProvider Members
+
+        public string PropertyProviderName
+        {
+            get { return "Tile " + _id; }
+        }
+
+        public IEnumerable<Property> PredefinedProperties
+        {
+            get { yield break; }
+        }
+
+        public IEnumerable<Property> CustomProperties
+        {
+            get { return _properties; }
+        }
+
+        public PropertyCategory LookupPropertyCategory (string name)
+        {
+            return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
+        }
+
+        public Property LookupProperty (string name)
+        {
+            return _properties.Contains(name) ? _properties[name] : null;
+        }
+
+        public void AddCustomProperty (Property property)
+        {
+            if (property == null) {
+                throw new ArgumentNullException("The property is null.");
+            }
+            if (_properties.Contains(property.Name)) {
+                throw new ArgumentException("A property with the same name already exists.");
+            }
+
+            _properties.Add(property);
+        }
+
+        public void RemoveCustomProperty (string name)
+        {
+            if (name == null) {
+                throw new ArgumentNullException("The name is null.");
+            }
+
+            _properties.Remove(name);
+        }
+
+        #endregion
     }
 
     public class PhysicalTile : Tile

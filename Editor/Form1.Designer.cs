@@ -442,12 +442,12 @@ namespace Editor
             this.ClientSize = new System.Drawing.Size(1024, 652);
             this.Controls.Add(this.toolStripContainer1);
             this.Controls.Add(this.statusBar);
-            this.Controls.Add(this.menuBar);
-            this.MainMenuStrip = this.menuBar;
+            //this.Controls.Add(this.menuBar);
+            //this.MainMenuStrip = this.menuBar;
             this.Name = "Form1";
             this.Text = "Form1";
-            this.menuBar.ResumeLayout(false);
-            this.menuBar.PerformLayout();
+            //this.menuBar.ResumeLayout(false);
+            //this.menuBar.PerformLayout();
             this.statusBar.ResumeLayout(false);
             this.statusBar.PerformLayout();
             this.toolStripContainer1.ContentPanel.ResumeLayout(false);

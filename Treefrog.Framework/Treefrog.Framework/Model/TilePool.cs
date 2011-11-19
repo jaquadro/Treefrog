@@ -16,7 +16,7 @@ namespace Treefrog.Framework.Model
         SetUnique,      // Import each unique tile in source that is not already in set
     }
 
-    public class TilePool : INamedResource, IEnumerable<Tile>
+    public class TilePool : INamedResource, IEnumerable<Tile>, IPropertyProvider
     {
         private const int _initFactor = 4;
 
@@ -162,6 +162,7 @@ namespace Treefrog.Framework.Model
 
             _locations[id] = coord;
             _tiles[id] = new PhysicalTile(id, this);
+            _tiles[id].Modified += TileModifiedHandler;
 
             _registry.LinkTile(id, this);
         }
@@ -477,6 +478,15 @@ namespace Treefrog.Framework.Model
         public string Name
         {
             get { return _name; }
+            private set
+            {
+                if (_name != value) {
+                    string oldName = _name;
+                    _name = value;
+
+                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
+                }
+            }
         }
 
         public event EventHandler<NameChangedEventArgs> NameChanged;
@@ -496,6 +506,11 @@ namespace Treefrog.Framework.Model
             if (Modified != null) {
                 Modified(this, e);
             }
+        }
+
+        private void TileModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
         }
 
         #endregion
@@ -593,5 +608,79 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        #region IPropertyProvider Members
+
+        public string PropertyProviderName
+        {
+            get { return _name; }
+        }
+
+        public IEnumerable<Property> PredefinedProperties
+        {
+            get 
+            {
+                yield return LookupProperty("Name");
+            }
+        }
+
+        public IEnumerable<Property> CustomProperties
+        {
+            get { return _properties; }
+        }
+
+        public PropertyCategory LookupPropertyCategory (string name)
+        {
+            switch (name) {
+                case "Name":
+                    return PropertyCategory.Predefined;
+                default:
+                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
+            }
+        }
+
+        public Property LookupProperty (string name)
+        {
+            Property prop;
+
+            switch (name) {
+                case "Name":
+                    prop = new StringProperty("Name", _name);
+                    prop.ValueChanged += NamePropertyChangedHandler;
+                    return prop;
+
+                default:
+                    return _properties.Contains(name) ? _properties[name] : null;
+            }
+        }
+
+        public void AddCustomProperty (Property property)
+        {
+            if (property == null) {
+                throw new ArgumentNullException("The property is null.");
+            }
+            if (_properties.Contains(property.Name)) {
+                throw new ArgumentException("A property with the same name already exists.");
+            }
+
+            _properties.Add(property);
+        }
+
+        public void RemoveCustomProperty (string name)
+        {
+            if (name == null) {
+                throw new ArgumentNullException("The name is null.");
+            }
+
+            _properties.Remove(name);
+        }
+
+        #endregion
+
+        private void NamePropertyChangedHandler (object sender, EventArgs e)
+        {
+            StringProperty property = sender as StringProperty;
+            Name = property.Value;
+        }
     }
 }

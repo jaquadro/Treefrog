@@ -97,6 +97,18 @@ namespace Editor.Model.Controls
         {
             base.DrawTiles(spriteBatch, tileRegion);
 
+            RenderTarget2D target = null;
+            if (_layer.Opacity < 1f) {
+                target = new RenderTarget2D(spriteBatch.GraphicsDevice, 
+                    spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height, 
+                    false, SurfaceFormat.Color, DepthFormat.None);
+
+                spriteBatch.GraphicsDevice.SetRenderTarget(target);
+                spriteBatch.GraphicsDevice.Clear(Color.Transparent);
+            }
+
+            Vector2 offset = BeginDraw(spriteBatch);
+
             foreach (LocatedTile locTile in _layer.TilesAt(tileRegion)) {
                 Rectangle dest = new Rectangle(
                     locTile.X * (int)(_layer.TileWidth * Control.Zoom),
@@ -104,6 +116,16 @@ namespace Editor.Model.Controls
                     (int)(_layer.TileWidth * Control.Zoom),
                     (int)(_layer.TileHeight * Control.Zoom));
                 locTile.Tile.Draw(spriteBatch, dest);
+            }
+
+            EndDraw(spriteBatch);
+
+            if (_layer.Opacity < 1f) {
+                spriteBatch.GraphicsDevice.SetRenderTarget(null);
+
+                BeginDraw(spriteBatch);
+                spriteBatch.Draw(target, new Vector2(-offset.X, -offset.Y), new Color(1f, 1f, 1f, _layer.Opacity));
+                EndDraw(spriteBatch);
             }
         }
 

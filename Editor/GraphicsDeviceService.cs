@@ -76,6 +76,7 @@ namespace Editor
             _parameters.DeviceWindowHandle = windowHandle;
             _parameters.PresentationInterval = PresentInterval.One;
             _parameters.IsFullScreen = false;
+            _parameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
 
             _device = new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile.Reach, _parameters);
 

@@ -6,7 +6,7 @@ namespace Treefrog.Framework.Model
     /// <summary>
     /// Represents a collection of stacked <see cref="Tile"/> objects ordered from bottom to top.
     /// </summary>
-    public class TileStack : IEnumerable<Tile>
+    public class TileStack : IEnumerable<Tile>, ICloneable, IEquatable<TileStack>
     {
         #region Fields
 
@@ -157,5 +157,40 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        #region ICloneable Members
+
+        public object Clone ()
+        {
+            return new TileStack(this);
+        }
+
+        #endregion
+
+        #region IEquatable<TileStack> Members
+
+        public bool Equals (TileStack other)
+        {
+            if (other == null || _tiles.Count != other.Count)
+                return false;
+
+            for (int i = 0; i < _tiles.Count; i++) {
+                if (_tiles[i].Id != other[i].Id)
+                    return false;
+            }
+
+            return true;
+        }
+
+        #endregion
+
+        public override bool Equals (object obj)
+        {
+            TileStack other = obj as TileStack;
+            if (other != null)
+                return Equals(other);
+
+            return false;
+        }
     }
 }

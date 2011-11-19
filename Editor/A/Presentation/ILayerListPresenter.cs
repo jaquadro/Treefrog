@@ -17,8 +17,6 @@ namespace Editor.A.Presentation
         IEnumerable<Layer> LayerList { get; }
         Layer SelectedLayer { get; }
 
-        event EventHandler PreSyncLayerSelection;
-
         event EventHandler SyncLayerActions;
         event EventHandler SyncLayerList;
         event EventHandler SyncLayerSelection;

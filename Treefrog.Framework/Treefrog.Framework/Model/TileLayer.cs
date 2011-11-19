@@ -24,6 +24,13 @@ namespace Treefrog.Framework.Model
             _tileHeight = tileHeight;
         }
 
+        protected TileLayer (string name, TileLayer layer)
+            : base(name, layer)
+        {
+            _tileHeight = layer._tileHeight;
+            _tileWidth = layer._tileWidth;
+        }
+
         #endregion
 
         #region Properties

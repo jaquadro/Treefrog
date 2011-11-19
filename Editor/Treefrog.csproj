@@ -113,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="A\Controls\Composite\InfoStatus.cs" />
+    <Compile Include="A\Controls\Composite\Menu.cs" />
     <Compile Include="A\Controls\WinEx\LayerListView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -123,7 +124,7 @@
     <Compile Include="A\Presentation\EditorPresenter.cs" />
     <Compile Include="A\Presentation\ILayerListPresenter.cs" />
     <Compile Include="A\Presentation\IPropertyListPresenter.cs" />
-    <Compile Include="A\Presentation\ITilePoolListPresenter.cs" />
+    <Compile Include="A\Presentation\TilePoolListPresenter.cs" />
     <Compile Include="A\Presentation\LevelPresenter.cs" />
     <Compile Include="A\Presentation\LevelToolsPresenter.cs" />
     <Compile Include="A\Presentation\PresentationInterface.cs" />
@@ -131,10 +132,6 @@
     <Compile Include="A\Controls\WinEx\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <None Include="Editor.cs" />
-    <None Include="LevelState.cs" />
-    <Compile Include="Mvc.cs" />
-    <Compile Include="Tools\LevelPres.cs" />
     <Compile Include="Views\LevelPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -169,13 +166,12 @@
     <Compile Include="Model\Controls\MultiTileControlLayer.cs" />
     <Compile Include="Model\Controls\TileControlLayer.cs" />
     <Compile Include="Model\Controls\TileSetControlLayer.cs" />
-    <Compile Include="Model\Design\MapState.cs" />
     <Compile Include="Model\TileSetLayer.cs" />
-    <Compile Include="StandardToolbar.cs" />
-    <Compile Include="TileToolbar.cs" />
+    <Compile Include="A\Controls\Composite\StandardToolbar.cs" />
+    <Compile Include="A\Controls\Composite\TileToolbar.cs" />
     <Compile Include="A\Presentation\Tools\DrawTool.cs" />
-    <None Include="Tools\EraseTool.cs" />
-    <None Include="Tools\FillTool.cs" />
+    <Compile Include="A\Presentation\Tools\EraseTool.cs" />
+    <Compile Include="A\Presentation\Tools\FillTool.cs" />
     <Compile Include="Tools\MouseTool.cs" />
     <Compile Include="Views\EventArgs.cs" />
     <Compile Include="Views\FormView.cs" />
@@ -254,6 +250,8 @@
     <EmbeddedResource Include="Icons\16\clipboard-paste.png" />
     <EmbeddedResource Include="Icons\16\documents.png" />
     <EmbeddedResource Include="Icons\16\scissors.png" />
+    <EmbeddedResource Include="Icons\16\disk--pencil.png" />
+    <EmbeddedResource Include="Icons\16\disk.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>

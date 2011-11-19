@@ -23,6 +23,20 @@ namespace Treefrog.Framework.Model
             _tiles = new TileStack[tilesHigh, tilesWide];
         }
 
+        public MultiTileGridLayer (string name, MultiTileGridLayer layer)
+            : base(name, layer)
+        {
+            _tiles = new TileStack[layer.LayerHeight, layer.LayerWidth];
+
+            for (int y = 0; y < layer.LayerHeight; y++) {
+                for (int x = 0; x < layer.LayerWidth; x++) {
+                    if (layer._tiles[y, x] != null) {
+                        _tiles[y, x] = layer._tiles[y, x].Clone() as TileStack;
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Properties
@@ -166,6 +180,14 @@ namespace Treefrog.Framework.Model
             writer.WriteAttributeString("name", Name);
             writer.WriteAttributeString("type", "tilemulti");
 
+            if (Opacity < 1f) {
+                writer.WriteAttributeString("opacity", Opacity.ToString("0.###"));
+            }
+
+            if (!IsVisible) {
+                writer.WriteAttributeString("visible", "False");
+            }
+
             writer.WriteStartElement("tiles");
             foreach (LocatedTileStack ts in TileStacks) {
                 if (ts.Stack != null && ts.Stack.Count > 0) {
@@ -230,6 +252,15 @@ namespace Treefrog.Framework.Model
 
                 AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
             }
+        }
+
+        #endregion
+
+        #region ICloneable Members
+
+        public override object Clone ()
+        {
+            return new MultiTileGridLayer(Name, this);
         }
 
         #endregion

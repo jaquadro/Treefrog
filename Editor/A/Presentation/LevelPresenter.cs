@@ -7,6 +7,17 @@ using Editor.Model.Controls;
 
 namespace Editor.A.Presentation
 {
+    public class SyncLayerEventArgs : EventArgs {
+        public Layer PreviousLayer { get; private set; }
+        public BaseControlLayer PreviousControlLayer { get; private set; }
+
+        public SyncLayerEventArgs (Layer layer, BaseControlLayer clayer)
+        {
+            PreviousLayer = layer;
+            PreviousControlLayer = clayer;
+        }
+    }
+
     public interface ITileLayerPresenter
     {
 
@@ -19,6 +30,8 @@ namespace Editor.A.Presentation
         LayerControl LayerControl { get; }
 
         CommandHistory History { get; }
+
+        event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
     }
 
     public class LevelPresenter : ILevelPresenter, ILayerListPresenter
@@ -30,6 +43,8 @@ namespace Editor.A.Presentation
         private LayerControl _layerControl;
 
         private DrawTool _drawTool;
+        private EraseTool _eraseTool;
+        private FillTool _fillTool;
 
         private LevelInfoPresenter _info;
 
@@ -59,11 +74,18 @@ namespace Editor.A.Presentation
                 _controlLayers[layer.Name] = clayer;
             }
 
-            SelectLayer();
-
             _drawTool = new DrawTool(this);
-            _drawTool.BindLevelToolsController(_editor.CurrentLevelToolsPresenter);
-            _drawTool.BindTileSourceController(_editor.CurrentTilePoolListPresenter);
+            _drawTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+            _drawTool.BindTileSourceController(_editor.Presentation.TilePoolList);
+
+            _eraseTool = new EraseTool(this);
+            _eraseTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+
+            _fillTool = new FillTool(this);
+            _fillTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+            _fillTool.BindTileSourceController(_editor.Presentation.TilePoolList);
+
+            SelectLayer();
         }
 
 
@@ -82,6 +104,15 @@ namespace Editor.A.Presentation
         public CommandHistory History
         {
             get { return _history; }
+        }
+
+        public event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
+
+        protected virtual void OnSyncCurrentLayer (SyncLayerEventArgs e)
+        {
+            if (SyncCurrentLayer != null) {
+                SyncCurrentLayer(this, e);
+            }
         }
 
         #endregion
@@ -153,8 +184,6 @@ namespace Editor.A.Presentation
 
         #region Events
 
-        public event EventHandler PreSyncLayerSelection;
-
         public event EventHandler SyncLayerActions;
 
         public event EventHandler SyncLayerList;
@@ -164,13 +193,6 @@ namespace Editor.A.Presentation
         #endregion
 
         #region Event Dispatchers
-
-        protected void OnPreSyncLayerSelection (EventArgs e)
-        {
-            if (PreSyncLayerSelection != null) {
-                PreSyncLayerSelection(this, e);
-            }
-        }
 
         protected void OnSyncLayerActions (EventArgs e)
         {
@@ -192,7 +214,7 @@ namespace Editor.A.Presentation
                 SyncLayerSelection(this, e);
             }
 
-            _editor.CurrentLevelToolsPresenter.RefreshLevelTools();
+            _editor.Presentation.LevelTools.RefreshLevelTools();
         }
 
         #endregion
@@ -201,8 +223,6 @@ namespace Editor.A.Presentation
 
         public void ActionAddLayer ()
         {
-            OnPreSyncLayerSelection(EventArgs.Empty);
-
             string name = FindDefaultLayerName();
 
             MultiTileGridLayer layer = new MultiTileGridLayer(name, _level.TileWidth, _level.TileHeight, _level.TilesWide, _level.TilesHigh);
@@ -225,8 +245,6 @@ namespace Editor.A.Presentation
         public void ActionRemoveSelectedLayer ()
         {
             if (CanRemoveSelectedLayer && _controlLayers.ContainsKey(_selectedLayer)) {
-                OnPreSyncLayerSelection(EventArgs.Empty);
-
                 _level.Layers.Remove(_selectedLayer);
                 _layerControl.RemoveLayer(_controlLayers[_selectedLayer]);
                 _controlLayers.Remove(_selectedLayer);
@@ -241,7 +259,25 @@ namespace Editor.A.Presentation
 
         public void ActionCloneSelectedLayer ()
         {
-            throw new NotImplementedException();
+            if (CanCloneSelectedLayer && _controlLayers.ContainsKey(_selectedLayer)) {
+                string name = FindCloneLayerName(SelectedLayer.Name);
+
+                MultiTileGridLayer layer = new MultiTileGridLayer(name, SelectedLayer as MultiTileGridLayer);
+                _level.Layers.Add(layer);
+
+                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                clayer.ShouldDrawContent = LayerCondition.Always;
+                clayer.ShouldDrawGrid = LayerCondition.Selected;
+                clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+                _controlLayers[name] = clayer;
+
+                SelectLayer(name);
+
+                OnSyncLayerActions(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerSelection(EventArgs.Empty);
+            }
         }
 
         public void ActionMoveSelectedLayerUp ()
@@ -268,9 +304,9 @@ namespace Editor.A.Presentation
 
         public void ActionSelectLayer (string name)
         {
-            OnPreSyncLayerSelection(EventArgs.Empty);
-
             SelectLayer(name);
+
+            _editor.Presentation.PropertyList.Provider = SelectedLayer;
 
             OnSyncLayerActions(EventArgs.Empty);
             OnSyncLayerSelection(EventArgs.Empty);
@@ -290,6 +326,9 @@ namespace Editor.A.Presentation
 
         private void SelectLayer (string layer)
         {
+            Layer prevLayer = SelectedLayer;
+            BaseControlLayer prevControlLayer = SelectedControlLayer;
+
             if (_selectedLayer == layer) {
                 return;
             }
@@ -326,6 +365,8 @@ namespace Editor.A.Presentation
                     throw new InvalidOperationException("Selected a ControlLayer with no corresponding model Layer!  Selected name: " + layer);
                 }
             }
+
+            OnSyncCurrentLayer(new SyncLayerEventArgs(prevLayer, prevControlLayer));
         }
 
         private void LayerMouseMoveHandler (object sender, TileMouseEventArgs e)
@@ -340,7 +381,7 @@ namespace Editor.A.Presentation
 
         private void HistoryChangedHandler (object sender, EventArgs e)
         {
-            _editor.CurrentDocumentToolsPresenter.RefreshDocumentTools();
+            _editor.Presentation.DocumentTools.RefreshDocumentTools();
         }
 
         public void RefreshLayerList ()
@@ -359,6 +400,23 @@ namespace Editor.A.Presentation
             int i = 0;
             while (true) {
                 string name = "Tile Layer " + ++i;
+                if (names.Contains(name)) {
+                    continue;
+                }
+                return name;
+            }
+        }
+
+        private string FindCloneLayerName (string basename)
+        {
+            List<string> names = new List<string>();
+            foreach (Layer layer in _level.Layers) {
+                names.Add(layer.Name);
+            }
+
+            int i = 0;
+            while (true) {
+                string name = basename + " (" + ++i + ")";
                 if (names.Contains(name)) {
                     continue;
                 }

@@ -2,39 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Editor.Model.Controls;
+using System.Windows.Forms;
+using Editor.Model;
 using Editor.Controls;
 using Microsoft.Xna.Framework;
+using Editor.Model.Controls;
+using Editor.A.Presentation;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
-using Editor.A.Presentation;
+using Amphibian.Drawing;
 
 namespace Editor
 {
-    public class DrawTool
+    public class EraseTool
     {
-        private ITilePoolListPresenter _pool;
         private ILevelToolsPresenter _tools;
         private LevelPresenter _level;
 
         private bool _drawing;
+        private bool _selecting;
         private TileReplace2DCommand _drawCommand;
 
+        private RubberBand _rubberBand;
+
         private bool _drawBrush;
+        private Brush _eraseBrush;
         private TileCoord _mouseCoord;
 
-        public DrawTool (LevelPresenter level)
+        public EraseTool (LevelPresenter level)
         {
             _level = level;
             _level.SyncCurrentLayer += SyncLayerHandler;
 
             _level.LayerControl.MouseEnter += MouseEnterHandler;
             _level.LayerControl.MouseLeave += MouseLeaveHandler;
-        }
-
-        public void BindTileSourceController (ITilePoolListPresenter controller)
-        {
-            _pool = controller;
         }
 
         public void BindLevelToolsController (ILevelToolsPresenter controller)
@@ -65,7 +66,7 @@ namespace Editor
 
         private bool ControllersAttached
         {
-            get { return _level != null && _pool != null && _tools != null; }
+            get { return _level != null && _tools != null; }
         }
 
         private MultiTileGridLayer CurrentLayer
@@ -92,15 +93,23 @@ namespace Editor
             }
         }
 
-        protected virtual void MouseTileDownHandler (object sender, TileMouseEventArgs e)
+        protected void MouseTileDownHandler (object sender, TileMouseEventArgs e)
         {
-            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
+            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Erase) {
                 _drawing = false;
                 return;
             }
 
             if (_drawing) {
-                throw new InvalidOperationException("DrawTool received MouseDown event while still active.");
+                if (e.Button == MouseButtons.Left)
+                    throw new InvalidOperationException("EraseTool received MouseDown event while still active.");
+                return;
+            }
+
+            if (_selecting) {
+                if (e.Button == MouseButtons.Right)
+                    throw new InvalidOperationException("EraseTool received MouseDown event while still active.");
+                return;
             }
 
             MultiTileGridLayer layer = CurrentLayer;
@@ -108,54 +117,91 @@ namespace Editor
                 return;
             }
 
-            if (_pool.SelectedTile == null) {
-                return;
+            switch (e.Button) {
+                case MouseButtons.Left:
+                    _drawing = true;
+                    _drawCommand = new TileReplace2DCommand(layer);
+                    break;
+
+                case MouseButtons.Right:
+                    _selecting = true;
+                    _rubberBand = new RubberBand(_level.LayerControl, layer.TileWidth, layer.TileHeight);
+                    _rubberBand.FillBrush = _eraseBrush;
+                    _rubberBand.Start(new Point(e.TileLocation.X, e.TileLocation.Y));
+                    break;
             }
 
-            _drawing = true;
-            _drawCommand = new TileReplace2DCommand(layer);
             MouseTileMoveHandler(sender, e);
         }
 
-        protected virtual void MouseTileUpHandler (object sender, TileMouseEventArgs e)
+        protected void MouseTileUpHandler (object sender, TileMouseEventArgs e)
         {
-            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
+            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Erase) {
                 _drawing = false;
                 return;
             }
 
-            if (!_drawing) {
+            if (_drawing && e.Button == MouseButtons.Left) {
+                _drawing = false;
+                _level.History.Execute(_drawCommand);
+            }
+
+            MultiTileGridLayer layer = CurrentLayer;
+            if (layer == null) {
                 return;
             }
 
-            _drawing = false;
-            _level.History.Execute(_drawCommand);
+            if (_selecting && e.Button == MouseButtons.Right) {
+                _selecting = false;
+
+                TileReplace2DCommand replace = new TileReplace2DCommand(layer);
+                for (int x = _rubberBand.Bounds.Left; x < _rubberBand.Bounds.Right; x++) {
+                    for (int y = _rubberBand.Bounds.Top; y < _rubberBand.Bounds.Bottom; y++) {
+                        if (layer[new TileCoord(x, y)] != null && layer[new TileCoord(x, y)].Count > 0) {
+                            replace.QueueReplacement(new TileCoord(x, y), (TileStack)null);
+                            layer[new TileCoord(x, y)] = null;
+                        }
+                    }
+                }
+
+                _level.History.Execute(replace);
+
+                _rubberBand.Dispose();
+                _rubberBand = null;
+            }
         }
 
-        protected virtual void MouseTileMoveHandler (object sender, TileMouseEventArgs e)
+        protected void MouseTileMoveHandler (object sender, TileMouseEventArgs e)
         {
-            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
+            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Erase) {
                 _drawing = false;
                 return;
             }
 
             _mouseCoord = e.TileLocation;
 
-            if (_drawing) {
-                MultiTileGridLayer layer = CurrentLayer;
-                if (layer == null) {
-                    return;
-                }
+            MultiTileGridLayer layer = CurrentLayer;
+            if (layer == null) {
+                return;
+            }
 
+            if (_drawing) {
                 if (e.TileLocation.X < 0 || e.TileLocation.X >= layer.LayerWidth)
                     return;
                 if (e.TileLocation.Y < 0 || e.TileLocation.Y >= layer.LayerHeight)
                     return;
 
-                if (layer[e.TileLocation] == null || layer[e.TileLocation].Top != _pool.SelectedTile) {
-                    _drawCommand.QueueAdd(e.TileLocation, _pool.SelectedTile);
-                    layer.AddTile(e.TileLocation.X, e.TileLocation.Y, _pool.SelectedTile);
+                if (layer[e.TileLocation] != null && layer[e.TileLocation].Count > 0) {
+                    _drawCommand.QueueReplacement(e.TileLocation, (TileStack)null);
+                    layer[e.TileLocation] = null;
                 }
+            }
+
+            if (_selecting) {
+                int x = Math.Max(0, Math.Min(layer.LayerWidth - 1, e.TileLocation.X));
+                int y = Math.Max(0, Math.Min(layer.LayerHeight - 1, e.TileLocation.Y));
+
+                _rubberBand.End(new Point(x, y));
             }
         }
 
@@ -171,21 +217,21 @@ namespace Editor
 
         private void DrawBrush (object sender, DrawLayerEventArgs e)
         {
-            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Draw) {
+            if (!ControllersAttached || _tools.ActiveTileTool != TileToolMode.Erase) {
                 _drawing = false;
                 return;
             }
 
-            if (!_drawBrush) {
+            if (!_drawBrush || _selecting) {
                 return;
+            }
+
+            if (_eraseBrush == null) {
+                _eraseBrush = _level.LayerControl.CreateSolidColorBrush(new Color(.75f, 0f, 0f, .5f));
             }
 
             MultiTileGridLayer layer = CurrentLayer;
             if (layer == null) {
-                return;
-            }
-
-            if (_pool.SelectedTile == null) {
                 return;
             }
 
@@ -196,7 +242,7 @@ namespace Editor
                 (int)(layer.TileHeight * _level.LayerControl.Zoom)
                 );
 
-            _pool.SelectedTile.Draw(e.SpriteBatch, rect, new Color(1f, 1f, 1f, 0.5f));
+            Amphibian.Drawing.Primitives2D.FillRectangle(e.SpriteBatch, rect, _eraseBrush);
         }
     }
 }

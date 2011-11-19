@@ -10,6 +10,28 @@ using System.IO;
 
 namespace Editor.A.Presentation
 {
+    public class SyncLevelEventArgs : EventArgs
+    {
+        public Level PreviousLevel { get; private set; }
+        public LevelPresenter PreviousLevelPresenter { get; private set; }
+
+        public SyncLevelEventArgs (Level level, LevelPresenter controller)
+        {
+            PreviousLevel = level;
+            PreviousLevelPresenter = controller;
+        }
+    }
+
+    public class SyncProjectEventArgs : EventArgs
+    {
+        public Project PreviousProject { get; private set; }
+
+        public SyncProjectEventArgs (Project project)
+        {
+            PreviousProject = project;
+        }
+    }
+
     public interface IEditorPresenter
     {
         bool CanShowLayerPanel { get; }
@@ -18,15 +40,9 @@ namespace Editor.A.Presentation
 
         bool Modified { get; }
 
-        ILayerListPresenter CurrentLayerListPresenter { get; }
-        IPropertyListPresenter CurrentPropertyListPresenter { get; }
-        ITilePoolListPresenter CurrentTilePoolListPresenter { get; }
+        Project Project { get; }
 
-        IStandardToolsPresenter CurrentStandardToolsPresenter { get; }
-        IDocumentToolsPresenter CurrentDocumentToolsPresenter { get; }
-        ILevelToolsPresenter CurrentLevelToolsPresenter { get; }
-
-        IContentInfoPresenter ContentInfoPresenter { get; }
+        Presentation Presentation { get; }
 
         IEnumerable<ILevelPresenter> OpenContent { get; }
 
@@ -34,16 +50,18 @@ namespace Editor.A.Presentation
         event EventHandler SyncContentView;
         event EventHandler SyncModified;
 
+        event EventHandler<SyncProjectEventArgs> SyncCurrentProject;
+
+        event EventHandler<SyncLevelEventArgs> SyncCurrentLevel;
+
         void RefreshEditor ();
     }
 
-    public class EditorPresenter : IEditorPresenter, ITilePoolListPresenter
+    public class Presentation
     {
-        private Project _project;
+        private EditorPresenter _editor;
 
-        Dictionary<string, LevelPresenter> _levels;
-        string _currentLevel;
-
+        private TilePoolListPresenter _tilePoolList;
         private PropertyListPresenter _propertyList;
 
         private LevelToolsPresenter _levelTools;
@@ -51,14 +69,75 @@ namespace Editor.A.Presentation
         private DocumentToolsPresenter _docTools;
         private ContentInfoArbitrationPresenter _contentInfo;
 
+        public Presentation (EditorPresenter editor)
+        {
+            _editor = editor;
+
+            _levelTools = new LevelToolsPresenter(_editor);
+            _stdTools = new StandardToolsPresenter(_editor);
+            _docTools = new DocumentToolsPresenter(_editor);
+            _contentInfo = new ContentInfoArbitrationPresenter(_editor);
+
+            _tilePoolList = new TilePoolListPresenter(_editor);
+            _propertyList = new PropertyListPresenter();
+        }
+
+        public IContentInfoPresenter ContentInfo
+        {
+            get { return _contentInfo; }
+        }
+
+        public IDocumentToolsPresenter DocumentTools
+        {
+            get { return _docTools; }
+        }
+
+        public ILayerListPresenter LayerList
+        {
+            get { return _editor.CurrentLevel; }
+        }
+
+        public ILevelPresenter Level
+        {
+            get { return _editor.CurrentLevel; }
+        }
+
+        public ILevelToolsPresenter LevelTools
+        {
+            get { return _levelTools; }
+        }
+
+        public IPropertyListPresenter PropertyList
+        {
+            get { return _propertyList; }
+        }
+
+        public IStandardToolsPresenter StandardTools
+        {
+            get { return _stdTools; }
+        }
+
+        public ITilePoolListPresenter TilePoolList
+        {
+            get { return _tilePoolList; }
+        }
+    }
+
+    public class EditorPresenter : IEditorPresenter
+    {
+        
+
+        private Project _project;
+
+        private Dictionary<string, LevelPresenter> _levels;
+        private string _currentLevel;
+        private LevelPresenter _currentLevelRef;
+
+        private Presentation _presentation;
+
         public EditorPresenter ()
         {
-            _propertyList = new PropertyListPresenter();
-
-            _levelTools = new LevelToolsPresenter(this);
-            _stdTools = new StandardToolsPresenter(this);
-            _docTools = new DocumentToolsPresenter(this);
-            _contentInfo = new ContentInfoArbitrationPresenter(this);
+            _presentation = new Presentation(this);
         }
 
         public EditorPresenter (Project project)
@@ -69,6 +148,8 @@ namespace Editor.A.Presentation
 
         public void NewDefault ()
         {
+            Project prevProject = _project;
+
             if (_project != null) {
                 _project.Modified -= ProjectModifiedHandler;
             }
@@ -78,7 +159,6 @@ namespace Editor.A.Presentation
 
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
-            _selectedTiles = new Dictionary<string, Tile>();
 
             Level level = new Level("Level 1", 16, 16, 50, 30);
             level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
@@ -90,20 +170,25 @@ namespace Editor.A.Presentation
 
             _project.Levels.Add(level);
 
-            _currentLevel = "Level 1";
+            SelectLevel("Level 1");
 
-            _propertyList.Provider = level;
+            PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
+            propList.Provider = level;
 
-            _contentInfo.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
+            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
-            RefreshTilePoolList();
+            OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
+
             RefreshEditor();
         }
 
         public void Open (Project project)
         {
+            Project prevProject = _project;
+
             if (_project != null) {
                 _project.Modified -= ProjectModifiedHandler;
             }
@@ -115,12 +200,8 @@ namespace Editor.A.Presentation
 
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
-            _selectedTiles = new Dictionary<string, Tile>();
 
-            foreach (TilePool pool in _project.TilePools) {
-                _selectedPool = pool.Name;
-                break;
-            }
+            PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
                 LevelPresenter pres = new LevelPresenter(this, level);
@@ -129,17 +210,23 @@ namespace Editor.A.Presentation
                 _openContent.Add(level.Name);
 
                 if (_currentLevel == null) {
-                    _currentLevel = level.Name;
-                    _propertyList.Provider = level; // Initial Property Provider
+                    SelectLevel(level.Name);
+                    propList.Provider = level; // Initial Property Provider
                 }
             }
 
-            _contentInfo.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
+            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
-            RefreshTilePoolList();
+            OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
+
             RefreshEditor();
+
+            if (CurrentLevel != null) {
+                CurrentLevel.RefreshLayerList();
+            }
         }
 
         public void Save (Stream stream)
@@ -161,6 +248,11 @@ namespace Editor.A.Presentation
             return project;
         }
 
+        public Project Project
+        {
+            get { return _project; }
+        }
+
         public LevelPresenter CurrentLevel
         {
             get
@@ -169,6 +261,11 @@ namespace Editor.A.Presentation
                     ? _levels[_currentLevel]
                     : null;
             }
+        }
+
+        public Presentation Presentation
+        {
+            get { return _presentation; }
         }
 
         #region IEditorPresenter Members
@@ -204,41 +301,6 @@ namespace Editor.A.Presentation
             }
         }
 
-        public ILayerListPresenter CurrentLayerListPresenter
-        {
-            get { return CurrentLevel; }
-        }
-
-        public IPropertyListPresenter CurrentPropertyListPresenter
-        {
-            get { return _propertyList; }
-        }
-
-        public ITilePoolListPresenter CurrentTilePoolListPresenter
-        {
-            get { return this; }
-        }
-
-        public IStandardToolsPresenter CurrentStandardToolsPresenter
-        {
-            get { return _stdTools; }
-        }
-
-        public IDocumentToolsPresenter CurrentDocumentToolsPresenter
-        {
-            get { return _docTools; }
-        }
-
-        public ILevelToolsPresenter CurrentLevelToolsPresenter
-        {
-            get { return _levelTools; }
-        }
-
-        public IContentInfoPresenter ContentInfoPresenter
-        {
-            get { return _contentInfo; }
-        }
-
         public IEnumerable<ILevelPresenter> OpenContent
         {
             get 
@@ -259,6 +321,10 @@ namespace Editor.A.Presentation
         public event EventHandler SyncContentView;
 
         public event EventHandler SyncModified;
+
+        public event EventHandler<SyncProjectEventArgs> SyncCurrentProject;
+
+        public event EventHandler<SyncLevelEventArgs> SyncCurrentLevel;
 
         protected virtual void OnSyncContentTabs (EventArgs e)
         {
@@ -281,6 +347,20 @@ namespace Editor.A.Presentation
             }
         }
 
+        protected virtual void OnSyncCurrentProject (SyncProjectEventArgs e)
+        {
+            if (SyncCurrentProject != null) {
+                SyncCurrentProject(this, e);
+            }
+        }
+
+        protected virtual void OnSyncCurrentLevel (SyncLevelEventArgs e)
+        {
+            if (SyncCurrentLevel != null) {
+                SyncCurrentLevel(this, e);
+            }
+        }
+
         public void RefreshEditor ()
         {
             OnSyncContentTabs(EventArgs.Empty);
@@ -290,163 +370,34 @@ namespace Editor.A.Presentation
 
         #endregion
 
-        #region ITilePoolListPresenter Members
-
-        #region Fields
-
-        private string _selectedPool;
-        private Dictionary<string, Tile> _selectedTiles;
-
-        #endregion
-
-        #region Properties
-
-        public bool CanAddTilePool
+        private void SelectLevel (string level)
         {
-            get { return true; }
-        }
-
-        public bool CanRemoveSelectedTilePool
-        {
-            get { return SelectedTilePool != null; }
-        }
-
-        public IEnumerable<TilePool> TilePoolList
-        {
-            get
-            {
-                foreach (TilePool pool in _project.TilePools) {
-                    yield return pool;
-                }
-            }
-        }
-
-        public TilePool SelectedTilePool
-        {
-            get
-            {
-                return (_selectedPool != null && _project.TilePools.Contains(_selectedPool))
-                    ? _project.TilePools[_selectedPool]
-                    : null;
-            }
-        }
-
-        public Tile SelectedTile
-        {
-            get
-            {
-                TilePool pool = SelectedTilePool;
-                return (pool != null && _selectedTiles.ContainsKey(_selectedPool))
-                    ? _selectedTiles[_selectedPool]
-                    : null;
-            }
-        }
-
-        #endregion
-
-        #region Events
-
-        public event EventHandler SyncTilePoolActions;
-
-        public event EventHandler SyncTilePoolList;
-
-        public event EventHandler SyncTilePoolControl;
-
-        #endregion
-
-        #region Event Dispatchers
-
-        protected virtual void OnSyncTilePoolActions (EventArgs e)
-        {
-            if (SyncTilePoolActions != null) {
-                SyncTilePoolActions(this, e);
-            }
-        }
-
-        protected virtual void OnSyncTilePoolList (EventArgs e)
-        {
-            if (SyncTilePoolList != null) {
-                SyncTilePoolList(this, e);
-            }
-        }
-
-        protected virtual void OnSyncTilePoolControl (EventArgs e)
-        {
-            if (SyncTilePoolControl != null) {
-                SyncTilePoolControl(this, e);
-            }
-        }
-
-        #endregion
-
-        #region View Action API
-
-        public void ActionImportTilePool ()
-        {
-            List<string> currentNames = new List<string>();
-            foreach (TilePool pool in _project.TilePools) {
-                currentNames.Add(pool.Name);
+            Level prev = _project.Levels.Contains(level) ? _project.Levels[level] : null;
+            LevelPresenter prevLevel = _currentLevelRef;
+            
+            if (_currentLevel == level) {
+                return;
             }
 
-            ImportTilePool form = new ImportTilePool(_project);
-            form.ShowDialog();
+            // Unbind previously selected layer if necessary
+            if (_currentLevelRef != null) {
 
-            foreach (TilePool pool in _project.TilePools) {
-                if (!currentNames.Contains(pool.Name)) {
-                    _selectedPool = pool.Name;
+            }
+
+            _currentLevel = null;
+            _currentLevelRef = null;
+
+            // Bind new layer
+            if (level != null && _levels.ContainsKey(level)) {
+                _currentLevel = level;
+                _currentLevelRef = CurrentLevel;
+
+                if (!_project.Levels.Contains(level)) {
+                    throw new InvalidOperationException("Selected a LevelPresenter with no corresponding model Level!  Selected name: " + level);
                 }
             }
 
-            OnSyncTilePoolActions(EventArgs.Empty);
-            OnSyncTilePoolList(EventArgs.Empty);
-            OnSyncTilePoolControl(EventArgs.Empty);
+            OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
         }
-
-        public void ActionRemoveSelectedTilePool ()
-        {
-            if (_selectedPool != null && _project.TilePools.Contains(_selectedPool)) {
-                _project.TilePools.Remove(_selectedPool);
-                _selectedPool = null;
-            }
-
-            foreach (TilePool pool in _project.TilePools) {
-                _selectedPool = pool.Name;
-                break;
-            }
-
-            OnSyncTilePoolActions(EventArgs.Empty);
-            OnSyncTilePoolList(EventArgs.Empty);
-            OnSyncTilePoolControl(EventArgs.Empty);
-        }
-
-        public void ActionSelectTilePool (string name)
-        {
-            if (_selectedPool != name && _project.TilePools.Contains(name)) {
-                _selectedPool = name;
-
-                OnSyncTilePoolActions(EventArgs.Empty);
-                OnSyncTilePoolList(EventArgs.Empty);
-            }
-        }
-
-        public void ActionSelectTile (Tile tile)
-        {
-            if (SelectedTilePool != null) {
-                _selectedTiles[_selectedPool] = tile;
-
-                OnSyncTilePoolControl(EventArgs.Empty);
-            }
-        }
-
-        #endregion
-
-        public void RefreshTilePoolList ()
-        {
-            OnSyncTilePoolActions(EventArgs.Empty);
-            OnSyncTilePoolList(EventArgs.Empty);
-            OnSyncTilePoolControl(EventArgs.Empty);
-        }
-
-        #endregion
     }
 }

@@ -27,6 +27,13 @@ namespace Editor.Model
             SyncIndex();
         }
 
+        public TileSetLayer (string name, TileSetLayer layer)
+            : base(name, layer)
+        {
+            _pool = layer._pool;
+            SyncIndex();
+        }
+
         #endregion
 
         #region Properties
@@ -82,5 +89,14 @@ namespace Editor.Model
 
             writer.WriteEndElement();
         }
+
+        #region ICloneable Members
+
+        public override object Clone ()
+        {
+            return new TileSetLayer(Name, this);
+        }
+
+        #endregion
     }
 }

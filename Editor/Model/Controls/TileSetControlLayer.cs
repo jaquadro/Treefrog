@@ -193,6 +193,8 @@ namespace Editor.Model.Controls
 
             // TODO: We are drawing tiles even if they are scrolled off-screen
 
+            BeginDraw(spriteBatch);
+
             foreach (Tile tile in _layer.Tiles) {
                 Rectangle dest = new Rectangle(
                     pointX * (int)(_layer.TileWidth * Control.Zoom),
@@ -206,6 +208,8 @@ namespace Editor.Model.Controls
                     pointY++;
                 }
             }
+
+            EndDraw(spriteBatch);
         }
 
         protected override Tile GetTile (TileCoord coord)

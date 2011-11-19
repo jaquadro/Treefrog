@@ -7,7 +7,7 @@ namespace Treefrog.Framework.Model
     /// <summary>
     /// A generic named property base class.
     /// </summary>
-    public abstract class Property : INamedResource
+    public abstract class Property : INamedResource, ICloneable
     {
         #region Fields
 
@@ -24,6 +24,12 @@ namespace Treefrog.Framework.Model
         protected Property (string name)
         {
             _name = name;
+        }
+
+        protected Property (string name, Property property)
+            : this(name)
+        {
+
         }
 
         #endregion
@@ -146,6 +152,12 @@ namespace Treefrog.Framework.Model
         public abstract void WriteXml (XmlWriter writer);
 
         #endregion
+
+        #region ICloneable Members
+
+        public abstract object Clone ();
+
+        #endregion
     }
 
     /// <summary>
@@ -164,6 +176,12 @@ namespace Treefrog.Framework.Model
             : base(name)
         {
             _value = value;
+        }
+
+        public StringProperty (string name, StringProperty property)
+            : base(name, property)
+        {
+            _value = property._value;
         }
 
         /// <summary>
@@ -223,6 +241,15 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        #region ICloneable Members
+
+        public override object Clone ()
+        {
+            return new StringProperty(Name, this);
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -241,6 +268,12 @@ namespace Treefrog.Framework.Model
             : base(name)
         {
             _value = value;
+        }
+
+        public NumberProperty (string name, NumberProperty property)
+            : base(name, property)
+        {
+            _value = property._value;
         }
 
         /// <summary>
@@ -275,7 +308,7 @@ namespace Treefrog.Framework.Model
         /// <returns>A <see cref="String"/> representation of the property's value.</returns>
         public override string ToString ()
         {
-            return _value.ToString("#.###");
+            return _value.ToString("0.###");
         }
 
         #region XML Import / Export
@@ -306,6 +339,15 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        #region ICloneable Members
+
+        public override object Clone ()
+        {
+            return new NumberProperty(Name, this);
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -324,6 +366,12 @@ namespace Treefrog.Framework.Model
             : base(name)
         {
             _value = value;
+        }
+
+        public BoolProperty (string name, BoolProperty property)
+            : base(name, property)
+        {
+            _value = property._value;
         }
 
         /// <summary>
@@ -386,6 +434,15 @@ namespace Treefrog.Framework.Model
             writer.WriteAttributeString("type", "flag");
             writer.WriteValue(Value);
             writer.WriteEndElement();
+        }
+
+        #endregion
+
+        #region ICloneable Members
+
+        public override object Clone ()
+        {
+            return new BoolProperty(Name, this);
         }
 
         #endregion

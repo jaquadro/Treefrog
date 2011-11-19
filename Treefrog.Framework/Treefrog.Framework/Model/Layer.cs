@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class Layer : INamedResource, IPropertyProvider
+    public abstract class Layer : INamedResource, IPropertyProvider, ICloneable
     {
         #region Fields
 
@@ -22,11 +22,25 @@ namespace Treefrog.Framework.Model
 
         #region Constructors
 
-        public Layer (string name)
+        protected Layer (string name)
         {
+            _opacity = 1f;
+            _visible = true;
+
             _name = name;
             _properties = new NamedResourceCollection<Property>();
             _properties.Modified += CustomPropertiesModifiedHandler;
+        }
+
+        protected Layer (string name, Layer layer)
+            : this(name)
+        {
+            foreach (Property prop in layer._properties) {
+                _properties.Add(prop.Clone() as Property);
+            }
+
+            _opacity = layer._opacity;
+            _visible = layer._visible;
         }
 
         #endregion
@@ -91,6 +105,28 @@ namespace Treefrog.Framework.Model
 
         #region Event Handlers
 
+        private void NamePropertyChangedHandler (object sender, EventArgs e)
+        {
+            StringProperty property = sender as StringProperty;
+            Name = property.Value;
+        }
+
+        private void OpacityPropertyChangedHandler (object sender, EventArgs e)
+        {
+            NumberProperty property = sender as NumberProperty;
+            _opacity = MathHelper.Clamp(property.Value, 0f, 1f);
+
+            OnModified(e);
+        }
+
+        private void VisiblePropertyChangedHandler (object sender, EventArgs e)
+        {
+            BoolProperty property = sender as BoolProperty;
+            _visible = property.Value;
+
+            OnModified(e);
+        }
+
         private void CustomPropertiesModifiedHandler (object sender, EventArgs e)
         {
             OnModified(e);
@@ -139,14 +175,17 @@ namespace Treefrog.Framework.Model
             switch (name) {
                 case "Name":
                     prop = new StringProperty("Name", _name);
+                    prop.ValueChanged += NamePropertyChangedHandler;
                     return prop;
 
                 case "Opacity":
                     prop = new NumberProperty("Opacity", _opacity);
+                    prop.ValueChanged += OpacityPropertyChangedHandler;
                     return prop;
 
                 case "Visible":
                     prop = new BoolProperty("Visible", _visible);
+                    prop.ValueChanged += VisiblePropertyChangedHandler;
                     return prop;
 
                 default:
@@ -192,6 +231,14 @@ namespace Treefrog.Framework.Model
                     break;
             }
 
+            if (attribs.ContainsKey("opacity")) {
+                layer._opacity = MathHelper.Clamp(Convert.ToSingle(attribs["opacity"]), 0f, 1f);
+            }
+
+            if (attribs.ContainsKey("visible")) {
+                layer._visible = Convert.ToBoolean(attribs["visible"]);
+            }
+
             XmlHelper.SwitchAllAdvance(reader, (xmlr, s) => {
                 return layer.ReadXmlElement(xmlr, s, services);
             });
@@ -213,6 +260,15 @@ namespace Treefrog.Framework.Model
         public string Name
         {
             get { return _name; }
+            private set
+            {
+                if (_name != value) {
+                    string oldName = _name;
+                    _name = value;
+
+                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
+                }
+            }
         }
 
         public event EventHandler<NameChangedEventArgs> NameChanged;
@@ -224,6 +280,12 @@ namespace Treefrog.Framework.Model
             }
             OnModified(EventArgs.Empty);
         }
+
+        #endregion
+
+        #region ICloneable Members
+
+        public abstract object Clone ();
 
         #endregion
     }

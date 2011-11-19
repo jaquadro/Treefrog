@@ -19,6 +19,7 @@ namespace Editor
 {
     public partial class Form1 : Form
     {
+        private StandardMenu _menu;
         private StandardToolbar _standardToolbar;
         private TileToolbar _tileToolbar;
         private InfoStatus _infoStatus;
@@ -31,6 +32,8 @@ namespace Editor
 
             // Toolbars
 
+            _menu = new StandardMenu();
+
             _standardToolbar = new StandardToolbar();
             _tileToolbar = new TileToolbar();
 
@@ -38,6 +41,9 @@ namespace Editor
                 _standardToolbar.Strip, 
                 _tileToolbar.Strip
             });
+
+            Controls.Add(_menu.Strip);
+            MainMenuStrip = _menu.Strip;
 
             _infoStatus = new InfoStatus(statusBar);
 
@@ -50,7 +56,7 @@ namespace Editor
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            redoToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-turn.png"));
+            /*redoToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-turn.png"));
             undoToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-turn-180-left.png"));
 
             cutToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.scissors.png"));
@@ -59,11 +65,13 @@ namespace Editor
             deleteToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.cross.png"));
 
             selectAllToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.selection-select.png"));
-            selectNoneToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.selection.png"));
+            selectNoneToolStripMenuItem.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.selection.png"));*/
         }
 
         private void SyncContentTabsHandler (object sender, EventArgs e)
         {
+            tabControlEx1.TabPages.Clear();
+
             foreach (ILevelPresenter lp in _editor.OpenContent) {
                 TabPage page = new TabPage("Level");
                 tabControlEx1.TabPages.Add(page);
@@ -87,18 +95,19 @@ namespace Editor
             }
 
             if (_editor.CanShowLayerPanel)
-                layerPane1.BindController(_editor.CurrentLayerListPresenter);
+                layerPane1.BindController(_editor.Presentation.LayerList);
 
             if (_editor.CanShowTilePoolPanel)
-                tilePoolPane1.BindController(_editor.CurrentTilePoolListPresenter);
+                tilePoolPane1.BindController(_editor.Presentation.TilePoolList);
 
             if (_editor.CanShowPropertyPanel)
-                propertyPane1.BindController(_editor.CurrentPropertyListPresenter);
+                propertyPane1.BindController(_editor.Presentation.PropertyList);
 
-            _tileToolbar.BindController(_editor.CurrentLevelToolsPresenter);
-            _standardToolbar.BindStandardToolsController(_editor.CurrentStandardToolsPresenter);
-            _standardToolbar.BindDocumentToolsController(_editor.CurrentDocumentToolsPresenter);
-            _infoStatus.BindController(_editor.ContentInfoPresenter);
+            _menu.BindController(_editor);
+            _tileToolbar.BindController(_editor.Presentation.LevelTools);
+            _standardToolbar.BindStandardToolsController(_editor.Presentation.StandardTools);
+            _standardToolbar.BindDocumentToolsController(_editor.Presentation.DocumentTools);
+            _infoStatus.BindController(_editor.Presentation.ContentInfo);
         }
 
         private void SyncProjectModified (object sender, EventArgs e)

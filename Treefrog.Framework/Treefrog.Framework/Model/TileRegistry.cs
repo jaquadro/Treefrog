@@ -53,6 +53,7 @@ namespace Treefrog.Framework.Model
         internal int LastId
         {
             get { return _lastId; }
+            set { _lastId = value; }
         }
 
         internal int TakeId ()

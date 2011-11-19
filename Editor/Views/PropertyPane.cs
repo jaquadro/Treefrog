@@ -121,6 +121,8 @@ namespace Editor.Views
                 return;
             }
 
+            toolStripTextBox1.Text = _controller.ProviderName;
+
             _propertyList.Items.Clear();
 
             foreach (Property prop in _controller.PredefinedProperties) {
