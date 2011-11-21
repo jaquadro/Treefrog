@@ -253,6 +253,14 @@ namespace Treefrog.Framework.Model
             SetTileTextureData(id, data); 
         }
 
+        public TileCoord GetTileLocation (int id)
+        {
+            if (_locations.ContainsKey(id)) {
+                return _locations[id];
+            }
+            return new TileCoord(0, 0);
+        }
+
         public void DrawTile (SpriteBatch spriteBatch, int id, Rectangle dest)
         {
             DrawTile(spriteBatch, id, dest, Color.White);

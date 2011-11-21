@@ -54,14 +54,14 @@ namespace Editor
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabControl2 = new System.Windows.Forms.TabControl();
             this._tabTilePools = new System.Windows.Forms.TabPage();
             this.tilePoolPane1 = new Editor.TilePoolPane();
-            this.tabControlEx1 = new TabControlEx();
+            this.tabControl2 = new System.Windows.Forms.TabControl();
             this._tabLayers = new System.Windows.Forms.TabPage();
-            this._tabProperties = new System.Windows.Forms.TabPage();
             this.layerPane1 = new Editor.Views.LayerPane();
+            this._tabProperties = new System.Windows.Forms.TabPage();
             this.propertyPane1 = new Editor.Views.PropertyPane();
+            this.tabControlEx1 = new Editor.A.Controls.WinEx.TabControlEx();
             this.menuBar.SuspendLayout();
             this.statusBar.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
@@ -75,8 +75,8 @@ namespace Editor
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.tabControl2.SuspendLayout();
             this._tabTilePools.SuspendLayout();
+            this.tabControl2.SuspendLayout();
             this._tabLayers.SuspendLayout();
             this._tabProperties.SuspendLayout();
             this.SuspendLayout();
@@ -274,19 +274,19 @@ namespace Editor
             // toolStripContainer1.ContentPanel
             // 
             this.toolStripContainer1.ContentPanel.Controls.Add(this.splitContainer1);
-            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1024, 579);
+            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1024, 603);
             this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             // 
             // toolStripContainer1.LeftToolStripPanel
             // 
             this.toolStripContainer1.LeftToolStripPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.toolStripContainer1.Location = new System.Drawing.Point(0, 24);
+            this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
             this.toolStripContainer1.Name = "toolStripContainer1";
             // 
             // toolStripContainer1.RightToolStripPanel
             // 
             this.toolStripContainer1.RightToolStripPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.toolStripContainer1.Size = new System.Drawing.Size(1024, 604);
+            this.toolStripContainer1.Size = new System.Drawing.Size(1024, 628);
             this.toolStripContainer1.TabIndex = 6;
             this.toolStripContainer1.Text = "toolStripContainer1";
             // 
@@ -308,7 +308,7 @@ namespace Editor
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControlEx1);
-            this.splitContainer1.Size = new System.Drawing.Size(1024, 579);
+            this.splitContainer1.Size = new System.Drawing.Size(1024, 603);
             this.splitContainer1.SplitterDistance = 291;
             this.splitContainer1.TabIndex = 0;
             this.splitContainer1.TabStop = false;
@@ -328,8 +328,8 @@ namespace Editor
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.tabControl2);
-            this.splitContainer2.Size = new System.Drawing.Size(291, 579);
-            this.splitContainer2.SplitterDistance = 283;
+            this.splitContainer2.Size = new System.Drawing.Size(291, 603);
+            this.splitContainer2.SplitterDistance = 294;
             this.splitContainer2.TabIndex = 0;
             this.splitContainer2.TabStop = false;
             // 
@@ -341,22 +341,9 @@ namespace Editor
             this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(291, 283);
+            this.tabControl1.Size = new System.Drawing.Size(291, 294);
             this.tabControl1.TabIndex = 0;
             this.tabControl1.TabStop = false;
-            // 
-            // tabControl2
-            // 
-            this.tabControl2.Controls.Add(this._tabLayers);
-            this.tabControl2.Controls.Add(this._tabProperties);
-            this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl2.Location = new System.Drawing.Point(0, 0);
-            this.tabControl2.Margin = new System.Windows.Forms.Padding(0);
-            this.tabControl2.Name = "tabControl2";
-            this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(291, 292);
-            this.tabControl2.TabIndex = 0;
-            this.tabControl2.TabStop = false;
             // 
             // _tabTilePools
             // 
@@ -365,7 +352,7 @@ namespace Editor
             this._tabTilePools.Margin = new System.Windows.Forms.Padding(0);
             this._tabTilePools.Name = "_tabTilePools";
             this._tabTilePools.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this._tabTilePools.Size = new System.Drawing.Size(283, 257);
+            this._tabTilePools.Size = new System.Drawing.Size(283, 268);
             this._tabTilePools.TabIndex = 0;
             this._tabTilePools.Text = "Tile Pools";
             this._tabTilePools.UseVisualStyleBackColor = true;
@@ -376,20 +363,22 @@ namespace Editor
             this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
             this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
             this.tilePoolPane1.Name = "tilePoolPane1";
-            this.tilePoolPane1.Size = new System.Drawing.Size(281, 256);
+            this.tilePoolPane1.Size = new System.Drawing.Size(281, 267);
             this.tilePoolPane1.TabIndex = 0;
             this.tilePoolPane1.TabStop = false;
             // 
-            // tabControlEx1
+            // tabControl2
             // 
-            this.tabControlEx1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControlEx1.Location = new System.Drawing.Point(0, 0);
-            this.tabControlEx1.Margin = new System.Windows.Forms.Padding(0);
-            this.tabControlEx1.Name = "tabControlEx1";
-            this.tabControlEx1.SelectedIndex = 0;
-            this.tabControlEx1.Size = new System.Drawing.Size(729, 579);
-            this.tabControlEx1.TabIndex = 0;
-            this.tabControlEx1.TabStop = false;
+            this.tabControl2.Controls.Add(this._tabLayers);
+            this.tabControl2.Controls.Add(this._tabProperties);
+            this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl2.Location = new System.Drawing.Point(0, 0);
+            this.tabControl2.Margin = new System.Windows.Forms.Padding(0);
+            this.tabControl2.Name = "tabControl2";
+            this.tabControl2.SelectedIndex = 0;
+            this.tabControl2.Size = new System.Drawing.Size(291, 305);
+            this.tabControl2.TabIndex = 0;
+            this.tabControl2.TabStop = false;
             // 
             // _tabLayers
             // 
@@ -398,10 +387,20 @@ namespace Editor
             this._tabLayers.Margin = new System.Windows.Forms.Padding(0);
             this._tabLayers.Name = "_tabLayers";
             this._tabLayers.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this._tabLayers.Size = new System.Drawing.Size(283, 266);
+            this._tabLayers.Size = new System.Drawing.Size(283, 279);
             this._tabLayers.TabIndex = 0;
             this._tabLayers.Text = "Layers";
             this._tabLayers.UseVisualStyleBackColor = true;
+            // 
+            // layerPane1
+            // 
+            this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layerPane1.Location = new System.Drawing.Point(0, 0);
+            this.layerPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.layerPane1.Name = "layerPane1";
+            this.layerPane1.Size = new System.Drawing.Size(281, 278);
+            this.layerPane1.TabIndex = 0;
+            this.layerPane1.TabStop = false;
             // 
             // _tabProperties
             // 
@@ -415,16 +414,6 @@ namespace Editor
             this._tabProperties.Text = "Properties";
             this._tabProperties.UseVisualStyleBackColor = true;
             // 
-            // layerPane1
-            // 
-            this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layerPane1.Location = new System.Drawing.Point(0, 0);
-            this.layerPane1.Margin = new System.Windows.Forms.Padding(0);
-            this.layerPane1.Name = "layerPane1";
-            this.layerPane1.Size = new System.Drawing.Size(281, 265);
-            this.layerPane1.TabIndex = 0;
-            this.layerPane1.TabStop = false;
-            // 
             // propertyPane1
             // 
             this.propertyPane1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -435,6 +424,17 @@ namespace Editor
             this.propertyPane1.TabIndex = 0;
             this.propertyPane1.TabStop = false;
             // 
+            // tabControlEx1
+            // 
+            this.tabControlEx1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlEx1.Location = new System.Drawing.Point(0, 0);
+            this.tabControlEx1.Margin = new System.Windows.Forms.Padding(0);
+            this.tabControlEx1.Name = "tabControlEx1";
+            this.tabControlEx1.SelectedIndex = 0;
+            this.tabControlEx1.Size = new System.Drawing.Size(729, 603);
+            this.tabControlEx1.TabIndex = 0;
+            this.tabControlEx1.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -442,12 +442,10 @@ namespace Editor
             this.ClientSize = new System.Drawing.Size(1024, 652);
             this.Controls.Add(this.toolStripContainer1);
             this.Controls.Add(this.statusBar);
-            //this.Controls.Add(this.menuBar);
-            //this.MainMenuStrip = this.menuBar;
             this.Name = "Form1";
             this.Text = "Form1";
-            //this.menuBar.ResumeLayout(false);
-            //this.menuBar.PerformLayout();
+            this.menuBar.ResumeLayout(false);
+            this.menuBar.PerformLayout();
             this.statusBar.ResumeLayout(false);
             this.statusBar.PerformLayout();
             this.toolStripContainer1.ContentPanel.ResumeLayout(false);
@@ -462,8 +460,8 @@ namespace Editor
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
-            this.tabControl2.ResumeLayout(false);
             this._tabTilePools.ResumeLayout(false);
+            this.tabControl2.ResumeLayout(false);
             this._tabLayers.ResumeLayout(false);
             this._tabProperties.ResumeLayout(false);
             this.ResumeLayout(false);

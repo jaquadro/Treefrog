@@ -202,6 +202,17 @@ namespace Treefrog.Framework.Model
             writer.WriteEndElement();
         }
 
+        public void WriteXmlTilesets (XmlWriter writer)
+        {
+            writer.WriteStartElement("tilesets");
+            writer.WriteAttributeString("lastid", _registry.LastId.ToString());
+
+            foreach (TilePool pool in TilePools) {
+                pool.WriteXml(writer);
+            }
+            writer.WriteEndElement();
+        }
+
         private void ReadXmlProject (XmlReader reader)
         {
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
@@ -217,7 +228,7 @@ namespace Treefrog.Framework.Model
             });
         }
 
-        private void ReadXmlTilesets (XmlReader reader)
+        public void ReadXmlTilesets (XmlReader reader)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
                 "lastid",
