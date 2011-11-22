@@ -16,29 +16,26 @@ namespace Treefrog.Pipeline
         protected override void Write (ContentWriter output, TileRegistryContent value)
         {
             output.Write(value.Version);
-            output.Write((short)value.Project.TilePools.Count);
 
-            Dictionary<int, int> tilePoolMap = new Dictionary<int, int>();
-            int id = 0;
+            int id = value.Id;
+            TilePool pool = value.TilePool;
 
-            foreach (TilePool pool in value.Project.TilePools) {
-                output.Write((short)id);
-                output.Write((short)pool.TileWidth);
-                output.Write((short)pool.TileHeight);
-                output.Write((short)pool.Count);
+            output.Write((short)id);
+            output.Write((short)pool.TileWidth);
+            output.Write((short)pool.TileHeight);
+            output.Write(value.TextureAsset);
 
-                foreach (Tile tile in pool) {
-                    tilePoolMap[tile.Id] = id;
-                    TileCoord coord = pool.GetTileLocation(tile.Id);
+            WritePropertyBlock(output, pool.Properties);
 
-                    output.Write((short)tile.Id);
-                    output.Write((short)coord.X);
-                    output.Write((short)coord.Y);
+            output.Write((short)pool.Count);
+            foreach (Tile tile in pool) {
+                TileCoord coord = pool.GetTileLocation(tile.Id);
 
-                    WritePropertyBlock(output, tile.Properties);
-                }
+                output.Write((short)tile.Id);
+                output.Write((short)coord.X);
+                output.Write((short)coord.Y);
 
-                id++;
+                WritePropertyBlock(output, tile.Properties);
             }
         }
 

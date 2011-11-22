@@ -30,10 +30,21 @@ namespace Treefrog.Pipeline
 
             WritePropertyBlock(output, value.Level.Properties);
 
+            output.Write(value.TilesetAssets.Count);
+            foreach (string asset in value.TilesetAssets) {
+                output.Write(asset);
+            }
+
             output.Write((short)value.Level.Layers.Count);
 
             int id = 0;
             foreach (Layer layer in value.Level.Layers) {
+                switch (LayerType(layer)) {
+                    case Pipeline.LayerType.Tiles:
+                        output.Write("TILE");
+                        break;
+                }
+
                 output.Write((short)id);
                 output.Write(layer.Name);
                 output.Write(layer.IsVisible);

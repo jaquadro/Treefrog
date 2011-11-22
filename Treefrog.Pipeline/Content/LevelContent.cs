@@ -21,6 +21,8 @@ namespace Treefrog.Pipeline.Content
         public Project Project { get; private set; }
         public Level Level { get; set; }
 
+        public List<string> TilesetAssets { get; set; }
+
         public string Filename { get; set; }
         public string Directory { get; set; }
     }

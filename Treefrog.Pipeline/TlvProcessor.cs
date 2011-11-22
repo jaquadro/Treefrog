@@ -10,7 +10,7 @@ using System.IO;
 namespace Treefrog.Pipeline
 {
     [ContentProcessor(DisplayName = "Treefrog TLV Processor")]
-    class TlvProcessor : ContentProcessor<LevelContent, LevelContent>
+    internal class TlvProcessor : ContentProcessor<LevelContent, LevelContent>
     {
         [DisplayName("Project Key")]
         [Description("The name of a Treefrog project namespace to associate this resource with.")]
@@ -20,13 +20,20 @@ namespace Treefrog.Pipeline
         [Description("The name of a Treefrog project level.")]
         public string LevelKey { get; set; }
 
+        [DisplayName("Tileset Assets")]
+        [Description("A semicolon-delimited list of Tileset assets used by this level.")]
+        public string TilesetAssets { get; set; }
+
         public override LevelContent Process (LevelContent input, ContentProcessorContext context)
         {
             if (!Directory.Exists("build")) {
                 Directory.CreateDirectory("build");
             }
 
+            string assets = TilesetAssets ?? string.Empty;
+
             input.Level = input.Project.Levels[LevelKey];
+            input.TilesetAssets = new List<string>(assets.Split(new char[] { ';' }));
 
             return input;
         }
