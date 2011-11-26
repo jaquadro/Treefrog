@@ -60,7 +60,7 @@ namespace Treefrog.Framework
             get
             {
                 if (!_nameMap.ContainsKey(name)) {
-                    throw new ArgumentException("The collection does not contain an item keyed by the given name", "name");
+                    throw new ArgumentException("The collection does not contain an item keyed by the given name: '" + name + "'", "name");
                 }
 
                 return _nameMap[name];
@@ -70,7 +70,7 @@ namespace Treefrog.Framework
         public void Add (T item)
         {
             if (_nameMap.ContainsKey(item.Name)) {
-                throw new ArgumentException("The collection already contains an item keyed by the same Name", "item");
+                throw new ArgumentException("The collection already contains an item keyed by the same name: '" + item.Name + "'", "item");
             }
 
             _nameMap[item.Name] = item;
@@ -102,11 +102,11 @@ namespace Treefrog.Framework
         private void NameChangedHandler (object sender, NameChangedEventArgs e)
         {
             if (!_nameMap.ContainsKey(e.OldName)) {
-                throw new ArgumentException("The collection does not contain an item keyed by the old Name");
+                throw new ArgumentException("The collection does not contain an item keyed by the old name: '" + e.OldName + "'");
             }
 
             if (_nameMap.ContainsKey(e.NewName)) {
-                throw new ArgumentException("There is an existing item with the new Name in the collection");
+                throw new ArgumentException("There is an existing item with the new name '" + e.NewName + "' in the collection");
             }
 
             T item = _nameMap[e.OldName];

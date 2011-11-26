@@ -9,8 +9,6 @@ namespace Treefrog.Runtime
 {
     public class Tile
     {
-        private int _x;
-        private int _y;
         private Tileset _tileset;
 
         public Tile (int id, Tileset tileset, int x, int y)
@@ -33,7 +31,7 @@ namespace Treefrog.Runtime
 
         public void Draw (SpriteBatch spriteBatch, Rectangle dest, float opacity, float layerDepth)
         {
-            spriteBatch.Draw(_tileset.Texture, dest, Source, new Color(1f, 1f, 1f, opacity), 0f, Vector2.Zero, SpriteEffects.None, layerDepth);
+            spriteBatch.Draw(_tileset.Texture, dest, Source, Color.White * opacity, 0f, Vector2.Zero, SpriteEffects.None, layerDepth);
         }
     }
 }

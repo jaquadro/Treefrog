@@ -240,7 +240,13 @@ namespace Treefrog.Framework.Model
             }
 
             XmlHelper.SwitchAllAdvance(reader, (xmlr, s) => {
-                return layer.ReadXmlElement(xmlr, s, services);
+                switch (s) {
+                    case "properties":
+                        AddPropertyFromXml(xmlr, layer);
+                        return true;
+                    default:
+                        return layer.ReadXmlElement(xmlr, s, services);
+                }
             });
 
             return layer;
@@ -251,6 +257,20 @@ namespace Treefrog.Framework.Model
         protected virtual bool ReadXmlElement (XmlReader reader, string name, IServiceProvider services)
         {
             return true;
+        }
+
+        private static void AddPropertyFromXml (XmlReader reader, Layer layer)
+        {
+            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "property":
+                        layer.Properties.Add(Property.FromXml(xmlr));
+                        return false;
+                    default:
+                        return true;
+                }
+            });
         }
 
         #endregion

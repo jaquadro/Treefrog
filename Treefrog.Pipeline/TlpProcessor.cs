@@ -28,8 +28,8 @@ namespace Treefrog.Pipeline
 
             int id = 0;
             foreach (TilePool pool in input.TilePools) {
-                string build_reg = "build\\tileset_map_" + id + ".tlr";
                 string asset_reg = asset + "_tileset_map_" + id;
+                string build_reg = "build\\" + asset_reg + ".tlr";
 
                 using (FileStream fs = new FileStream(build_reg, FileMode.OpenOrCreate, FileAccess.Write)) {
                     XmlWriter writer = XmlTextWriter.Create(fs);
@@ -50,6 +50,7 @@ namespace Treefrog.Pipeline
                     asset_reg);
 
                 tilesetAssetIndex[pool] = asset_reg;
+                id++;
             }
 
             // Stage and build levels
@@ -58,8 +59,8 @@ namespace Treefrog.Pipeline
 
             id = 0;
             foreach (Level level in input.Levels) {
-                string build_level = "build\\level_" + id + ".tlv";
                 string asset_level = asset + "_level_" + id;
+                string build_level = "build\\" + asset_level + ".tlv";
 
                 List<TilePool> pools = TilePoolsByLevel(level);
                 List<string> poolAssets = new List<string>();

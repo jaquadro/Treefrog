@@ -111,7 +111,7 @@ namespace Editor.Controls
         protected virtual void DrawHandler (object sender, DrawLayerEventArgs e)
         {
             if (_fillBrush == null) {
-                _fillBrush = new SolidColorBrush(e.SpriteBatch, new Color(.2f, .75f, 1f, .3f));
+                _fillBrush = new SolidColorBrush(e.SpriteBatch.GraphicsDevice, new Color(.2f, .75f, 1f, .3f));
             }
 
             Rectangle region = _control.VisibleRegion;

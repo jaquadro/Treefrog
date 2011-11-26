@@ -25,15 +25,54 @@ namespace Treefrog.Runtime
 
         public PropertyCollection Properties { get; private set; }
 
-        public IEnumerable<Tile> Tiles { get; }
+        //public IEnumerable<Tile> Tiles { get; }
 
-        public IEnumerable<Layer> Layers { get; }
+        private float _scaleX;
+        public float ScaleX
+        {
+            get { return _scaleX; }
+            set
+            {
+                _scaleX = value;
+                foreach (Layer layer in _layers) {
+                    layer.ScaleX = value;
+                }
+            }
+        }
 
-        internal Level (ContentReader reader)
+        private float _scaleY;
+        public float ScaleY
+        {
+            get { return _scaleY; }
+            set
+            {
+                _scaleY = value;
+                foreach (Layer layer in _layers) {
+                    layer.ScaleY = value;
+                }
+            }
+        }
+
+        public IEnumerable<Layer> Layers
+        {
+            get
+            {
+                foreach (Layer layer in _layers) {
+                    yield return layer;
+                }
+            }
+        }
+
+        internal Level ()
         {
             _registry = new TileRegistry();
+            _layers = new List<Layer>();
+        }
 
-            int version = reader.ReadInt32();
+        internal Level (ContentReader reader)
+            : this()
+        {
+            int version = reader.ReadInt16();
 
             int tileWidth = reader.ReadInt16();
             int tileHeight = reader.ReadInt16();

@@ -538,8 +538,14 @@ namespace Treefrog.Framework.Model
             XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
             {
                 switch (s) {
-                    case "tile":
-                        pool.AddTileFromXml(xmlr);
+                    case "source":
+                        pool.XmlLoadSource(xmlr);
+                        return false;
+                    case "tiles":
+                        pool.XmlLoadTiles(xmlr);
+                        return false;
+                    case "properties":
+                        AddPropertyFromXml(xmlr, pool.Properties);
                         return false;
                     default:
                         return true; // Advance reader
@@ -549,47 +555,122 @@ namespace Treefrog.Framework.Model
             return pool;
         }
 
-        public void WriteXml (XmlWriter writer)
+        private void XmlLoadTiles (XmlReader reader)
         {
-            // <tileset>
-            writer.WriteStartElement("tileset");
-            writer.WriteAttributeString("name", _name);
-            writer.WriteAttributeString("tilewidth", _tileWidth.ToString());
-            writer.WriteAttributeString("tileheight", _tileHeight.ToString());
-
-            foreach (int id in _tiles.Keys) {
-                TileCoord loc = _locations[id];
-                Tile tile = _tiles[id];
-
-                Rectangle texRec = new Rectangle(loc.X * _tileWidth, loc.Y * _tileHeight, _tileWidth, _tileHeight);
-                byte[] texData = new byte[TileWidth * TileHeight * 4];
-                _tileSource.GetData(0, texRec, texData, 0, texData.Length);
-
-                writer.WriteStartElement("tile");
-                writer.WriteAttributeString("id", id.ToString());
-
-                using (MemoryStream inStr = new MemoryStream(texData)) {
-                    using (MemoryStream outStr = new MemoryStream()) {
-                        using (DeflateStream zstr = new DeflateStream(outStr, CompressionMode.Compress)) {
-                            inStr.CopyTo(zstr);
-                        }
-
-                        byte[] czData = outStr.GetBuffer();
-                        writer.WriteBase64(czData, 0, czData.Length);
-                    }
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "tile":
+                        XmlLoadTile(xmlr);
+                        break;
                 }
+            });
 
-                writer.WriteEndElement();
-            }
-
-            writer.WriteEndElement();
+            RebuildOpenLocations();
         }
 
-        private void AddTileFromXml (XmlReader reader)
+        private void XmlLoadTile (XmlReader reader)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "id",
+                "id", "loc",
             });
+
+            string[] loc = attribs["loc"].Split(new char[] { ',' });
+
+            if (loc.Length != 2) {
+                throw new Exception("Malformed location: " + attribs["loc"]);
+            }
+
+            int id = Convert.ToInt32(attribs["id"]);
+            int x = Convert.ToInt32(loc[0]);
+            int y = Convert.ToInt32(loc[1]);
+
+            if (x < 0 || y < 0) {
+                throw new Exception("Invalid location: " + attribs["loc"]);
+            }
+
+            TileCoord coord = new TileCoord(x, y);
+
+            _locations[id] = coord;
+            _tiles[id] = new PhysicalTile(id, this);
+            _tiles[id].Modified += TileModifiedHandler;
+
+            _registry.LinkTile(id, this);
+
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "properties":
+                        AddPropertyFromXml(xmlr, _tiles[id].Properties);
+                        break;
+                }
+            });
+        }
+
+        private void RebuildOpenLocations ()
+        {
+            HashSet<TileCoord> used = new HashSet<TileCoord>();
+            foreach (TileCoord coord in _locations.Values) {
+                used.Add(coord);
+            }
+
+            int w = _tileSource.Width / _tileWidth;
+            int h = _tileSource.Height / _tileHeight;
+
+            _openLocations.Clear();
+
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    TileCoord coord = new TileCoord(x, y);
+                    if (!used.Contains(coord)) {
+                        _openLocations.Add(coord);
+                    }
+                }
+            }
+        }
+
+        private void XmlLoadSource (XmlReader reader)
+        {
+            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
+                "width", "height", "format",
+            });
+
+            if (attribs["format"] != "Color") {
+                throw new Exception("Unsupported tile source format: '" + attribs["format"] + "'");
+            }
+
+            int width = Convert.ToInt32(attribs["width"]);
+            int height = Convert.ToInt32(attribs["height"]);
+
+            if (width <= 0 || height <= 0) {
+                throw new Exception("Invalid tile source dimensions: " + width + " x " + height);
+            }
+
+            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "data":
+                        XmlLoadSourceData(xmlr, width, height, SurfaceFormat.Color);
+                        return false;
+                    default:
+                        return true; // Advance reader
+                }
+            });
+        }
+
+        private void XmlLoadSourceData (XmlReader reader, int width, int height, SurfaceFormat format)
+        {
+            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
+                "encoding", "compression",
+            });
+
+            if (attribs["compression"] != "deflate") {
+                throw new Exception("Unsupported compression option: '" + attribs["compression"] + "'");
+            }
+
+            if (attribs["encoding"] != "base64") {
+                throw new Exception("Unsupported encoding option: '" + attribs["encoding"] + "'");
+            }
 
             using (MemoryStream inStr = new MemoryStream()) {
                 byte[] buffer = new byte[1000];
@@ -604,15 +685,111 @@ namespace Treefrog.Framework.Model
                     using (DeflateStream zstr = new DeflateStream(inStr, CompressionMode.Decompress)) {
                         zstr.CopyTo(outStr);
                     }
-
+                    
                     byte[] czData = outStr.GetBuffer();
-                    if (czData.Length != TileWidth * TileHeight * 4) {
-                        throw new Exception("Unexpected length of Tile payload");
+                    if (czData.Length != width * height * 4) {
+                        throw new Exception("Unexpected length of payload");
                     }
 
-                    AddTile(czData, Convert.ToInt32(attribs["id"]));
+                    _tileSource = new Texture2D(_registry.GraphicsDevice, width, height, false, format);
+                    _tileSource.SetData(czData);
                 }
             }
+        }
+
+        private static void AddPropertyFromXml (XmlReader reader, NamedResourceCollection<Property> pp)
+        {
+            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
+            {
+                switch (s) {
+                    case "property":
+                        pp.Add(Property.FromXml(xmlr));
+                        return false;
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        public void WriteXml (XmlWriter writer)
+        {
+            // <tileset>
+            writer.WriteStartElement("tileset");
+            writer.WriteAttributeString("name", _name);
+            writer.WriteAttributeString("tilewidth", _tileWidth.ToString());
+            writer.WriteAttributeString("tileheight", _tileHeight.ToString());
+
+            // . <source>
+            writer.WriteStartElement("source");
+            writer.WriteAttributeString("width", _tileSource.Width.ToString());
+            writer.WriteAttributeString("height", _tileSource.Height.ToString());
+            writer.WriteAttributeString("format", "Color");
+
+            // . . <data>
+            writer.WriteStartElement("data");
+            writer.WriteAttributeString("encoding", "base64");
+            writer.WriteAttributeString("compression", "deflate");
+
+            byte[] data = new byte[_tileSource.Width * _tileSource.Height * 4];
+            _tileSource.GetData(data);
+
+            using (MemoryStream inStr = new MemoryStream(data)) {
+                using (MemoryStream outStr = new MemoryStream()) {
+                    using (DeflateStream zstr = new DeflateStream(outStr, CompressionMode.Compress)) {
+                        inStr.CopyTo(zstr);
+                    }
+
+                    byte[] czData = outStr.GetBuffer();
+                    writer.WriteBase64(czData, 0, czData.Length);
+                }
+            }
+
+            writer.WriteEndElement();
+            // . . </data>
+
+            writer.WriteEndElement();
+            // . </source>
+
+            // . <tiles>
+            writer.WriteStartElement("tiles");
+            foreach (int id in _tiles.Keys) {
+                TileCoord loc = _locations[id];
+                Tile tile = _tiles[id];
+
+                // . . <tile>
+                writer.WriteStartElement("tile");
+                writer.WriteAttributeString("id", id.ToString());
+                writer.WriteAttributeString("loc", loc.X + "," + loc.Y);
+
+                // . . . <properties>
+                if (tile.Properties.Count > 0) {
+                    writer.WriteStartElement("properties");
+
+                    foreach (Property property in tile.Properties) {
+                        property.WriteXml(writer);
+                    }
+                    writer.WriteEndElement();
+                }
+                // . . . </properties>
+
+                writer.WriteEndElement();
+                // . . </tile>
+            }
+            writer.WriteEndElement();
+            // . </tiles>
+
+            // . <properties>
+            if (_properties.Count > 0) {
+                writer.WriteStartElement("properties");
+
+                foreach (Property property in _properties) {
+                    property.WriteXml(writer);
+                }
+                writer.WriteEndElement();
+            }
+            // . </properties>
+
+            writer.WriteEndElement();
         }
 
         #endregion

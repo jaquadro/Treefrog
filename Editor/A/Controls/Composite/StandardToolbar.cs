@@ -65,6 +65,7 @@ namespace Editor
 
             ResetStandardComponent();
 
+            _tbNewProject.Click += ButtonNewClickHandler;
             _tbOpen.Click += ButtonOpenClickHandler;
             _tbSave.Click += ButtonSaveClickHandler;
 
@@ -136,6 +137,12 @@ namespace Editor
         public ToolStrip Strip
         {
             get { return _strip; }
+        }
+
+        private void ButtonNewClickHandler (object sender, EventArgs e)
+        {
+            if (_stdController != null)
+                _stdController.ActionCreateProject();
         }
 
         private void ButtonOpenClickHandler (object sender, EventArgs e)

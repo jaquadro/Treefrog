@@ -156,7 +156,7 @@ namespace Editor.A.Presentation
 
         public void ActionCreateProject ()
         {
-            throw new NotImplementedException();
+            _editor.New();
         }
 
         public void ActionOpenProject (string path)
@@ -172,7 +172,7 @@ namespace Editor.A.Presentation
 
         public void ActionSaveProject (string path)
         {
-            using (FileStream fs = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write)) {
+            using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.Write)) {
                 _editor.Save(fs);
             }
         }

@@ -532,6 +532,7 @@ namespace Treefrog.Framework.Model
                 foreach (Property property in _properties) {
                     property.WriteXml(writer);
                 }
+                writer.WriteEndElement();
             }
 
             writer.WriteEndElement();

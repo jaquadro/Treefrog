@@ -20,8 +20,15 @@ namespace Treefrog.Runtime
 
         public PropertyCollection Properties { get; private set; }
 
+        public float ScaleX { get; set; }
+
+        public float ScaleY { get; set; }
+
         internal Layer (ContentReader reader)
         {
+            ScaleX = 1f;
+            ScaleY = 1f;
+
             int id = reader.ReadInt16();
             Name = reader.ReadString();
             Visible = reader.ReadBoolean();

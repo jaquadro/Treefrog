@@ -185,6 +185,55 @@ namespace Editor.A.Presentation
             RefreshEditor();
         }
 
+        public void New ()
+        {
+            Project project = EmptyProject();
+
+            NewLevel form = new NewLevel(project);
+            if (form.ShowDialog() != DialogResult.OK) {
+                return;
+            }
+
+            Project prevProject = _project;
+
+            if (_project != null) {
+                _project.Modified -= ProjectModifiedHandler;
+            }
+
+            _project = project;
+            _project.Modified += ProjectModifiedHandler;
+
+            _openContent = new List<string>();
+            _levels = new Dictionary<string, LevelPresenter>();
+
+            PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
+
+            foreach (Level level in _project.Levels) {
+                LevelPresenter pres = new LevelPresenter(this, level);
+                _levels[level.Name] = pres;
+
+                _openContent.Add(level.Name);
+
+                if (_currentLevel == null) {
+                    SelectLevel(level.Name);
+                    propList.Provider = level; // Initial Property Provider
+                }
+            }
+
+            ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
+            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+
+            Modified = false;
+
+            OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
+
+            RefreshEditor();
+
+            if (CurrentLevel != null) {
+                CurrentLevel.RefreshLayerList();
+            }
+        }
+
         public void Open (Project project)
         {
             Project prevProject = _project;

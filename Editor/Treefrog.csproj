@@ -132,6 +132,12 @@
     <Compile Include="A\Controls\WinEx\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Forms\NewLevel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\NewLevel.Designer.cs">
+      <DependentUpon>NewLevel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\LevelPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -228,6 +234,9 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <EmbeddedResource Include="Forms\NewLevel.resx">
+      <DependentUpon>NewLevel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Icons\16\arrow-090.png" />
     <EmbeddedResource Include="Icons\16\arrow-270.png" />
     <EmbeddedResource Include="Icons\16\layer--minus.png" />

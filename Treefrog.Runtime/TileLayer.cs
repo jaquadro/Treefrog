@@ -21,9 +21,16 @@ namespace Treefrog.Runtime
 
         public int Width { get; private set; }
 
+        public TileGrid Tiles
+        {
+            get { return _tiles; }
+        }
+
         internal TileLayer (ContentReader reader, TileRegistry registry)
             : base(reader)
         {
+            _registry = registry;
+
             TileWidth = reader.ReadInt16();
             TileHeight = reader.ReadInt16();
             Width = reader.ReadInt16();
@@ -53,10 +60,15 @@ namespace Treefrog.Runtime
                 return;
             }
 
-            int startX = region.X / TileWidth;
-            int startY = region.Y / TileHeight;
-            int endX = startX + (region.Width + TileWidth - 1) / TileWidth;
-            int endY = startY + (region.Height + TileHeight - 1) / TileHeight;
+            float scaleTileW = TileWidth * ScaleX;
+            float scaleTileH = TileHeight * ScaleY;
+            int scaleTileWi = (int)scaleTileW;
+            int scaleTileHi = (int)scaleTileH;
+
+            int startX = region.X / scaleTileWi;
+            int startY = region.Y / scaleTileHi;
+            int endX = startX + (region.Width + scaleTileWi * 2 - 1) / scaleTileWi;
+            int endY = startY + (region.Height + scaleTileHi * 2 - 1) / scaleTileHi;
 
             startX = Math.Max(startX, 0);
             startY = Math.Max(startY, 0);
@@ -68,7 +80,15 @@ namespace Treefrog.Runtime
                     if (_tiles[x, y] == null)
                         continue;
 
-                    _tiles[x, y].Draw(spriteBatch, new Rectangle(x * TileWidth, y * TileHeight, TileWidth, TileHeight), Opacity, LayerDepth);
+                    
+                    Rectangle dest = new Rectangle(
+                        (int)(x * scaleTileW),
+                        (int)(y * scaleTileH),
+                        scaleTileWi,
+                        scaleTileHi
+                        );
+
+                    _tiles[x, y].Draw(spriteBatch, dest, Opacity, LayerDepth);
                 }
             }
         }

@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Layer.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="LevelIndex.cs" />
     <Compile Include="LevelIndexEntry.cs" />
@@ -98,6 +99,8 @@
     <Compile Include="PropertyCollection.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TileGrid.cs" />
+    <Compile Include="TileLayer.cs" />
+    <Compile Include="TileRegistry.cs" />
     <Compile Include="Tileset.cs" />
     <Compile Include="TilesetReader.cs" />
     <Compile Include="TileStack.cs" />

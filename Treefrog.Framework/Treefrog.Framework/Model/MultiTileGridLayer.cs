@@ -205,6 +205,16 @@ namespace Treefrog.Framework.Model
             }
             writer.WriteEndElement();
 
+            // <properties> [optional]
+            if (Properties.Count > 0) {
+                writer.WriteStartElement("properties");
+
+                foreach (Property property in Properties) {
+                    property.WriteXml(writer);
+                }
+                writer.WriteEndElement();
+            }
+
             writer.WriteEndElement();
         }
 

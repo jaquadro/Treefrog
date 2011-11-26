@@ -251,11 +251,14 @@ namespace Editor.Model.Controls
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
             spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;*/
 
+            int zoomTileWidth = (int)(_layer.TileWidth * Control.Zoom);
+            int zoomTileHeight = (int)(_layer.TileHeight * Control.Zoom);
+
             Rectangle tileRegion = new Rectangle(
                 region.X / _layer.TileWidth,
                 region.Y / _layer.TileHeight,
-                (int)(region.Width * Control.Zoom + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
-                (int)(region.Height * Control.Zoom + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
+                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
+                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
                 );
 
             DrawTiles(spriteBatch, tileRegion);
@@ -281,8 +284,8 @@ namespace Editor.Model.Controls
             Rectangle tileRegion = new Rectangle(
                 region.X / _layer.TileWidth,
                 region.Y / _layer.TileHeight,
-                (int)(region.Width * Control.Zoom + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
-                (int)(region.Height * Control.Zoom + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
+                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
+                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
                 );
 
             Func<int, int, bool> inside = TileInRegionPredicate(tileRegion);

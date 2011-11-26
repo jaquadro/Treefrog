@@ -23,6 +23,7 @@ namespace Treefrog.Runtime
         }
 
         internal LevelIndex (ContentReader reader)
+            : this()
         {
             _manager = reader.ContentManager;
 
@@ -36,6 +37,10 @@ namespace Treefrog.Runtime
                     Asset = reader.ReadString(),
                     Properties = new PropertyCollection(reader),
                 };
+
+                _index[i] = entry;
+                _nameIndex[entry.Name] = entry;
+                _assetIndex[entry.Asset] = entry;
             }
         }
 

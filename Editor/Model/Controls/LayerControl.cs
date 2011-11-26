@@ -268,8 +268,8 @@ namespace Editor.Model.Controls
             get
             {
                 return new Rectangle(_scrollH, _scrollV,
-                    (int)Math.Ceiling(Math.Min(Width, VirtualWidth) / _zoom),
-                    (int)Math.Ceiling(Math.Min(Height, VirtualHeight) / _zoom)
+                    (int)Math.Ceiling(Math.Min(Width / _zoom, VirtualWidth)),
+                    (int)Math.Ceiling(Math.Min(Height / _zoom, VirtualHeight))
                     );
             }
         }
@@ -776,7 +776,7 @@ namespace Editor.Model.Controls
 
         public Brush CreateSolidColorBrush (Color color)
         {
-            return new SolidColorBrush(_spriteBatch, color);
+            return new SolidColorBrush(_spriteBatch.GraphicsDevice, color);
         }
     }
 }

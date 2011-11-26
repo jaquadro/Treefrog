@@ -26,7 +26,7 @@ namespace Treefrog.Runtime
         {
             _manager = reader.ContentManager;
 
-            int version = reader.ReadInt32();
+            int version = reader.ReadInt16();
             int id = reader.ReadInt16();
 
             TileWidth = reader.ReadInt16();
