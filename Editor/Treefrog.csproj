@@ -61,6 +61,8 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
@@ -132,6 +134,7 @@
     <Compile Include="A\Controls\WinEx\EditableListView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ContentBuilder.cs" />
     <Compile Include="Forms\NewLevel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -261,6 +264,8 @@
     <EmbeddedResource Include="Icons\16\scissors.png" />
     <EmbeddedResource Include="Icons\16\disk--pencil.png" />
     <EmbeddedResource Include="Icons\16\disk.png" />
+    <EmbeddedResource Include="Icons\16\compile.png" />
+    <EmbeddedResource Include="Icons\16\tags.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>

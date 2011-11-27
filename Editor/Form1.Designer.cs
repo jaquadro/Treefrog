@@ -28,6 +28,7 @@ namespace Editor
         /// </summary>
         private void InitializeComponent ()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.menuBar = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,11 +56,11 @@ namespace Editor
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this._tabTilePools = new System.Windows.Forms.TabPage();
-            this.tilePoolPane1 = new Editor.TilePoolPane();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this._tabLayers = new System.Windows.Forms.TabPage();
-            this.layerPane1 = new Editor.Views.LayerPane();
             this._tabProperties = new System.Windows.Forms.TabPage();
+            this.tilePoolPane1 = new Editor.TilePoolPane();
+            this.layerPane1 = new Editor.Views.LayerPane();
             this.propertyPane1 = new Editor.Views.PropertyPane();
             this.tabControlEx1 = new Editor.A.Controls.WinEx.TabControlEx();
             this.menuBar.SuspendLayout();
@@ -357,16 +358,6 @@ namespace Editor
             this._tabTilePools.Text = "Tile Pools";
             this._tabTilePools.UseVisualStyleBackColor = true;
             // 
-            // tilePoolPane1
-            // 
-            this.tilePoolPane1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
-            this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
-            this.tilePoolPane1.Name = "tilePoolPane1";
-            this.tilePoolPane1.Size = new System.Drawing.Size(281, 267);
-            this.tilePoolPane1.TabIndex = 0;
-            this.tilePoolPane1.TabStop = false;
-            // 
             // tabControl2
             // 
             this.tabControl2.Controls.Add(this._tabLayers);
@@ -392,6 +383,28 @@ namespace Editor
             this._tabLayers.Text = "Layers";
             this._tabLayers.UseVisualStyleBackColor = true;
             // 
+            // _tabProperties
+            // 
+            this._tabProperties.Controls.Add(this.propertyPane1);
+            this._tabProperties.Location = new System.Drawing.Point(4, 22);
+            this._tabProperties.Margin = new System.Windows.Forms.Padding(0);
+            this._tabProperties.Name = "_tabProperties";
+            this._tabProperties.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
+            this._tabProperties.Size = new System.Drawing.Size(283, 279);
+            this._tabProperties.TabIndex = 1;
+            this._tabProperties.Text = "Properties";
+            this._tabProperties.UseVisualStyleBackColor = true;
+            // 
+            // tilePoolPane1
+            // 
+            this.tilePoolPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
+            this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.tilePoolPane1.Name = "tilePoolPane1";
+            this.tilePoolPane1.Size = new System.Drawing.Size(281, 267);
+            this.tilePoolPane1.TabIndex = 0;
+            this.tilePoolPane1.TabStop = false;
+            // 
             // layerPane1
             // 
             this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -402,25 +415,13 @@ namespace Editor
             this.layerPane1.TabIndex = 0;
             this.layerPane1.TabStop = false;
             // 
-            // _tabProperties
-            // 
-            this._tabProperties.Controls.Add(this.propertyPane1);
-            this._tabProperties.Location = new System.Drawing.Point(4, 22);
-            this._tabProperties.Margin = new System.Windows.Forms.Padding(0);
-            this._tabProperties.Name = "_tabProperties";
-            this._tabProperties.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this._tabProperties.Size = new System.Drawing.Size(283, 266);
-            this._tabProperties.TabIndex = 1;
-            this._tabProperties.Text = "Properties";
-            this._tabProperties.UseVisualStyleBackColor = true;
-            // 
             // propertyPane1
             // 
             this.propertyPane1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyPane1.Location = new System.Drawing.Point(0, 0);
             this.propertyPane1.Margin = new System.Windows.Forms.Padding(0);
             this.propertyPane1.Name = "propertyPane1";
-            this.propertyPane1.Size = new System.Drawing.Size(281, 265);
+            this.propertyPane1.Size = new System.Drawing.Size(281, 278);
             this.propertyPane1.TabIndex = 0;
             this.propertyPane1.TabStop = false;
             // 
@@ -442,6 +443,7 @@ namespace Editor
             this.ClientSize = new System.Drawing.Size(1024, 652);
             this.Controls.Add(this.toolStripContainer1);
             this.Controls.Add(this.statusBar);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "Form1";
             this.menuBar.ResumeLayout(false);

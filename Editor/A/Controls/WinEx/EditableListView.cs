@@ -27,11 +27,14 @@ namespace Editor.Controls
 
         public bool Cancel { get; set; }
 
-        public SubItemEndEditingEventArgs (ListViewItem item, int subItem, string display, bool cancel)
+        public Keys ExitKey { get; set; }
+
+        public SubItemEndEditingEventArgs (ListViewItem item, int subItem, string display, bool cancel, Keys exitKey)
             : base(item, subItem)
         {
             DisplayText = display;
             Cancel = cancel;
+            ExitKey = exitKey;
         }
     }
 
@@ -117,6 +120,7 @@ namespace Editor.Controls
         public event EventHandler<SubItemEventArgs> SubItemClicked;
         public event EventHandler<SubItemEventArgs> SubItemBeginEditing;
         public event EventHandler<SubItemEndEditingEventArgs> SubItemEndEditing;
+        public event EventHandler SubItemReset;
 
         #endregion
 
@@ -140,6 +144,13 @@ namespace Editor.Controls
         {
             if (SubItemClicked != null) {
                 SubItemClicked(this, e);
+            }
+        }
+
+        protected void OnSubItemReset (EventArgs e)
+        {
+            if (SubItemReset != null) {
+                SubItemReset(this, e);
             }
         }
 
@@ -172,17 +183,36 @@ namespace Editor.Controls
 
         private void EditControlLeaveHandler (object sender, EventArgs e)
         {
-            EndEditing(true);
+            EndEditing(true, Keys.None);
         }
 
         private void EditControlKeyPressHandler (object sender, KeyPressEventArgs e)
         {
             switch (e.KeyChar) {
                 case (char)Keys.Escape:
-                    EndEditing(false);
+                    EndEditing(false, Keys.Escape);
                     break;
                 case (char)Keys.Enter:
-                    EndEditing(true);
+                    EndEditing(true, Keys.Enter);
+                    break;
+            }
+        }
+
+        private void EditControlKeyDownHandler (object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode) {
+                case Keys.Tab:
+                    e.Handled = true;
+                    break;
+            }
+        }
+
+        private void EditControlPreviewKeyDownHandler (object sender, PreviewKeyDownEventArgs e)
+        {
+            switch (e.KeyCode) {
+                case Keys.Tab:
+                    e.IsInputKey = true;
+                    EndEditing(true, Keys.Tab);
                     break;
             }
         }
@@ -284,7 +314,9 @@ namespace Editor.Controls
                 rectSubItem.Width = Width - rectSubItem.Left;
             }
 
-            rectSubItem.Offset(Left, Top);
+            rectSubItem.Offset(Left + 4, Top + 1);
+            rectSubItem.Width -= 4;
+            rectSubItem.Height -= 1;
 
             Point origin = new Point(0, 0);
             Point controlOrigin = Parent.PointToScreen(origin);
@@ -301,19 +333,21 @@ namespace Editor.Controls
             _editControl = editor;
             _editControl.Leave += EditControlLeaveHandler;
             _editControl.KeyPress += EditControlKeyPressHandler;
+            _editControl.KeyDown += EditControlKeyDownHandler;
+            _editControl.PreviewKeyDown += EditControlPreviewKeyDownHandler;
 
             _editItem = item;
             _editSubItem = subItem;
         }
 
-        public void EndEditing (bool acceptChanges)
+        public void EndEditing (bool acceptChanges, Keys exitKey)
         {
             if (_editControl == null) {
                 return;
             }
 
             SubItemEndEditingEventArgs e = new SubItemEndEditingEventArgs(_editItem, _editSubItem,
-                acceptChanges ? _editControl.Text : _editItem.SubItems[_editSubItem].Text, !acceptChanges);
+                acceptChanges ? _editControl.Text : _editItem.SubItems[_editSubItem].Text, !acceptChanges, exitKey);
 
             OnSubItemEndEditing(e);
 
@@ -321,12 +355,16 @@ namespace Editor.Controls
 
             _editControl.Leave -= EditControlLeaveHandler;
             _editControl.KeyPress -= EditControlKeyPressHandler;
+            _editControl.KeyDown -= EditControlKeyDownHandler;
+            _editControl.PreviewKeyDown -= EditControlPreviewKeyDownHandler;
 
             _editControl.Visible = false;
 
             _editControl = null;
             _editItem = null;
             _editSubItem = -1;
+
+            OnSubItemReset(EventArgs.Empty);
         }
 
         protected override void WndProc (ref Message m)
@@ -335,7 +373,7 @@ namespace Editor.Controls
                 case WM_VSCROLL:
                 case WM_HSCROLL:
                 case WM_SIZE:
-                    EndEditing(false);
+                    EndEditing(false, Keys.None);
                     break;
                 case WM_NOTIFY:
                     NMHDR h = (NMHDR)Marshal.PtrToStructure(m.LParam, typeof(NMHDR));
@@ -343,7 +381,7 @@ namespace Editor.Controls
                         case HDN_BEGINDRAG:
                         case HDN_ITEMCHANGINGA:
                         case HDN_ITEMCHANGINGW:
-                            EndEditing(false);
+                            EndEditing(false, Keys.None);
                             break;
                     }
                     break;
@@ -372,7 +410,14 @@ namespace Editor.Controls
         { 
             public IntPtr hwndFrom; 
             public Int32  idFrom; 
-            public Int32  code; 
+            public Int32  code;
+
+            public NMHDR (IntPtr hwnd, Int32 id, Int32 c)
+            {
+                hwndFrom = hwnd;
+                idFrom = id;
+                code = c;
+            }
         }
     }
 }

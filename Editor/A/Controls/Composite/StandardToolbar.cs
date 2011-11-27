@@ -30,6 +30,8 @@ namespace Editor
         //private ToolStripButton _tbSetMode;
         //private ToolStripButton _tbMapMode;
 
+        private ToolStripButton _tbCompile;
+
         private Assembly _assembly;
 
         private IStandardToolsPresenter _stdController;
@@ -55,12 +57,14 @@ namespace Editor
             //_tbTileMode = CreateButton("Tile Authoring Mode (1)", "Editor.Icons.color-swatch16.png");
             //_tbSetMode = CreateButton("TileSet Mode (2)", "Editor.Icons.table16.png");
             //_tbMapMode = CreateButton("Map Mode (3)", "Editor.Icons.map16.png");
+            _tbCompile = CreateButton("Compile", "Editor.Icons._16.compile.png");
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
                 _tbNewProject, _tbNewItem, _tbOpen, _tbSave, new ToolStripSeparator(),
                 _tbCut, _tbCopy, _tbPaste, new ToolStripSeparator(),
-                _tbUndo, _tbRedo,
+                _tbUndo, _tbRedo, new ToolStripSeparator(),
+                _tbCompile,
             });
 
             ResetStandardComponent();
@@ -71,6 +75,8 @@ namespace Editor
 
             _tbUndo.Click += ButtonUndoClickHandler;
             _tbRedo.Click += ButtonRedoClickHandler;
+
+            _tbCompile.Click += ButtonCompileClickHandler;
         }
 
         public void BindStandardToolsController (IStandardToolsPresenter controller)
@@ -185,6 +191,27 @@ namespace Editor
         {
             if (_docController != null)
                 _docController.ActionRedo();
+        }
+
+        private void ButtonCompileClickHandler (object sender, EventArgs e)
+        {
+            string path = Path.Combine(Environment.CurrentDirectory, "pcaves.tlp");
+            string contentPath = Path.Combine(Environment.CurrentDirectory, "Content");
+
+            ContentBuilder builder = new ContentBuilder();
+            builder.Clear();
+            builder.Add(path, "pcaves", "TlpImporter", "TlpProcessor");
+
+            string buildError = builder.Build();
+
+            if (!string.IsNullOrEmpty(buildError)) {
+                MessageBox.Show(buildError, "Error");
+            }
+            else {
+                foreach (string filename in Directory.EnumerateFiles(builder.OutputDirectory)) {
+                    File.Copy(filename, Path.Combine(contentPath, Path.GetFileName(filename)), true);
+                }
+            }
         }
 
         private void SyncStandardToolsActionsHandler (object sender, EventArgs e)

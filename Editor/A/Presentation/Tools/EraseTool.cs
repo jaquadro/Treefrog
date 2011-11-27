@@ -126,7 +126,7 @@ namespace Editor
                 case MouseButtons.Right:
                     _selecting = true;
                     _rubberBand = new RubberBand(_level.LayerControl, layer.TileWidth, layer.TileHeight);
-                    _rubberBand.FillBrush = _eraseBrush;
+                    _rubberBand.Brush = _eraseBrush;
                     _rubberBand.Start(new Point(e.TileLocation.X, e.TileLocation.Y));
                     break;
             }
@@ -242,7 +242,7 @@ namespace Editor
                 (int)(layer.TileHeight * _level.LayerControl.Zoom)
                 );
 
-            Amphibian.Drawing.Primitives2D.FillRectangle(e.SpriteBatch, rect, _eraseBrush);
+            Draw2D.FillRectangle(e.SpriteBatch, rect, _eraseBrush);
         }
     }
 }

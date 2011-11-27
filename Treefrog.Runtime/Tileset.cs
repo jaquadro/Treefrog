@@ -10,7 +10,6 @@ namespace Treefrog.Runtime
 {
     public class Tileset
     {
-        private bool _disposed;
         private ContentManager _manager;
 
         private Dictionary<int, Tile> _tiles;

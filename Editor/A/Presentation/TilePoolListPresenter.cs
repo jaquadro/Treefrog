@@ -22,6 +22,7 @@ namespace Editor.A.Presentation
     {
         bool CanAddTilePool { get; }
         bool CanRemoveSelectedTilePool { get; }
+        bool CanShowSelectedTilePoolProperties { get; }
 
         IEnumerable<TilePool> TilePoolList { get; }
         TilePool SelectedTilePool { get; }
@@ -37,6 +38,7 @@ namespace Editor.A.Presentation
         void ActionRemoveSelectedTilePool ();
         void ActionSelectTilePool (string name);
         void ActionSelectTile (Tile tile);              // Send to ITilePoolPresenter
+        void ActionShowTilePoolProperties ();
 
         void RefreshTilePoolList ();
     }
@@ -83,6 +85,11 @@ namespace Editor.A.Presentation
         }
 
         public bool CanRemoveSelectedTilePool
+        {
+            get { return SelectedTilePool != null; }
+        }
+
+        public bool CanShowSelectedTilePoolProperties
         {
             get { return SelectedTilePool != null; }
         }
@@ -217,6 +224,12 @@ namespace Editor.A.Presentation
 
                 _editor.Presentation.PropertyList.Provider = tile;
             }
+        }
+
+        public void ActionShowTilePoolProperties ()
+        {
+            if (SelectedTilePool != null)
+                _editor.Presentation.PropertyList.Provider = SelectedTilePool;
         }
 
         public void RefreshTilePoolList ()

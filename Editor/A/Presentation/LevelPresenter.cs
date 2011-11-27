@@ -155,6 +155,11 @@ namespace Editor.A.Presentation
             get { return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) > 0); }
         }
 
+        public bool CanShowSelectedLayerProperties
+        {
+            get { return SelectedLayer != null; }
+        }
+
         public IEnumerable<Layer> LayerList
         {
             get { return _level.Layers; }
@@ -310,6 +315,13 @@ namespace Editor.A.Presentation
 
             OnSyncLayerActions(EventArgs.Empty);
             OnSyncLayerSelection(EventArgs.Empty);
+        }
+
+        public void ActionShowSelectedLayerProperties ()
+        {
+            if (CanShowSelectedLayerProperties) {
+                _editor.Presentation.PropertyList.Provider = SelectedLayer;
+            }
         }
 
         #endregion

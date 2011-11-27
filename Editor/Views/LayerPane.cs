@@ -37,6 +37,7 @@ namespace Editor.Views
             _buttonUp.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-090.png"));
             _buttonDown.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-270.png"));
             _buttonCopy.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.layers.png"));
+            _buttonProperties.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.tags.png"));
 
             _menuNewTileLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.grid.png"));
             _menuNewObjectLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.game.png"));
@@ -49,6 +50,7 @@ namespace Editor.Views
             _buttonCopy.Click += CloneLayerClickedHandler;
             _buttonDown.Click += MoveLayerDownClickedHandler;
             _buttonUp.Click += MoveLayerUpClickedHandler;
+            _buttonProperties.Click += ShowPropertiesClickedHandler;
 
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
         }
@@ -112,6 +114,12 @@ namespace Editor.Views
                 _controller.ActionMoveSelectedLayerDown();
         }
 
+        public void ShowPropertiesClickedHandler (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.ActionShowSelectedLayerProperties();
+        }
+
         private void SelectedItemChangedHandler (object sender, ListViewItemSelectionChangedEventArgs e)
         {
             if (!e.IsSelected) {
@@ -131,6 +139,7 @@ namespace Editor.Views
                 _buttonRemove.Enabled = _controller.CanRemoveSelectedLayer;
                 _buttonUp.Enabled = _controller.CanMoveSelectedLayerUp;
                 _buttonDown.Enabled = _controller.CanMoveSelectedLayerDown;
+                _buttonProperties.Enabled = _controller.CanShowSelectedLayerProperties;
             }
         }
 
@@ -192,6 +201,7 @@ namespace Editor.Views
             _buttonDown.Enabled = false;
             _buttonUp.Enabled = false;
             _buttonRemove.Enabled = false;
+            _buttonProperties.Enabled = false;
         }
     }
 }

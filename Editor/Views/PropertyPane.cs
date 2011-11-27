@@ -30,6 +30,9 @@ namespace Editor.Views
         private ListViewGroup _groupPredefined;
         private ListViewGroup _groupCustom;
 
+        private ListViewItem _queuedEditItem;
+        private int _queuedEditIndex;
+
         #region Constructors
 
         public PropertyPane () 
@@ -58,6 +61,7 @@ namespace Editor.Views
             _propertyList.SubItemClicked += PropertyListSubItemClickHandler;
             _propertyList.SubItemEndEditing += PropertyListEndEditingHandler;
             _propertyList.SelectedIndexChanged += PropertyListSelectionHandler;
+            _propertyList.SubItemReset += PropertyListResetHandler;
 
             _buttonAddProp.Click += ButtonAddPropClickHandler;
             _buttonRemoveProp.Click += ButtonRemovePropClickHandler;
@@ -137,15 +141,37 @@ namespace Editor.Views
                 _propertyList.Items.Add(item);
             }
 
+            ListViewItem editItem = null;
+
             foreach (Property prop in _controller.CustomProperties) {
                 ListViewItem item = new ListViewItem(new string[] { "", prop.Name, prop.ToString() });
                 item.Group = _groupCustom;
                 if (_controller.SelectedProperty != null && _controller.SelectedProperty == prop) {
                     item.Selected = true;
+
+                    if (_inAdd) {
+                        editItem = item;
+                    }
                 }
 
                 _propertyList.Items.Add(item);
             }
+
+            if (editItem != null) {
+                BeginEditing(editItem, 1);
+            }
+        }
+
+        private void BeginEditing (ListViewItem item, int index)
+        {
+            ListViewSubItemEx subEx = item.SubItems[index] as ListViewSubItemEx;
+            if (subEx != null && subEx.ReadOnly) {
+                return;
+            }
+
+            TextBox econtrol = new TextBox { Parent = this, TabStop = false };
+
+            _propertyList.StartEditing(econtrol, item, index);
         }
 
         private void PropertyListSelectionHandler (object sender, EventArgs e)
@@ -164,27 +190,44 @@ namespace Editor.Views
                 return;
             }
 
-            TextBox econtrol = new TextBox { Parent = this };
+            TextBox econtrol = new TextBox { Parent = this, TabStop = false };
 
             _propertyList.StartEditing(econtrol, e.Item, e.SubItem);
         }
 
         private void PropertyListEndEditingHandler (object sender, SubItemEndEditingEventArgs e)
         {
-            
-
             if (e.SubItem == 1 && _controller.CanRenameSelectedProperty) {
                 _controller.ActionRenameSelectedProperty(e.DisplayText);
+
+                if (e.ExitKey == Keys.Tab) {
+                    _queuedEditItem = e.Item;
+                    _queuedEditIndex = 2;
+                }
             }
             else if (e.SubItem == 2 && _controller.CanEditSelectedProperty) {
                 _controller.ActionEditSelectedProperty(e.DisplayText);
             }
         }
 
+        private void PropertyListResetHandler (object sender, EventArgs e)
+        {
+            if (_queuedEditItem != null) {
+                BeginEditing(_queuedEditItem, _queuedEditIndex);
+
+                _queuedEditItem = null;
+                _queuedEditIndex = 0;
+            }
+        }
+
+        private bool _inAdd = false;
         private void ButtonAddPropClickHandler (object sender, EventArgs e)
         {
-            if (_controller != null)
+            if (_controller != null) {
+                _inAdd = true;
                 _controller.ActionAddCustomProperty();
+                _inAdd = false;
+            }
         }
 
         private void ButtonRemovePropClickHandler (object sender, EventArgs e)

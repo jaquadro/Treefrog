@@ -88,8 +88,6 @@ namespace Editor.Model.Controls
 
         // Ordered Events
 
-        private List<Delegate> _drawContentSubscribers;
-
         #endregion
 
         #region Events

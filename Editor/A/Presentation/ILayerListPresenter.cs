@@ -13,6 +13,7 @@ namespace Editor.A.Presentation
         bool CanCloneSelectedLayer { get; }
         bool CanMoveSelectedLayerUp { get; }
         bool CanMoveSelectedLayerDown { get; }
+        bool CanShowSelectedLayerProperties { get; }
 
         IEnumerable<Layer> LayerList { get; }
         Layer SelectedLayer { get; }
@@ -27,6 +28,7 @@ namespace Editor.A.Presentation
         void ActionMoveSelectedLayerUp ();
         void ActionMoveSelectedLayerDown ();
         void ActionSelectLayer (string name);
+        void ActionShowSelectedLayerProperties ();
 
         void RefreshLayerList ();
     }

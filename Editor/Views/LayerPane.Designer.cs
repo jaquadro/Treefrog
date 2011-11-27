@@ -36,18 +36,20 @@ namespace Editor.Views
             System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LayerPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-            this._listControl = new LayerListView();
+            this._listControl = new Editor.A.Controls.WinEx.LayerListView();
             this.Layer = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this._buttonAdd = new System.Windows.Forms.ToolStripDropDownButton();
+            this._menuNewTileLayer = new System.Windows.Forms.ToolStripMenuItem();
+            this._menuNewObjectLayer = new System.Windows.Forms.ToolStripMenuItem();
             this._buttonRemove = new System.Windows.Forms.ToolStripButton();
             this._buttonCopy = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this._buttonUp = new System.Windows.Forms.ToolStripButton();
             this._buttonDown = new System.Windows.Forms.ToolStripButton();
-            this._buttonAdd = new System.Windows.Forms.ToolStripDropDownButton();
-            this._menuNewTileLayer = new System.Windows.Forms.ToolStripMenuItem();
-            this._menuNewObjectLayer = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this._buttonProperties = new System.Windows.Forms.ToolStripButton();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -129,12 +131,38 @@ namespace Editor.Views
             this._buttonCopy,
             this.toolStripSeparator1,
             this._buttonUp,
-            this._buttonDown});
+            this._buttonDown,
+            this.toolStripSeparator2,
+            this._buttonProperties});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(248, 25);
             this.toolStrip1.Stretch = true;
             this.toolStrip1.TabIndex = 0;
+            // 
+            // _buttonAdd
+            // 
+            this._buttonAdd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._buttonAdd.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._menuNewTileLayer,
+            this._menuNewObjectLayer});
+            this._buttonAdd.Image = ((System.Drawing.Image)(resources.GetObject("_buttonAdd.Image")));
+            this._buttonAdd.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._buttonAdd.Name = "_buttonAdd";
+            this._buttonAdd.Size = new System.Drawing.Size(29, 22);
+            this._buttonAdd.Text = "Add Layer";
+            // 
+            // _menuNewTileLayer
+            // 
+            this._menuNewTileLayer.Name = "_menuNewTileLayer";
+            this._menuNewTileLayer.Size = new System.Drawing.Size(167, 22);
+            this._menuNewTileLayer.Text = "New &Tile Layer";
+            // 
+            // _menuNewObjectLayer
+            // 
+            this._menuNewObjectLayer.Name = "_menuNewObjectLayer";
+            this._menuNewObjectLayer.Size = new System.Drawing.Size(167, 22);
+            this._menuNewObjectLayer.Text = "New &Object Layer";
             // 
             // _buttonRemove
             // 
@@ -177,29 +205,19 @@ namespace Editor.Views
             this._buttonDown.Size = new System.Drawing.Size(23, 22);
             this._buttonDown.Text = "Move Layer Down";
             // 
-            // _buttonAdd
+            // toolStripSeparator2
             // 
-            this._buttonAdd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._buttonAdd.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._menuNewTileLayer,
-            this._menuNewObjectLayer});
-            this._buttonAdd.Image = ((System.Drawing.Image)(resources.GetObject("_buttonAdd.Image")));
-            this._buttonAdd.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._buttonAdd.Name = "_buttonAdd";
-            this._buttonAdd.Size = new System.Drawing.Size(29, 22);
-            this._buttonAdd.Text = "Add Layer";
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
-            // _menuNewTileLayer
+            // _buttonProperties
             // 
-            this._menuNewTileLayer.Name = "_menuNewTileLayer";
-            this._menuNewTileLayer.Size = new System.Drawing.Size(167, 22);
-            this._menuNewTileLayer.Text = "New &Tile Layer";
-            // 
-            // _menuNewObjectLayer
-            // 
-            this._menuNewObjectLayer.Name = "_menuNewObjectLayer";
-            this._menuNewObjectLayer.Size = new System.Drawing.Size(167, 22);
-            this._menuNewObjectLayer.Text = "New &Object Layer";
+            this._buttonProperties.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._buttonProperties.Image = ((System.Drawing.Image)(resources.GetObject("_buttonProperties.Image")));
+            this._buttonProperties.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._buttonProperties.Name = "_buttonProperties";
+            this._buttonProperties.Size = new System.Drawing.Size(23, 22);
+            this._buttonProperties.Text = "Selected Layer Properties";
             // 
             // LayerPane
             // 
@@ -224,7 +242,6 @@ namespace Editor.Views
 
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ListView _listControl;
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.ColumnHeader Layer;
         private System.Windows.Forms.ToolStripButton _buttonRemove;
@@ -235,5 +252,8 @@ namespace Editor.Views
         private System.Windows.Forms.ToolStripDropDownButton _buttonAdd;
         private System.Windows.Forms.ToolStripMenuItem _menuNewTileLayer;
         private System.Windows.Forms.ToolStripMenuItem _menuNewObjectLayer;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripButton _buttonProperties;
+        private LayerListView _listControl;
     }
 }

@@ -47,7 +47,7 @@ namespace Editor
 
             _buttonRemove.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.minus16.png"));
             _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.plus16.png"));
-            _buttonEdit.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.pencil16.png"));
+            _buttonProperties.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.tags.png"));
 
             // Setup control
 
@@ -64,6 +64,7 @@ namespace Editor
 
             importNewToolStripMenuItem.Click += ImportTilePoolClickedHandler;
             _buttonRemove.Click += RemoveTilePoolClickedHandler;
+            _buttonProperties.Click += ShowPropertiesClickedHandler;
 
             _poolComboBox.SelectedIndexChanged += SelectTilePoolHandler;
 
@@ -101,6 +102,20 @@ namespace Editor
             }
         }
 
+        #region Event Dispatchers
+
+        protected override void OnSizeChanged (EventArgs e)
+        {
+            base.OnSizeChanged(e);
+
+            toolStrip1.CanOverflow = false;
+
+            int width = toolStrip1.Width - _buttonAdd.Width - _buttonRemove.Width - _buttonProperties.Width - toolStripSeparator1.Width - toolStrip1.Padding.Horizontal - _buttonAdd.Margin.Horizontal - _buttonRemove.Margin.Horizontal - _buttonProperties.Margin.Horizontal - toolStripSeparator1.Margin.Horizontal - _poolComboBox.Margin.Horizontal - 1;
+            _poolComboBox.Size = new Size(width, _poolComboBox.Height);
+        }
+
+        #endregion
+
         #region Event Handlers
 
         private void ImportTilePoolClickedHandler (object sender, EventArgs e)
@@ -113,6 +128,12 @@ namespace Editor
         {
             if (_controller != null)
                 _controller.ActionRemoveSelectedTilePool();
+        }
+
+        private void ShowPropertiesClickedHandler (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.ActionShowTilePoolProperties();
         }
 
         private void SelectTilePoolHandler (object sender, EventArgs e)
@@ -133,7 +154,7 @@ namespace Editor
             if (_controller != null) {
                 _buttonAdd.Enabled = _controller.CanAddTilePool;
                 _buttonRemove.Enabled = _controller.CanRemoveSelectedTilePool;
-                _buttonEdit.Enabled = false;
+                _buttonProperties.Enabled = _controller.CanShowSelectedTilePoolProperties;
             }
         }
 
@@ -190,7 +211,7 @@ namespace Editor
                 int x = _selectedTileCoord.X;
                 int y = _selectedTileCoord.Y;
 
-                Primitives2D.FillRectangle(e.SpriteBatch, new XRectangle(
+                Draw2D.FillRectangle(e.SpriteBatch, new XRectangle(
                     (int)(_selectedTileCoord.X * selectedTile.Width * _tileControl.Zoom),
                     (int)(_selectedTileCoord.Y * selectedTile.Height * _tileControl.Zoom),
                     (int)(selectedTile.Width * _tileControl.Zoom),
@@ -209,8 +230,8 @@ namespace Editor
             }
 
             _buttonAdd.Enabled = false;
-            _buttonEdit.Enabled = false;
             _buttonRemove.Enabled = false;
+            _buttonProperties.Enabled = false;
         }
     }
 }

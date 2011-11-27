@@ -192,5 +192,14 @@ namespace Treefrog.Framework.Model
 
             return false;
         }
+
+        public override int GetHashCode ()
+        {
+            int hash = 23;
+            foreach (Tile t in _tiles) {
+                hash = hash * 37 + t.Id;
+            }
+            return hash;
+        }
     }
 }

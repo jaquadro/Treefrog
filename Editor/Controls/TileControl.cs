@@ -795,7 +795,7 @@ namespace Editor
                 int endx = Math.Max(_selectBox.X, _selectBox.X + _selectBox.Width) + 1;
                 int endy = Math.Max(_selectBox.Y, _selectBox.Y + _selectBox.Height) + 1;
 
-                Primitives2D.FillRectangle(_spriteBatch, new Rectangle(
+                Draw2D.FillRectangle(_spriteBatch, new Rectangle(
                     (int)(startx * _tileSource.TileWidth * _zoom),
                     (int)(starty * _tileSource.TileHeight * _zoom),
                     (endx - startx) * (int)(_tileSource.TileWidth * _zoom),
@@ -807,7 +807,7 @@ namespace Editor
         protected virtual void DrawTileSelection ()
         {
             foreach (TileCoord coord in SelectedTileLocations) {
-                Primitives2D.FillRectangle(_spriteBatch, new Rectangle(
+                Draw2D.FillRectangle(_spriteBatch, new Rectangle(
                     (int)(coord.X * _tileSource.TileWidth * _zoom),
                     (int)(coord.Y * _tileSource.TileHeight * _zoom),
                     (int)(_tileSource.TileWidth * _zoom),

@@ -25,8 +25,8 @@ namespace Editor.Controls
         private LayerControl _control;
         //private ITileSource _source;
 
-        private Brush _fillBrush;
-        private Brush _strokeBrush;
+        private Brush _brush;
+        private Pen _pen;
 
         private Point _start;
         private Point _end;
@@ -60,16 +60,16 @@ namespace Editor.Controls
             get { return _drawOrder; }
         }
 
-        public Brush FillBrush
+        public Brush Brush
         {
-            get { return _fillBrush; }
-            set { _fillBrush = value; }
+            get { return _brush; }
+            set { _brush = value; }
         }
 
-        public Brush StrokeBrush
+        public Pen Pen
         {
-            get { return _strokeBrush; }
-            set { _strokeBrush = value; }
+            get { return _pen; }
+            set { _pen = value; }
         }
 
         protected virtual void AttachHandlers ()
@@ -110,8 +110,8 @@ namespace Editor.Controls
 
         protected virtual void DrawHandler (object sender, DrawLayerEventArgs e)
         {
-            if (_fillBrush == null) {
-                _fillBrush = new SolidColorBrush(e.SpriteBatch.GraphicsDevice, new Color(.2f, .75f, 1f, .3f));
+            if (_brush == null) {
+                _brush = new SolidColorBrush(e.SpriteBatch.GraphicsDevice, new Color(.2f, .75f, 1f, .3f));
             }
 
             Rectangle region = _control.VisibleRegion;
@@ -134,12 +134,14 @@ namespace Editor.Controls
                 (endx - startx) * (int)(_snapX * _control.Zoom),
                 (endy - starty) * (int)(_snapY * _control.Zoom));
 
-            if (_fillBrush != null) {
-                Primitives2D.FillRectangle(e.SpriteBatch, box, _fillBrush);
+            if (_brush != null) {
+                //Primitives2D.FillRectangle(e.SpriteBatch, box, _fillBrush);
+                Draw2D.FillRectangle(e.SpriteBatch, box, _brush);
             }
 
-            if (_strokeBrush != null) {
-                Primitives2D.DrawRectangle(e.SpriteBatch, box, _strokeBrush);
+            if (_pen != null) {
+                //Primitives2D.DrawRectangle(e.SpriteBatch, box, _strokeBrush);
+                Draw2D.DrawRectangle(e.SpriteBatch, box, _pen);
             }
 
             e.SpriteBatch.End();

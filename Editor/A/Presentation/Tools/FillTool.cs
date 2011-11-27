@@ -111,11 +111,8 @@ namespace Editor
         #region Fill Algorithm
 
         private MultiTileGridLayer _fillLayer;
-        private TilePool _fillPool;
         private TileStack _sourceStack;
         private TileStack _matchStack;
-
-        private Tile _matchTile;
 
         private FloodFillRangeQueue _ranges;
 
