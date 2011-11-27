@@ -1,13 +1,13 @@
 ﻿using System;
-using System.IO;
+using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
-using System.Diagnostics;
 
-namespace Editor
+namespace Treefrog
 {
     public class ContentBuilder : IDisposable
     {

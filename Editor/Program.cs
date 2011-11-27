@@ -1,7 +1,8 @@
 using System;
 using System.Windows.Forms;
+using Treefrog.View.Forms;
 
-namespace Editor
+namespace Treefrog
 {
 #if WINDOWS
     static class Program

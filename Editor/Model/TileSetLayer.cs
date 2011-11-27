@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 
-namespace Editor.Model
+namespace Treefrog.Model
 {
     public class TileSetLayer : TileLayer
     {
