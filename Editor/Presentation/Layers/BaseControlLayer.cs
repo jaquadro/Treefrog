@@ -14,6 +14,7 @@ namespace Treefrog.Presentation.Layers
 
         private string _name;
         private Layer _layer;
+        private bool _visible;
 
         #endregion
 
@@ -33,6 +34,7 @@ namespace Treefrog.Presentation.Layers
         protected BaseControlLayer (LayerControl control)
         {
             _name = Guid.NewGuid().ToString();
+            _visible = true;
 
             Control = control;
             Control.AddLayer(this);
@@ -64,6 +66,12 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
+        public bool Visible
+        {
+            get { return _visible; }
+            set { _visible = value; }
+        }
+
         public abstract int VirtualHeight { get; }
 
         public abstract int VirtualWidth { get; }
@@ -75,6 +83,9 @@ namespace Treefrog.Presentation.Layers
         public event EventHandler VirtualSizeChanged;
 
         public event EventHandler<DrawLayerEventArgs> DrawExtraCallback;
+
+        public event EventHandler<DrawLayerEventArgs> PreDrawContent;
+        public event EventHandler<DrawLayerEventArgs> PostDrawContent;
 
         #endregion
 
@@ -94,6 +105,20 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
+        protected virtual void OnPreDrawContent (DrawLayerEventArgs e)
+        {
+            if (PreDrawContent != null) {
+                PreDrawContent(this, e);
+            }
+        }
+
+        protected virtual void OnPostDrawContent (DrawLayerEventArgs e)
+        {
+            if (PostDrawContent != null) {
+                PostDrawContent(this, e);
+            }
+        }
+
         #endregion
 
         #region Event Handlers
@@ -107,9 +132,11 @@ namespace Treefrog.Presentation.Layers
 
         public void DrawContent (SpriteBatch spriteBatch)
         {
+            InvokeDrawEvent(OnPreDrawContent, spriteBatch);
             if (CheckLayerCondition(ShouldDrawContent)) {
                 DrawContentImpl(spriteBatch);
             }
+            InvokeDrawEvent(OnPostDrawContent, spriteBatch);
         }
 
         public void DrawGrid (SpriteBatch spriteBatch)
@@ -141,6 +168,11 @@ namespace Treefrog.Presentation.Layers
         protected virtual void DrawGridImpl (SpriteBatch spriteBatch) { }
 
         protected virtual void DrawExtraImpl (SpriteBatch spriteBatch) {
+            InvokeDrawEvent(OnDrawExtraContent, spriteBatch);
+        }
+
+        private void InvokeDrawEvent (Action<DrawLayerEventArgs> action, SpriteBatch spriteBatch)
+        {
             Rectangle region = Control.VisibleRegion;
 
             Vector2 offset = Control.VirtualSurfaceOffset;
@@ -150,7 +182,7 @@ namespace Treefrog.Presentation.Layers
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
             spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
-            OnDrawExtraContent(new DrawLayerEventArgs(spriteBatch));
+            action(new DrawLayerEventArgs(spriteBatch));
 
             spriteBatch.End();
         }

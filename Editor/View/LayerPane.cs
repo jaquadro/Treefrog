@@ -27,15 +27,15 @@ namespace Treefrog.View
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.layer--plus.png"));
-            _buttonRemove.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.layer--minus.png"));
-            _buttonUp.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-090.png"));
-            _buttonDown.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.arrow-270.png"));
-            _buttonCopy.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.layers.png"));
-            _buttonProperties.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.tags.png"));
+            _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.layer--plus.png"));
+            _buttonRemove.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.layer--minus.png"));
+            _buttonUp.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.arrow-090.png"));
+            _buttonDown.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.arrow-270.png"));
+            _buttonCopy.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.layers.png"));
+            _buttonProperties.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tags.png"));
 
-            _menuNewTileLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.grid.png"));
-            _menuNewObjectLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.game.png"));
+            _menuNewTileLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
+            _menuNewObjectLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
 
             // Wire events
 
@@ -48,6 +48,7 @@ namespace Treefrog.View
             _buttonProperties.Click += ShowPropertiesClickedHandler;
 
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
+            _listControl.ItemChecked += ItemCheckedHandler;
         }
 
         #endregion
@@ -123,6 +124,13 @@ namespace Treefrog.View
 
             if (_controller != null) {
                 _controller.ActionSelectLayer(e.Item.Name);
+            }
+        }
+
+        private void ItemCheckedHandler (object sender, ItemCheckedEventArgs e)
+        {
+            if (_controller != null) {
+                _controller.ActionShowHideLayer(e.Item.Name, e.Item.Checked ? LayerVisibility.Show : LayerVisibility.Hide);
             }
         }
 

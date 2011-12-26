@@ -36,19 +36,19 @@ namespace Treefrog.View.Controls.Composite
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            _imgMinusCircle = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.minus-circle16.png"));
-            _imgMinusCircleClk = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.minus-circle-clk16.png"));
-            _imgMinusCircleMo = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.minus-circle-mo16.png"));
+            _imgMinusCircle = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle16.png"));
+            _imgMinusCircleClk = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle-clk16.png"));
+            _imgMinusCircleMo = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle-mo16.png"));
 
-            _imgPlusCircle = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.plus-circle16.png"));
-            _imgPlusCircleClk = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.plus-circle-clk16.png"));
-            _imgPlusCircleMo = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.plus-circle-mo16.png"));
+            _imgPlusCircle = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle16.png"));
+            _imgPlusCircleClk = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle-clk16.png"));
+            _imgPlusCircleMo = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle-mo16.png"));
 
             // Coordinate
 
             _statusCoord = new ToolStripStatusLabel();
             _statusCoord.AutoSize = false;
-            _statusCoord.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.status-loc.png"));
+            _statusCoord.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.status-loc.png"));
             _statusCoord.ImageScaling = ToolStripItemImageScaling.None;
             _statusCoord.ImageAlign = ContentAlignment.MiddleLeft;
             _statusCoord.Width = 70;
@@ -84,11 +84,11 @@ namespace Treefrog.View.Controls.Composite
 
             _trackBarZoomItem = new ToolStripControlHost(_trackBarZoom);
 
-            _statusZoomIn.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.plus-circle16.png"));
+            _statusZoomIn.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle16.png"));
             _statusZoomIn.DisplayStyle = ToolStripItemDisplayStyle.Image;
             _statusZoomIn.Margin = new Padding(0, 0, 8, 0);
 
-            _statusZoomOut.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons.minus-circle16.png"));
+            _statusZoomOut.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle16.png"));
             _statusZoomOut.DisplayStyle = ToolStripItemDisplayStyle.Image;
 
             // Populate Status Strip

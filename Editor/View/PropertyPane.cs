@@ -40,8 +40,8 @@ namespace Treefrog.View
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            _buttonAddProp.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.tag--plus.png"));
-            _buttonRemoveProp.Image = Image.FromStream(assembly.GetManifestResourceStream("Editor.Icons._16.tag--minus.png"));
+            _buttonAddProp.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tag--plus.png"));
+            _buttonRemoveProp.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tag--minus.png"));
 
             // Setup control
 

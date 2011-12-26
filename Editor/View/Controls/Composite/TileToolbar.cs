@@ -31,16 +31,16 @@ namespace Treefrog.View.Controls.Composite
 
             _assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            _tbSelect = CreateButton("Select Tool (C)", "Editor.Icons.cursor16.png");
-            _tbDraw = CreateButton("Draw Tool (D)", "Editor.Icons.paint-brush16.png");
-            _tbErase = CreateButton("Erase Tool (E)", "Editor.Icons.eraser16.png");
-            _tbFill = CreateButton("Fill Tool (F)", "Editor.Icons.paint-can16.png");
-            _tbStamp = CreateButton("Stamp Tool (S)", "Editor.Icons.stamp16.png");
+            _tbSelect = CreateButton("Select Tool (C)", "Treefrog.Icons.cursor16.png");
+            _tbDraw = CreateButton("Draw Tool (D)", "Treefrog.Icons.paint-brush16.png");
+            _tbErase = CreateButton("Erase Tool (E)", "Treefrog.Icons.eraser16.png");
+            _tbFill = CreateButton("Fill Tool (F)", "Treefrog.Icons.paint-can16.png");
+            _tbStamp = CreateButton("Stamp Tool (S)", "Treefrog.Icons.stamp16.png");
 
-            _tbFlipH = CreateButton("Flip Horizontally", "Editor.Icons.layer-flip16.png");
-            _tbFlipV = CreateButton("Flip Vertically", "Editor.Icons.layer-flip-vertical16.png");
-            _tbRotateLeft = CreateButton("Rotate Left 90 Degrees", "Editor.Icons.layer-rotate-left16.png");
-            _tbRotateRight = CreateButton("Rotate Right 90 Degrees", "Editor.Icons.layer-rotate16.png");
+            _tbFlipH = CreateButton("Flip Horizontally", "Treefrog.Icons.layer-flip16.png");
+            _tbFlipV = CreateButton("Flip Vertically", "Treefrog.Icons.layer-flip-vertical16.png");
+            _tbRotateLeft = CreateButton("Rotate Left 90 Degrees", "Treefrog.Icons.layer-rotate-left16.png");
+            _tbRotateRight = CreateButton("Rotate Right 90 Degrees", "Treefrog.Icons.layer-rotate16.png");
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {

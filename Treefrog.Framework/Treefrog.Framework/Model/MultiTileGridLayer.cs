@@ -66,8 +66,13 @@ namespace Treefrog.Framework.Model
                     _tiles[y, x].Modified -= TileStackModifiedHandler;
                 }
 
-                _tiles[y, x] = new TileStack(value);
-                _tiles[y, x].Modified += TileStackModifiedHandler;
+                if (value != null) {
+                    _tiles[y, x] = new TileStack(value);
+                    _tiles[y, x].Modified += TileStackModifiedHandler;
+                }
+                else {
+                    _tiles[y, x] = null;
+                }
 
                 OnModified(EventArgs.Empty);
             }
@@ -142,6 +147,15 @@ namespace Treefrog.Framework.Model
                     if (_tiles[y, x] != null) {
                         yield return new LocatedTileStack(_tiles[y, x], x, y);
                     }
+                }
+            }
+        }
+
+        public void AddTileStack (int x, int y, TileStack stack)
+        {
+            if (stack != null) {
+                foreach (Tile t in stack) {
+                    AddTile(x, y, t);
                 }
             }
         }

@@ -374,6 +374,38 @@ namespace Treefrog.View.Controls
             }
         }
 
+        private MouseButtons _mouseDown;
+
+        protected override void OnMouseDown (MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            _mouseDown |= e.Button;
+            if (_mouseDown != MouseButtons.None) {
+                CheckStartAutoScroll(new Point(e.X, e.Y));
+            }
+        }
+
+        protected override void OnMouseMove (MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (_mouseDown != MouseButtons.None) {
+                CheckStopAutoScroll(new Point(e.X, e.Y));
+                CheckStartAutoScroll(new Point(e.X, e.Y));
+            }
+        }
+
+        protected override void OnMouseUp (MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            _mouseDown &= ~e.Button;
+            if (_mouseDown == MouseButtons.None) {
+                CheckStopAutoScroll(new Point(e.X, e.Y));
+            }
+        }
+
         #endregion
 
         #region Event Handlers

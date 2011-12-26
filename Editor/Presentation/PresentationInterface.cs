@@ -25,6 +25,9 @@ namespace Treefrog.Presentation
         bool CanCut { get; }
         bool CanCopy { get; }
         bool CanPaste { get; }
+        bool CanDelete { get; }
+        bool CanSelectAll { get; }
+        bool CanUnselectAll { get; }
 
         bool CanUndo { get; }
         bool CanRedo { get; }
@@ -32,11 +35,21 @@ namespace Treefrog.Presentation
         void ActionCut ();
         void ActionCopy ();
         void ActionPaste ();
+        void ActionDelete ();
+        void ActionSelectAll ();
+        void ActionUnselectAll ();
 
         void ActionUndo ();
         void ActionRedo ();
 
         event EventHandler SyncDocumentToolsActions;
+
+        event EventHandler CutRaised;
+        event EventHandler CopyRaised;
+        event EventHandler PasteRaised;
+        event EventHandler DeleteRaised;
+        event EventHandler SelectAllRaised;
+        event EventHandler UnselectAllRaised;
 
         void RefreshDocumentTools ();
     }
@@ -54,17 +67,32 @@ namespace Treefrog.Presentation
 
         public bool CanCut
         {
-            get { return false; }
+            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
         }
 
         public bool CanCopy
         {
-            get { return false; }
+            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
         }
 
         public bool CanPaste
         {
-            get { return false; }
+            get { return _editor.CurrentLevel != null && _editor.CurrentLevel.Clipboard != null; }
+        }
+
+        public bool CanDelete
+        {
+            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
+        }
+
+        public bool CanSelectAll
+        {
+            get { return _editor.CurrentLevel != null; }
+        }
+
+        public bool CanUnselectAll
+        {
+            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
         }
 
         public bool CanUndo
@@ -79,17 +107,38 @@ namespace Treefrog.Presentation
 
         public void ActionCut ()
         {
-            throw new NotImplementedException();
+            OnCutRaised(EventArgs.Empty);
         }
 
         public void ActionCopy ()
         {
-            throw new NotImplementedException();
+            OnCopyRaised(EventArgs.Empty);
         }
 
         public void ActionPaste ()
         {
-            throw new NotImplementedException();
+            if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
+                _editor.Presentation.LevelTools.ActionToggleSelect();
+            }
+            OnPasteRaised(EventArgs.Empty);
+        }
+
+        public void ActionDelete ()
+        {
+            OnDeleteRaised(EventArgs.Empty);
+        }
+
+        public void ActionSelectAll ()
+        {
+            if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
+                _editor.Presentation.LevelTools.ActionToggleSelect();
+            }
+            OnSelectAllRaised(EventArgs.Empty);
+        }
+
+        public void ActionUnselectAll ()
+        {
+            OnUnselectAllRaised(EventArgs.Empty);
         }
 
         public void ActionUndo ()
@@ -115,6 +164,61 @@ namespace Treefrog.Presentation
             if (SyncDocumentToolsActions != null) {
                 SyncDocumentToolsActions(this, e);
             }
+        }
+
+        public event EventHandler CutRaised;
+        public event EventHandler CopyRaised;
+        public event EventHandler PasteRaised;
+        public event EventHandler DeleteRaised;
+        public event EventHandler SelectAllRaised;
+        public event EventHandler UnselectAllRaised;
+
+        protected virtual void OnCutRaised (EventArgs e)
+        {
+            if (CutRaised != null) {
+                CutRaised(this, e);
+            }
+            OnSyncDocumentToolsActions(EventArgs.Empty);
+        }
+
+        protected virtual void OnCopyRaised (EventArgs e)
+        {
+            if (CopyRaised != null) {
+                CopyRaised(this, e);
+            }
+            OnSyncDocumentToolsActions(EventArgs.Empty);
+        }
+
+        protected virtual void OnPasteRaised (EventArgs e)
+        {
+            if (PasteRaised != null) {
+                PasteRaised(this, e);
+            }
+            OnSyncDocumentToolsActions(EventArgs.Empty);
+        }
+
+        protected virtual void OnDeleteRaised (EventArgs e)
+        {
+            if (DeleteRaised != null) {
+                DeleteRaised(this, e);
+            }
+            OnSyncDocumentToolsActions(EventArgs.Empty);
+        }
+
+        protected virtual void OnSelectAllRaised (EventArgs e)
+        {
+            if (SelectAllRaised != null) {
+                SelectAllRaised(this, e);
+            }
+            OnSyncDocumentToolsActions(EventArgs.Empty);
+        }
+
+        protected virtual void OnUnselectAllRaised (EventArgs e)
+        {
+            if (UnselectAllRaised != null) {
+                UnselectAllRaised(this, e);
+            }
+            OnSyncDocumentToolsActions(EventArgs.Empty);
         }
 
         public void RefreshDocumentTools ()

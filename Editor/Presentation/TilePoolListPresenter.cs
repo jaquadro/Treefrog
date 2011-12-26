@@ -28,6 +28,7 @@ namespace Treefrog.Presentation
         event EventHandler SyncTilePoolActions;
         event EventHandler SyncTilePoolList;
         event EventHandler SyncTilePoolControl;         // Send to ITilePoolPresenter
+        event EventHandler TileSelectionChanged;
 
         event EventHandler<SyncTilePoolEventArgs> SyncCurrentTilePool;
 
@@ -129,6 +130,8 @@ namespace Treefrog.Presentation
 
         public event EventHandler<SyncTilePoolEventArgs> SyncCurrentTilePool;
 
+        public event EventHandler TileSelectionChanged;
+
         #endregion
 
         #region Event Dispatchers
@@ -158,6 +161,13 @@ namespace Treefrog.Presentation
         {
             if (SyncCurrentTilePool != null) {
                 SyncCurrentTilePool(this, e);
+            }
+        }
+
+        protected virtual void OnTileSelectionChanged (EventArgs e)
+        {
+            if (TileSelectionChanged != null) {
+                TileSelectionChanged(this, e);
             }
         }
 
@@ -218,6 +228,7 @@ namespace Treefrog.Presentation
                 _selectedTiles[_selectedPool] = tile;
 
                 OnSyncTilePoolControl(EventArgs.Empty);
+                OnTileSelectionChanged(EventArgs.Empty);
 
                 _editor.Presentation.PropertyList.Provider = tile;
             }

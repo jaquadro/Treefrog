@@ -25,15 +25,15 @@ namespace Treefrog
         private List<ProjectItem> _projectItems = new List<ProjectItem>();
         private ErrorLogger _errorLogger;
 
-        private string _baseDirectory;      // Temp/Editor.Content/
-        private string _processDirectory;   // Temp/Editor.Content/<process_id>/
-        private string _buildDirectory;     // Temp/Editor.Content/<process_id>/<id>/ 
+        private string _baseDirectory;      // Temp/Treefrog.Content/
+        private string _processDirectory;   // Temp/Treefrog.Content/<process_id>/
+        private string _buildDirectory;     // Temp/Treefrog.Content/<process_id>/<id>/ 
 
         private static int _directorySalt;
 
         private bool _disposed;
 
-        public string OutputDirectory       // Temp/Editor.Content/<process_id>/<id>/bin/Content/
+        public string OutputDirectory       // Temp/Treefrog.Content/<process_id>/<id>/bin/Content/
         {
             get { return Path.Combine(_buildDirectory, "bin/Content"); }
         }

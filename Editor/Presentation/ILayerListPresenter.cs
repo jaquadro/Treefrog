@@ -4,6 +4,11 @@ using Treefrog.Framework.Model;
 
 namespace Treefrog.Presentation
 {
+    public enum LayerVisibility {
+        Hide,
+        Show,
+    }
+
     public interface ILayerListPresenter
     {
         bool CanAddLayer { get; }
@@ -27,6 +32,7 @@ namespace Treefrog.Presentation
         void ActionMoveSelectedLayerDown ();
         void ActionSelectLayer (string name);
         void ActionShowSelectedLayerProperties ();
+        void ActionShowHideLayer (string name, LayerVisibility visibility);
 
         void RefreshLayerList ();
     }

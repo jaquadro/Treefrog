@@ -236,7 +236,7 @@ namespace Treefrog.Presentation.Layers
 
         protected override void DrawContentImpl (SpriteBatch spriteBatch)
         {
-            if (_layer == null || _layer.IsVisible == false) {
+            if (_layer == null || Visible == false) {
                 return;
             }
 

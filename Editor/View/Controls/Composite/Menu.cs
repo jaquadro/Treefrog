@@ -40,21 +40,21 @@ namespace Treefrog.View.Controls.Composite
             _menuStrip = new MenuStrip();
 
             _fileStrip = CreateMenuItem("&File");
-            _fileNew = CreateMenuItem("&New Project...", "Editor.Icons._16.applications-blue--asterisk.png", Keys.Control | Keys.N);
-            _fileOpen = CreateMenuItem("&Open Project...", "Editor.Icons.folder-horizontal-open16.png", Keys.Control | Keys.O);
-            _fileSave = CreateMenuItem("&Save Project", "Editor.Icons._16.disk.png", Keys.Control | Keys.S);
-            _fileSaveAs = CreateMenuItem("Save Project &As...", "Editor.Icons._16.disk--pencil.png");
+            _fileNew = CreateMenuItem("&New Project...", "Treefrog.Icons._16.applications-blue--asterisk.png", Keys.Control | Keys.N);
+            _fileOpen = CreateMenuItem("&Open Project...", "Treefrog.Icons.folder-horizontal-open16.png", Keys.Control | Keys.O);
+            _fileSave = CreateMenuItem("&Save Project", "Treefrog.Icons._16.disk.png", Keys.Control | Keys.S);
+            _fileSaveAs = CreateMenuItem("Save Project &As...", "Treefrog.Icons._16.disk--pencil.png");
             _fileExit = CreateMenuItem("E&xit", Keys.Alt | Keys.F4);
 
             _editStrip = CreateMenuItem("&Edit");
-            _editUndo = CreateMenuItem("&Undo", "Editor.Icons._16.arrow-turn-180-left.png", Keys.Control | Keys.Z);
-            _editRedo = CreateMenuItem("&Redo", "Editor.Icons._16.arrow-turn.png", Keys.Control | Keys.Y);
-            _editCut = CreateMenuItem("Cu&t", "Editor.Icons._16.scissors.png", Keys.Control | Keys.X);
-            _editCopy = CreateMenuItem("&Copy", "Editor.Icons._16.documents.png", Keys.Control | Keys.C);
-            _editPaste = CreateMenuItem("&Paste", "Editor.Icons._16.clipboard-paste.png", Keys.Control | Keys.V);
-            _editDelete = CreateMenuItem("&Delete", "Editor.Icons._16.cross.png", Keys.Delete);
-            _editSelectAll = CreateMenuItem("Select &All", "Editor.Icons._16.selection-select.png", Keys.Control | Keys.A);
-            _editSelectNone = CreateMenuItem("Select &None", "Editor.Icons._16.selection.png", Keys.Control | Keys.Shift | Keys.A);
+            _editUndo = CreateMenuItem("&Undo", "Treefrog.Icons._16.arrow-turn-180-left.png", Keys.Control | Keys.Z);
+            _editRedo = CreateMenuItem("&Redo", "Treefrog.Icons._16.arrow-turn.png", Keys.Control | Keys.Y);
+            _editCut = CreateMenuItem("Cu&t", "Treefrog.Icons._16.scissors.png", Keys.Control | Keys.X);
+            _editCopy = CreateMenuItem("&Copy", "Treefrog.Icons._16.documents.png", Keys.Control | Keys.C);
+            _editPaste = CreateMenuItem("&Paste", "Treefrog.Icons._16.clipboard-paste.png", Keys.Control | Keys.V);
+            _editDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.cross.png", Keys.Delete);
+            _editSelectAll = CreateMenuItem("Select &All", "Treefrog.Icons._16.selection-select.png", Keys.Control | Keys.A);
+            _editSelectNone = CreateMenuItem("Select &None", "Treefrog.Icons._16.selection.png", Keys.Control | Keys.Shift | Keys.A);
 
             _viewStrip = CreateMenuItem("&View");
 
@@ -85,6 +85,12 @@ namespace Treefrog.View.Controls.Composite
 
             _editUndo.Click += MenuUndoClickHandler;
             _editRedo.Click += MenuRedoClickHandler;
+            _editCut.Click += MenuCut_Click;
+            _editCopy.Click += MenuCopy_Click;
+            _editPaste.Click += MenuPaste_Click;
+            _editDelete.Click += MenuDelete_Click;
+            _editSelectAll.Click += MenuSelectAll_Click;
+            _editSelectNone.Click += MenuSelectNone_Click;
         }
 
         public void BindController (IEditorPresenter controller)
@@ -188,6 +194,42 @@ namespace Treefrog.View.Controls.Composite
                 _controller.Presentation.DocumentTools.ActionRedo();
         }
 
+        private void MenuCut_Click (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.Presentation.DocumentTools.ActionCut();
+        }
+
+        private void MenuCopy_Click (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.Presentation.DocumentTools.ActionCopy();
+        }
+
+        private void MenuPaste_Click (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.Presentation.DocumentTools.ActionPaste();
+        }
+
+        private void MenuDelete_Click (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.Presentation.DocumentTools.ActionDelete();
+        }
+
+        private void MenuSelectAll_Click (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.Presentation.DocumentTools.ActionSelectAll();
+        }
+
+        private void MenuSelectNone_Click (object sender, EventArgs e)
+        {
+            if (_controller != null)
+                _controller.Presentation.DocumentTools.ActionUnselectAll();
+        }
+
         private void SyncStandardToolsActionsHandler (object sender, EventArgs e)
         {
             if (_controller == null)
@@ -211,6 +253,9 @@ namespace Treefrog.View.Controls.Composite
                 _editCut.Enabled = docTools.CanCut;
                 _editCopy.Enabled = docTools.CanCopy;
                 _editPaste.Enabled = docTools.CanPaste;
+                _editDelete.Enabled = docTools.CanDelete;
+                _editSelectAll.Enabled = docTools.CanSelectAll;
+                _editSelectNone.Enabled = docTools.CanUnselectAll;
                 _editUndo.Enabled = docTools.CanUndo;
                 _editRedo.Enabled = docTools.CanRedo;
             }

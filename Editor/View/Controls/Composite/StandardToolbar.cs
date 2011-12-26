@@ -34,20 +34,20 @@ namespace Treefrog.View.Controls.Composite
         {
             _assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            _tbNewProject = CreateButton("New Project (Ctrl+N)", "Editor.Icons._16.applications-blue--asterisk.png");
-            _tbNewItem = CreateDropDownButton("Add New Item", "Editor.Icons._16.map--asterisk.png");
+            _tbNewProject = CreateButton("New Project (Ctrl+N)", "Treefrog.Icons._16.applications-blue--asterisk.png");
+            _tbNewItem = CreateDropDownButton("Add New Item", "Treefrog.Icons._16.map--asterisk.png");
             _tbNewItem.DropDownItems.AddRange(new ToolStripItem[] {
-                DropDownMenuItem("Add New Level", "Editor.Icons._16.map--asterisk.png"),
-                DropDownMenuItem("Add New Tile Pool", "Editor.Icons.color-swatch16.png"),
+                DropDownMenuItem("Add New Level", "Treefrog.Icons._16.map--asterisk.png"),
+                DropDownMenuItem("Add New Tile Pool", "Treefrog.Icons.color-swatch16.png"),
             });
-            _tbOpen = CreateButton("Open Project (Ctrl+O)", "Editor.Icons.folder-horizontal-open16.png");
-            _tbSave = CreateButton("Save Project (Ctrl+S)", "Editor.Icons.disk16.png");
-            _tbCut = CreateButton("Cut (Ctrl+X)", "Editor.Icons.scissors16.png");
-            _tbCopy = CreateButton("Copy (Ctrl+C)", "Editor.Icons.document-copy16.png");
-            _tbPaste = CreateButton("Paste (Ctrl+V)", "Editor.Icons.clipboard-paste16.png");
-            _tbUndo = CreateButton("Undo (Ctrl+Z)", "Editor.Icons.arrow-turn-180-left16.png");
-            _tbRedo = CreateButton("Redo (Ctrl+Y)", "Editor.Icons.arrow-turn16.png");
-            _tbCompile = CreateButton("Compile", "Editor.Icons._16.compile.png");
+            _tbOpen = CreateButton("Open Project (Ctrl+O)", "Treefrog.Icons.folder-horizontal-open16.png");
+            _tbSave = CreateButton("Save Project (Ctrl+S)", "Treefrog.Icons.disk16.png");
+            _tbCut = CreateButton("Cut (Ctrl+X)", "Treefrog.Icons.scissors16.png");
+            _tbCopy = CreateButton("Copy (Ctrl+C)", "Treefrog.Icons.document-copy16.png");
+            _tbPaste = CreateButton("Paste (Ctrl+V)", "Treefrog.Icons.clipboard-paste16.png");
+            _tbUndo = CreateButton("Undo (Ctrl+Z)", "Treefrog.Icons.arrow-turn-180-left16.png");
+            _tbRedo = CreateButton("Redo (Ctrl+Y)", "Treefrog.Icons.arrow-turn16.png");
+            _tbCompile = CreateButton("Compile", "Treefrog.Icons._16.compile.png");
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
@@ -65,6 +65,9 @@ namespace Treefrog.View.Controls.Composite
 
             _tbUndo.Click += ButtonUndoClickHandler;
             _tbRedo.Click += ButtonRedoClickHandler;
+            _tbCut.Click += ButtonCut_Click;
+            _tbCopy.Click += ButtonCopy_Click;
+            _tbPaste.Click += ButtonPaste_Click;
 
             _tbCompile.Click += ButtonCompileClickHandler;
         }
@@ -181,6 +184,24 @@ namespace Treefrog.View.Controls.Composite
         {
             if (_docController != null)
                 _docController.ActionRedo();
+        }
+
+        private void ButtonCut_Click (object sender, EventArgs e)
+        {
+            if (_docController != null)
+                _docController.ActionCut();
+        }
+
+        private void ButtonCopy_Click (object sender, EventArgs e)
+        {
+            if (_docController != null)
+                _docController.ActionCopy();
+        }
+
+        private void ButtonPaste_Click (object sender, EventArgs e)
+        {
+            if (_docController != null)
+                _docController.ActionPaste();
         }
 
         private void ButtonCompileClickHandler (object sender, EventArgs e)

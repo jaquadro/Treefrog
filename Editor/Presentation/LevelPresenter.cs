@@ -32,6 +32,9 @@ namespace Treefrog.Presentation
 
         CommandHistory History { get; }
 
+        TileSelection Selection { get; }
+        TileSelection Clipboard { get; }
+
         event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
     }
 
@@ -43,6 +46,7 @@ namespace Treefrog.Presentation
 
         private LayerControl _layerControl;
 
+        private SelectTool _selectTool;
         private DrawTool _drawTool;
         private EraseTool _eraseTool;
         private FillTool _fillTool;
@@ -75,6 +79,10 @@ namespace Treefrog.Presentation
                 _controlLayers[layer.Name] = clayer;
             }
 
+            _selectTool = new SelectTool(this);
+            _selectTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+            _selectTool.BindDocumentToolsController(_editor.Presentation.DocumentTools);
+
             _drawTool = new DrawTool(this);
             _drawTool.BindLevelToolsController(_editor.Presentation.LevelTools);
             _drawTool.BindTileSourceController(_editor.Presentation.TilePoolList);
@@ -105,6 +113,16 @@ namespace Treefrog.Presentation
         public CommandHistory History
         {
             get { return _history; }
+        }
+
+        public TileSelection Selection
+        {
+            get { return _editor.Presentation.LevelTools.ActiveTileTool == TileToolMode.Select ? _selectTool.Selection : null; }
+        }
+
+        public TileSelection Clipboard
+        {
+            get { return _selectTool.Clipboard; }
         }
 
         public event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
@@ -322,6 +340,14 @@ namespace Treefrog.Presentation
         {
             if (CanShowSelectedLayerProperties) {
                 _editor.Presentation.PropertyList.Provider = SelectedLayer;
+            }
+        }
+
+        public void ActionShowHideLayer (string name, LayerVisibility visibility)
+        {
+            if (name != null && _controlLayers.ContainsKey(name)) {
+                BaseControlLayer layer = _controlLayers[name];
+                layer.Visible = (visibility == LayerVisibility.Show);
             }
         }
 

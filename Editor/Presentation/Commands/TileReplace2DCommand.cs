@@ -2,9 +2,44 @@
 using System.Collections.Generic;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation.Tools;
+using Treefrog.Framework.Model.Support;
 
 namespace Treefrog.Presentation.Commands
 {
+    public class CreateFloatingSelectionCommand : Command
+    {
+        private MultiTileGridLayer _tileSource;
+        private FloatingTileSelection _selection;
+
+        public CreateFloatingSelectionCommand (MultiTileGridLayer source, FloatingTileSelection selection)
+        {
+            _tileSource = source;
+            _selection = selection;
+        }
+
+        public override void Execute ()
+        {
+            foreach (LocatedTileStack kv in _selection) {
+                _tileSource[kv.Location] = null;
+            }
+        }
+
+        public override void Undo ()
+        {
+            foreach (LocatedTileStack kv in _selection) {
+                _tileSource[kv.Location] = kv.Stack != null ? new TileStack(kv.Stack) : null;
+            }
+        }
+
+        public override void Redo ()
+        {
+            foreach (LocatedTileStack kv in _selection) {
+                _tileSource[kv.Location] = null;
+            }
+        }
+    }
+
     public class TileReplace2DCommand : Command
     {
         private struct TileRecord
@@ -49,16 +84,33 @@ namespace Treefrog.Presentation.Commands
 
         public void QueueAdd (TileCoord coord, Tile tile)
         {
-            TileStack stack = new TileStack(_tileSource[coord]);
-            stack.Add(tile);
+            if (tile != null) {
+                TileStack stack = new TileStack(_tileSource[coord]);
+                stack.Add(tile);
 
-            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+            }
+        }
+
+        public void QueueAdd (TileCoord coord, TileStack stack)
+        {
+            if (stack != null) {
+                TileStack newstack = new TileStack(_tileSource[coord]);
+                foreach (Tile t in stack) {
+                    newstack.Add(t);
+                }
+
+                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), newstack);
+            }
         }
 
         public void QueueReplacement (TileCoord coord, Tile replacement)
         {
-            TileStack stack = new TileStack();
-            stack.Add(replacement);
+            TileStack stack = null;
+            if (replacement != null) {
+                stack = new TileStack();
+                stack.Add(replacement);
+            }
 
             _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
         }
@@ -72,21 +124,21 @@ namespace Treefrog.Presentation.Commands
         public override void Execute ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = new TileStack(kv.Value.Replacement);
+                _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
             }
         }
 
         public override void Undo ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = new TileStack(kv.Value.Original);
+                _tileSource[kv.Key] = (kv.Value.Original != null) ? new TileStack(kv.Value.Original) : null;
             }
         }
 
         public override void Redo ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = new TileStack(kv.Value.Replacement);
+                _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
             }
         }
     }
