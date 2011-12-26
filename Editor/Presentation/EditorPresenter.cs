@@ -135,6 +135,7 @@ namespace Treefrog.Presentation
         public EditorPresenter ()
         {
             _presentation = new Presentation(this);
+            _presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
         }
 
         public EditorPresenter (Project project)
@@ -415,6 +416,13 @@ namespace Treefrog.Presentation
         }
 
         #endregion
+
+        private void TilePoolSelectedTileChangedHandler (object sender, EventArgs e)
+        {
+            if (_presentation.LevelTools.ActiveTileTool == TileToolMode.Erase) {
+                _presentation.LevelTools.ActionToggleDraw();
+            }
+        }
 
         private void SelectLevel (string level)
         {
