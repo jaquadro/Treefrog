@@ -75,6 +75,8 @@ namespace Treefrog.Runtime
             endX = Math.Min(endX, Width);
             endY = Math.Min(endY, Height);
 
+            Color mixColor = Color.White * Opacity;
+
             for (int y = startY; y < endY; y++) {
                 for (int x = startX; x < endX; x++) {
                     if (_tiles[x, y] == null)
@@ -88,7 +90,7 @@ namespace Treefrog.Runtime
                         scaleTileHi
                         );
 
-                    _tiles[x, y].Draw(spriteBatch, dest, Opacity, LayerDepth);
+                    _tiles[x, y].Draw(spriteBatch, dest, mixColor, LayerDepth);
                 }
             }
         }

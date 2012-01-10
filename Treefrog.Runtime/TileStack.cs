@@ -40,5 +40,12 @@ namespace Treefrog.Runtime
                 _tiles[i].Draw(spriteBatch, dest, opacity, layerDepth);
             }
         }
+
+        public void Draw (SpriteBatch spriteBatch, Rectangle dest, Color color, float layerDepth)
+        {
+            for (int i = 0; i < _tiles.Length; i++) {
+                _tiles[i].Draw(spriteBatch, dest, color, layerDepth);
+            }
+        }
     }
 }

@@ -31,7 +31,12 @@ namespace Treefrog.Runtime
 
         public void Draw (SpriteBatch spriteBatch, Rectangle dest, float opacity, float layerDepth)
         {
-            spriteBatch.Draw(_tileset.Texture, dest, Source, Color.White * opacity, 0f, Vector2.Zero, SpriteEffects.None, layerDepth);
+            Draw(spriteBatch, dest, Color.White * opacity, layerDepth);
+        }
+
+        public void Draw (SpriteBatch spriteBatch, Rectangle dest, Color color, float layerDepth)
+        {
+            spriteBatch.Draw(_tileset.Texture, dest, Source, color, 0f, Vector2.Zero, SpriteEffects.None, layerDepth);
         }
     }
 }

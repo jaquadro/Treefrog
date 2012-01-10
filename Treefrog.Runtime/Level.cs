@@ -110,5 +110,12 @@ namespace Treefrog.Runtime
                 layer.Draw(spriteBatch, region);
             }
         }
+
+        public void DrawLayer (SpriteBatch spriteBatch, Rectangle region, int index)
+        {
+            if (index >= 0 && index < _layers.Count) {
+                _layers[index].Draw(spriteBatch, region);
+            }
+        }
     }
 }
