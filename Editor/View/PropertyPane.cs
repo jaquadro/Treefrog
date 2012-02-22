@@ -71,6 +71,7 @@ namespace Treefrog.View
             }
 
             if (_controller != null) {
+                _controller.SyncPropertyContainer -= SyncPropertyContainerHandler;
                 _controller.SyncPropertyActions -= SyncPropertyActionsHandler;
                 _controller.SyncPropertyList -= SyncPropertyListHandler;
             }
@@ -78,6 +79,7 @@ namespace Treefrog.View
             _controller = controller;
 
             if (_controller != null) {
+                _controller.SyncPropertyContainer += SyncPropertyContainerHandler;
                 _controller.SyncPropertyActions += SyncPropertyActionsHandler;
                 _controller.SyncPropertyList += SyncPropertyListHandler;
 
@@ -106,6 +108,11 @@ namespace Treefrog.View
 
         #region Event Handlers
 
+        private void SyncPropertyContainerHandler (object sender, EventArgs e)
+        {
+            toolStripTextBox1.Text = _controller.ProviderName;
+        }
+
         private void SyncPropertyActionsHandler (object sender, EventArgs e)
         {
             if (_controller != null) {
@@ -119,8 +126,6 @@ namespace Treefrog.View
             if (_propertyList.Editing) {
                 return;
             }
-
-            toolStripTextBox1.Text = _controller.ProviderName;
 
             _propertyList.Items.Clear();
 

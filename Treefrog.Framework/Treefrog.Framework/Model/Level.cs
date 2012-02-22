@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
+using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
 {
@@ -11,6 +12,8 @@ namespace Treefrog.Framework.Model
     {
         #region Fields
 
+        private static string[] _reservedPropertyNames = { "Name", "TileWidth", "TileHeight" };
+
         private string _name;
 
         private int _tileWidth = 16;
@@ -19,7 +22,9 @@ namespace Treefrog.Framework.Model
         private int _tilesHigh = 20;
 
         private OrderedResourceCollection<Layer> _layers;
-        private NamedResourceCollection<Property> _properties;
+        //private NamedResourceCollection<Property> _properties;
+        private PropertyCollection _properties;
+        private LevelProperties _predefinedProperties;
 
         #endregion
 
@@ -34,9 +39,10 @@ namespace Treefrog.Framework.Model
             _name = name;
 
             _layers = new OrderedResourceCollection<Layer>();
-            _properties = new NamedResourceCollection<Property>();
+            _properties = new PropertyCollection(_reservedPropertyNames); // new NamedResourceCollection<Property>();
+            _predefinedProperties = new LevelProperties(this);
 
-            _properties.Modified += PropertiesModifiedHandler;
+            _properties.Modified += CustomProperties_Modified;
 
             _layers.ResourceAdded += LayerAddedHandler;
             _layers.ResourceRemoved += LayerRemovedHandler;
@@ -171,10 +177,10 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Gets a collection of <see cref="Property"/> objects used in the level.
         /// </summary>
-        public NamedResourceCollection<Property> Properties
-        {
-            get { return _properties; }
-        }
+        //public NamedResourceCollection<Property> Properties
+        //{
+        //    get { return _properties; }
+        //}
 
         #endregion
 
@@ -305,7 +311,7 @@ namespace Treefrog.Framework.Model
             OnLayerRemoved(e);
         }
 
-        private void PropertiesModifiedHandler (object sender, EventArgs e)
+        private void CustomProperties_Modified (object sender, EventArgs e)
         {
             OnModified(e);
         }
@@ -328,18 +334,33 @@ namespace Treefrog.Framework.Model
             private set
             {
                 if (_name != value) {
+                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
+                    OnNameChanging(ea);
+                    if (ea.Cancel)
+                        return;
+
                     string oldName = _name;
                     _name = value;
 
                     OnNameChanged(new NameChangedEventArgs(oldName, _name));
+                    OnPropertyProviderNameChanged(EventArgs.Empty);
                 }
             }
         }
+
+        public event EventHandler<NameChangingEventArgs> NameChanging;
 
         /// <summary>
         /// Occurs when the <see cref="Name"/> of this level changes.
         /// </summary>
         public event EventHandler<NameChangedEventArgs> NameChanged;
+
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        {
+            if (NameChanging != null) {
+                NameChanging(this, e);
+            }
+        }
 
         /// <summary>
         /// Raises the <see cref="NameChanged"/> event.
@@ -362,6 +383,36 @@ namespace Treefrog.Framework.Model
 
         }
 
+        private class LevelProperties : PredefinedPropertyCollection
+        {
+            private Level _parent;
+
+            public LevelProperties (Level parent)
+                : base(_reservedPropertyNames)
+            {
+                _parent = parent;
+            }
+
+            protected override IEnumerable<Property> PredefinedProperties ()
+            {
+                yield return _parent.LookupProperty("Name");
+                yield return _parent.LookupProperty("TileWidth");
+                yield return _parent.LookupProperty("TileHeight");
+            }
+
+            protected override Property LookupProperty (string name)
+            {
+                return _parent.LookupProperty(name);
+            }
+        }
+
+        public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
+
+        protected virtual void OnPropertyProviderNameChanged (EventArgs e)
+        {
+            PropertyProviderNameChanged(this, e);
+        }
+
         /// <summary>
         /// Gets the display name of this level in terms of a Property Provider.
         /// </summary>
@@ -373,22 +424,32 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Gets an enumerator that returns all the pre-defined, "special" properties of the <see cref="Level"/>.
         /// </summary>
-        public IEnumerable<Property> PredefinedProperties
-        {
-            get
-            {
-                yield return LookupProperty("name");
-                yield return LookupProperty("tile_height");
-                yield return LookupProperty("tile_width");
-            }
-        }
+        //public IEnumerable<Property> PredefinedProperties
+        //{
+        //    get
+        //    {
+        //        yield return LookupProperty("name");
+        //        yield return LookupProperty("tile_height");
+        //        yield return LookupProperty("tile_width");
+        //    }
+        //}
 
         /// <summary>
         /// Gets an enumerator that returns all of the custom, user-defined properties on this particular <see cref="Level"/> object.
         /// </summary>
-        public IEnumerable<Property> CustomProperties
+        //public IEnumerable<Property> CustomProperties
+        //{
+        //    get { return _properties; }
+        //}
+
+        public PropertyCollection CustomProperties
         {
             get { return _properties; }
+        }
+
+        public PredefinedPropertyCollection PredefinedProperties
+        {
+            get { return _predefinedProperties; }
         }
 
         /// <summary>
@@ -399,9 +460,9 @@ namespace Treefrog.Framework.Model
         public PropertyCategory LookupPropertyCategory (string name)
         {
             switch (name) {
-                case "name":
-                case "tile_height":
-                case "tile_width":
+                case "Name":
+                case "TileHeight":
+                case "TileWidth":
                     return PropertyCategory.Predefined;
                 default:
                     return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
@@ -418,18 +479,18 @@ namespace Treefrog.Framework.Model
             Property prop;
 
             switch (name) {
-                case "name":
-                    prop = new StringProperty("name", _name);
+                case "Name":
+                    prop = new StringProperty("Name", _name);
                     prop.ValueChanged += NamePropertyChangedHandler;
                     return prop;
 
-                case "tile_height":
-                    prop = new NumberProperty("tile_height", _tileHeight);
+                case "TileHeight":
+                    prop = new NumberProperty("TileHeight", _tileHeight);
                     prop.ValueChanged += PredefPropertyValueChangedHandler;
                     return prop;
 
-                case "tile_width":
-                    prop = new NumberProperty("tile_width", _tileWidth);
+                case "TileWidth":
+                    prop = new NumberProperty("TileWidth", _tileWidth);
                     prop.ValueChanged += PredefPropertyValueChangedHandler;
                     return prop;
 
@@ -444,31 +505,31 @@ namespace Treefrog.Framework.Model
         /// <param name="property">The named property to add to the level.</param>
         /// <exception cref="ArgumentNullException"><paramref name="property"/> is null.</exception>
         /// <exception cref="ArgumentException">A custom property with the same name already exists in the <see cref="Level"/>.</exception>
-        public void AddCustomProperty (Property property)
-        {
-            if (property == null) {
-                throw new ArgumentNullException("The property is null.");
-            }
-            if (_properties.Contains(property.Name)) {
-                throw new ArgumentException("A property with the same name already exists.");
-            }
+        //public void AddCustomProperty (Property property)
+        //{
+        //    if (property == null) {
+        //        throw new ArgumentNullException("The property is null.");
+        //    }
+        //    if (_properties.Contains(property.Name)) {
+        //        throw new ArgumentException("A property with the same name already exists.");
+        //    }
 
-            _properties.Add(property);
-        }
+        //    _properties.Add(property);
+        //}
 
         /// <summary>
         /// Removes a custom property from the level.
         /// </summary>
         /// <param name="name">The name of the property to remove.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
-        public void RemoveCustomProperty (string name)
-        {
-            if (name == null) {
-                throw new ArgumentNullException("The name is null.");
-            }
+        //public void RemoveCustomProperty (string name)
+        //{
+        //    if (name == null) {
+        //        throw new ArgumentNullException("The name is null.");
+        //    }
 
-            _properties.Remove(name);
-        }
+        //    _properties.Remove(name);
+        //}
 
         #endregion
 
@@ -557,7 +618,7 @@ namespace Treefrog.Framework.Model
             {
                 switch (s) {
                     case "property":
-                        level.Properties.Add(Property.FromXml(xmlr));
+                        level.CustomProperties.Add(Property.FromXml(xmlr));
                         return false;
                     default:
                         return true;

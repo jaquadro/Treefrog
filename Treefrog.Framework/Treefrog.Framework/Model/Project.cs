@@ -8,6 +8,16 @@ using System.IO;
 
 namespace Treefrog.Framework.Model
 {
+    public class TilePoolEventArgs : EventArgs 
+    {
+        public TilePool TilePool { get; private set; }
+
+        public TilePoolEventArgs (TilePool pool) 
+        {
+            TilePool = pool;
+        }
+    }
+
     public class Project
     {
         #region Fields
@@ -79,7 +89,11 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Occurs when the internal state of the Project is modified.
         /// </summary>
-        public event EventHandler Modified;
+        public event EventHandler Modified = (s, e) => { };
+
+        //public event EventHandler<TilePoolEventArgs> TilePoolAdded = (s, e) => { };
+
+        //public event EventHandler<TilePoolEventArgs> TilePoolRemoved = (s, e) => { };
 
         #endregion
 
@@ -91,9 +105,7 @@ namespace Treefrog.Framework.Model
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnModified (EventArgs e)
         {
-            if (Modified != null) {
-                Modified(this, e);
-            }
+            Modified(this, e);
         }
 
         #endregion

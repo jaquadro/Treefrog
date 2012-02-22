@@ -18,6 +18,7 @@ namespace Treefrog.Presentation
         IEnumerable<Property> CustomProperties { get; }
         Property SelectedProperty { get; }
 
+        event EventHandler SyncPropertyContainer;
         event EventHandler SyncPropertyActions;
         event EventHandler SyncPropertyList;
         event EventHandler SyncPropertySelection;
@@ -43,7 +44,7 @@ namespace Treefrog.Presentation
 
         public PropertyListPresenter (IPropertyProvider provider)
         {
-            _provider = provider;
+            Provider = provider;
         }
 
         public IPropertyProvider Provider
@@ -51,11 +52,22 @@ namespace Treefrog.Presentation
             get { return _provider; }
             set
             {
+                if (_provider != null) {
+                    _provider.PropertyProviderNameChanged -= PropertyProvider_PropertyProviderNameChanged;
+                }
+
                 _provider = value;
                 _selectedProperty = null;
 
+                _provider.PropertyProviderNameChanged += PropertyProvider_PropertyProviderNameChanged;
+
                 RefreshPropertyList();
             }
+        }
+
+        private void PropertyProvider_PropertyProviderNameChanged (object sender, EventArgs e)
+        {
+            OnSyncPropertyContainer(EventArgs.Empty);
         }
 
         #region IPropertyListPresenter Members
@@ -136,6 +148,8 @@ namespace Treefrog.Presentation
 
         #region Events
 
+        public event EventHandler SyncPropertyContainer;
+
         public event EventHandler SyncPropertyActions;
 
         public event EventHandler SyncPropertyList;
@@ -145,6 +159,13 @@ namespace Treefrog.Presentation
         #endregion
 
         #region Event Dispatchers
+
+        protected void OnSyncPropertyContainer (EventArgs e)
+        {
+            if (SyncPropertyContainer != null) {
+                SyncPropertyContainer(this, e);
+            }
+        }
 
         protected void OnSyncPropertyActions (EventArgs e)
         {
@@ -175,7 +196,7 @@ namespace Treefrog.Presentation
         {
             if (CanAddProperty) {
                 Property property = new StringProperty(FindDefaultPropertyName(), "");
-                _provider.AddCustomProperty(property);
+                _provider.CustomProperties.Add(property);
 
                 _selectedProperty = property.Name;
             }
@@ -187,7 +208,7 @@ namespace Treefrog.Presentation
         public void ActionRemoveSelectedProperty ()
         {
             if (CanRemoveSelectedProperty) {
-                _provider.RemoveCustomProperty(_selectedProperty);
+                _provider.CustomProperties.Remove(_selectedProperty);
             }
 
             _selectedProperty = null;
@@ -213,8 +234,8 @@ namespace Treefrog.Presentation
         {
             if (CanEditSelectedProperty) {
                 Property property = _provider.LookupProperty(_selectedProperty);
-                property.Parse(value);
 
+                property.Parse(value);
                 OnSyncPropertyList(EventArgs.Empty);
             }
         }
@@ -233,6 +254,7 @@ namespace Treefrog.Presentation
 
         public void RefreshPropertyList ()
         {
+            OnSyncPropertyContainer(EventArgs.Empty);
             OnSyncPropertyActions(EventArgs.Empty);
             OnSyncPropertyList(EventArgs.Empty);
         }

@@ -2,7 +2,7 @@
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Treefrog
+namespace Treefrog.Framework
 {
     public class GraphicsDeviceService : IGraphicsDeviceService
     {

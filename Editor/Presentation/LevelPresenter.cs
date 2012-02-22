@@ -5,6 +5,7 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Tools;
 using Treefrog.View.Controls;
+using Treefrog.Framework;
 
 namespace Treefrog.Presentation
 {
@@ -38,7 +39,7 @@ namespace Treefrog.Presentation
         event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
     }
 
-    public class LevelPresenter : ILevelPresenter, ILayerListPresenter
+    public partial class LevelPresenter : ILevelPresenter
     {
         private EditorPresenter _editor;
 
@@ -65,19 +66,8 @@ namespace Treefrog.Presentation
             _layerControl = new LayerControl();
             _layerControl.MouseLeave += LayerControlMouseLeaveHandler;
 
-            _controlLayers = new Dictionary<string, BaseControlLayer>();
-
             _history = new CommandHistory();
             _history.HistoryChanged += HistoryChangedHandler;
-
-            foreach (Layer layer in _level.Layers) {
-                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
-                clayer.ShouldDrawContent = LayerCondition.Always;
-                clayer.ShouldDrawGrid = LayerCondition.Selected;
-                clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-                _controlLayers[layer.Name] = clayer;
-            }
 
             _selectTool = new SelectTool(this);
             _selectTool.BindLevelToolsController(_editor.Presentation.LevelTools);
@@ -94,7 +84,7 @@ namespace Treefrog.Presentation
             _fillTool.BindLevelToolsController(_editor.Presentation.LevelTools);
             _fillTool.BindTileSourceController(_editor.Presentation.TilePoolList);
 
-            SelectLayer();
+            InitializeLayerListPresenter();
         }
 
 
@@ -135,9 +125,10 @@ namespace Treefrog.Presentation
         }
 
         #endregion
+    }
 
-        #region ILayerListPresenter Members
-
+    public partial class LevelPresenter : ILayerListPresenter
+    {
         #region Fields
 
         private string _selectedLayer;
@@ -146,6 +137,38 @@ namespace Treefrog.Presentation
         private Dictionary<string, BaseControlLayer> _controlLayers;
 
         #endregion
+
+        private void InitializeLayerListPresenter ()
+        {
+            _controlLayers = new Dictionary<string, BaseControlLayer>();
+
+            foreach (Layer layer in _level.Layers) {
+                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                clayer.ShouldDrawContent = LayerCondition.Always;
+                clayer.ShouldDrawGrid = LayerCondition.Selected;
+                clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+                _controlLayers[layer.Name] = clayer;
+
+                BindLayerEvents(layer);
+            }
+
+            SelectLayer();
+        }
+
+        private void BindLayerEvents (Layer layer)
+        {
+            if (layer != null) {
+                layer.NameChanged += Layer_NameChanged;
+            }
+        }
+
+        private void UnbindLayerEvents (Layer layer)
+        {
+            if (layer != null) {
+                layer.NameChanged -= Layer_NameChanged;
+            }
+        }
 
         #region Properties
 
@@ -243,6 +266,21 @@ namespace Treefrog.Presentation
 
         #endregion
 
+        private void Layer_NameChanged (object sender, NameChangedEventArgs e) 
+        {
+            if (_controlLayers.ContainsKey(e.OldName)) {
+                _controlLayers[e.NewName] = _controlLayers[e.OldName];
+                _controlLayers.Remove(e.OldName);
+            }
+
+            if (_selectedLayer == e.OldName)
+                _selectedLayer = e.NewName;
+
+            OnSyncLayerActions(EventArgs.Empty);
+            OnSyncLayerList(EventArgs.Empty);
+            OnSyncLayerSelection(EventArgs.Empty);
+        }
+
         #region View Action API
 
         public void ActionAddLayer ()
@@ -250,6 +288,9 @@ namespace Treefrog.Presentation
             string name = FindDefaultLayerName();
 
             MultiTileGridLayer layer = new MultiTileGridLayer(name, _level.TileWidth, _level.TileHeight, _level.TilesWide, _level.TilesHigh);
+
+            BindLayerEvents(layer);
+
             _level.Layers.Add(layer);
 
             MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
@@ -269,6 +310,8 @@ namespace Treefrog.Presentation
         public void ActionRemoveSelectedLayer ()
         {
             if (CanRemoveSelectedLayer && _controlLayers.ContainsKey(_selectedLayer)) {
+                UnbindLayerEvents(_level.Layers[_selectedLayer]);
+
                 _level.Layers.Remove(_selectedLayer);
                 _layerControl.RemoveLayer(_controlLayers[_selectedLayer]);
                 _controlLayers.Remove(_selectedLayer);
@@ -287,6 +330,9 @@ namespace Treefrog.Presentation
                 string name = FindCloneLayerName(SelectedLayer.Name);
 
                 MultiTileGridLayer layer = new MultiTileGridLayer(name, SelectedLayer as MultiTileGridLayer);
+
+                BindLayerEvents(layer);
+
                 _level.Layers.Add(layer);
 
                 MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
@@ -462,7 +508,5 @@ namespace Treefrog.Presentation
                 return name;
             }
         }
-
-        #endregion
     }
 }

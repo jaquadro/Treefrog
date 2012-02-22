@@ -86,6 +86,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GraphicsDeviceService.cs" />
+    <Compile Include="Model\Collections\EventArgs.cs" />
+    <Compile Include="Model\Collections\PredefinedPropertyCollection.cs" />
     <Compile Include="Model\Layer.cs" />
     <Compile Include="Model\Level.cs" />
     <Compile Include="Model\MultiTileGridLayer.cs" />
@@ -98,6 +101,8 @@
     <Compile Include="Model\TileStack.cs" />
     <Compile Include="Model\Tile.cs" />
     <Compile Include="Model\TileLayer.cs" />
+    <Compile Include="NamedResourceEventArgs.cs" />
+    <Compile Include="Model\Collections\PropertyCollection.cs" />
     <Compile Include="ServiceContainer.cs" />
     <Compile Include="TileCoord.cs" />
     <Compile Include="Model\TileGridLayer.cs" />

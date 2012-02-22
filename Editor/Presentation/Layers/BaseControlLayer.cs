@@ -182,7 +182,7 @@ namespace Treefrog.Presentation.Layers
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
             spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
-            action(new DrawLayerEventArgs(spriteBatch));
+            action(new DrawLayerEventArgs(spriteBatch, Control.Zoom));
 
             spriteBatch.End();
         }
@@ -200,6 +200,11 @@ namespace Treefrog.Presentation.Layers
             private set
             {
                 if (_name != value) {
+                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
+                    OnNameChanging(ea);
+                    if (ea.Cancel)
+                        return;
+
                     string oldName = _name;
                     _name = value;
 
@@ -208,9 +213,18 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+
         public event EventHandler<NameChangedEventArgs> NameChanged;
 
         public event EventHandler Modified;
+
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        {
+            if (NameChanging != null) {
+                NameChanging(this, e);
+            }
+        }
 
         protected virtual void OnNameChanged (NameChangedEventArgs e)
         {

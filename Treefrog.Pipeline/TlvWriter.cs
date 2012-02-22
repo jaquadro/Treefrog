@@ -28,7 +28,7 @@ namespace Treefrog.Pipeline
             output.Write((short)value.Level.TilesWide);
             output.Write((short)value.Level.TilesHigh);
 
-            WritePropertyBlock(output, value.Level.Properties);
+            WritePropertyBlock(output, value.Level.CustomProperties);
 
             output.Write(value.TilesetAssets.Count);
             foreach (string asset in value.TilesetAssets) {
@@ -50,7 +50,7 @@ namespace Treefrog.Pipeline
                 output.Write(layer.IsVisible);
                 output.Write(layer.Opacity);
 
-                WritePropertyBlock(output, layer.Properties);
+                WritePropertyBlock(output, layer.CustomProperties);
 
                 switch (LayerType(layer)) {
                     case Pipeline.LayerType.Tiles:
@@ -74,8 +74,8 @@ namespace Treefrog.Pipeline
         {
             output.Write((short)layer.TileWidth);
             output.Write((short)layer.TileHeight);
-            output.Write((short)layer.LayerWidth);
-            output.Write((short)layer.LayerHeight);
+            output.Write((short)layer.TilesWide);
+            output.Write((short)layer.TilesHigh);
 
             int tscount = 0;
             foreach (LocatedTileStack stack in layer.TileStacks) {

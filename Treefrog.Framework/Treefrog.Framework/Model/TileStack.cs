@@ -123,8 +123,11 @@ namespace Treefrog.Framework.Model
         /// <param name="tile">The <see cref="Tile"/> to remove.</param>
         public void Remove (Tile tile)
         {
-            _tiles.Remove(tile);
-            OnModified(EventArgs.Empty);
+            if (tile != null) {
+                if (_tiles.Remove(tile)) {
+                    OnModified(EventArgs.Empty);
+                }
+            }
         }
 
         /// <summary>
@@ -132,8 +135,10 @@ namespace Treefrog.Framework.Model
         /// </summary>
         public void Clear ()
         {
-            _tiles.Clear();
-            OnModified(EventArgs.Empty);
+            if (_tiles.Count > 0) {
+                _tiles.Clear();
+                OnModified(EventArgs.Empty);
+            }
         }
 
         #region IEnumerable<Tile> Members

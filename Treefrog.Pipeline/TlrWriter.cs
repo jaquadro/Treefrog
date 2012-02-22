@@ -25,7 +25,7 @@ namespace Treefrog.Pipeline
             output.Write((short)pool.TileHeight);
             output.Write(value.TextureAsset);
 
-            WritePropertyBlock(output, pool.Properties);
+            WritePropertyBlock(output, pool.CustomProperties);
 
             output.Write((short)pool.Count);
             foreach (Tile tile in pool) {
@@ -35,7 +35,7 @@ namespace Treefrog.Pipeline
                 output.Write((short)coord.X);
                 output.Write((short)coord.Y);
 
-                WritePropertyBlock(output, tile.Properties);
+                WritePropertyBlock(output, tile.CustomProperties);
             }
         }
 

@@ -23,6 +23,9 @@ namespace Treefrog.Framework.Model
         /// <param name="name">The name of the property.</param>
         protected Property (string name)
         {
+            if (name == null) {
+                throw new ArgumentNullException("Property names cannot be null.");
+            }
             _name = name;
         }
 
@@ -75,7 +78,15 @@ namespace Treefrog.Framework.Model
         {
             get { return _name; }
             set {
+                if (value == null) {
+                    throw new ArgumentNullException("Property names cannot be null.");
+                }
                 if (_name != value) {
+                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
+                    OnNameChanging(ea);
+                    if (ea.Cancel)
+                        return;
+
                     string oldName = _name;
                     _name = value;
 
@@ -83,6 +94,8 @@ namespace Treefrog.Framework.Model
                 }
             }
         }
+
+        public event EventHandler<NameChangingEventArgs> NameChanging;
 
         /// <summary>
         /// Occurs when the property's name is changed.
@@ -94,6 +107,13 @@ namespace Treefrog.Framework.Model
         /// </summary>
         public event EventHandler Modified;
 
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        {
+            if (NameChanging != null) {
+                NameChanging(this, e);
+            }
+        }
+
         /// <summary>
         /// Raises the <see cref="NameChanged"/> event.
         /// </summary>
@@ -103,7 +123,6 @@ namespace Treefrog.Framework.Model
             if (NameChanged != null) {
                 NameChanged(this, e);
             }
-            OnModified(EventArgs.Empty);
         }
 
         /// <summary>
@@ -406,7 +425,7 @@ namespace Treefrog.Framework.Model
         /// <returns>A <see cref="String"/> representation of the property's value.</returns>
         public override string ToString ()
         {
-            return _value.ToString();
+            return _value ? "true" : "false";
         }
 
         #region XML Import / Export

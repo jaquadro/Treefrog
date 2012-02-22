@@ -89,7 +89,7 @@ namespace Treefrog.Pipeline
                 LevelIndexEntry entry = new LevelIndexEntry(id, level.Name);
                 entry.Asset = asset_level;
 
-                foreach (Property prop in level.Properties) {
+                foreach (Property prop in level.CustomProperties) {
                     entry.Properties.Add(prop);
                 }
 

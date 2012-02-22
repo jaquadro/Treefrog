@@ -90,9 +90,9 @@ namespace Treefrog.Presentation.Tools
                 return;
             }
 
-            if (e.TileLocation.X < 0 || e.TileLocation.X >= layer.LayerWidth)
+            if (e.TileLocation.X < 0 || e.TileLocation.X >= layer.TilesWide)
                 return;
-            if (e.TileLocation.Y < 0 || e.TileLocation.Y >= layer.LayerHeight)
+            if (e.TileLocation.Y < 0 || e.TileLocation.Y >= layer.TilesHigh)
                 return;
 
             _fillLayer = layer;
@@ -114,7 +114,7 @@ namespace Treefrog.Presentation.Tools
 
         public void FloodFill (Point point)
         {
-            _ranges = new FloodFillRangeQueue((_fillLayer.LayerWidth + _fillLayer.LayerHeight) / 2 * 5);
+            _ranges = new FloodFillRangeQueue((_fillLayer.TilesWide + _fillLayer.TilesHigh) / 2 * 5);
 
             int x = point.X;
             int y = point.Y;
@@ -137,7 +137,7 @@ namespace Treefrog.Presentation.Tools
                         LinearFill(ref i, ref upY);
 
                     tid = new TileCoord(i, downY);
-                    if (range.Y < (_fillLayer.LayerHeight - 1) && !_sourceStack.Equals(_fillLayer[tid]) && 
+                    if (range.Y < (_fillLayer.TilesHigh - 1) && !_sourceStack.Equals(_fillLayer[tid]) && 
                         (_matchStack == null ? _matchStack == _fillLayer[tid] : _matchStack.Equals(_fillLayer[tid])))
                         LinearFill(ref i, ref downY);
                 }
@@ -178,7 +178,7 @@ namespace Treefrog.Presentation.Tools
                 rFillLoc++;
                 tid = new TileCoord(rFillLoc, y);
 
-                if (rFillLoc >= _fillLayer.LayerWidth || _sourceStack.Equals(_fillLayer[tid]) ||
+                if (rFillLoc >= _fillLayer.TilesWide || _sourceStack.Equals(_fillLayer[tid]) ||
                     !(_matchStack == null ? _matchStack == _fillLayer[tid] : _matchStack.Equals(_fillLayer[tid])))
                     break;
             }

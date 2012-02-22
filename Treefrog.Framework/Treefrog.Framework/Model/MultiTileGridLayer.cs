@@ -26,10 +26,10 @@ namespace Treefrog.Framework.Model
         public MultiTileGridLayer (string name, MultiTileGridLayer layer)
             : base(name, layer)
         {
-            _tiles = new TileStack[layer.LayerHeight, layer.LayerWidth];
+            _tiles = new TileStack[layer.TilesHigh, layer.TilesWide];
 
-            for (int y = 0; y < layer.LayerHeight; y++) {
-                for (int x = 0; x < layer.LayerWidth; x++) {
+            for (int y = 0; y < layer.TilesHigh; y++) {
+                for (int x = 0; x < layer.TilesWide; x++) {
                     if (layer._tiles[y, x] != null) {
                         _tiles[y, x] = layer._tiles[y, x].Clone() as TileStack;
                     }
@@ -89,9 +89,24 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        protected override void ResizeLayer (int newTilesWide, int newTilesHigh)
+        {
+            TileStack[,] newTiles = new TileStack[newTilesHigh, newTilesWide];
+            int copyLimX = Math.Min(TilesWide, newTilesWide);
+            int copyLimY = Math.Min(TilesHigh, newTilesHigh);
+
+            for (int y = 0; y < copyLimY; y++) {
+                for (int x = 0; x < copyLimX; x++) {
+                    newTiles[y, x] = _tiles[y, x];
+                }
+            }
+
+            _tiles = newTiles;
+        }
+
         public override IEnumerable<LocatedTile> Tiles
         {
-            get { return TilesAt(new Rectangle(0, 0, LayerWidth, LayerHeight)); }
+            get { return TilesAt(new Rectangle(0, 0, TilesWide, TilesHigh)); }
         }
 
         public override IEnumerable<LocatedTile> TilesAt (TileCoord location)
@@ -109,8 +124,8 @@ namespace Treefrog.Framework.Model
         {
             int xs = Math.Max(region.X, 0);
             int ys = Math.Max(region.Y, 0);
-            int xe = Math.Min(region.X + region.Width, LayerWidth);
-            int ye = Math.Min(region.Y + region.Height, LayerHeight);
+            int xe = Math.Min(region.X + region.Width, TilesWide);
+            int ye = Math.Min(region.Y + region.Height, TilesHigh);
 
             for (int y = ys; y < ye; y++) {
                 for (int x = xs; x < xe; x++) {
@@ -127,7 +142,7 @@ namespace Treefrog.Framework.Model
 
         public IEnumerable<LocatedTileStack> TileStacks
         {
-            get { return TileStacksAt(new Rectangle(0, 0, LayerWidth, LayerHeight)); }
+            get { return TileStacksAt(new Rectangle(0, 0, TilesWide, TilesHigh)); }
         }
 
         public TileStack TileStacksAt (TileCoord location)
@@ -139,8 +154,8 @@ namespace Treefrog.Framework.Model
         {
             int xs = Math.Max(region.X, 0);
             int ys = Math.Max(region.Y, 0);
-            int w = Math.Min(region.Width, LayerWidth - region.X);
-            int h = Math.Min(region.Height, LayerHeight - region.Y);
+            int w = Math.Min(region.Width, TilesWide - region.X);
+            int h = Math.Min(region.Height, TilesHigh - region.Y);
 
             for (int y = ys; y < ys + h; y++) {
                 for (int x = xs; x < xs + w; x++) {
@@ -220,10 +235,10 @@ namespace Treefrog.Framework.Model
             writer.WriteEndElement();
 
             // <properties> [optional]
-            if (Properties.Count > 0) {
+            if (CustomProperties.Count > 0) {
                 writer.WriteStartElement("properties");
 
-                foreach (Property property in Properties) {
+                foreach (Property property in CustomProperties) {
                     property.WriteXml(writer);
                 }
                 writer.WriteEndElement();

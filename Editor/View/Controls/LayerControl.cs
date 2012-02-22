@@ -497,7 +497,7 @@ namespace Treefrog.View.Controls
         {
             GraphicsDevice.Clear(_backColor);
 
-            DrawLayerEventArgs e = new DrawLayerEventArgs(_spriteBatch);
+            DrawLayerEventArgs e = new DrawLayerEventArgs(_spriteBatch, _zoom);
 
             foreach (BaseControlLayer layer in _layers) {
                 layer.DrawContent(_spriteBatch);

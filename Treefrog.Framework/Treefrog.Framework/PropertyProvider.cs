@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Treefrog.Framework.Model;
+using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework
 {
-    using Model;
-
     public enum PropertyCategory
     {
         None,
@@ -16,13 +16,23 @@ namespace Treefrog.Framework
     {
         string PropertyProviderName { get; }
 
-        IEnumerable<Property> PredefinedProperties { get; }
-        IEnumerable<Property> CustomProperties { get; }
+        event EventHandler<EventArgs> PropertyProviderNameChanged;
+
+        //IEnumerable<Property> PredefinedProperties { get; }
+        //IEnumerable<Property> CustomProperties { get; }
+
+        PropertyCollection CustomProperties { get; }
+        PredefinedPropertyCollection PredefinedProperties { get; }
+
+        //event EventHandler<PropertyEventArgs> PropertyAdded;
+        //event EventHandler<PropertyEventArgs> PropertyRemoved;
+        //event EventHandler<PropertyEventArgs> PropertyModified;
+        //event EventHandler<NameChangedEventArgs> PropertyRenamed;
 
         PropertyCategory LookupPropertyCategory (string name);
         Property LookupProperty (string name);
 
-        void AddCustomProperty (Property property);
-        void RemoveCustomProperty (string name);
+        //void AddCustomProperty (Property property);
+        //void RemoveCustomProperty (string name);
     }
 }

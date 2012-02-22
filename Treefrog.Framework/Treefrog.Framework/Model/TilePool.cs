@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections;
 using System.Xml;
 using System.IO.Compression;
+using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
 {
@@ -16,9 +17,21 @@ namespace Treefrog.Framework.Model
         SetUnique,      // Import each unique tile in source that is not already in set
     }
 
+    public class TileEventArgs : EventArgs
+    {
+        public Tile Tile { get; private set; }
+
+        public TileEventArgs (Tile tile) 
+        {
+            Tile = tile;
+        }
+    }
+
     public class TilePool : INamedResource, IEnumerable<Tile>, IPropertyProvider
     {
         private const int _initFactor = 4;
+
+        private static string[] _reservedPropertyNames = new string[] { "Name" };
 
         #region Fields
 
@@ -34,7 +47,9 @@ namespace Treefrog.Framework.Model
         private Dictionary<int, TileCoord> _locations;
         private List<TileCoord> _openLocations;
 
-        private NamedResourceCollection<Property> _properties;
+        //private NamedResourceCollection<Property> _properties;
+        private PropertyCollection _properties;
+        private TilePoolProperties _predefinedProperties;
 
         #endregion
 
@@ -45,9 +60,13 @@ namespace Treefrog.Framework.Model
             _tiles = new Dictionary<int, Tile>();
             _locations = new Dictionary<int, TileCoord>();
             _openLocations = new List<TileCoord>();
-            _properties = new NamedResourceCollection<Property>();
+            _properties = new PropertyCollection(_reservedPropertyNames);
+            _predefinedProperties = new TilePool.TilePoolProperties(this);
 
-            _properties.Modified += PropertiesModifiedHandler;
+            _properties.Modified += CustomProperties_Modified;
+            //_properties.ResourceAdded += PropertyResourceAddedHandler;
+            //_properties.ResourceRemoved += PropertyResourceRemovedHandler;
+            //_properties.ResourceRemapped += PropertyResourceRenamedHandler;
         }
 
         public TilePool (string name, TileRegistry registry, int tileWidth, int tileHeight)
@@ -80,10 +99,10 @@ namespace Treefrog.Framework.Model
             get { return _tiles.Count; }
         }
 
-        public NamedResourceCollection<Property> Properties
-        {
-            get { return _properties; }
-        }
+        //private PropertyCollection Properties
+        //{
+        //    get { return _properties; }
+        //}
 
         public int TileWidth
         {
@@ -96,6 +115,51 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        /// <summary>
+        /// Occurs after a new <see cref="Tile"/> has been added to the <c>TilePool</c>.
+        /// </summary>
+        public event EventHandler<TileEventArgs> TileAdded = (s, e) => { };
+
+        /// <summary>
+        /// Occurs after a <see cref="Tile"/> has been removed from the <c>TilePool</c>.
+        /// </summary>
+        public event EventHandler<TileEventArgs> TileRemoved = (s, e) => { };
+
+        /// <summary>
+        /// Occurs if a <see cref="Tile"/> or any of its underlying data has been modified.
+        /// </summary>
+        public event EventHandler<TileEventArgs> TileModified = (s, e) => { };
+
+        /// <summary>
+        /// Raises the <see cref="TileAdded"/> event and triggers the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="TileEventArgs"/> that contains the event data.</param>
+        protected virtual void OnTileAdded (TileEventArgs e)
+        {
+            TileAdded(this, e);
+            OnModified(e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="TileRemoved"/> event and triggers the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="TileEventArgs"/> that contains the event data.</param>
+        protected virtual void OnTileRemoved (TileEventArgs e)
+        {
+            TileRemoved(this, e);
+            OnModified(e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="TileModified"/> event and triggers the <see cref="Modified"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="TileEventArgs"/> that contains the event data.</param>
+        protected virtual void OnTileModified (TileEventArgs e)
+        {
+            TileModified(this, e);
+            OnModified(e);
+        }
 
         private void PropertiesModifiedHandler (object sender, EventArgs e)
         {
@@ -165,6 +229,8 @@ namespace Treefrog.Framework.Model
             _tiles[id].Modified += TileModifiedHandler;
 
             _registry.LinkTile(id, this);
+
+            OnTileAdded(new TileEventArgs(_tiles[id]));
         }
 
         public void RemoveTile (int id)
@@ -182,12 +248,19 @@ namespace Treefrog.Framework.Model
 
             _openLocations.Add(_locations[id]);
 
+            Tile tile = _tiles[id];
+            tile.Modified -= TileModifiedHandler;
+
             _tiles.Remove(id);
             _locations.Remove(id);
+
+            _registry.UnlinkTile(id);
 
             if (ShouldReduceTexture()) {
                 ReduceTexture();
             }
+
+            OnTileRemoved(new TileEventArgs(tile));
         }
 
         public Tile GetTile (int id)
@@ -239,6 +312,8 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
             _tileSource.SetData(0, dest, data, 0, data.Length);
+
+            OnTileModified(new TileEventArgs(_tiles[id]));
         }
 
         public void SetTileTexture (int id, Texture2D texture)
@@ -453,6 +528,10 @@ namespace Treefrog.Framework.Model
 
         public void Export (string path)
         {
+            if (!Directory.Exists(Path.GetDirectoryName(path))) {
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
+
             using (FileStream fs = File.OpenWrite(path)) {
                 Export(fs);
             }
@@ -486,27 +565,41 @@ namespace Treefrog.Framework.Model
         public string Name
         {
             get { return _name; }
-            private set
+            set
             {
                 if (_name != value) {
+                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
+                    OnNameChanging(ea);
+                    if (ea.Cancel)
+                        return;
+
                     string oldName = _name;
                     _name = value;
 
                     OnNameChanged(new NameChangedEventArgs(oldName, _name));
+                    OnPropertyProviderNameChanged(EventArgs.Empty);
                 }
             }
         }
 
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+
         public event EventHandler<NameChangedEventArgs> NameChanged;
 
         public event EventHandler Modified;
+
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        {
+            if (NameChanging != null) {
+                NameChanging(this, e);
+            }
+        }
 
         protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
             if (NameChanged != null) {
                 NameChanged(this, e);
             }
-            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnModified (EventArgs e)
@@ -518,7 +611,7 @@ namespace Treefrog.Framework.Model
 
         private void TileModifiedHandler (object sender, EventArgs e)
         {
-            OnModified(e);
+            OnTileModified(new TileEventArgs(sender as Tile));
         }
 
         #endregion
@@ -545,7 +638,7 @@ namespace Treefrog.Framework.Model
                         pool.XmlLoadTiles(xmlr);
                         return false;
                     case "properties":
-                        AddPropertyFromXml(xmlr, pool.Properties);
+                        AddPropertyFromXml(xmlr, pool.CustomProperties);
                         return false;
                     default:
                         return true; // Advance reader
@@ -601,7 +694,7 @@ namespace Treefrog.Framework.Model
             {
                 switch (s) {
                     case "properties":
-                        AddPropertyFromXml(xmlr, _tiles[id].Properties);
+                        AddPropertyFromXml(xmlr, _tiles[id].CustomProperties);
                         break;
                 }
             });
@@ -697,7 +790,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        private static void AddPropertyFromXml (XmlReader reader, NamedResourceCollection<Property> pp)
+        private static void AddPropertyFromXml (XmlReader reader, PropertyCollection pp)
         {
             XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
             {
@@ -762,10 +855,10 @@ namespace Treefrog.Framework.Model
                 writer.WriteAttributeString("loc", loc.X + "," + loc.Y);
 
                 // . . . <properties>
-                if (tile.Properties.Count > 0) {
+                if (tile.CustomProperties.Count > 0) {
                     writer.WriteStartElement("properties");
 
-                    foreach (Property property in tile.Properties) {
+                    foreach (Property property in tile.CustomProperties) {
                         property.WriteXml(writer);
                     }
                     writer.WriteEndElement();
@@ -796,20 +889,45 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
+        private class TilePoolProperties : PredefinedPropertyCollection
+        {
+            private TilePool _parent;
+
+            public TilePoolProperties (TilePool parent)
+                : base(_reservedPropertyNames)
+            {
+                _parent = parent;
+            }
+
+            protected override IEnumerable<Property> PredefinedProperties ()
+            {
+                yield return _parent.LookupProperty("Name");
+            }
+
+            protected override Property LookupProperty (string name)
+            {
+                return _parent.LookupProperty(name);
+            }
+        }
+
+        public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
+
+        protected virtual void OnPropertyProviderNameChanged (EventArgs e)
+        {
+            PropertyProviderNameChanged(this, e);
+        }
+
         public string PropertyProviderName
         {
             get { return _name; }
         }
 
-        public IEnumerable<Property> PredefinedProperties
+        public PredefinedPropertyCollection PredefinedProperties
         {
-            get 
-            {
-                yield return LookupProperty("Name");
-            }
+            get { return _predefinedProperties; }
         }
 
-        public IEnumerable<Property> CustomProperties
+        public PropertyCollection CustomProperties
         {
             get { return _properties; }
         }
@@ -839,28 +957,123 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public void AddCustomProperty (Property property)
-        {
-            if (property == null) {
-                throw new ArgumentNullException("The property is null.");
-            }
-            if (_properties.Contains(property.Name)) {
-                throw new ArgumentException("A property with the same name already exists.");
-            }
+        //public void AddCustomProperty (Property property)
+        //{
+        //    if (property == null) {
+        //        throw new ArgumentNullException("The property is null.");
+        //    }
+        //    switch (LookupPropertyCategory(property.Name)) {
+        //        case PropertyCategory.Predefined:
+        //            throw new ArgumentException("The property is using a reserved name.");
+        //        case PropertyCategory.Custom:
+        //            throw new ArgumentException("A property with the same name already exists.");
+        //    }
 
-            _properties.Add(property);
-        }
+        //    property.ValueChanged += PropertyValueChangedHandler;
 
-        public void RemoveCustomProperty (string name)
-        {
-            if (name == null) {
-                throw new ArgumentNullException("The name is null.");
-            }
+        //    _properties.Add(property);
+        //}
 
-            _properties.Remove(name);
-        }
+        //public void RemoveCustomProperty (string name)
+        //{
+        //    if (name == null) {
+        //        throw new ArgumentNullException("The name is null.");
+        //    }
+
+        //    Property property = _properties[name];
+        //    if (property != null) {
+        //        property.ValueChanged -= PropertyValueChangedHandler;
+        //    }
+
+        //    _properties.Remove(name);
+        //}
 
         #endregion
+
+        ///// <summary>
+        ///// Occurs after a new custom <see cref="Property"/> has been added to the <c>TilePool</c>.
+        ///// </summary>
+        //public event EventHandler<PropertyEventArgs> PropertyAdded = (s, e) => { };
+
+        ///// <summary>
+        ///// Occurs after a custom <see cref="Property"/> has been removed from the <c>TilePool</c>.
+        ///// </summary>
+        //public event EventHandler<PropertyEventArgs> PropertyRemoved = (s, e) => { };
+
+        ///// <summary>
+        ///// Occurs after a custom <see cref="Property"/> has had its value modified.
+        ///// </summary>
+        //public event EventHandler<PropertyEventArgs> PropertyModified = (s, e) => { };
+
+        ///// <summary>
+        ///// Occurs after a custom <see cref="Property"/> has been renamed.
+        ///// </summary>
+        //public event EventHandler<NameChangedEventArgs> PropertyRenamed = (s, e) => { };
+
+        ///// <summary>
+        ///// Raises the <see cref="PropertyAdded"/> event and triggers the <see cref="Modified"/> event.
+        ///// </summary>
+        ///// <param name="e">A <see cref="PropertyEventArgs"/> that contains the event data.</param>
+        //protected virtual void OnPropertyAdded (PropertyEventArgs e)
+        //{
+        //    PropertyAdded(this, e);
+        //    OnModified(e);
+        //}
+
+        ///// <summary>
+        ///// Raises the <see cref="PropertyRemoved"/> event and triggers the <see cref="Modified"/> event.
+        ///// </summary>
+        ///// <param name="e">A <see cref="PropertyEventArgs"/> that contains the event data.</param>
+        //protected virtual void OnPropertyRemoved (PropertyEventArgs e)
+        //{
+        //    PropertyRemoved(this, e);
+        //    OnModified(e);
+        //}
+
+        ///// <summary>
+        ///// Raises the <see cref="PropertyModified"/> event and triggers the <see cref="Modified"/> event.
+        ///// </summary>
+        ///// <param name="e">A <see cref="PropertyEventArgs"/> that contains the event data.</param>
+        //protected virtual void OnPropertyModified (PropertyEventArgs e)
+        //{
+        //    PropertyModified(this, e);
+        //    OnModified(e);
+        //}
+
+        ///// <summary>
+        ///// Raises the <see cref="PropertyRenamed"/> event and triggers the <see cref="Modified"/> event.
+        ///// </summary>
+        ///// <param name="e">A <see cref="NameChangedEventArgs"/> that contains the event data.</param>
+        //protected virtual void OnPropertyRenamed (NameChangedEventArgs e)
+        //{
+        //    PropertyRenamed(this, e);
+        //    OnModified(e);
+        //}
+
+        //private void PropertyResourceAddedHandler (object sender, NamedResourceEventArgs<Property> e)
+        //{
+        //    OnPropertyAdded(new PropertyEventArgs(e.Resource));
+        //}
+
+        //private void PropertyResourceRemovedHandler (object sender, NamedResourceEventArgs<Property> e)
+        //{
+        //    OnPropertyRemoved(new PropertyEventArgs(e.Resource));
+        //}
+
+        //private void PropertyValueChangedHandler (object sender, EventArgs e)
+        //{
+        //    OnPropertyModified(new PropertyEventArgs(sender as Property));
+        //}
+
+        //private void PropertyResourceRenamedHandler (object sender, NamedResourceEventArgs<Property> e)
+        //{
+        //    OnPropertyRenamed(new NameChangedEventArgs(e.Name, e.Resource.Name));
+        //}
+
+        private void CustomProperties_Modified (object sender, EventArgs e)
+        {
+            OnModified(e);
+        }
 
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {

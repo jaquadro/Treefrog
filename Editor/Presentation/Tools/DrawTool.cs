@@ -206,9 +206,9 @@ namespace Treefrog.Presentation.Tools
 
             switch (_state) {
                 case ToolState.Drawing:
-                    if (e.TileLocation.X < 0 || e.TileLocation.X >= layer.LayerWidth)
+                    if (e.TileLocation.X < 0 || e.TileLocation.X >= layer.TilesWide)
                         return;
-                    if (e.TileLocation.Y < 0 || e.TileLocation.Y >= layer.LayerHeight)
+                    if (e.TileLocation.Y < 0 || e.TileLocation.Y >= layer.TilesHigh)
                         return;
 
                     if (layer[e.TileLocation] == null || layer[e.TileLocation].Top != _pool.SelectedTile) {
@@ -218,8 +218,8 @@ namespace Treefrog.Presentation.Tools
                     break;
 
                 case ToolState.Selecting:
-                    int x = Math.Max(0, Math.Min(layer.LayerWidth - 1, e.TileLocation.X));
-                    int y = Math.Max(0, Math.Min(layer.LayerHeight - 1, e.TileLocation.Y));
+                    int x = Math.Max(0, Math.Min(layer.TilesWide - 1, e.TileLocation.X));
+                    int y = Math.Max(0, Math.Min(layer.TilesHigh - 1, e.TileLocation.Y));
 
                     _rubberBand.End(new Point(x, y));
                     break;

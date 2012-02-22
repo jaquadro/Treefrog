@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Treefrog.Framework.Model;
 using Treefrog.View.Forms;
+using Treefrog.Framework;
 
 namespace Treefrog.Presentation
 {
@@ -67,6 +68,8 @@ namespace Treefrog.Presentation
         private void SyncCurrentProjectHandler (object sender, SyncProjectEventArgs e)
         {
             _selectedTiles = new Dictionary<string, Tile>();
+
+            _editor.Project.TilePools.ResourceRemapped += TilePool_NameChanged;
 
             SelectTilePool();
 
@@ -172,6 +175,13 @@ namespace Treefrog.Presentation
         }
 
         #endregion
+
+        private void TilePool_NameChanged (object sender, NamedResourceEventArgs<TilePool> e)
+        {
+            if (e.Resource != null && e.Resource.Name == _selectedPool) {
+                SelectTilePool(e.Resource.Name);
+            }
+        }
 
         #region View Action API
 

@@ -153,7 +153,7 @@ namespace Treefrog.Presentation.Tools
                 TileReplace2DCommand replace = new TileReplace2DCommand(layer);
                 foreach (LocatedTileStack lts in _floating) {
                     TileCoord loc = new TileCoord(lts.X + _floating.Origin.X, lts.Y + _floating.Origin.Y);
-                    if (lts.Stack != null && loc.X >= 0 && loc.Y >= 0 && loc.X < layer.LayerWidth && loc.Y < layer.LayerHeight) {
+                    if (lts.Stack != null && loc.X >= 0 && loc.Y >= 0 && loc.X < layer.TilesWide && loc.Y < layer.TilesHigh) {
                         replace.QueueAdd(loc, lts.Stack);
                     }
                 }
@@ -308,8 +308,8 @@ namespace Treefrog.Presentation.Tools
 
             switch (_state) {
                 case ToolState.Selecting:
-                    int x = Math.Max(0, Math.Min(layer.LayerWidth - 1, e.TileLocation.X));
-                    int y = Math.Max(0, Math.Min(layer.LayerHeight - 1, e.TileLocation.Y));
+                    int x = Math.Max(0, Math.Min(layer.TilesWide - 1, e.TileLocation.X));
+                    int y = Math.Max(0, Math.Min(layer.TilesHigh - 1, e.TileLocation.Y));
 
                     _rubberBand.End(new Point(x, y));
                     break;
@@ -383,7 +383,7 @@ namespace Treefrog.Presentation.Tools
                 TileReplace2DCommand replace = new TileReplace2DCommand(layer);
                 foreach (LocatedTileStack lts in _selection) {
                     TileCoord loc = new TileCoord(lts.X + _selection.Origin.X, lts.Y + _selection.Origin.Y);
-                    if (lts.Stack != null && loc.X >= 0 && loc.Y >= 0 && loc.X < layer.LayerWidth && loc.Y < layer.LayerHeight) {
+                    if (lts.Stack != null && loc.X >= 0 && loc.Y >= 0 && loc.X < layer.TilesWide && loc.Y < layer.TilesHigh) {
                         foreach (Tile t in lts.Stack) {
                             replace.QueueReplacement(loc, (TileStack)null);
                         }
@@ -406,7 +406,7 @@ namespace Treefrog.Presentation.Tools
             }
 
             if (_selection != null) {
-                _selection.AddTiles(new TileCoord(0, 0), new TileCoord(layer.LayerWidth - 1, layer.LayerHeight - 1), layer);
+                _selection.AddTiles(new TileCoord(0, 0), new TileCoord(layer.TilesWide - 1, layer.TilesHigh - 1), layer);
                 return;
             }
             
@@ -415,7 +415,7 @@ namespace Treefrog.Presentation.Tools
             }
 
             _selection = new TileSelection(layer.TileWidth, layer.TileHeight);
-            _selection.AddTiles(new TileCoord(0, 0), new TileCoord(layer.LayerWidth - 1, layer.LayerHeight - 1), layer);
+            _selection.AddTiles(new TileCoord(0, 0), new TileCoord(layer.TilesWide - 1, layer.TilesHigh - 1), layer);
         }
 
         public void UnselectAll (object sender, EventArgs e)
@@ -461,10 +461,10 @@ namespace Treefrog.Presentation.Tools
             }
 
             if (_selection != null) {
-                _selection.DrawSelection(e.SpriteBatch);
+                _selection.DrawSelection(e.SpriteBatch, e.Zoom);
             }
             else if (_floating != null) {
-                _floating.DrawSelection(e.SpriteBatch);
+                _floating.DrawSelection(e.SpriteBatch, e.Zoom);
             }
 
         }
@@ -476,7 +476,7 @@ namespace Treefrog.Presentation.Tools
             }
 
             else if (_floating != null) {
-                _floating.DrawTiles(e.SpriteBatch);
+                _floating.DrawTiles(e.SpriteBatch, e.Zoom);
             }
         }
     }

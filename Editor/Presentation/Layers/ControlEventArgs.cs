@@ -10,10 +10,12 @@ namespace Treefrog.Presentation.Layers
     public class DrawLayerEventArgs : EventArgs
     {
         public SpriteBatch SpriteBatch { get; private set; }
+        public float Zoom { get; private set; }
 
-        public DrawLayerEventArgs (SpriteBatch spriteBatch)
+        public DrawLayerEventArgs (SpriteBatch spriteBatch, float zoom)
         {
             SpriteBatch = spriteBatch;
+            Zoom = zoom;
         }
     }
 

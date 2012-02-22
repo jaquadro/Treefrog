@@ -60,8 +60,8 @@ namespace Treefrog.Presentation.Tools
         {
             int startx = Math.Max(Math.Min(start.X, end.X), 0);
             int starty = Math.Max(Math.Min(start.Y, end.Y), 0);
-            int endx = Math.Min(Math.Max(start.X, end.X), layer.LayerWidth - 1);
-            int endy = Math.Min(Math.Max(start.Y, end.Y), layer.LayerHeight - 1);
+            int endx = Math.Min(Math.Max(start.X, end.X), layer.TilesWide - 1);
+            int endy = Math.Min(Math.Max(start.Y, end.Y), layer.TilesHigh - 1);
 
             for (int y = starty; y <= endy; y++) {
                 for (int x = startx; x <= endx; x++) {
@@ -90,26 +90,36 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        public void DrawSelection (SpriteBatch spriteBatch)
+        public void DrawSelection (SpriteBatch spriteBatch, float zoom)
         {
             if (_selectBrush == null) {
                 _selectBrush = new SolidColorBrush(spriteBatch.GraphicsDevice, DefaultBrushColor);
             }
 
             foreach (TileCoord coord in _tiles.Keys) {
-                Rectangle rect = new Rectangle((Origin.X + coord.X) * _tileWidth, (Origin.Y + coord.Y) * _tileHeight, _tileWidth, _tileHeight);
+                Rectangle rect = new Rectangle(
+                    (int)((Origin.X + coord.X) * _tileWidth * zoom), 
+                    (int)((Origin.Y + coord.Y) * _tileHeight * zoom), 
+                    (int)(_tileWidth * zoom), 
+                    (int)(_tileHeight * zoom)
+                    );
                 Draw2D.FillRectangle(spriteBatch, rect, _selectBrush);
             }
         }
 
-        public void DrawTiles (SpriteBatch spriteBatch)
+        public void DrawTiles (SpriteBatch spriteBatch, float zoom)
         {
             foreach (KeyValuePair<TileCoord, TileStack> kv in _tiles) {
                 if (kv.Value == null)
                     continue;
                 foreach (Tile tile in kv.Value) {
                     if (tile != null) {
-                        Rectangle rect = new Rectangle((Origin.X + kv.Key.X) * _tileWidth, (Origin.Y + kv.Key.Y) * _tileHeight, _tileWidth, _tileHeight);
+                        Rectangle rect = new Rectangle(
+                            (int)((Origin.X + kv.Key.X) * _tileWidth * zoom),
+                            (int)((Origin.Y + kv.Key.Y) * _tileHeight * zoom),
+                            (int)(_tileWidth * zoom),
+                            (int)(_tileHeight * zoom)
+                            );
                         tile.Draw(spriteBatch, rect);
                     }
                 }

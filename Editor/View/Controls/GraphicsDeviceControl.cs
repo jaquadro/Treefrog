@@ -88,7 +88,7 @@ namespace Treefrog.View.Controls
         protected override void Dispose (bool disposing)
         {
             if (_deviceService != null) {
-                _deviceService.Release(disposing);
+                _deviceService.Release();
                 _deviceService = null;
             }
 

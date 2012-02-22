@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using System.Xml;
+using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
 {
@@ -11,12 +12,15 @@ namespace Treefrog.Framework.Model
     {
         #region Fields
 
+        private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible" };
+
         private string _name;
 
         private float _opacity;
         private bool _visible;
 
-        private NamedResourceCollection<Property> _properties;
+        private PropertyCollection _properties;
+        private LayerProperties _predefinedProperties;
 
         #endregion
 
@@ -28,7 +32,9 @@ namespace Treefrog.Framework.Model
             _visible = true;
 
             _name = name;
-            _properties = new NamedResourceCollection<Property>();
+            _properties = new PropertyCollection(_reservedPropertyNames);
+            _predefinedProperties = new LayerProperties(this);
+
             _properties.Modified += CustomPropertiesModifiedHandler;
         }
 
@@ -54,6 +60,8 @@ namespace Treefrog.Framework.Model
             {
                 if (_visible != value) {
                     _visible = value;
+
+                    OnVisibilityChanged(EventArgs.Empty);
                     OnModified(EventArgs.Empty);
                 }
             }
@@ -67,14 +75,11 @@ namespace Treefrog.Framework.Model
                 float opac = MathHelper.Clamp(value, 0f, 1f);
                 if (_opacity != opac) {
                     _opacity = opac;
+
+                    OnOpacityChanged(EventArgs.Empty);
                     OnModified(EventArgs.Empty);
                 }
             }
-        }
-
-        public NamedResourceCollection<Property> Properties
-        {
-            get { return _properties; }
         }
 
         #endregion
@@ -84,7 +89,11 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Occurs when the internal state of the Layer is modified.
         /// </summary>
-        public event EventHandler Modified;
+        public event EventHandler Modified = (s, e) => { };
+
+        public event EventHandler OpacityChanged = (s, e) => { };
+
+        public event EventHandler VisibilityChanged = (s, e) => { };
 
         #endregion
 
@@ -96,9 +105,17 @@ namespace Treefrog.Framework.Model
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnModified (EventArgs e)
         {
-            if (Modified != null) {
-                Modified(this, e);
-            }
+            Modified(this, e);
+        }
+
+        protected virtual void OnOpacityChanged (EventArgs e)
+        {
+            OpacityChanged(this, e);
+        }
+
+        protected virtual void OnVisibilityChanged (EventArgs e)
+        {
+            VisibilityChanged(this, e);
         }
 
         #endregion
@@ -116,6 +133,7 @@ namespace Treefrog.Framework.Model
             NumberProperty property = sender as NumberProperty;
             _opacity = MathHelper.Clamp(property.Value, 0f, 1f);
 
+            OnOpacityChanged(e);
             OnModified(e);
         }
 
@@ -124,6 +142,7 @@ namespace Treefrog.Framework.Model
             BoolProperty property = sender as BoolProperty;
             _visible = property.Value;
 
+            OnVisibilityChanged(e);
             OnModified(e);
         }
 
@@ -134,26 +153,94 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        public event EventHandler LayerSizeChanged = (s, e) => { };
+
+        protected virtual void OnLayerSizeChanged (EventArgs e)
+        {
+            LayerSizeChanged(this, e);
+            OnModified(e);
+        }
+
+        /// <summary>
+        /// Gets the layer's width in pixels.  Returns -1 if the layer does not provide size information.
+        /// </summary>
+        public virtual int LayerWidth
+        {
+            get { return -1; }
+        }
+
+        /// <summary>
+        /// Gets the layer's height in pixels.  Returns -1 if the layer does not provide size information.
+        /// </summary>
+        public virtual int LayerHeight
+        {
+            get { return -1; }
+        }
+
+        /// <summary>
+        /// Makes a request to the layer to resize itself to overall pixel dimensions equal to or greater than the requested size.
+        /// </summary>
+        /// <param name="pixelsWide">The requested minimum width of the layer in pixels.</param>
+        /// <param name="pixelsHigh">The request minimum height of the layer in pixels.</param>
+        /// <remarks>If an implementing layer's <see cref="IsResizable"/> property returns to, then it is required to honor
+        /// the new size request.  Due to differences in layer resolution, an implementing layer may not be able to exactly
+        /// match the requested pixel size.  However, an implementing layer is required to never pick a size smaller than the
+        /// request.</remarks>
+        public virtual void RequestNewSize (int pixelsWide, int pixelsHigh) { }
+
+        /// <summary>
+        /// If set to <c>true</c>, the layer will honor requests to resize itself.
+        /// </summary>
+        public virtual bool IsResizable
+        {
+            get { return false; }
+        }
+
         #region IPropertyProvider Members
+
+        private class LayerProperties : PredefinedPropertyCollection
+        {
+            private Layer _parent;
+
+            public LayerProperties (Layer parent)
+                : base(_reservedPropertyNames)
+            {
+                _parent = parent;
+            }
+
+            protected override IEnumerable<Property> PredefinedProperties ()
+            {
+                yield return _parent.LookupProperty("Name");
+                yield return _parent.LookupProperty("Opacity");
+                yield return _parent.LookupProperty("Visible");
+            }
+
+            protected override Property LookupProperty (string name)
+            {
+                return _parent.LookupProperty(name);
+            }
+        }
+
+        public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
+
+        protected virtual void OnPropertyProviderNameChanged (EventArgs e)
+        {
+            PropertyProviderNameChanged(this, e);
+        }
 
         public string PropertyProviderName
         {
             get { return "Layer." + _name; }
         }
 
-        public IEnumerable<Property> PredefinedProperties
-        {
-            get 
-            {
-                yield return LookupProperty("Name");
-                yield return LookupProperty("Opacity");
-                yield return LookupProperty("Visible");
-            }
-        }
-
-        public IEnumerable<Property> CustomProperties
+        public PropertyCollection CustomProperties
         {
             get { return _properties; }
+        }
+
+        public PredefinedPropertyCollection PredefinedProperties
+        {
+            get { return _predefinedProperties; }
         }
 
         public PropertyCategory LookupPropertyCategory (string name)
@@ -191,27 +278,6 @@ namespace Treefrog.Framework.Model
                 default:
                     return _properties.Contains(name) ? _properties[name] : null;
             }
-        }
-
-        public void AddCustomProperty (Property property)
-        {
-            if (property == null) {
-                throw new ArgumentNullException("The property is null.");
-            }
-            if (_properties.Contains(property.Name)) {
-                throw new ArgumentException("A property with the same name already exists.");
-            }
-
-            _properties.Add(property);
-        }
-
-        public void RemoveCustomProperty (string name)
-        {
-            if (name == null) {
-                throw new ArgumentNullException("The name is null.");
-            }
-
-            _properties.Remove(name);
         }
 
         #endregion
@@ -265,7 +331,7 @@ namespace Treefrog.Framework.Model
             {
                 switch (s) {
                     case "property":
-                        layer.Properties.Add(Property.FromXml(xmlr));
+                        layer.CustomProperties.Add(Property.FromXml(xmlr));
                         return false;
                     default:
                         return true;
@@ -283,11 +349,26 @@ namespace Treefrog.Framework.Model
             private set
             {
                 if (_name != value) {
+                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
+                    OnNameChanging(ea);
+                    if (ea.Cancel)
+                        return;
+
                     string oldName = _name;
                     _name = value;
 
                     OnNameChanged(new NameChangedEventArgs(oldName, _name));
+                    OnPropertyProviderNameChanged(EventArgs.Empty);
                 }
+            }
+        }
+
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        {
+            if (NameChanging != null) {
+                NameChanging(this, e);
             }
         }
 
@@ -298,7 +379,6 @@ namespace Treefrog.Framework.Model
             if (NameChanged != null) {
                 NameChanged(this, e);
             }
-            OnModified(EventArgs.Empty);
         }
 
         #endregion

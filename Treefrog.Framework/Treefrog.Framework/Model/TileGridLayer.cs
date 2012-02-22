@@ -6,6 +6,19 @@ namespace Treefrog.Framework.Model
 {
     using Support;
 
+    public class LocatedTileEventArgs : TileEventArgs 
+    {
+        public int X { get; private set; }
+        public int Y { get; private set; }
+
+        public LocatedTileEventArgs (Tile tile, int x, int y)
+            : base(tile)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+
     public abstract class TileGridLayer : TileLayer
     {
         #region Fields
@@ -35,32 +48,14 @@ namespace Treefrog.Framework.Model
 
         #region Properties
 
-        public int LayerHeight
+        public int TilesHigh
         {
             get { return _tilesHigh; }
         }
 
-        public int LayerWidth
+        public int TilesWide
         {
             get { return _tilesWide; }
-        }
-
-        #endregion
-
-        #region Events
-
-        public event EventHandler LayerSizeChanged;
-
-        #endregion
-
-        #region Event Dispatchers
-
-        protected void OnLayerSizeChanged (EventArgs e)
-        {
-            if (LayerSizeChanged != null) {
-                LayerSizeChanged(this, e);
-            }
-            OnModified(EventArgs.Empty);
         }
 
         #endregion
@@ -73,6 +68,7 @@ namespace Treefrog.Framework.Model
             CheckTileFail(tile);
 
             AddTileImpl(x, y, tile);
+            OnTileAdded(new LocatedTileEventArgs(tile, x, y));
         }
 
         public void RemoveTile (int x, int y, Tile tile)
@@ -80,13 +76,16 @@ namespace Treefrog.Framework.Model
             CheckBoundsFail(x, y);
 
             RemoveTileImpl(x, y, tile);
+            OnTileRemoved(new LocatedTileEventArgs(tile, x, y));
         }
 
+        // NB: Consider changing event to give back the original TileStack
         public void ClearTile (int x, int y)
         {
             CheckBoundsFail(x, y);
 
             ClearTileImpl(x, y);
+            OnTileCleared(new LocatedTileEventArgs(null, x, y));
         }
 
         public abstract IEnumerable<LocatedTile> Tiles { get; }
@@ -94,6 +93,36 @@ namespace Treefrog.Framework.Model
         public abstract IEnumerable<LocatedTile> TilesAt (TileCoord location);
 
         public abstract IEnumerable<LocatedTile> TilesAt (Rectangle region);
+
+        public override int LayerHeight
+        {
+            get { return _tilesHigh * TileHeight; }
+        }
+
+        public override int LayerWidth
+        {
+            get { return _tilesWide * TileWidth; }
+        }
+
+        public override bool IsResizable
+        {
+            get { return true; }
+        }
+
+        public override void RequestNewSize (int pixelsWide, int pixelsHigh)
+        {
+            if (pixelsWide <= 0 || pixelsHigh <= 0) {
+                throw new ArgumentException("New layer dimensions must be greater than 0.");
+            }
+
+            int tilesW = (pixelsWide + TileWidth - 1) / TileWidth;
+            int tilesH = (pixelsHigh + TileHeight - 1) / TileHeight;
+
+            if (tilesW != _tilesWide || tilesH != _tilesHigh) {
+                ResizeLayer(tilesW, tilesH);
+                OnLayerSizeChanged(EventArgs.Empty);
+            }
+        }
 
         #endregion
 
@@ -105,7 +134,33 @@ namespace Treefrog.Framework.Model
 
         protected abstract void ClearTileImpl (int x, int y);
 
+        protected abstract void ResizeLayer (int newTilesWide, int newTilesHigh);
+
         #endregion
+
+        public event EventHandler<LocatedTileEventArgs> TileAdded = (s, e) => { };
+
+        public event EventHandler<LocatedTileEventArgs> TileRemoved = (s, e) => { };
+
+        public event EventHandler<LocatedTileEventArgs> TileCleared = (s, e) => { };
+
+        protected virtual void OnTileAdded (LocatedTileEventArgs e)
+        {
+            TileAdded(this, e);
+            OnModified(e);
+        }
+
+        protected virtual void OnTileRemoved (LocatedTileEventArgs e)
+        {
+            TileRemoved(this, e);
+            OnModified(e);
+        }
+
+        protected virtual void OnTileCleared (LocatedTileEventArgs e)
+        {
+            TileCleared(this, e);
+            OnModified(e);
+        }
 
         #region Checking Code
 
@@ -121,7 +176,7 @@ namespace Treefrog.Framework.Model
         {
             if (!CheckBounds(x, y)) {
                 throw new ArgumentOutOfRangeException(String.Format("Tried to add tile at ({0}, {1}), which is outside of layer dimensions ({2}, {3})",
-                    new string[] { x.ToString(), y.ToString(), LayerWidth.ToString(), LayerHeight.ToString() }));
+                    new string[] { x.ToString(), y.ToString(), TilesWide.ToString(), TilesHigh.ToString() }));
             }
         }
 
@@ -134,8 +189,8 @@ namespace Treefrog.Framework.Model
         {
             return x >= 0 &&
                 y >= 0 &&
-                x < LayerWidth &&
-                y < LayerHeight;
+                x < TilesWide &&
+                y < TilesHigh;
         }
 
         #endregion

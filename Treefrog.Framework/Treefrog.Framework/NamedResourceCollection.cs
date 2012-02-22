@@ -3,47 +3,17 @@ using System.Collections.Generic;
 
 namespace Treefrog.Framework
 {
-    public class NamedResourceEventArgs<T> : EventArgs
-        where T : INamedResource
-    {
-        public string Name { get; private set; }
-        public T Resource { get; private set; }
-
-        public NamedResourceEventArgs (T resource)
-        {
-            Name = resource.Name;
-            Resource = resource;
-        }
-
-        public NamedResourceEventArgs (T resource, string name)
-        {
-            Name = name;
-            Resource = resource;
-        }
-    }
-
-    public class OrderedResourceEventArgs<T> : NamedResourceEventArgs<T>
-        where T : INamedResource
-    {
-        public int Order { get; private set; }
-
-        public OrderedResourceEventArgs (T resource, int order)
-            : base(resource)
-        {
-            Order = order;
-        }
-    }
-
     public class NamedResourceCollection<T> : IEnumerable<T>
         where T : INamedResource
     {
         private Dictionary<string, T> _nameMap;
 
-        public event EventHandler<NamedResourceEventArgs<T>> ResourceAdded;
-        public event EventHandler<NamedResourceEventArgs<T>> ResourceRemoved;
-        public event EventHandler<NamedResourceEventArgs<T>> ResourceRemapped;
+        public event EventHandler<NamedResourceEventArgs<T>> ResourceAdded = (s, e) => { };
+        public event EventHandler<NamedResourceEventArgs<T>> ResourceRemoved = (s, e) => { };
+        public event EventHandler<NamedResourceEventArgs<T>> ResourceModified = (s, e) => { };
+        public event EventHandler<NamedResourceRemappedEventArgs<T>> ResourceRemapped = (s, e) => { };
 
-        public event EventHandler Modified;
+        public event EventHandler Modified = (s, e) => { };
 
         public NamedResourceCollection ()
         {
@@ -69,12 +39,17 @@ namespace Treefrog.Framework
 
         public void Add (T item)
         {
+            if (!CheckAdd(item)) {
+                return;
+            }
+
             if (_nameMap.ContainsKey(item.Name)) {
                 throw new ArgumentException("The collection already contains an item keyed by the same name: '" + item.Name + "'", "item");
             }
 
             _nameMap[item.Name] = item;
 
+            item.NameChanging += NameChangingHandler;
             item.NameChanged += NameChangedHandler;
             item.Modified += ResourceModifiedHandler;
 
@@ -88,14 +63,54 @@ namespace Treefrog.Framework
 
         public void Remove (string name)
         {
+            if (!CheckRemove(name)) {
+                return;
+            }
+
             T item;
             if (_nameMap.TryGetValue(name, out item)) {
                 _nameMap.Remove(item.Name);
 
+                item.NameChanging -= NameChangingHandler;
                 item.NameChanged -= NameChangedHandler;
                 item.Modified -= ResourceModifiedHandler;
 
                 OnResourceRemoved(new NamedResourceEventArgs<T>(item));
+            }
+        }
+
+        public void Clear ()
+        {
+            string[] keys = new string[_nameMap.Count];
+            _nameMap.Keys.CopyTo(keys, 0);
+
+            foreach (string key in keys) {
+                T resource = _nameMap[key];
+                _nameMap.Remove(key);
+                OnResourceRemoved(new NamedResourceEventArgs<T>(resource));
+            }
+
+            OnModified(EventArgs.Empty);
+        }
+
+        protected virtual bool CheckAdd (T item)
+        {
+            return true;
+        }
+
+        protected virtual bool CheckRemove (string name)
+        {
+            return true;
+        }
+
+        private void NameChangingHandler (object sender, NameChangingEventArgs e)
+        {
+            if (!_nameMap.ContainsKey(e.OldName)) {
+                e.Cancel = true;
+            }
+
+            if (_nameMap.ContainsKey(e.NewName)) {
+                e.Cancel = true;
             }
         }
 
@@ -114,42 +129,42 @@ namespace Treefrog.Framework
             _nameMap.Remove(e.OldName);
             _nameMap[e.NewName] = item;
 
-            OnResourceRemapped(new NamedResourceEventArgs<T>(item, e.OldName));
+            OnResourceRemapped(new NamedResourceRemappedEventArgs<T>(item, e.OldName, e.NewName));
         }
 
         protected virtual void OnResourceAdded (NamedResourceEventArgs<T> e)
         {
-            if (ResourceAdded != null) {
-                ResourceAdded(this, e);
-            }
-            OnModified(EventArgs.Empty);
+            ResourceAdded(this, e);
+            //OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnResourceRemoved (NamedResourceEventArgs<T> e)
         {
-            if (ResourceRemoved != null) {
-                ResourceRemoved(this, e);
-            }
-            OnModified(EventArgs.Empty);
+            ResourceRemoved(this, e);
+            //OnModified(EventArgs.Empty);
         }
 
-        protected virtual void OnResourceRemapped (NamedResourceEventArgs<T> e)
+        protected virtual void OnResourceModified (NamedResourceEventArgs<T> e)
         {
-            if (ResourceRemapped != null) {
-                ResourceRemapped(this, e);
-            }
+            ResourceModified(this, e);
+            //OnModified(EventArgs.Empty);
+        }
+
+        protected virtual void OnResourceRemapped (NamedResourceRemappedEventArgs<T> e)
+        {
+            ResourceRemapped(this, e);
+            //OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnModified (EventArgs e)
         {
-            if (Modified != null) {
-                Modified(this, e);
-            }
+            Modified(this, e);
         }
 
         private void ResourceModifiedHandler (object sender, EventArgs e)
         {
-            OnModified(e);
+            NamedResourceEventArgs<T> args = new NamedResourceEventArgs<T>((T)sender);
+            OnResourceModified(args);
         }
 
         #region IEnumerable<T> Members

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Security.Cryptography;
+using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
 {
@@ -10,7 +11,8 @@ namespace Treefrog.Framework.Model
     {
         protected TilePool _pool;
         private int _id;
-        private NamedResourceCollection<Property> _properties;
+        private PropertyCollection _properties;
+        private TileProperties _predefinedProperties;
 
         protected List<DependentTile> _dependents;
 
@@ -18,8 +20,12 @@ namespace Treefrog.Framework.Model
         {
             _id = id;
             _pool = pool;
-            _properties = new NamedResourceCollection<Property>();
-            _properties.Modified += CustomPropertiesModifiedHandler;
+            _dependents = new List<DependentTile>();
+
+            _properties = new PropertyCollection(new string[0]);
+            _predefinedProperties = new Tile.TileProperties(this);
+
+            _properties.Modified += CustomProperties_Modified;
         }
 
         public int Id
@@ -42,9 +48,17 @@ namespace Treefrog.Framework.Model
             get { return _pool.TileWidth; }
         }
 
-        public NamedResourceCollection<Property> Properties
+        //public NamedResourceCollection<Property> Properties
+        //{
+        //    get { return _properties; }
+        //}
+
+        public event EventHandler TextureModified = (s, e) => { };
+
+        protected virtual void OnTextureModified (EventArgs e)
         {
-            get { return _properties; }
+            TextureModified(this, e);
+            OnModified(e);
         }
 
         public virtual void Update (byte[] textureData)
@@ -52,6 +66,7 @@ namespace Treefrog.Framework.Model
             foreach (DependentTile tile in _dependents) {
                 tile.UpdateFromBase(textureData);
             }
+            OnTextureModified(EventArgs.Empty);
         }
 
         public virtual void Draw (SpriteBatch spritebatch, Rectangle dest)
@@ -85,24 +100,52 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        private void CustomPropertiesModifiedHandler (object sender, EventArgs e)
+        private void CustomProperties_Modified (object sender, EventArgs e)
         {
             OnModified(e);
         }
 
         #region IPropertyProvider Members
 
+        private class TileProperties : PredefinedPropertyCollection
+        {
+            private Tile _parent;
+
+            public TileProperties (Tile parent)
+                : base(new string[0])
+            {
+                _parent = parent;
+            }
+
+            protected override IEnumerable<Property> PredefinedProperties ()
+            {
+                yield break;
+            }
+
+            protected override Property LookupProperty (string name)
+            {
+                return _parent.LookupProperty(name);
+            }
+        }
+
+        public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
+
+        protected virtual void OnPropertyProviderNameChanged (EventArgs e)
+        {
+            PropertyProviderNameChanged(this, e);
+        }
+
         public string PropertyProviderName
         {
             get { return "Tile " + _id; }
         }
 
-        public IEnumerable<Property> PredefinedProperties
+        public PredefinedPropertyCollection PredefinedProperties
         {
-            get { yield break; }
+            get { return _predefinedProperties; }
         }
 
-        public IEnumerable<Property> CustomProperties
+        public PropertyCollection CustomProperties
         {
             get { return _properties; }
         }
@@ -117,26 +160,26 @@ namespace Treefrog.Framework.Model
             return _properties.Contains(name) ? _properties[name] : null;
         }
 
-        public void AddCustomProperty (Property property)
-        {
-            if (property == null) {
-                throw new ArgumentNullException("The property is null.");
-            }
-            if (_properties.Contains(property.Name)) {
-                throw new ArgumentException("A property with the same name already exists.");
-            }
+        //public void AddCustomProperty (Property property)
+        //{
+        //    if (property == null) {
+        //        throw new ArgumentNullException("The property is null.");
+        //    }
+        //    if (_properties.Contains(property.Name)) {
+        //        throw new ArgumentException("A property with the same name already exists.");
+        //    }
 
-            _properties.Add(property);
-        }
+        //    _properties.Add(property);
+        //}
 
-        public void RemoveCustomProperty (string name)
-        {
-            if (name == null) {
-                throw new ArgumentNullException("The name is null.");
-            }
+        //public void RemoveCustomProperty (string name)
+        //{
+        //    if (name == null) {
+        //        throw new ArgumentNullException("The name is null.");
+        //    }
 
-            _properties.Remove(name);
-        }
+        //    _properties.Remove(name);
+        //}
 
         #endregion
     }

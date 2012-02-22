@@ -29,23 +29,25 @@ namespace Treefrog.Framework
 
         protected override void OnResourceAdded (NamedResourceEventArgs<T> e)
         {
-            _order.Add(e.Name);
-
-            base.OnResourceAdded(e);
+            if (e.Resource != null) {
+                _order.Add(e.Resource.Name);
+                base.OnResourceAdded(e);
+            }
         }
 
         protected override void OnResourceRemoved (NamedResourceEventArgs<T> e)
         {
-            _order.Remove(e.Name);
-
-            base.OnResourceRemoved(e);
+            if (e.Resource != null) {
+                _order.Remove(e.Resource.Name);
+                base.OnResourceRemoved(e);
+            }
         }
 
-        protected override void OnResourceRemapped (NamedResourceEventArgs<T> e)
+        protected override void OnResourceRemapped (NamedResourceRemappedEventArgs<T> e)
         {
-            int index = _order.IndexOf(e.Name);
-            _order.Insert(index, e.Resource.Name);
-            _order.Remove(e.Name);
+            int index = _order.IndexOf(e.OldName);
+            _order.Insert(index, e.NewName);
+            _order.Remove(e.OldName);
 
             base.OnResourceRemapped(e);
         }
