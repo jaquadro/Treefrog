@@ -78,7 +78,7 @@
     <Compile Include="TlvWriter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Treefrog.Framework\Treefrog.Framework\Treefrog.Framework.csproj">
+    <ProjectReference Include="..\Treefrog.Framework\Treefrog.Framework.csproj">
       <Project>{DFDC210B-3181-4F4D-92B9-6FCDE456697B}</Project>
       <Name>Treefrog.Framework</Name>
     </ProjectReference>
