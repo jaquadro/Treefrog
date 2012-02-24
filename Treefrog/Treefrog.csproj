@@ -329,20 +329,20 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Amphibian\Source\Amphibian.csproj">
+    <ProjectReference Include="..\..\Amphibian\Amphibian\Amphibian.csproj">
       <Project>{E0C66FEA-3843-458D-AAF7-779EBBE6BBBB}</Project>
       <Name>Amphibian</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Treefrog\Sandbox\EditorContent\EditorContent.contentproj">
-      <Project>{ACE6159A-779C-47CB-AAE1-795DF5ADBA6A}</Project>
-      <Name>EditorContent</Name>
-      <XnaReferenceType>Content</XnaReferenceType>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Treefrog\Sandbox\Sandbox\Sandbox.csproj">
+    <ProjectReference Include="..\..\Roots\Sandbox\Sandbox.csproj">
       <Project>{027BAD06-CADD-4D54-AAAE-B60AF35C3428}</Project>
       <Name>Sandbox</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Treefrog.Framework\Treefrog.Framework\Treefrog.Framework.csproj">
+    <ProjectReference Include="..\Treefrog.Content\Treefrog.Content.contentproj">
+      <Project>{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}</Project>
+      <Name>Treefrog.Content %28Content%29</Name>
+      <XnaReferenceType>Content</XnaReferenceType>
+    </ProjectReference>
+    <ProjectReference Include="..\Treefrog.Framework\Treefrog.Framework.csproj">
       <Project>{DFDC210B-3181-4F4D-92B9-6FCDE456697B}</Project>
       <Name>Treefrog.Framework</Name>
     </ProjectReference>

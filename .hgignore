@@ -2,3 +2,4 @@ syntax: glob
 *.suo
 bin/*
 obj/*
+*.cachefile

@@ -484,7 +484,7 @@ namespace Treefrog.View.Controls
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _content = new ContentManager(_services);
-            _content.RootDirectory = "EditorContent";
+            _content.RootDirectory = "Content";
 
             _effect = _content.Load<Effect>("TransColor");
             _effectTransColor = _effect.Parameters["transColor"];
