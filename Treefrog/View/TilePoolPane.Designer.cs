@@ -31,16 +31,16 @@ namespace Treefrog.View
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TilePoolPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-            this.viewportControl1 = new ViewportControl();
-            this._tileControl = new LayerControl();
+            this.viewportControl1 = new Treefrog.View.Controls.ViewportControl();
+            this._tileControl = new Treefrog.View.Controls.LayerControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this._poolComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this._buttonRemove = new System.Windows.Forms.ToolStripButton();
-            this._buttonProperties = new System.Windows.Forms.ToolStripButton();
             this._buttonAdd = new System.Windows.Forms.ToolStripDropDownButton();
             this.createEmptyPoolToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._buttonRemove = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this._buttonProperties = new System.Windows.Forms.ToolStripButton();
+            this._poolComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -78,7 +78,7 @@ namespace Treefrog.View
             // 
             // _tileControl
             // 
-            this._tileControl.Alignment = LayerControlAlignment.Center;
+            this._tileControl.Alignment = Treefrog.View.Controls.LayerControlAlignment.Center;
             this._tileControl.CanAutoScroll = false;
             this._tileControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._tileControl.HeightSynced = false;
@@ -105,29 +105,6 @@ namespace Treefrog.View
             this.toolStrip1.Stretch = true;
             this.toolStrip1.TabIndex = 0;
             // 
-            // _poolComboBox
-            // 
-            this._poolComboBox.Name = "_poolComboBox";
-            this._poolComboBox.Size = new System.Drawing.Size(121, 25);
-            // 
-            // _buttonRemove
-            // 
-            this._buttonRemove.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._buttonRemove.Image = ((System.Drawing.Image)(resources.GetObject("_buttonRemove.Image")));
-            this._buttonRemove.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._buttonRemove.Name = "_buttonRemove";
-            this._buttonRemove.Size = new System.Drawing.Size(23, 22);
-            this._buttonRemove.Text = "Remove Selected Tile Pool";
-            // 
-            // _buttonProperties
-            // 
-            this._buttonProperties.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._buttonProperties.Image = ((System.Drawing.Image)(resources.GetObject("_buttonProperties.Image")));
-            this._buttonProperties.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._buttonProperties.Name = "_buttonProperties";
-            this._buttonProperties.Size = new System.Drawing.Size(23, 22);
-            this._buttonProperties.Text = "Selected Tile Pool Properties";
-            // 
             // _buttonAdd
             // 
             this._buttonAdd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -152,10 +129,33 @@ namespace Treefrog.View
             this.importNewToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.importNewToolStripMenuItem.Text = "Import pool...";
             // 
+            // _buttonRemove
+            // 
+            this._buttonRemove.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._buttonRemove.Image = ((System.Drawing.Image)(resources.GetObject("_buttonRemove.Image")));
+            this._buttonRemove.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._buttonRemove.Name = "_buttonRemove";
+            this._buttonRemove.Size = new System.Drawing.Size(23, 22);
+            this._buttonRemove.Text = "Remove Selected Tile Pool";
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // _buttonProperties
+            // 
+            this._buttonProperties.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._buttonProperties.Image = ((System.Drawing.Image)(resources.GetObject("_buttonProperties.Image")));
+            this._buttonProperties.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._buttonProperties.Name = "_buttonProperties";
+            this._buttonProperties.Size = new System.Drawing.Size(23, 22);
+            this._buttonProperties.Text = "Selected Tile Pool Properties";
+            // 
+            // _poolComboBox
+            // 
+            this._poolComboBox.Name = "_poolComboBox";
+            this._poolComboBox.Size = new System.Drawing.Size(121, 25);
             // 
             // TilePoolPane
             // 

@@ -452,8 +452,10 @@ namespace Treefrog.View.Controls
             int vHeight = 0;
             int vWidth = 0;
             foreach (BaseControlLayer layer in _layers) {
-                vHeight = Math.Max(vHeight, layer.VirtualHeight);
-                vWidth = Math.Max(vWidth, layer.VirtualWidth);
+                if (layer.UseInVirtualSizeCalculation) {
+                    vHeight = Math.Max(vHeight, layer.VirtualHeight);
+                    vWidth = Math.Max(vWidth, layer.VirtualWidth);
+                }
             }
 
             if (HeightSynced) {

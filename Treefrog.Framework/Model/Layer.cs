@@ -346,7 +346,7 @@ namespace Treefrog.Framework.Model
         public string Name
         {
             get { return _name; }
-            private set
+            set
             {
                 if (_name != value) {
                     NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);

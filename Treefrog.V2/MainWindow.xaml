@@ -1,0 +1,101 @@
+﻿<Window x:Class="Treefrog.V2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avalonDock="clr-namespace:AvalonDock;assembly=AvalonDock"
+        xmlns:avalonDockControls="clr-namespace:AvalonDock.Controls;assembly=AvalonDock"
+        xmlns:avalonDockLayout="clr-namespace:AvalonDock.Layout;assembly=AvalonDock"
+        xmlns:view="clr-namespace:Treefrog.V2"
+        xmlns:viewDocuments="clr-namespace:Treefrog.V2.View.Documents"
+        xmlns:vm="clr-namespace:Treefrog.V2.ViewModel"
+        xmlns:toolbars="clr-namespace:Treefrog.V2.View.ToolBars"
+        Title="{Binding Title}" Height="458" Width="697" xmlns:my="clr-namespace:Treefrog.V2.Controls.Xna" ResizeMode="CanResizeWithGrip">
+    <Window.DataContext>
+        <vm:EditorVM />
+    </Window.DataContext>
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Control" Key="O" Command="{Binding Path=StandardMenu.OpenProjectCommand}"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Command="New" Header="New Project...">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog.V2;component/Images/16/applications-blue--asterisk.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="{Binding Path=StandardMenu.OpenProjectCommand}" Header="Open Project..." InputGestureText="Ctrl+O">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog.V2;component/Images/16/folder-horizontal-open.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edit"></MenuItem>
+            <MenuItem Header="View"></MenuItem>
+            <MenuItem Header="Help"></MenuItem>
+        </Menu>
+        
+        <ToolBarTray Grid.Row="1">
+            <toolbars:StandardToolBar DataContext="{Binding Path=StandardToolBar}" />
+            <toolbars:TileToolBar DataContext="{Binding Path=TileToolBar}" />
+        </ToolBarTray>
+        
+        <avalonDock:DockingManager x:Name="dockManager"
+                                   Grid.Row="2" 
+                                   DocumentsSource="{Binding Project.Documents}"
+                                   ActiveContent="{Binding ActiveContent, Mode=TwoWay}">
+            <avalonDock:DockingManager.DocumentTemplate>
+                <DataTemplate>
+                    <viewDocuments:LevelDocument />
+                </DataTemplate>
+            </avalonDock:DockingManager.DocumentTemplate>
+            <avalonDock:DockingManager.DocumentHeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Content.Name}" />
+                </DataTemplate>
+            </avalonDock:DockingManager.DocumentHeaderTemplate>
+            <avalonDock:DockingManager.DocumentTitleTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Content.Name}" />
+                </DataTemplate>
+            </avalonDock:DockingManager.DocumentTitleTemplate>
+
+            <avalonDockLayout:LayoutRoot>
+                <avalonDockLayout:LayoutPanel Orientation="Horizontal">
+                    <avalonDockLayout:LayoutAnchorablePaneGroup DockWidth="200" Orientation="Vertical">
+                        <avalonDockLayout:LayoutAnchorablePane>
+                            <avalonDockLayout:LayoutAnchorable x:Name="tilePools" Title="Tile Pools">
+                                <!--<Frame Source="TilePools.xaml" />-->
+                                <view:TilePoolPanel DataContext="{Binding Path=Project.TilePoolCollection}"/>
+                            </avalonDockLayout:LayoutAnchorable>
+                            <avalonDockLayout:LayoutAnchorable x:Name="objectPools" Title="Objects">
+                                
+                            </avalonDockLayout:LayoutAnchorable>
+                        </avalonDockLayout:LayoutAnchorablePane>
+                        <avalonDockLayout:LayoutAnchorablePane>
+                            <avalonDockLayout:LayoutAnchorable x:Name="properties" Title="Properties">
+                                
+                            </avalonDockLayout:LayoutAnchorable>
+                        </avalonDockLayout:LayoutAnchorablePane>
+                    </avalonDockLayout:LayoutAnchorablePaneGroup>
+                    <avalonDockLayout:LayoutDocumentPaneGroup>
+                        <avalonDockLayout:LayoutDocumentPane>
+                            <!--<avalonDockLayout:LayoutDocument Title="Level 1">
+                                
+                            </avalonDockLayout:LayoutDocument>-->
+                        </avalonDockLayout:LayoutDocumentPane>
+                    </avalonDockLayout:LayoutDocumentPaneGroup>
+                </avalonDockLayout:LayoutPanel>
+            </avalonDockLayout:LayoutRoot>
+        </avalonDock:DockingManager>
+        
+        <StatusBar Grid.Row="3">
+            <StatusBarItem Content="Test" />
+        </StatusBar>
+    </Grid>
+</Window>

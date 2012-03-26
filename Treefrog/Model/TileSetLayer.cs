@@ -22,6 +22,9 @@ namespace Treefrog.Model
             : base(name, pool.TileWidth, pool.TileHeight)
         {
             _pool = pool;
+            _pool.TileAdded += TilePool_TileAdded;
+            _pool.TileRemoved += TilePool_TileRemoved;
+
             SyncIndex();
         }
 
@@ -29,6 +32,9 @@ namespace Treefrog.Model
             : base(name, layer)
         {
             _pool = layer._pool;
+            _pool.TileAdded += TilePool_TileAdded;
+            _pool.TileRemoved += TilePool_TileRemoved;
+
             SyncIndex();
         }
 
@@ -59,6 +65,16 @@ namespace Treefrog.Model
         }
 
         #endregion
+
+        private void TilePool_TileAdded (object sender, TileEventArgs e)
+        {
+            SyncIndex();
+        }
+
+        private void TilePool_TileRemoved (object sender, TileEventArgs e)
+        {
+            SyncIndex();
+        }
 
         #region Public API
 

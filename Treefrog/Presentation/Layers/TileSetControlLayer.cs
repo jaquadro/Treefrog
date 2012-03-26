@@ -64,7 +64,7 @@ namespace Treefrog.Presentation.Layers
                 }
                 else if (Control.WidthSynced) {
                     int tilesWide = Math.Max(1, Control.Width / _layer.TileWidth);
-                    return ((_layer.Capacity + tilesWide - 1) / tilesWide) * _layer.TileHeight;
+                    return ((_layer.Count + tilesWide - 1) / tilesWide) * _layer.TileHeight;
                 }
 
                 return (int)Math.Ceiling(Math.Sqrt(_layer.Capacity)) * _layer.TileHeight;
@@ -84,7 +84,7 @@ namespace Treefrog.Presentation.Layers
                 }
                 else if (Control.HeightSynced) {
                     int tilesHigh = Math.Max(1, Control.Height / _layer.TileHeight);
-                    return ((_layer.Capacity + tilesHigh - 1) / tilesHigh) * _layer.TileWidth;
+                    return ((_layer.Count + tilesHigh - 1) / tilesHigh) * _layer.TileWidth;
                 }
 
                 return (int)Math.Ceiling(Math.Sqrt(_layer.Capacity)) * _layer.TileWidth;

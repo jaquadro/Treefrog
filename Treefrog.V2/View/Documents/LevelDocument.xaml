@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="Treefrog.V2.View.Documents.LevelDocument"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:view="clr-namespace:Treefrog.V2.View"
+             xmlns:layers="clr-namespace:Treefrog.V2.Controls.Layers"
+             mc:Ignorable="d" 
+             d:DesignHeight="429" d:DesignWidth="512">
+    <Grid>
+        <ScrollViewer Height="{Binding ActualHeight,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" 
+                      Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
+                      HorizontalAlignment="Left" Name="scrollViewer1" VerticalAlignment="Top"  
+                      HorizontalScrollBarVisibility="Visible" CanContentScroll="True" >
+            <view:VirtualXnaCanvas ClearColor="Gray">
+                <layers:GroupLayer>
+                    <layers:RenderLayer Opacity="0.5" />
+                    <!--layers:RenderLayer /-->
+                </layers:GroupLayer>
+            </view:VirtualXnaCanvas>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

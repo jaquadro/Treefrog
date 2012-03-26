@@ -27,6 +27,7 @@ namespace Treefrog.Framework.Model
         private TileRegistry _registry;
 
         private NamedResourceCollection<TilePool> _tilePools;
+        private NamedResourceCollection<ObjectPool> _objectPools;
         //private NamedResourceCollection<TileSet2D> _tileSets;
         private NamedResourceCollection<Level> _levels;
 
@@ -41,10 +42,12 @@ namespace Treefrog.Framework.Model
             _services = new ServiceContainer();
 
             _tilePools = new NamedResourceCollection<TilePool>();
+            _objectPools = new NamedResourceCollection<ObjectPool>();
             //_tileSets = new NamedResourceCollection<TileSet2D>();
             _levels = new NamedResourceCollection<Level>();
 
             _tilePools.Modified += TilePoolsModifiedHandler;
+            _objectPools.Modified += ObjectPoolsModifiedHandler;
             _levels.Modified += LevelsModifiedHandler;
         }
 
@@ -60,6 +63,11 @@ namespace Treefrog.Framework.Model
         public NamedResourceCollection<TilePool> TilePools
         {
             get { return _tilePools; }
+        }
+
+        public NamedResourceCollection<ObjectPool> ObjectPools
+        {
+            get { return _objectPools; }
         }
 
         /*public NamedResourceCollection<TileSet2D> TileSets
@@ -113,6 +121,11 @@ namespace Treefrog.Framework.Model
         #region Event Handlers
 
         private void TilePoolsModifiedHandler (object sender, EventArgs e)
+        {
+            OnModified(e);
+        }
+
+        private void ObjectPoolsModifiedHandler (object sender, EventArgs e)
         {
             OnModified(e);
         }

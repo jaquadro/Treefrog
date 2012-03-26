@@ -15,6 +15,7 @@ namespace Treefrog.Presentation.Layers
         private string _name;
         private Layer _layer;
         private bool _visible;
+        private bool _calculateVSize = true;
 
         #endregion
 
@@ -70,6 +71,12 @@ namespace Treefrog.Presentation.Layers
         {
             get { return _visible; }
             set { _visible = value; }
+        }
+
+        public bool UseInVirtualSizeCalculation
+        {
+            get { return _calculateVSize; }
+            set { _calculateVSize = value; }
         }
 
         public abstract int VirtualHeight { get; }

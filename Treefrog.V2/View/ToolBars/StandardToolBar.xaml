@@ -1,0 +1,38 @@
+﻿<ToolBar x:Class="Treefrog.V2.View.ToolBars.StandardToolBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Width="Auto" Height="Auto">
+
+                <Button>
+                    <Image Source="/Treefrog.V2;component/Images/16/applications-blue--asterisk.png" Width="16" Height="16" />
+                </Button>
+                <Button Command="{Binding Path=Menu.NewLevelCommand}">
+                    <Image Source="/Treefrog.V2;component/Images/16/map--asterisk.png" Width="16" Height="16" />
+                </Button>
+                <Button Command="{Binding Path=Menu.OpenProjectCommand}">
+                    <Image Source="/Treefrog.V2;component/Images/16/folder-horizontal-open.png" Width="16" Height="16" />
+                </Button>
+                <Button>
+                    <Image Source="/Treefrog.V2;component/Images/16/disk.png" Width="16" Height="16" />
+                </Button>
+                <Separator />
+                <Button>
+                    <Image Source="/Treefrog.V2;component/Images/16/scissors.png" Width="16" Height="16" />
+                </Button>
+                <Button>
+                    <Image Source="/Treefrog.V2;component/Images/16/documents.png" Width="16" Height="16" />
+                </Button>
+                <Button>
+                    <Image Source="/Treefrog.V2;component/Images/16/clipboard-paste.png" Width="16" Height="16" />
+                </Button>
+                <Separator />
+                <Button>
+                    <Image Source="/Treefrog.V2;component/Images/16/arrow-turn-180-left.png" Width="16" Height="16" />
+                </Button>
+                <Button>
+                    <Image Source="/Treefrog.V2;component/Images/16/arrow-turn.png" Width="16" Height="16" />
+                </Button>
+</ToolBar>

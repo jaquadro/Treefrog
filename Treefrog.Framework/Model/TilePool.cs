@@ -8,9 +8,15 @@ using System.Xml;
 using System.IO.Compression;
 using Treefrog.Framework.Model.Collections;
 
+using Bitmap = System.Drawing.Bitmap;
+using BitmapData = System.Drawing.Imaging.BitmapData;
+using ImageLockMode = System.Drawing.Imaging.ImageLockMode;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
+using SysRectangle = System.Drawing.Rectangle;
+
 namespace Treefrog.Framework.Model
 {
-    public enum ImportPolicy
+    public enum TileImportPolicy
     {
         ImprotAll,      // Import all tiles, including duplicate tiles in source
         SourceUnique,   // Import each unique tile in source
@@ -27,6 +33,8 @@ namespace Treefrog.Framework.Model
         }
     }
 
+    
+
     public class TilePool : INamedResource, IEnumerable<Tile>, IPropertyProvider
     {
         private const int _initFactor = 4;
@@ -38,7 +46,8 @@ namespace Treefrog.Framework.Model
         private string _name;
 
         private TileRegistry _registry;
-        private Texture2D _tileSource;
+        //private Texture2D _tileSource;
+        private TextureSource _tileSource;
 
         private int _tileWidth;
         private int _tileHeight;
@@ -77,7 +86,14 @@ namespace Treefrog.Framework.Model
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
 
-            _tileSource = new Texture2D(_registry.GraphicsDevice, _tileWidth * _initFactor, _tileHeight * _initFactor, false, SurfaceFormat.Color);
+            if (registry.GraphicsDevice != null) {
+                _tileSource = new TextureSource(_tileWidth * _initFactor, _tileHeight * _initFactor, _registry.GraphicsDevice);
+            }
+            else {
+                _tileSource = new TextureSource(_tileWidth * _initFactor, _tileHeight * _initFactor);
+                registry.GraphicsDeviceInitialized += TileRegistry_GraphicsDeviceInitialized;
+            }
+
             for (int x = 0; x < _initFactor; x++) {
                 for (int y = 0; y < _initFactor; y++) {
                     _openLocations.Add(new TileCoord(x, y));
@@ -86,6 +102,12 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        private void TileRegistry_GraphicsDeviceInitialized (object sender, EventArgs e)
+        {
+            _tileSource.Initialize(_registry.GraphicsDevice);
+            _registry.GraphicsDeviceInitialized -= TileRegistry_GraphicsDeviceInitialized;
+        }
 
         #region Properties
 
@@ -222,7 +244,8 @@ namespace Treefrog.Framework.Model
             _openLocations.RemoveAt(_openLocations.Count - 1);
 
             Rectangle dest = new Rectangle(coord.X * _tileWidth, coord.Y * _tileHeight, _tileWidth, _tileHeight);
-            _tileSource.SetData(0, dest, data, 0, data.Length);
+            //_tileSource.SetData(0, dest, data, 0, data.Length);
+            _tileSource.SetData(data, dest);
 
             _locations[id] = coord;
             _tiles[id] = new PhysicalTile(id, this);
@@ -243,8 +266,9 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(coord.X * _tileWidth, coord.Y * _tileHeight, _tileWidth, _tileHeight);
 
-            Color[] data = new Color[_tileWidth * _tileHeight];
-            _tileSource.SetData(0, dest, data, 0, data.Length);
+            byte[] data = new byte[_tileWidth * _tileHeight * 4];
+            //_tileSource.SetData(0, dest, data, 0, data.Length);
+            _tileSource.SetData(data, dest);
 
             _openLocations.Add(_locations[id]);
 
@@ -281,7 +305,8 @@ namespace Treefrog.Framework.Model
             Rectangle src = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
             byte[] data = new byte[_tileWidth * _tileHeight * 4];
 
-            _tileSource.GetData(0, src, data, 0, data.Length);
+            //_tileSource.GetData(0, src, data, 0, data.Length);
+            _tileSource.GetData(data, src);
 
             return data;
         }
@@ -311,7 +336,8 @@ namespace Treefrog.Framework.Model
             }
 
             Rectangle dest = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
-            _tileSource.SetData(0, dest, data, 0, data.Length);
+            //_tileSource.SetData(0, dest, data, 0, data.Length);
+            _tileSource.SetData(data, dest);
 
             OnTileModified(new TileEventArgs(_tiles[id]));
         }
@@ -343,13 +369,13 @@ namespace Treefrog.Framework.Model
 
         public void DrawTile (SpriteBatch spritebatch, int id, Rectangle dest, Color color)
         {
-            if (!_tiles.ContainsKey(id)) {
+            if (!_tiles.ContainsKey(id) || _tileSource.Texture == null) {
                 return;
             }
 
             Rectangle src = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
             //spritebatch.Draw(_tileSource, dest, src, Color.White);
-            spritebatch.Draw(_tileSource, dest, src, color);
+            spritebatch.Draw(_tileSource.Texture, dest, src, color);
         }
 
         #region Texture Management
@@ -381,9 +407,11 @@ namespace Treefrog.Framework.Model
                 height *= 2;
             }
 
-            Texture2D next = new Texture2D(_registry.GraphicsDevice, width, height, false, SurfaceFormat.Color);
+            //Texture2D next = new Texture2D(_registry.GraphicsDevice, width, height, false, SurfaceFormat.Color);
+            TextureSource next = new TextureSource(width, height, _registry.GraphicsDevice);
             Rectangle dest = new Rectangle(0, 0, _tileSource.Width, _tileSource.Height);
-            next.SetData(0, dest, data, 0, data.Length);
+            //next.SetData(0, dest, data, 0, data.Length);
+            next.SetData(data, dest);
 
             int factorX = next.Width / _tileWidth;
             int factorY = next.Height / _tileHeight;
@@ -437,7 +465,8 @@ namespace Treefrog.Framework.Model
 
                     KeyValuePair<int, TileCoord> loc = locs.Dequeue();
                     Rectangle src = new Rectangle(loc.Value.X * _tileWidth, loc.Value.Y * _tileHeight, _tileWidth, _tileHeight);
-                    _tileSource.GetData(0, src, data, 0, data.Length);
+                    //_tileSource.GetData(0, src, data, 0, data.Length);
+                    _tileSource.GetData(data, src);
 
                     Rectangle dst = new Rectangle(x * _tileWidth, y * _tileHeight, _tileWidth, _tileHeight);
                     next.SetData(0, dst, data, 0, data.Length);
@@ -465,10 +494,10 @@ namespace Treefrog.Framework.Model
 
         public static TilePool Import (string name, TileRegistry registry, Stream stream, int tileWidth, int tileHeight, int spaceX, int spaceY, int marginX, int marginY)
         {
-            return Import(name, registry, stream, tileWidth, tileHeight, spaceX, spaceY, marginX, marginY, ImportPolicy.SetUnique);
+            return Import(name, registry, stream, tileWidth, tileHeight, spaceX, spaceY, marginX, marginY, TileImportPolicy.SetUnique);
         }
 
-        public static TilePool Import (string name, TileRegistry registry, Stream stream, int tileWidth, int tileHeight, int spaceX, int spaceY, int marginX, int marginY, ImportPolicy policy)
+        public static TilePool Import (string name, TileRegistry registry, Stream stream, int tileWidth, int tileHeight, int spaceX, int spaceY, int marginX, int marginY, TileImportPolicy policy)
         {
             TilePool pool = new TilePool(name, registry, tileWidth, tileHeight);
             pool.ImportMerge(stream, spaceX, spaceY, marginX, marginY, policy);
@@ -492,10 +521,10 @@ namespace Treefrog.Framework.Model
 
         public void ImportMerge (Stream stream, int spaceX, int spaceY, int marginX, int marginY)
         {
-            ImportMerge(stream, spaceX, spaceY, marginX, marginY, ImportPolicy.SetUnique);
+            ImportMerge(stream, spaceX, spaceY, marginX, marginY, TileImportPolicy.SetUnique);
         }
 
-        public void ImportMerge (Stream stream, int spaceX, int spaceY, int marginX, int marginY, ImportPolicy policy)
+        public void ImportMerge (Stream stream, int spaceX, int spaceY, int marginX, int marginY, TileImportPolicy policy)
         {
             try {
                 Texture2D source = Texture2D.FromStream(_registry.GraphicsDevice, stream);
@@ -539,7 +568,8 @@ namespace Treefrog.Framework.Model
 
         public void Export (Stream stream)
         {
-            _tileSource.SaveAsPng(stream, _tileSource.Width, _tileSource.Height);
+            _tileSource.CopyBitmap().Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            //SaveAsPng(stream, _tileSource.Width, _tileSource.Height);
         }
 
         #endregion
@@ -548,12 +578,17 @@ namespace Treefrog.Framework.Model
 
         public void ApplyTransparentColor (Color color)
         {
-            Color[] data = new Color[_tileSource.Width * _tileSource.Height];
+            byte[] data = new byte[_tileSource.Width * _tileSource.Height * 4];
             _tileSource.GetData(data);
 
             for (int i = 0; i < data.Length; i++) {
-                if (color.R == data[i].R && color.G == data[i].G && color.B == data[i].B) {
-                    data[i].A = 0;
+                byte a = data[4 * i + 0];
+                byte r = data[4 * i + 1];
+                byte g = data[4 * i + 2];
+                byte b = data[4 * i + 3];
+
+                if (color.R == r && color.G == g && color.B == b) {
+                    data[4 * i + 0] = 0;
                 }
             }
 
@@ -784,7 +819,8 @@ namespace Treefrog.Framework.Model
                         throw new Exception("Unexpected length of payload");
                     }
 
-                    _tileSource = new Texture2D(_registry.GraphicsDevice, width, height, false, format);
+                    //_tileSource = new Texture2D(_registry.GraphicsDevice, width, height, false, format);
+                    _tileSource = new TextureSource(width, height, _registry.GraphicsDevice);
                     _tileSource.SetData(czData);
                 }
             }
@@ -957,118 +993,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        //public void AddCustomProperty (Property property)
-        //{
-        //    if (property == null) {
-        //        throw new ArgumentNullException("The property is null.");
-        //    }
-        //    switch (LookupPropertyCategory(property.Name)) {
-        //        case PropertyCategory.Predefined:
-        //            throw new ArgumentException("The property is using a reserved name.");
-        //        case PropertyCategory.Custom:
-        //            throw new ArgumentException("A property with the same name already exists.");
-        //    }
-
-        //    property.ValueChanged += PropertyValueChangedHandler;
-
-        //    _properties.Add(property);
-        //}
-
-        //public void RemoveCustomProperty (string name)
-        //{
-        //    if (name == null) {
-        //        throw new ArgumentNullException("The name is null.");
-        //    }
-
-        //    Property property = _properties[name];
-        //    if (property != null) {
-        //        property.ValueChanged -= PropertyValueChangedHandler;
-        //    }
-
-        //    _properties.Remove(name);
-        //}
-
         #endregion
-
-        ///// <summary>
-        ///// Occurs after a new custom <see cref="Property"/> has been added to the <c>TilePool</c>.
-        ///// </summary>
-        //public event EventHandler<PropertyEventArgs> PropertyAdded = (s, e) => { };
-
-        ///// <summary>
-        ///// Occurs after a custom <see cref="Property"/> has been removed from the <c>TilePool</c>.
-        ///// </summary>
-        //public event EventHandler<PropertyEventArgs> PropertyRemoved = (s, e) => { };
-
-        ///// <summary>
-        ///// Occurs after a custom <see cref="Property"/> has had its value modified.
-        ///// </summary>
-        //public event EventHandler<PropertyEventArgs> PropertyModified = (s, e) => { };
-
-        ///// <summary>
-        ///// Occurs after a custom <see cref="Property"/> has been renamed.
-        ///// </summary>
-        //public event EventHandler<NameChangedEventArgs> PropertyRenamed = (s, e) => { };
-
-        ///// <summary>
-        ///// Raises the <see cref="PropertyAdded"/> event and triggers the <see cref="Modified"/> event.
-        ///// </summary>
-        ///// <param name="e">A <see cref="PropertyEventArgs"/> that contains the event data.</param>
-        //protected virtual void OnPropertyAdded (PropertyEventArgs e)
-        //{
-        //    PropertyAdded(this, e);
-        //    OnModified(e);
-        //}
-
-        ///// <summary>
-        ///// Raises the <see cref="PropertyRemoved"/> event and triggers the <see cref="Modified"/> event.
-        ///// </summary>
-        ///// <param name="e">A <see cref="PropertyEventArgs"/> that contains the event data.</param>
-        //protected virtual void OnPropertyRemoved (PropertyEventArgs e)
-        //{
-        //    PropertyRemoved(this, e);
-        //    OnModified(e);
-        //}
-
-        ///// <summary>
-        ///// Raises the <see cref="PropertyModified"/> event and triggers the <see cref="Modified"/> event.
-        ///// </summary>
-        ///// <param name="e">A <see cref="PropertyEventArgs"/> that contains the event data.</param>
-        //protected virtual void OnPropertyModified (PropertyEventArgs e)
-        //{
-        //    PropertyModified(this, e);
-        //    OnModified(e);
-        //}
-
-        ///// <summary>
-        ///// Raises the <see cref="PropertyRenamed"/> event and triggers the <see cref="Modified"/> event.
-        ///// </summary>
-        ///// <param name="e">A <see cref="NameChangedEventArgs"/> that contains the event data.</param>
-        //protected virtual void OnPropertyRenamed (NameChangedEventArgs e)
-        //{
-        //    PropertyRenamed(this, e);
-        //    OnModified(e);
-        //}
-
-        //private void PropertyResourceAddedHandler (object sender, NamedResourceEventArgs<Property> e)
-        //{
-        //    OnPropertyAdded(new PropertyEventArgs(e.Resource));
-        //}
-
-        //private void PropertyResourceRemovedHandler (object sender, NamedResourceEventArgs<Property> e)
-        //{
-        //    OnPropertyRemoved(new PropertyEventArgs(e.Resource));
-        //}
-
-        //private void PropertyValueChangedHandler (object sender, EventArgs e)
-        //{
-        //    OnPropertyModified(new PropertyEventArgs(sender as Property));
-        //}
-
-        //private void PropertyResourceRenamedHandler (object sender, NamedResourceEventArgs<Property> e)
-        //{
-        //    OnPropertyRenamed(new NameChangedEventArgs(e.Name, e.Resource.Name));
-        //}
 
         private void CustomProperties_Modified (object sender, EventArgs e)
         {

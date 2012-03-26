@@ -1,0 +1,35 @@
+﻿<ToolBar x:Class="Treefrog.V2.View.ToolBars.TileToolBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" Height="Auto" Width="Auto">
+    <ToggleButton IsChecked="{Binding Path=Menu.SelectToolSelected}">
+        <Image Source="/Treefrog.V2;component/Images/16/cursor.png" Width="16" Height="16" />
+    </ToggleButton>
+    <ToggleButton IsChecked="{Binding Path=Menu.DrawToolSelected}">
+        <Image Source="/Treefrog.V2;component/Images/16/paint-brush.png" Width="16" Height="16" />
+    </ToggleButton>
+    <ToggleButton IsChecked="{Binding Path=Menu.EraseToolSelected}">
+        <Image Source="/Treefrog.V2;component/Images/16/eraser.png" Width="16" Height="16" />
+    </ToggleButton>
+    <ToggleButton IsChecked="{Binding Path=Menu.FillToolSelected}">
+        <Image Source="/Treefrog.V2;component/Images/16/paint-can.png" Width="16" Height="16" />
+    </ToggleButton>
+    <ToggleButton IsChecked="{Binding Path=Menu.StampToolSelected}">
+        <Image Source="/Treefrog.V2;component/Images/16/stamp.png" Width="16" Height="16" />
+    </ToggleButton>
+    <Separator />
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/layer-rotate-left.png" Width="16" Height="16" />
+    </Button>
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/layer-rotate.png" Width="16" Height="16" />
+    </Button>
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/layer-flip.png" Width="16" Height="16" />
+    </Button>
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/layer-flip-vertical.png" Width="16" Height="16" />
+    </Button>
+</ToolBar>

@@ -141,11 +141,19 @@
     <Compile Include="Presentation\Commands\CommandHistory.cs" />
     <Compile Include="Presentation\Commands\EventArgs.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
+    <Compile Include="Presentation\Layers\ObjectSetControlLayer.cs" />
+    <Compile Include="Presentation\ObjectListPresenter.cs" />
     <Compile Include="Presentation\Tools\Selection.cs" />
     <Compile Include="Presentation\Tools\SelectTool.cs" />
     <Compile Include="View\Controls\Composite\InfoStatus.cs" />
     <Compile Include="View\Controls\Composite\Menu.cs" />
+    <Compile Include="View\Controls\ObjectViewControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="View\Controls\WinEx\ColorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="View\Controls\WinEx\ComboBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="View\Controls\WinEx\LayerListView.cs">
@@ -178,6 +186,12 @@
     </Compile>
     <Compile Include="View\LevelPanel.Designer.cs">
       <DependentUpon>LevelPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\ObjectPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\ObjectPanel.Designer.cs">
+      <DependentUpon>ObjectPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="View\PropertyPane.cs">
       <SubType>UserControl</SubType>
@@ -276,6 +290,14 @@
     <EmbeddedResource Include="Icons\16\disk.png" />
     <EmbeddedResource Include="Icons\16\compile.png" />
     <EmbeddedResource Include="Icons\16\tags.png" />
+    <EmbeddedResource Include="Icons\16\box--minus.png" />
+    <EmbeddedResource Include="Icons\16\box--plus.png" />
+    <EmbeddedResource Include="Icons\16\game--minus.png" />
+    <EmbeddedResource Include="Icons\16\icons-large.png" />
+    <EmbeddedResource Include="Icons\16\icons-medium.png" />
+    <EmbeddedResource Include="Icons\16\icons-small.png" />
+    <EmbeddedResource Include="Icons\16\game--plus.png" />
+    <Resource Include="Icons\16\folder-horizontal-open.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="View\Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
@@ -318,6 +340,9 @@
     <EmbeddedResource Include="Icons\minus16.png" />
     <EmbeddedResource Include="Icons\pencil16.png" />
     <EmbeddedResource Include="Icons\plus16.png" />
+    <EmbeddedResource Include="View\ObjectPanel.resx">
+      <DependentUpon>ObjectPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\PropertyPane.resx">
       <DependentUpon>PropertyPane.cs</DependentUpon>
     </EmbeddedResource>

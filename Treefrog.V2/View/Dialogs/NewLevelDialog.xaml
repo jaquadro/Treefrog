@@ -1,0 +1,82 @@
+﻿<Window x:Class="Treefrog.V2.NewLevelDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Treefrog.V2"
+        xmlns:conv="clr-namespace:Treefrog.V2.Converters"
+        xmlns:vm="Treefrog.V2.NewLevelDialogVM"
+        Title="New Level" Height="236" Width="449">
+    <Window.Resources>
+        <conv:StringToIntNull x:Key="convInt"/>
+    </Window.Resources>
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Header="Level Details" Margin="6" Name="groupBox1" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="Name:" ClipToBounds="True" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LevelName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </GroupBox>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+            
+            <GroupBox Grid.Column="0" Header="Tile Size" HorizontalAlignment="Stretch" Margin="6" Name="groupBox2" VerticalAlignment="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    
+                    <Label Grid.Row="0" Grid.Column="0" Content="Width:" ClipToBounds="True" />
+                    <TextBox Grid.Row="0" Grid.Column="1" TextAlignment="Right" Text="{Binding TileWidth, Converter={StaticResource convInt}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                    
+                    <Label Grid.Row="1" Grid.Column="0" Content="Height:" ClipToBounds="True" />
+                    <TextBox Grid.Row="1" Grid.Column="1" TextAlignment="Right" Text="{Binding TileHeight, Converter={StaticResource convInt}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1" Header="Level Size" HorizontalAlignment="Stretch" Margin="6" Name="groupBox3" VerticalAlignment="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Width:" ClipToBounds="True" />
+                    <TextBox Grid.Row="0" Grid.Column="1" TextAlignment="Right" Text="{Binding LevelWidth, Converter={StaticResource convInt}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label Grid.Row="1" Grid.Column="0" Content="Height:" ClipToBounds="True" />
+                    <TextBox Grid.Row="1" Grid.Column="1" TextAlignment="Right" Text="{Binding LevelHeight, Converter={StaticResource convInt}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+            </GroupBox>
+        </Grid>
+        
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="90" />
+                <ColumnDefinition Width="90" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Content="OK" Margin="6" IsDefault="True" Command="{Binding OkayCommand}" IsEnabled="{Binding IsValid}"/>
+            <Button Grid.Column="2" Content="Cancel" Margin="6" IsCancel="True" />
+        </Grid>
+    </Grid>
+</Window>

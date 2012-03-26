@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{08684495-15D1-47AD-9C53-2FBE7E310584}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Treefrog.V2</RootNamespace>
+    <AssemblyName>Treefrog.V2</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Controls\ItemsCollection.cs" />
+    <Compile Include="Controls\Layers\GroupLayer.cs" />
+    <Compile Include="Controls\Layers\RenderLayer.cs" />
+    <Compile Include="Controls\Layers\TileLayer.cs" />
+    <Compile Include="Converters\StringToIntNull.cs" />
+    <Compile Include="Messages\BlockingDialogMessage.cs" />
+    <Compile Include="ViewModel\Dialogs\IDialogViewModel.cs" />
+    <Compile Include="ViewModel\Dialogs\NewLevelDialogVM.cs" />
+    <Compile Include="ViewModel\DocumentVM.cs" />
+    <Compile Include="ViewModel\EditorVM.cs" />
+    <Compile Include="ViewModel\LevelDocumentVM.cs" />
+    <Compile Include="ViewModel\Menu\StandardMenuVM.cs" />
+    <Compile Include="ViewModel\Menu\TileMenuVM.cs" />
+    <Compile Include="ViewModel\ProjectVM.cs" />
+    <Compile Include="ViewModel\TilePoolCollectionVM.cs" />
+    <Compile Include="ViewModel\TilePoolVM.cs" />
+    <Compile Include="Controls\ToolWindowToolBar.cs" />
+    <Compile Include="IOService.cs" />
+    <Compile Include="LayerPanel.xaml.cs">
+      <DependentUpon>LayerPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\ToolBars\TileToolBarVM.cs" />
+    <Compile Include="View\Dialogs\NewLevelDialog.xaml.cs">
+      <DependentUpon>NewLevelDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TilePoolPanel.xaml.cs">
+      <DependentUpon>TilePoolPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\ToolBars\StandardToolBarVM.cs" />
+    <Compile Include="View\Documents\LevelDocument.xaml.cs">
+      <DependentUpon>LevelDocument.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Layers\XnaCanvasLayer.cs" />
+    <Compile Include="View\ToolBars\StandardToolBar.xaml.cs">
+      <DependentUpon>StandardToolBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ToolBars\TileToolBar.xaml.cs">
+      <DependentUpon>TileToolBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\VirtualXnaCanvas.xaml.cs">
+      <DependentUpon>VirtualXnaCanvas.xaml</DependentUpon>
+    </Compile>
+    <None Include="Style.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <Page Include="LayerPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\Xna\GraphicsDeviceControl.cs" />
+    <Compile Include="Controls\Xna\GraphicsDeviceEventArgs.cs" />
+    <Compile Include="Controls\Xna\GraphicsDeviceService.cs" />
+    <Compile Include="Controls\Xna\HwndMouseEventArgs.cs" />
+    <Compile Include="Controls\Xna\HwndMouseState.cs" />
+    <Compile Include="Controls\Xna\NativeMethods.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="View\Dialogs\NewLevelDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TilePoolPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ToolBarTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Documents\LevelDocument.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ToolBars\StandardToolBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ToolBars\TileToolBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\VirtualXnaCanvas.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AvalonDock\AvalonDock.csproj">
+      <Project>{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}</Project>
+      <Name>AvalonDock</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GalaSoft.MvvmLight\GalaSoft.MvvmLight.csproj">
+      <Project>{ADB28C09-8DE9-4006-80D5-74856EB4A48B}</Project>
+      <Name>GalaSoft.MvvmLight</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Treefrog.Framework\Treefrog.Framework.csproj">
+      <Project>{DFDC210B-3181-4F4D-92B9-6FCDE456697B}</Project>
+      <Name>Treefrog.Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\applications-blue--asterisk.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\16\applications-blue--asterisk.png" />
+    <Resource Include="Images\16\applications-blue.png" />
+    <Resource Include="Images\16\arrow-090.png" />
+    <Resource Include="Images\16\arrow-270.png" />
+    <Resource Include="Images\16\arrow-turn-180-left.png" />
+    <Resource Include="Images\16\arrow-turn.png" />
+    <Resource Include="Images\16\asterisk-small-yellow.png" />
+    <Resource Include="Images\16\box--minus.png" />
+    <Resource Include="Images\16\box--plus.png" />
+    <Resource Include="Images\16\clipboard-paste.png" />
+    <Resource Include="Images\16\compile.png" />
+    <Resource Include="Images\16\cross.png" />
+    <Resource Include="Images\16\disk--pencil.png" />
+    <Resource Include="Images\16\disk.png" />
+    <Resource Include="Images\16\disks.png" />
+    <Resource Include="Images\16\documents.png" />
+    <Resource Include="Images\16\game--minus.png" />
+    <Resource Include="Images\16\game--plus.png" />
+    <Resource Include="Images\16\game.png" />
+    <Resource Include="Images\16\grid.png" />
+    <Resource Include="Images\16\icons-large.png" />
+    <Resource Include="Images\16\icons-medium.png" />
+    <Resource Include="Images\16\icons-small.png" />
+    <Resource Include="Images\16\layer--minus.png" />
+    <Resource Include="Images\16\layer--plus.png" />
+    <Resource Include="Images\16\layers.png" />
+    <Resource Include="Images\16\map--asterisk.png" />
+    <Resource Include="Images\16\map.png" />
+    <Resource Include="Images\16\minus.png" />
+    <Resource Include="Images\16\plus.png" />
+    <Resource Include="Images\16\scissors.png" />
+    <Resource Include="Images\16\selection-select.png" />
+    <Resource Include="Images\16\selection.png" />
+    <Resource Include="Images\16\snap-borders.png" />
+    <Resource Include="Images\16\snap-bottom.png" />
+    <Resource Include="Images\16\snap-bottomleft.png" />
+    <Resource Include="Images\16\snap-bottomright.png" />
+    <Resource Include="Images\16\snap-bounds.png" />
+    <Resource Include="Images\16\snap-center.png" />
+    <Resource Include="Images\16\snap-horizontal.png" />
+    <Resource Include="Images\16\snap-left.png" />
+    <Resource Include="Images\16\snap-none.png" />
+    <Resource Include="Images\16\snap-origin.png" />
+    <Resource Include="Images\16\snap-right.png" />
+    <Resource Include="Images\16\snap-top.png" />
+    <Resource Include="Images\16\snap-topleft.png" />
+    <Resource Include="Images\16\snap-topright.png" />
+    <Resource Include="Images\16\snap-vertical.png" />
+    <Resource Include="Images\16\tag--minus.png" />
+    <Resource Include="Images\16\tag--plus.png" />
+    <Resource Include="Images\16\tags.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Controls\Xna\folder-horizontal-open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\16\folder-horizontal-open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\16\cursor.png" />
+    <Resource Include="Images\16\eraser.png" />
+    <Resource Include="Images\16\paint-brush.png" />
+    <Resource Include="Images\16\paint-can.png" />
+    <Resource Include="Images\16\stamp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\16\layer-flip-vertical.png" />
+    <Resource Include="Images\16\layer-flip.png" />
+    <Resource Include="Images\16\layer-rotate-left.png" />
+    <Resource Include="Images\16\layer-rotate.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
