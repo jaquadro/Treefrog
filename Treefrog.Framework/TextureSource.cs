@@ -10,6 +10,8 @@ using XRectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Treefrog.Framework
 {
+    
+
     /// <summary>
     /// Represents an XNA texture with fallback to System.Drawing.Bitmap if there is no
     /// access to a GraphicsDevice context.
@@ -19,6 +21,7 @@ namespace Treefrog.Framework
         int _width;
         int _height;
 
+        private byte[] _data;
         private Bitmap _image;
         private Texture2D _texture;
 

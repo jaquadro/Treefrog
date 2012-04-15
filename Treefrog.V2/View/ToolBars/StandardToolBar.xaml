@@ -5,34 +5,52 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              Width="Auto" Height="Auto">
+    <ToolBar.Resources>
+        <Style x:Key="ButtonImageDisabled" TargetType="Image">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.3" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </ToolBar.Resources>
 
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/applications-blue--asterisk.png" Width="16" Height="16" />
-                </Button>
-                <Button Command="{Binding Path=Menu.NewLevelCommand}">
-                    <Image Source="/Treefrog.V2;component/Images/16/map--asterisk.png" Width="16" Height="16" />
-                </Button>
-                <Button Command="{Binding Path=Menu.OpenProjectCommand}">
-                    <Image Source="/Treefrog.V2;component/Images/16/folder-horizontal-open.png" Width="16" Height="16" />
-                </Button>
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/disk.png" Width="16" Height="16" />
-                </Button>
-                <Separator />
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/scissors.png" Width="16" Height="16" />
-                </Button>
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/documents.png" Width="16" Height="16" />
-                </Button>
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/clipboard-paste.png" Width="16" Height="16" />
-                </Button>
-                <Separator />
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/arrow-turn-180-left.png" Width="16" Height="16" />
-                </Button>
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/arrow-turn.png" Width="16" Height="16" />
-                </Button>
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/applications-blue--asterisk.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Button Command="{Binding Menu.NewLevelCommand}">
+        <Image Source="/Treefrog.V2;component/Images/16/map--asterisk.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Button Command="{Binding Menu.OpenProjectCommand}">
+        <Image Source="/Treefrog.V2;component/Images/16/folder-horizontal-open.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/disk.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Separator />
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/scissors.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/documents.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Button>
+        <Image Source="/Treefrog.V2;component/Images/16/clipboard-paste.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Separator />
+    <Button Command="{Binding Menu.UndoCommand}">
+        <Image Source="/Treefrog.V2;component/Images/16/arrow-turn-180-left.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
+    <Button Command="{Binding Menu.RedoCommand}">
+        <Image Source="/Treefrog.V2;component/Images/16/arrow-turn.png" 
+                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+    </Button>
 </ToolBar>

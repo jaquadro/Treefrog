@@ -131,6 +131,13 @@ namespace AvalonDock.Layout
             _children.Remove((T)element);
         }
 
+        public void ReplaceChild(ILayoutElement oldElement, ILayoutElement newElement)
+        {
+            int index = _children.IndexOf((T)oldElement);
+            _children.Remove((T)oldElement);
+            _children.Insert(index, (T)newElement);
+        }
+
         public int ChildrenCount
         {
             get { return _children.Count; }

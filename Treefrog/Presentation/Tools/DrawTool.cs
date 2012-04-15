@@ -264,7 +264,7 @@ namespace Treefrog.Presentation.Tools
                     (int)(layer.TileHeight * _level.LayerControl.Zoom)
                     );
 
-                _pool.SelectedTile.Draw(e.SpriteBatch, rect, new Color(1f, 1f, 1f, 0.5f));
+                //_pool.SelectedTile.Draw(e.SpriteBatch, rect, new Color(1f, 1f, 1f, 0.5f));
             }
         }
     }

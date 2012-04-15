@@ -21,13 +21,7 @@ namespace AvalonDock.Controls
 
         public LayoutAnchorableTabItem()
         {
-            //DataContextChanged += new DependencyPropertyChangedEventHandler(OnDataContextChanged);
         }
-
-        //internal LayoutContent GetModel()
-        //{
-        //    return DataContext as LayoutContent;
-        //}
 
         #region Model
 
@@ -67,58 +61,11 @@ namespace AvalonDock.Controls
 
         #endregion
 
-        //void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        //{
-        //    var parentPaneControl = this.FindVisualAncestor<LayoutAnchorablePaneControl>();
-        //    var oldModel = e.OldValue as LayoutContent;
-        //    var newModel = e.NewValue as LayoutContent;
-        //    if (oldModel != null && parentPaneControl != null)
-        //    {
-        //        ((ILogicalChildrenContainer)parentPaneControl).InternalRemoveLogicalChild(oldModel);
-        //    }
-
-        //    if (newModel != null && parentPaneControl != null)
-        //    {
-        //        ((ILogicalChildrenContainer)parentPaneControl).InternalAddLogicalChild(newModel);
-        //    }
-        //}
-
-        //protected override void OnVisualParentChanged(DependencyObject oldParent)
-        //{
-        //    base.OnVisualParentChanged(oldParent);
-
-        //    var contentModel = GetModel();
-
-        //    if (contentModel == null)
-        //        return;
-
-        //    if (oldParent != null && contentModel != null)
-        //    {
-        //        var oldParentPaneControl = oldParent.FindVisualAncestor<LayoutAnchorablePaneControl>();
-        //        if (oldParentPaneControl != null)
-        //        {
-        //            ((ILogicalChildrenContainer) oldParentPaneControl).InternalRemoveLogicalChild(contentModel.Content);
-        //        }
-        //    }
-
-        //    if (contentModel != null && contentModel.Content != null && contentModel.Content is DependencyObject)
-        //    {
-        //        var oldLogicalParentPaneControl = LogicalTreeHelper.GetParent(contentModel.Content as DependencyObject)
-        //            as ILogicalChildrenContainer;
-        //        if (oldLogicalParentPaneControl != null)
-        //            oldLogicalParentPaneControl.InternalRemoveLogicalChild(contentModel.Content);
-        //    }
-
-        //    var parentPaneControl = this.FindVisualAncestor<LayoutAnchorablePaneControl>();
-        //    if (contentModel != null && parentPaneControl != null && contentModel.Content != null)
-        //    {
-        //        ((ILogicalChildrenContainer)parentPaneControl).InternalAddLogicalChild(contentModel.Content);
-        //    }
-        //}
-
         void UpdateLogicalParent()
         {
-            if (Model != null && Model.Content != null && Model.Content is DependencyObject)
+            if (Model != null &&
+                Model.Content != null &&
+                Model.Content is DependencyObject)
             {
                 var oldLogicalParentPaneControl = LogicalTreeHelper.GetParent(Model.Content as DependencyObject)
                     as ILogicalChildrenContainer;
@@ -127,9 +74,14 @@ namespace AvalonDock.Controls
             }
 
             var parentPaneControl = this.FindVisualAncestor<LayoutAnchorablePaneControl>();
-            if (Model != null && parentPaneControl != null && Model.Content != null)
+            if (Model != null &&
+                parentPaneControl != null &&
+                Model.Content != null &&
+                Model.Content is DependencyObject)
             {
                 ((ILogicalChildrenContainer)parentPaneControl).InternalAddLogicalChild(Model.Content);
+
+                BindingHelper.RebindInactiveBindings(Model.Content as DependencyObject);
             }
         }
 
@@ -150,8 +102,6 @@ namespace AvalonDock.Controls
         {
             _draggingItem = null;
         }
-
-
 
         protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -203,7 +153,7 @@ namespace AvalonDock.Controls
                 _draggingItem != this &&
                 e.LeftButton == MouseButtonState.Pressed)
             {
-                Debug.WriteLine("Dragging item from {0} to {1}", _draggingItem, this);
+                //Debug.WriteLine("Dragging item from {0} to {1}", _draggingItem, this);
 
                 var model = Model;
                 var container = model.Parent as ILayoutContainer;

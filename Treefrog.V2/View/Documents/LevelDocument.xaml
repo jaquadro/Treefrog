@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:view="clr-namespace:Treefrog.V2.View"
              xmlns:layers="clr-namespace:Treefrog.V2.Controls.Layers"
+             xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="429" d:DesignWidth="512">
     <Grid>
@@ -12,10 +13,18 @@
                       Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                       HorizontalAlignment="Left" Name="scrollViewer1" VerticalAlignment="Top"  
                       HorizontalScrollBarVisibility="Visible" CanContentScroll="True" >
-            <view:VirtualXnaCanvas ClearColor="Gray">
+            <view:VirtualXnaCanvas ClearColor="{Binding Path=BackgroundColor}" 
+                                   Viewport="{Binding Path=Viewport}" 
+                                   ZoomFactor="{Binding Path=ZoomLevel}"
+                                   DataContext="{Binding Path=Model}"
+                                   StartPointerSequence="{Binding StartPointerSequenceCommand}"
+                                   EndPointerSequence="{Binding EndPointerSequenceCommand}"
+                                   UpdatePointerSequence="{Binding UpdatePointerSequenceCommand}"
+                                   PointerPosition="{Binding PointerPositionCommand}">
                 <layers:GroupLayer>
-                    <layers:RenderLayer Opacity="0.5" />
-                    <!--layers:RenderLayer /-->
+                    <layers:GroupLayer Model="{Binding Path=Root}" />
+                    <layers:GridRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" />
+                    <layers:AnnotRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" Annotations="{Binding Annotations}" />
                 </layers:GroupLayer>
             </view:VirtualXnaCanvas>
         </ScrollViewer>

@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using AvalonDock.Layout;
 using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace AvalonDock.Controls
 {
@@ -36,8 +37,6 @@ namespace AvalonDock.Controls
 
         HwndSource _internalHwndSource = null;
 
-
-
         protected override System.Runtime.InteropServices.HandleRef BuildWindowCore(System.Runtime.InteropServices.HandleRef hwndParent)
         {
             _internalHwndSource = new HwndSource(new HwndSourceParameters()
@@ -50,6 +49,7 @@ namespace AvalonDock.Controls
             });
 
             CreateInternalGrid();
+            SetupCloseTimer();
             _internalHwndSource.RootVisual = _internalGrid;
 
 
@@ -76,6 +76,9 @@ namespace AvalonDock.Controls
 
         protected override void DestroyWindowCore(System.Runtime.InteropServices.HandleRef hwnd)
         {
+            _closeTimer.Stop();
+            _closeTimer = null;
+
             if (_internalHwndSource != null)
             {
                 _internalHwndSource.Dispose();
@@ -102,8 +105,8 @@ namespace AvalonDock.Controls
             if (_side == AnchorSide.Right)
             {
                 _internalGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                _internalGrid.ColumnDefinitions.Add(new ColumnDefinition() { 
-                    Width = _model.AutoHideWidth == 0.0 ? GridLength.Auto : new GridLength(_model.AutoHideWidth, GridUnitType.Pixel),
+                _internalGrid.ColumnDefinitions.Add(new ColumnDefinition() {
+                    Width = _model.AutoHideWidth == 0.0 ? new GridLength(100.0) : new GridLength(_model.AutoHideWidth, GridUnitType.Pixel),
                     MinWidth = _model.AutoHideMinWidth
                     });
 
@@ -118,7 +121,7 @@ namespace AvalonDock.Controls
             {
                 _internalGrid.ColumnDefinitions.Add(new ColumnDefinition()
                 {
-                    Width = _model.AutoHideWidth == 0.0 ? GridLength.Auto : new GridLength(_model.AutoHideWidth, GridUnitType.Pixel),
+                    Width = _model.AutoHideWidth == 0.0 ? new GridLength(100.0) : new GridLength(_model.AutoHideWidth, GridUnitType.Pixel),
                     MinWidth = _model.AutoHideMinWidth
                 });
                 _internalGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
@@ -134,7 +137,7 @@ namespace AvalonDock.Controls
             {
                 _internalGrid.RowDefinitions.Add(new RowDefinition()
                 {
-                    Height = _model.AutoHideHeight == 0.0 ? GridLength.Auto : new GridLength(_model.AutoHideHeight, GridUnitType.Pixel),
+                    Height = _model.AutoHideHeight == 0.0 ? new GridLength(100.0) : new GridLength(_model.AutoHideHeight, GridUnitType.Pixel),
                     MinHeight = _model.AutoHideMinHeight
                 });
                 _internalGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
@@ -148,10 +151,10 @@ namespace AvalonDock.Controls
             }
             else if (_side == AnchorSide.Bottom)
             {
-                _internalGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                _internalGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(100.0) });
                 _internalGrid.RowDefinitions.Add(new RowDefinition()
                 {
-                    Height = _model.AutoHideHeight == 0.0 ? GridLength.Auto : new GridLength(_model.AutoHideHeight, GridUnitType.Pixel),
+                    Height = _model.AutoHideHeight == 0.0 ? new GridLength(100.0) : new GridLength(_model.AutoHideHeight, GridUnitType.Pixel),
                     MinHeight = _model.AutoHideMinHeight
                 });
 
@@ -163,6 +166,28 @@ namespace AvalonDock.Controls
                 VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
             }
             AddLogicalChild(_internalGrid);
+        }
+
+        DispatcherTimer _closeTimer = null;
+        void SetupCloseTimer()
+        {
+            _closeTimer = new DispatcherTimer(DispatcherPriority.Background);
+            _closeTimer.Interval = TimeSpan.FromMilliseconds(1000);
+            _closeTimer.Tick += (s, e) =>
+                {
+                    if (IsWin32MouseOver ||
+                        _model.IsActive)
+                        return;
+
+                    Model.Root.Manager.HideAutoHideWindow();
+                };
+            _closeTimer.Start();
+        }
+
+        bool _keepOpen = true;
+        internal void KeepOpen(bool flag)
+        {
+            _keepOpen = flag;
         }
 
         void OnResizerDragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
@@ -397,6 +422,30 @@ namespace AvalonDock.Controls
 
         #endregion
 
+        bool IsWin32MouseOver
+        {
+            get
+            {
+                var pt = new Win32Helper.Win32Point();
+                if (!Win32Helper.GetCursorPos(ref pt))
+                    return false;
 
+                Point ptMouse = PointToScreen(new Point());
+
+                Rect rectWindow = new Rect(ptMouse.X, ptMouse.Y, Width, Height);
+                if (rectWindow.Contains(new Point(pt.X, pt.Y)))
+                    return true;
+
+                var manager = Model.Root.Manager;
+                var anchor = manager.FindVisualChildren<LayoutAnchorControl>().Where(c => c.Model == Model).First();
+                ptMouse = anchor.PointToScreen(new Point());
+
+                rectWindow = new Rect(ptMouse.X, ptMouse.Y, anchor.ActualWidth, anchor.ActualHeight);
+                if (rectWindow.Contains(new Point(pt.X, pt.Y)))
+                    return true;
+
+                return false;
+            }
+        }
     }
 }

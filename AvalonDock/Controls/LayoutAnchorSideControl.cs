@@ -31,7 +31,7 @@ namespace AvalonDock.Controls
             var manager = _model.Root.Manager;
             foreach (var childModel in _model.Children)
             {
-                _childViews.Add(manager.GetUIElementForModel(childModel) as LayoutAnchorGroupControl);
+                _childViews.Add(manager.CreateUIElementForModel(childModel) as LayoutAnchorGroupControl);
             }
         }
 
@@ -56,7 +56,7 @@ namespace AvalonDock.Controls
                 int insertIndex = e.NewStartingIndex;
                 foreach (LayoutAnchorGroup childModel in e.NewItems)
                 {
-                    _childViews.Insert(insertIndex++, manager.GetUIElementForModel(childModel) as LayoutAnchorGroupControl);
+                    _childViews.Insert(insertIndex++, manager.CreateUIElementForModel(childModel) as LayoutAnchorGroupControl);
                 }
             }
         }

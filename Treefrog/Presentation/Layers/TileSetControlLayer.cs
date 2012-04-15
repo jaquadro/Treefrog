@@ -166,7 +166,7 @@ namespace Treefrog.Presentation.Layers
                     pointY * (int)(_layer.TileHeight * Control.Zoom),
                     (int)(_layer.TileWidth * Control.Zoom),
                     (int)(_layer.TileHeight * Control.Zoom));
-                tile.Draw(spriteBatch, dest);
+                //tile.Draw(spriteBatch, dest);
 
                 if (++pointX >= tilesWide) {
                     pointX = 0;

@@ -18,7 +18,7 @@ namespace AvalonDock.Controls
             IsHitTestVisibleProperty.OverrideMetadata(typeof(DropDownControlArea), new FrameworkPropertyMetadata(true));
         }
         
-        internal DropDownControlArea()
+        public DropDownControlArea()
         { 
         
         }

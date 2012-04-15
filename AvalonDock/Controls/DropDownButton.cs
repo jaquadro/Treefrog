@@ -48,6 +48,12 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnDropDownContextMenuChanged(DependencyPropertyChangedEventArgs e)
         {
+            var oldContextMenu = e.OldValue as ContextMenu;
+            if (oldContextMenu != null && IsChecked.GetValueOrDefault())
+            {
+                oldContextMenu.Closed -= new RoutedEventHandler(OnContextMenuClosed);
+                IsChecked = false;
+            }
         }
 
         #endregion
@@ -91,7 +97,8 @@ namespace AvalonDock.Controls
         void OnContextMenuClosed(object sender, RoutedEventArgs e)
         {
             IsChecked = false;
-            DropDownContextMenu.Closed -= new RoutedEventHandler(OnContextMenuClosed);
+            if (DropDownContextMenu != null)
+                DropDownContextMenu.Closed -= new RoutedEventHandler(OnContextMenuClosed);
         }
 
     }

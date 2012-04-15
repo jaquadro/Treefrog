@@ -152,7 +152,6 @@ namespace AvalonDock.Controls
 
         protected LayoutFloatingWindowControl(ILayoutElement model)
         {
-            Model = model;
             this.Loaded += new RoutedEventHandler(OnLoaded);
         }
 
@@ -185,7 +184,6 @@ namespace AvalonDock.Controls
             _hwndSrc = HwndSource.FromDependencyObject(this) as HwndSource;
             _hwndSrcHook = new HwndSourceHook(FilterMessage);
             _hwndSrc.AddHook(_hwndSrcHook);            
-
         }
 
 
@@ -224,11 +222,7 @@ namespace AvalonDock.Controls
             base.OnInitialized(e);
         }
 
-        public ILayoutElement Model
-        {
-            get;
-            private set;
-        }
+        public abstract ILayoutElement Model { get; }
 
 
         #region IsDragging
@@ -276,7 +270,7 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnIsDraggingChanged(DependencyPropertyChangedEventArgs e)
         {
-            Debug.WriteLine("IsDragging={0}", e.NewValue);
+            //Debug.WriteLine("IsDragging={0}", e.NewValue);
         }
 
         #endregion
@@ -329,10 +323,10 @@ namespace AvalonDock.Controls
             switch (msg)
             {
                 case Win32Helper.WM_SETFOCUS:
-                    Debug.WriteLine("WM_SETFOCUS");
+                    //Debug.WriteLine("WM_SETFOCUS");
                     break;
                 case Win32Helper.WM_KILLFOCUS:
-                    Debug.WriteLine("WM_KILLFOCUS");
+                    //Debug.WriteLine("WM_KILLFOCUS");
                     break;
                 case Win32Helper.WM_ACTIVATE:
                     if (((int)wParam & 0xFFFF) == Win32Helper.WA_INACTIVE)

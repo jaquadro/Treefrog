@@ -35,7 +35,7 @@ namespace AvalonDock.Controls
 
             var contentModel = _model;
 
-            if (oldParent != null && contentModel != null)
+            if (oldParent != null && contentModel != null && contentModel.Content is DependencyObject)
             {
                 var oldParentPaneControl = oldParent.FindVisualAncestor<LayoutAnchorablePaneControl>();
                 if (oldParentPaneControl != null)
@@ -44,7 +44,7 @@ namespace AvalonDock.Controls
                 }
             }
 
-            if (contentModel.Content != null)
+            if (contentModel.Content != null && contentModel.Content is DependencyObject)
             {
                 var oldLogicalParentPaneControl = LogicalTreeHelper.GetParent(contentModel.Content as DependencyObject)
                     as ILogicalChildrenContainer;
@@ -52,7 +52,7 @@ namespace AvalonDock.Controls
                     oldLogicalParentPaneControl.InternalRemoveLogicalChild(contentModel.Content);
             }
 
-            if (contentModel != null && contentModel.Content != null && contentModel.Root != null)
+            if (contentModel != null && contentModel.Content != null && contentModel.Root != null && contentModel.Content is DependencyObject)
             {
                 ((ILogicalChildrenContainer)contentModel.Root.Manager).InternalAddLogicalChild(contentModel.Content);
             }
@@ -65,6 +65,50 @@ namespace AvalonDock.Controls
 
             if (!e.Handled)
                 _model.Root.Manager.ShowAutoHideWindow(this);    
+        }
+
+
+        DateTime? _mouseEnterTimeStamp;
+
+
+        protected override void OnMouseEnter(System.Windows.Input.MouseEventArgs e)
+        {
+            base.OnMouseEnter(e);
+
+            if (!e.Handled)
+            {
+                var autohideWindow = _model.Root.Manager.AutoHideWindow;
+                if (autohideWindow != null && autohideWindow.Model != this)
+                    _model.Root.Manager.ShowAutoHideWindow(this);
+                else
+                    _mouseEnterTimeStamp = DateTime.Now;
+            }
+        }
+        protected override void OnMouseMove(System.Windows.Input.MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (!e.Handled)
+            {
+                var autohideWindow = _model.Root.Manager.AutoHideWindow;
+                if (autohideWindow != null && autohideWindow.Model == this)
+                    _model.Root.Manager.AutoHideWindow.KeepOpen(true);
+                else if (_mouseEnterTimeStamp.HasValue &&
+                    ((DateTime.Now - _mouseEnterTimeStamp.Value).TotalMilliseconds >= 400))
+                    _model.Root.Manager.ShowAutoHideWindow(this);
+            }
+        }
+
+        protected override void OnMouseLeave(System.Windows.Input.MouseEventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (!e.Handled)
+            {
+                var autohideWindow = _model.Root.Manager.AutoHideWindow;
+                if (autohideWindow != null &&
+                    autohideWindow.Model == this)
+                    _model.Root.Manager.AutoHideWindow.KeepOpen(false);
+            }
         }
 
     }

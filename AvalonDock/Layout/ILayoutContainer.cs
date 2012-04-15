@@ -9,6 +9,7 @@ namespace AvalonDock.Layout
     {
         IEnumerable<ILayoutElement> Children { get; }
         void RemoveChild(ILayoutElement element);
+        void ReplaceChild(ILayoutElement oldElement, ILayoutElement newElement);
         int ChildrenCount { get; }
     }
 }

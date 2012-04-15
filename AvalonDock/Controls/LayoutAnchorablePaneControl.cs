@@ -10,14 +10,12 @@ using AvalonDock.Layout;
 
 namespace AvalonDock.Controls
 {
-    class LayoutAnchorablePaneControl : TabControl, ILayoutControl, ILogicalChildrenContainer
+    public class LayoutAnchorablePaneControl : TabControl, ILayoutControl, ILogicalChildrenContainer
     {
         static LayoutAnchorablePaneControl()
         {
             FocusableProperty.OverrideMetadata(typeof(LayoutAnchorablePaneControl), new FrameworkPropertyMetadata(false));
         }
-
-
 
         public LayoutAnchorablePaneControl(LayoutAnchorablePane model)
         {
@@ -44,12 +42,12 @@ namespace AvalonDock.Controls
         //{
         //    return new LayoutAnchorableTabItem();
         //}
-
+        List<object> _logicalChildren = new List<object>();
         protected override System.Collections.IEnumerator LogicalChildren
         {
             get
             {
-                return _model.Children.Select(a => a.Content).GetEnumerator();
+                return _logicalChildren.GetEnumerator(); // _model.Children.Select(a => a.Content).GetEnumerator();
             }
         }
 
@@ -74,11 +72,20 @@ namespace AvalonDock.Controls
 
         void ILogicalChildrenContainer.InternalAddLogicalChild(object element)
         {
+            if (_logicalChildren.Contains(element))
+                throw new InvalidOperationException();
+
+            System.Diagnostics.Debug.WriteLine("[{0}]InternalAddLogicalChild({1})", this, element);
+            _logicalChildren.Add(element);
             AddLogicalChild(element);
         }
 
         void ILogicalChildrenContainer.InternalRemoveLogicalChild(object element)
         {
+            if (!_logicalChildren.Contains(element))
+                throw new InvalidOperationException();
+            System.Diagnostics.Debug.WriteLine("[{0}]InternalRemoveLogicalChild({1})", this, element);
+            _logicalChildren.Remove(element); 
             RemoveLogicalChild(element);
         }
     }

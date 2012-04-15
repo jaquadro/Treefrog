@@ -20,7 +20,11 @@
                 <my:GraphicsDeviceControl Grid.Row="0" Grid.Column="0"
                                   Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                                   Height="{Binding ActualHeight,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
-                                  HorizontalAlignment="Left" x:Name="graphicsDeviceControl1" VerticalAlignment="Top" Loaded="graphicsDeviceControl1_Loaded" />
+                                  HorizontalAlignment="Left" x:Name="graphicsDeviceControl1" VerticalAlignment="Top" Loaded="graphicsDeviceControl1_Loaded" 
+                                          HwndLButtonDown="HandleHwndLButtonDown" HwndLButtonUp="HandleHwndLButtonUp"
+                                          HwndRButtonDown="HandleHwndRButtonDown" HwndRButtonUp="HandleHwndRButtonUp"
+                                          HwndMouseMove="HandleHwndMouseMove"
+                                          HwndMouseEnter="HandleHwndMouseEnter" HwndMouseLeave="HandleHwndMouseLeave" />
             </Grid>
         </DataTemplate>
     </UserControl.ContentTemplate>

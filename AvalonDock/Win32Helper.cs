@@ -287,5 +287,16 @@ namespace AvalonDock
         internal const int WM_MBUTTONDBLCLK = 0x209;
         internal const int WM_MOUSEWHEEL = 0x20A;
         internal const int WM_MOUSEHWHEEL = 0x20E;
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct Win32Point
+        {
+            public Int32 X;
+            public Int32 Y;
+        };
+
+        [DllImport("user32.dll")]
+        internal static extern bool GetCursorPos(ref Win32Point pt);
     }
 }

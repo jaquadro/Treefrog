@@ -112,7 +112,7 @@ namespace Treefrog.Presentation.Layers
                     locTile.Y * (int)(_layer.TileHeight * Control.Zoom),
                     (int)(_layer.TileWidth * Control.Zoom),
                     (int)(_layer.TileHeight * Control.Zoom));
-                locTile.Tile.Draw(spriteBatch, dest);
+                //locTile.Tile.Draw(spriteBatch, dest);
             }
 
             EndDraw(spriteBatch);

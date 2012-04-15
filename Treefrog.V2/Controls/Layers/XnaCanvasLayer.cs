@@ -8,28 +8,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.V2.Controls.Layers
 {
-    public class XnaCanvasLayer : DependencyObject
+    public class XnaCanvasLayer : FrameworkElement // DependencyObject
     {
         public XnaCanvasLayer ()
         {
             ZoomFactor = 1.0;
         }
 
-        #region Dependency Property Registry
+        #region Dependency Properties
 
         public static readonly DependencyProperty GraphicsDeviceControlProperty;
-        public static readonly DependencyProperty IsRenderedProperty;
-        public static readonly DependencyProperty HorizontalOffsetProperty;
-        public static readonly DependencyProperty VerticalOffsetProperty;
-        public static readonly DependencyProperty ZoomFactorProperty;
+        public static readonly DependencyProperty IsRenderedProperty;        
 
         public static readonly DependencyProperty ViewportHeightProperty;
         public static readonly DependencyProperty ViewportWidthProperty;
-        //public static readonly DependencyProperty VirtualHeightProperty;
-        //public static readonly DependencyProperty VirtualWidthProperty;
-
-        //internal static readonly DependencyPropertyKey VirtualHeightKey;
-        //internal static readonly DependencyPropertyKey VirtualWidthKey;
 
         static XnaCanvasLayer ()
         {
@@ -38,22 +30,65 @@ namespace Treefrog.V2.Controls.Layers
             IsRenderedProperty = DependencyProperty.Register("IsRendered",
                 typeof(bool), typeof(XnaCanvasLayer), new PropertyMetadata(true));
 
-            HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset",
-                typeof(double), typeof(XnaCanvasLayer));
-            VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset",
-                typeof(double), typeof(XnaCanvasLayer));
-            ZoomFactorProperty = DependencyProperty.Register("ZoomFactor",
-                typeof(double), typeof(XnaCanvasLayer));
-
             ViewportHeightProperty = DependencyProperty.Register("ViewportHeight",
                 typeof(double), typeof(XnaCanvasLayer));
             ViewportWidthProperty = DependencyProperty.Register("ViewportWidth",
                 typeof(double), typeof(XnaCanvasLayer));
-
-            //VirtualHeightKey = DependencyProperty.RegisterReadOnly("VirtualHeight",
-            //    typeof(double), typeof(XnaCanvasLayer), new PropertyMetadata();
-
         }
+
+        #region ZoomFactor Property
+
+        public static readonly DependencyProperty ZoomFactorProperty = DependencyProperty.Register("ZoomFactor", 
+            typeof(double), typeof(XnaCanvasLayer), new PropertyMetadata(1.0, OnZoomFactorChanged));
+
+        private static void OnZoomFactorChanged (DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            XnaCanvasLayer obj = sender as XnaCanvasLayer;
+            if (obj != null)
+                obj.OnZoomFactorChanged(e);
+        }
+
+        protected virtual void OnZoomFactorChanged (DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        #endregion
+
+        #region Horizontal Offset Property
+
+        public static readonly DependencyProperty HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset",
+            typeof(double), typeof(XnaCanvasLayer), new PropertyMetadata(0.0, OnHorizontalOffsetChanged));
+
+        private static void OnHorizontalOffsetChanged (DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            XnaCanvasLayer obj = sender as XnaCanvasLayer;
+            if (obj != null)
+                obj.OnHorizontalOffsetChanged(e);
+        }
+
+        protected virtual void OnHorizontalOffsetChanged (DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        #endregion
+
+        #region Vertical Offset Property
+
+        public static readonly DependencyProperty VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset",
+            typeof(double), typeof(XnaCanvasLayer), new PropertyMetadata(0.0, OnVerticalOffsetChanged));
+
+        private static void OnVerticalOffsetChanged (DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            XnaCanvasLayer obj = sender as XnaCanvasLayer;
+            if (obj != null)
+                obj.OnVerticalOffsetChanged(e);
+        }
+
+        protected virtual void OnVerticalOffsetChanged (DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        #endregion
 
         #endregion
 
@@ -125,15 +160,17 @@ namespace Treefrog.V2.Controls.Layers
 
         public virtual double VirtualHeight
         {
-            get { return 0; }
+            get { return double.IsNaN(Height) ? 0 : Height; }
         }
 
         public virtual double VirtualWidth
         {
-            get { return 0; }
+            get { return double.IsNaN(Width) ? 0 : Width; }
         }
 
         #endregion
+
+        private bool _isLoaded;
 
         private void GraphicsDeviceControl_LoadContent (object sender, GraphicsDeviceEventArgs e)
         {
@@ -148,10 +185,14 @@ namespace Treefrog.V2.Controls.Layers
         public void Load (GraphicsDevice device)
         {
             LoadCore(device);
+            _isLoaded = true;
         }
 
         public void Render (GraphicsDevice device)
         {
+            if (!_isLoaded)
+                Load(device);
+
             if (IsRendered)
                 RenderCore(device);
         }

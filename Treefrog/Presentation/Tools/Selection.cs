@@ -120,7 +120,7 @@ namespace Treefrog.Presentation.Tools
                             (int)(_tileWidth * zoom),
                             (int)(_tileHeight * zoom)
                             );
-                        tile.Draw(spriteBatch, rect);
+                        //tile.Draw(spriteBatch, rect);
                     }
                 }
             }

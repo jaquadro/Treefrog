@@ -1,6 +1,6 @@
-﻿<UserControl x:Class="Treefrog.V2.TilePoolPanel"
+﻿<UserControl x:Class="Treefrog.V2.View.Panels.TilePoolPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:local="clr-namespace:Treefrog.V2.ViewModel"
+             xmlns:local="clr-namespace:Treefrog.V2.View.Panels"
              xmlns:my="clr-namespace:Treefrog.V2.Controls.Xna"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -15,21 +15,10 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <ComboBox x:Name="tilePoolList" HorizontalAlignment="Stretch" ItemsSource="{Binding TilePools}" Margin="2"
+            <ComboBox x:Name="tilePoolList" HorizontalAlignment="Stretch" ItemsSource="{Binding TilePools}" Margin="2" SelectedItem="{Binding ActiveTilePool}"
                           DisplayMemberPath="Name" SelectedValuePath="Name" Style="{StaticResource {x:Static ToolBar.ComboBoxStyleKey}}">
             </ComboBox>
         </StackPanel>
-
-        <!--<StackPanel Grid.Row="1" Background="#FFC2CCDB">
-            <StackPanel Orientation="Horizontal" Margin="2">
-            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                <Image Source="/Treefrog.V2;component/Images/16/plus.png" Width="16" Height="16" />
-            </Button>
-            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                <Image Source="/Treefrog.V2;component/Images/16/minus.png" Width="16" Height="16" />
-            </Button>
-            </StackPanel>
-        </StackPanel>-->
 
         <ToolBarTray Grid.Row="1" IsLocked="True">
             <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
@@ -43,8 +32,25 @@
             </ToolBar>
         </ToolBarTray>
 
-        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Visible">
-            <my:GraphicsDeviceControl LoadContent="GraphicsDeviceControl_LoadContent" />
-        </ScrollViewer>
+        <ListBox Grid.Row="2" ItemsSource="{Binding ActiveTilePool.Tiles}" 
+                 SelectedItem="{Binding ActiveTilePool.SelectedTile}" 
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#555">
+            <ListBox.Resources>
+                <local:TextureResourceToBitmapSourceConverter x:Key="BitmapConverter" />
+            </ListBox.Resources>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel IsItemsHost="True" Margin="1,1,0,0" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderThickness="1" BorderBrush="LightGray" Margin="-3,-1,0,0">
+                        <Image Source="{Binding ImageSource, Converter={StaticResource BitmapConverter}}"
+                               Height="{Binding TileHeight}" Width="{Binding TileWidth}" Margin="1"/>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

@@ -52,8 +52,9 @@ namespace AvalonDock.Controls
                                 (layoutAnchorablePaneGroup.Children.Count == 1 ||
                                     layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Vertical))
                             {
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    parentModel.InsertChildAt(insertToIndex + 1 + i, layoutAnchorablePaneGroup.Children[i]);
+                                var anchorablesToMove = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < anchorablesToMove.Length; i++)
+                                    parentModel.InsertChildAt(insertToIndex + 1 + i, anchorablesToMove[i]);
                             }
                             else
                                 parentModel.InsertChildAt(insertToIndex + 1, floatingWindow.RootPanel);
@@ -91,8 +92,9 @@ namespace AvalonDock.Controls
                                 (layoutAnchorablePaneGroup.Children.Count == 1 ||
                                     layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Vertical))
                             {
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    parentModel.InsertChildAt(insertToIndex + i, layoutAnchorablePaneGroup.Children[i]);
+                                var anchorablesToMove = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < anchorablesToMove.Length; i++)
+                                    parentModel.InsertChildAt(insertToIndex + i, anchorablesToMove[i]);
                             }
                             else
                                 parentModel.InsertChildAt(insertToIndex, floatingWindow.RootPanel);
@@ -130,8 +132,9 @@ namespace AvalonDock.Controls
                                 (layoutAnchorablePaneGroup.Children.Count == 1 ||
                                     layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Horizontal))
                             {
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    parentModel.InsertChildAt(insertToIndex + i, layoutAnchorablePaneGroup.Children[i]);
+                                var anchorablesToMove = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < anchorablesToMove.Length; i++)
+                                    parentModel.InsertChildAt(insertToIndex + i, anchorablesToMove[i]);
                             }
                             else
                                 parentModel.InsertChildAt(insertToIndex, floatingWindow.RootPanel);
@@ -169,8 +172,9 @@ namespace AvalonDock.Controls
                                 (layoutAnchorablePaneGroup.Children.Count == 1 ||
                                     layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Horizontal))
                             {
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    parentModel.InsertChildAt(insertToIndex + 1 + i, layoutAnchorablePaneGroup.Children[i]);
+                                var anchorablesToMove = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < anchorablesToMove.Length; i++)
+                                    parentModel.InsertChildAt(insertToIndex + 1 + i, anchorablesToMove[i]);
                             }
                             else
                                 parentModel.InsertChildAt(insertToIndex + 1, floatingWindow.RootPanel);
@@ -199,7 +203,8 @@ namespace AvalonDock.Controls
                         var layoutAnchorablePaneGroup = floatingWindow.RootPanel as LayoutAnchorablePaneGroup;
 
                         int i = _tabIndex == -1 ? 0 : _tabIndex;
-                        foreach (var anchorableToImport in layoutAnchorablePaneGroup.Descendents().OfType<LayoutAnchorable>().ToArray())
+                        foreach (var anchorableToImport in 
+                            layoutAnchorablePaneGroup.Descendents().OfType<LayoutAnchorable>().ToArray())
                         {
                             paneModel.Children.Insert(i, anchorableToImport);
                             i++;

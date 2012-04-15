@@ -115,7 +115,9 @@ namespace AvalonDock.Layout
 
         #region IsActive
 
+        [field: NonSerialized]
         private bool _isActive = false;
+        [XmlIgnore]
         public bool IsActive
         {
             get { return _isActive; }
@@ -225,12 +227,7 @@ namespace AvalonDock.Layout
             if (root != null && _isActive && newValue == null)
                 root.ActiveContent = null;
 
-            if (IsSelected && newValue == null && Parent is ILayoutContentSelector)
-            {
-                var parentSelector = (Parent as ILayoutContentSelector);
-                if (parentSelector.SelectedContentIndex == oldValue.ChildrenCount)
-                    parentSelector.SelectedContentIndex--;
-            }
+            IsSelected = false;
             
             base.OnParentChanging(oldValue, newValue);
         }
@@ -433,5 +430,9 @@ namespace AvalonDock.Layout
 
         #endregion
 
+        public bool IsFloating
+        {
+            get { return this.FindParent<LayoutFloatingWindow>() != null; }
+        }
     }
 }

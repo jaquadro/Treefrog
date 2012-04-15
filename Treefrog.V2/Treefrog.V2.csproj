@@ -41,6 +41,7 @@
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -58,21 +59,36 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Annotations\SelectionAnnotRenderer.cs" />
     <Compile Include="Controls\ItemsCollection.cs" />
+    <Compile Include="Controls\Layers\AnnotRenderLayer.cs" />
+    <Compile Include="Controls\Layers\GridRenderLayer.cs" />
     <Compile Include="Controls\Layers\GroupLayer.cs" />
     <Compile Include="Controls\Layers\RenderLayer.cs" />
-    <Compile Include="Controls\Layers\TileLayer.cs" />
+    <Compile Include="Controls\Layers\XnaTileLayer.cs" />
     <Compile Include="Converters\StringToIntNull.cs" />
     <Compile Include="Messages\BlockingDialogMessage.cs" />
+    <Compile Include="ViewModel\Annotations\SelectionAnnot.cs" />
+    <Compile Include="ViewModel\Commands\Command.cs" />
+    <Compile Include="ViewModel\Commands\CommandHistory.cs" />
+    <Compile Include="ViewModel\Commands\EventArgs.cs" />
+    <Compile Include="ViewModel\Commands\TileReplace2DCommand.cs" />
     <Compile Include="ViewModel\Dialogs\IDialogViewModel.cs" />
     <Compile Include="ViewModel\Dialogs\NewLevelDialogVM.cs" />
     <Compile Include="ViewModel\DocumentVM.cs" />
     <Compile Include="ViewModel\EditorVM.cs" />
+    <Compile Include="ViewModel\Layers\GroupLayerVM.cs" />
+    <Compile Include="ViewModel\Layers\LayerVM.cs" />
+    <Compile Include="ViewModel\Layers\LevelGroupLayerVM.cs" />
+    <Compile Include="ViewModel\Layers\LevelLayerVM.cs" />
+    <Compile Include="ViewModel\Layers\RenderLayerVM.cs" />
+    <Compile Include="ViewModel\Layers\TileLayerVM.cs" />
     <Compile Include="ViewModel\LevelDocumentVM.cs" />
     <Compile Include="ViewModel\Menu\StandardMenuVM.cs" />
     <Compile Include="ViewModel\Menu\TileMenuVM.cs" />
     <Compile Include="ViewModel\ProjectVM.cs" />
     <Compile Include="ViewModel\TilePoolCollectionVM.cs" />
+    <Compile Include="ViewModel\TilePoolItemVM.cs" />
     <Compile Include="ViewModel\TilePoolVM.cs" />
     <Compile Include="Controls\ToolWindowToolBar.cs" />
     <Compile Include="IOService.cs" />
@@ -80,10 +96,21 @@
       <DependentUpon>LayerPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\ToolBars\TileToolBarVM.cs" />
+    <Compile Include="ViewModel\Tools\ITileToolCollection.cs" />
+    <Compile Include="ViewModel\Tools\RubberBand.cs" />
+    <Compile Include="ViewModel\Tools\TileEraseTool.cs" />
+    <Compile Include="ViewModel\Tools\TileDrawTool.cs" />
+    <Compile Include="ViewModel\Tools\IToolCollection.cs" />
+    <Compile Include="ViewModel\Tools\PointerTool.cs" />
+    <Compile Include="ViewModel\Tools\Selection.cs" />
+    <Compile Include="ViewModel\Tools\TileFillTool.cs" />
+    <Compile Include="ViewModel\Tools\TilePointerTool.cs" />
+    <Compile Include="ViewModel\Utility\ObservableCollectionAdapter.cs" />
+    <Compile Include="ViewModel\ViewportVM.cs" />
     <Compile Include="View\Dialogs\NewLevelDialog.xaml.cs">
       <DependentUpon>NewLevelDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TilePoolPanel.xaml.cs">
+    <Compile Include="View\Panels\TilePoolPanel.xaml.cs">
       <DependentUpon>TilePoolPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\ToolBars\StandardToolBarVM.cs" />
@@ -91,6 +118,9 @@
       <DependentUpon>LevelDocument.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Layers\XnaCanvasLayer.cs" />
+    <Compile Include="View\Panels\LayerPanel.xaml.cs">
+      <DependentUpon>LayerPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ToolBars\StandardToolBar.xaml.cs">
       <DependentUpon>StandardToolBar.xaml</DependentUpon>
     </Compile>
@@ -126,11 +156,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ViewModel\LayerCollectionVM.cs">
+      <Generator>MSBuild:Compile</Generator>
+    </Compile>
     <Page Include="View\Dialogs\NewLevelDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TilePoolPanel.xaml">
+    <Page Include="View\Panels\TilePoolPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -139,6 +172,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Documents\LevelDocument.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Panels\LayerPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -180,6 +217,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Amphibian\Amphibian\Amphibian.csproj">
+      <Project>{E0C66FEA-3843-458D-AAF7-779EBBE6BBBB}</Project>
+      <Name>Amphibian</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AvalonDock\AvalonDock.csproj">
       <Project>{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}</Project>
       <Name>AvalonDock</Name>
@@ -268,6 +309,13 @@
     <Resource Include="Images\16\layer-rotate-left.png" />
     <Resource Include="Images\16\layer-rotate.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\16\guide-snap.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\16\eye.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

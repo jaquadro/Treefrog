@@ -119,11 +119,11 @@
     <Compile Include="MockGraphicsDeviceService.cs" />
     <Compile Include="Model\Collections\PropertyCollectionTests.cs" />
     <Compile Include="Model\PropertyTests.cs" />
-    <Compile Include="Model\TileGridLayerTests.cs" />
+    <None Include="Model\TileGridLayerTests.cs" />
     <Compile Include="Model\TileLayerTests.cs" />
-    <Compile Include="Model\TilePoolTests.cs" />
-    <Compile Include="Model\TileStackTests.cs" />
-    <Compile Include="Model\TileTests.cs" />
+    <None Include="Model\TilePoolTests.cs" />
+    <None Include="Model\TileStackTests.cs" />
+    <None Include="Model\TileTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runner.cs" />
   </ItemGroup>

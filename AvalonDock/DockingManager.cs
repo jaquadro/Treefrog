@@ -17,6 +17,7 @@ using System.Collections.Specialized;
 using System.Windows.Data;
 using System.Windows.Threading;
 using AvalonDock.Commands;
+using AvalonDock.Themes;
 
 namespace AvalonDock
 {
@@ -30,7 +31,6 @@ namespace AvalonDock
             FocusableProperty.OverrideMetadata(typeof(DockingManager), new FrameworkPropertyMetadata(true));
             HwndSource.DefaultAcquireHwndFocusInMenuMode = false;
             Keyboard.DefaultRestoreFocusMode = RestoreFocusMode.None;
-
         }
 
 
@@ -81,6 +81,11 @@ namespace AvalonDock
                 oldLayout.Updated -= new EventHandler(OnLayoutRootUpdated);
             }
 
+            foreach (var fwc in _fwList.ToArray())
+                fwc.InternalClose();
+            //Debug.Assert(_fwList.Count == 0, "FloatingWindow list must be empty at this point!");
+            _fwList.Clear();
+
             DetachDocumentsSource(oldLayout, DocumentsSource);
 
             if (oldLayout != null &&
@@ -93,18 +98,14 @@ namespace AvalonDock
 
             if (IsInitialized)
             {
-                LayoutRootPanel = GetUIElementForModel(Layout.RootPanel) as LayoutPanelControl;
-                LeftSidePanel = GetUIElementForModel(Layout.LeftSide) as LayoutAnchorSideControl;
-                TopSidePanel = GetUIElementForModel(Layout.TopSide) as LayoutAnchorSideControl;
-                RightSidePanel = GetUIElementForModel(Layout.RightSide) as LayoutAnchorSideControl;
-                BottomSidePanel = GetUIElementForModel(Layout.BottomSide) as LayoutAnchorSideControl;
-
-                foreach (var fwc in _fwList)
-                    fwc.InternalClose();
-                _fwList.Clear();
+                LayoutRootPanel = CreateUIElementForModel(Layout.RootPanel) as LayoutPanelControl;
+                LeftSidePanel = CreateUIElementForModel(Layout.LeftSide) as LayoutAnchorSideControl;
+                TopSidePanel = CreateUIElementForModel(Layout.TopSide) as LayoutAnchorSideControl;
+                RightSidePanel = CreateUIElementForModel(Layout.RightSide) as LayoutAnchorSideControl;
+                BottomSidePanel = CreateUIElementForModel(Layout.BottomSide) as LayoutAnchorSideControl;
 
                 foreach (var fw in Layout.FloatingWindows)
-                    _fwList.Add(GetUIElementForModel(fw) as LayoutFloatingWindowControl);
+                    _fwList.Add(CreateUIElementForModel(fw) as LayoutFloatingWindowControl);
 
                 foreach (var fw in _fwList)
                     fw.Owner = Window.GetWindow(this);
@@ -130,7 +131,7 @@ namespace AvalonDock
             {
                 if (IsInitialized)
                 {
-                    var layoutRootPanel = GetUIElementForModel(Layout.RootPanel) as LayoutPanelControl;
+                    var layoutRootPanel = CreateUIElementForModel(Layout.RootPanel) as LayoutPanelControl;
                     LayoutRootPanel = layoutRootPanel;
                 }
             }
@@ -175,6 +176,19 @@ namespace AvalonDock
             return value;
         }
 
+
+        /// <summary>
+        /// Get or set the strategy object to use when insert an anchorable 
+        /// in layout
+        /// </summary>
+        /// <remarks>Sometimes it's impossible to automatically insert an anchorable in the layout without specifing the target parent pane.
+        /// Set this property to an object that will be asked to insert the anchorable to the desidered position.</remarks>
+        public ILayoutUpdateStrategy LayoutUpdateStrategy
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         public override void OnApplyTemplate()
@@ -190,13 +204,13 @@ namespace AvalonDock
 
             if (!DesignerProperties.GetIsInDesignMode(this) && Layout.Manager == this)
             {
-                LayoutRootPanel = GetUIElementForModel(Layout.RootPanel) as LayoutPanelControl;
-                LeftSidePanel = GetUIElementForModel(Layout.LeftSide) as LayoutAnchorSideControl;
-                TopSidePanel = GetUIElementForModel(Layout.TopSide) as LayoutAnchorSideControl;
-                RightSidePanel = GetUIElementForModel(Layout.RightSide) as LayoutAnchorSideControl;
-                BottomSidePanel = GetUIElementForModel(Layout.BottomSide) as LayoutAnchorSideControl;
+                LayoutRootPanel = CreateUIElementForModel(Layout.RootPanel) as LayoutPanelControl;
+                LeftSidePanel = CreateUIElementForModel(Layout.LeftSide) as LayoutAnchorSideControl;
+                TopSidePanel = CreateUIElementForModel(Layout.TopSide) as LayoutAnchorSideControl;
+                RightSidePanel = CreateUIElementForModel(Layout.RightSide) as LayoutAnchorSideControl;
+                BottomSidePanel = CreateUIElementForModel(Layout.BottomSide) as LayoutAnchorSideControl;
                 foreach (var fw in Layout.FloatingWindows)
-                    _fwList.Add(GetUIElementForModel(fw) as LayoutAnchorableFloatingWindowControl);
+                    _fwList.Add(CreateUIElementForModel(fw) as LayoutAnchorableFloatingWindowControl);
             }
 
         }
@@ -228,7 +242,7 @@ namespace AvalonDock
             }
         }
 
-        internal UIElement GetUIElementForModel(ILayoutElement model)
+        internal UIElement CreateUIElementForModel(ILayoutElement model)
         {
             if (model is LayoutPanel)
                 return new LayoutPanelControl(model as LayoutPanel);
@@ -532,16 +546,44 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty DocumentHeaderTemplateProperty =
             DependencyProperty.Register("DocumentHeaderTemplate", typeof(DataTemplate), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplate)null));
+                new FrameworkPropertyMetadata((DataTemplate)null,
+                    new PropertyChangedCallback(OnDocumentHeaderTemplateChanged),
+                    new CoerceValueCallback(CoerceDocumentHeaderTemplateValue)));
 
         /// <summary>
         /// Gets or sets the DocumentHeaderTemplate property.  This dependency property 
-        /// indicates data template to use when creating document headers.
+        /// indicates data template to use for document header.
         /// </summary>
         public DataTemplate DocumentHeaderTemplate
         {
             get { return (DataTemplate)GetValue(DocumentHeaderTemplateProperty); }
             set { SetValue(DocumentHeaderTemplateProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the DocumentHeaderTemplate property.
+        /// </summary>
+        private static void OnDocumentHeaderTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnDocumentHeaderTemplateChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the DocumentHeaderTemplate property.
+        /// </summary>
+        protected virtual void OnDocumentHeaderTemplateChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// Coerces the DocumentHeaderTemplate value.
+        /// </summary>
+        private static object CoerceDocumentHeaderTemplateValue(DependencyObject d, object value)
+        {
+            if (value != null &&
+                d.GetValue(DocumentHeaderTemplateSelectorProperty) != null)
+                return null;
+            return value;
         }
 
         #endregion
@@ -553,16 +595,44 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty DocumentHeaderTemplateSelectorProperty =
             DependencyProperty.Register("DocumentHeaderTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplateSelector)null));
+                new FrameworkPropertyMetadata((DataTemplateSelector)null,
+                    new PropertyChangedCallback(OnDocumentHeaderTemplateSelectorChanged),
+                    new CoerceValueCallback(CoerceDocumentHeaderTemplateSelectorValue)));
 
         /// <summary>
         /// Gets or sets the DocumentHeaderTemplateSelector property.  This dependency property 
-        /// indicates data template selector to use when selecting data template for documents header.
+        /// indicates the template selector that is used when selcting the data template for the header.
         /// </summary>
         public DataTemplateSelector DocumentHeaderTemplateSelector
         {
             get { return (DataTemplateSelector)GetValue(DocumentHeaderTemplateSelectorProperty); }
             set { SetValue(DocumentHeaderTemplateSelectorProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the DocumentHeaderTemplateSelector property.
+        /// </summary>
+        private static void OnDocumentHeaderTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnDocumentHeaderTemplateSelectorChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the DocumentHeaderTemplateSelector property.
+        /// </summary>
+        protected virtual void OnDocumentHeaderTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null &&
+                DocumentHeaderTemplate != null)
+                DocumentHeaderTemplate = null;
+        }
+
+        /// <summary>
+        /// Coerces the DocumentHeaderTemplateSelector value.
+        /// </summary>
+        private static object CoerceDocumentHeaderTemplateSelectorValue(DependencyObject d, object value)
+        {
+            return value;
         }
 
         #endregion
@@ -574,16 +644,45 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty DocumentTitleTemplateProperty =
             DependencyProperty.Register("DocumentTitleTemplate", typeof(DataTemplate), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplate)null));
+                new FrameworkPropertyMetadata((DataTemplate)null,
+                    new PropertyChangedCallback(OnDocumentTitleTemplateChanged),
+                    new CoerceValueCallback(CoerceDocumentTitleTemplateValue)));
 
         /// <summary>
         /// Gets or sets the DocumentTitleTemplate property.  This dependency property 
-        /// indicates the data template to use when rendering documents title.
+        /// indicates the datatemplate to use when creating the title for a document.
         /// </summary>
         public DataTemplate DocumentTitleTemplate
         {
             get { return (DataTemplate)GetValue(DocumentTitleTemplateProperty); }
             set { SetValue(DocumentTitleTemplateProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the DocumentTitleTemplate property.
+        /// </summary>
+        private static void OnDocumentTitleTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnDocumentTitleTemplateChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the DocumentTitleTemplate property.
+        /// </summary>
+        protected virtual void OnDocumentTitleTemplateChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// Coerces the DocumentTitleTemplate value.
+        /// </summary>
+        private static object CoerceDocumentTitleTemplateValue(DependencyObject d, object value)
+        {
+            if (value != null &&
+                d.GetValue(DocumentTitleTemplateSelectorProperty) != null)
+                return null;
+
+            return value;
         }
 
         #endregion
@@ -595,16 +694,43 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty DocumentTitleTemplateSelectorProperty =
             DependencyProperty.Register("DocumentTitleTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplateSelector)null));
+                new FrameworkPropertyMetadata((DataTemplateSelector)null,
+                    new PropertyChangedCallback(OnDocumentTitleTemplateSelectorChanged),
+                    new CoerceValueCallback(CoerceDocumentTitleTemplateSelectorValue)));
 
         /// <summary>
         /// Gets or sets the DocumentTitleTemplateSelector property.  This dependency property 
-        /// indicates the data template selector to use when selecting a data template for the document title.
+        /// indicates the data template selector to use when creating the data template for the title.
         /// </summary>
         public DataTemplateSelector DocumentTitleTemplateSelector
         {
             get { return (DataTemplateSelector)GetValue(DocumentTitleTemplateSelectorProperty); }
             set { SetValue(DocumentTitleTemplateSelectorProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the DocumentTitleTemplateSelector property.
+        /// </summary>
+        private static void OnDocumentTitleTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnDocumentTitleTemplateSelectorChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the DocumentTitleTemplateSelector property.
+        /// </summary>
+        protected virtual void OnDocumentTitleTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null)
+                DocumentTitleTemplate = null;                
+        }
+
+        /// <summary>
+        /// Coerces the DocumentTitleTemplateSelector value.
+        /// </summary>
+        private static object CoerceDocumentTitleTemplateSelectorValue(DependencyObject d, object value)
+        {
+            return value;
         }
 
         #endregion
@@ -616,16 +742,44 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty AnchorableTitleTemplateProperty =
             DependencyProperty.Register("AnchorableTitleTemplate", typeof(DataTemplate), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplate)null));
+                new FrameworkPropertyMetadata((DataTemplate)null,
+                    new PropertyChangedCallback(OnAnchorableTitleTemplateChanged),
+                    new CoerceValueCallback(CoerceAnchorableTitleTemplateValue)));
 
         /// <summary>
         /// Gets or sets the AnchorableTitleTemplate property.  This dependency property 
-        /// indicates the data template to use when instatiating the anchorable title part.
+        /// indicates the data template to use for anchorables title.
         /// </summary>
         public DataTemplate AnchorableTitleTemplate
         {
             get { return (DataTemplate)GetValue(AnchorableTitleTemplateProperty); }
             set { SetValue(AnchorableTitleTemplateProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the AnchorableTitleTemplate property.
+        /// </summary>
+        private static void OnAnchorableTitleTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnAnchorableTitleTemplateChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the AnchorableTitleTemplate property.
+        /// </summary>
+        protected virtual void OnAnchorableTitleTemplateChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// Coerces the AnchorableTitleTemplate value.
+        /// </summary>
+        private static object CoerceAnchorableTitleTemplateValue(DependencyObject d, object value)
+        {
+            if (value != null &&
+                d.GetValue(AnchorableTitleTemplateSelectorProperty) != null)
+                return null;
+            return value;
         }
 
         #endregion
@@ -637,16 +791,35 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty AnchorableTitleTemplateSelectorProperty =
             DependencyProperty.Register("AnchorableTitleTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplateSelector)null));
+                new FrameworkPropertyMetadata((DataTemplateSelector)null,
+                    new PropertyChangedCallback(OnAnchorableTitleTemplateSelectorChanged)));
 
         /// <summary>
         /// Gets or sets the AnchorableTitleTemplateSelector property.  This dependency property 
-        /// indicates the data template selector to use when selecting the data template for the anchorable title.
+        /// indicates selctor to use when selecting data template for the title of anchorables.
         /// </summary>
         public DataTemplateSelector AnchorableTitleTemplateSelector
         {
             get { return (DataTemplateSelector)GetValue(AnchorableTitleTemplateSelectorProperty); }
             set { SetValue(AnchorableTitleTemplateSelectorProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the AnchorableTitleTemplateSelector property.
+        /// </summary>
+        private static void OnAnchorableTitleTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnAnchorableTitleTemplateSelectorChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the AnchorableTitleTemplateSelector property.
+        /// </summary>
+        protected virtual void OnAnchorableTitleTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null &&
+                AnchorableTitleTemplate != null)
+                AnchorableTitleTemplate = null;
         }
 
         #endregion
@@ -658,16 +831,45 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty AnchorableHeaderTemplateProperty =
             DependencyProperty.Register("AnchorableHeaderTemplate", typeof(DataTemplate), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplate)null));
+                new FrameworkPropertyMetadata((DataTemplate)null,
+                    new PropertyChangedCallback(OnAnchorableHeaderTemplateChanged),
+                    new CoerceValueCallback(CoerceAnchorableHeaderTemplateValue)));
 
         /// <summary>
         /// Gets or sets the AnchorableHeaderTemplate property.  This dependency property 
-        /// indicates data template to use when creating anchorable headers.
+        /// indicates the data template to use for anchorable templates.
         /// </summary>
         public DataTemplate AnchorableHeaderTemplate
         {
             get { return (DataTemplate)GetValue(AnchorableHeaderTemplateProperty); }
             set { SetValue(AnchorableHeaderTemplateProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the AnchorableHeaderTemplate property.
+        /// </summary>
+        private static void OnAnchorableHeaderTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnAnchorableHeaderTemplateChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the AnchorableHeaderTemplate property.
+        /// </summary>
+        protected virtual void OnAnchorableHeaderTemplateChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// Coerces the AnchorableHeaderTemplate value.
+        /// </summary>
+        private static object CoerceAnchorableHeaderTemplateValue(DependencyObject d, object value)
+        {
+            if (value != null &&
+                d.GetValue(AnchorableHeaderTemplateSelectorProperty) != null)
+                return null;
+
+            return value;
         }
 
         #endregion
@@ -679,16 +881,34 @@ namespace AvalonDock
         /// </summary>
         public static readonly DependencyProperty AnchorableHeaderTemplateSelectorProperty =
             DependencyProperty.Register("AnchorableHeaderTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplateSelector)null));
+                new FrameworkPropertyMetadata((DataTemplateSelector)null,
+                    new PropertyChangedCallback(OnAnchorableHeaderTemplateSelectorChanged)));
 
         /// <summary>
         /// Gets or sets the AnchorableHeaderTemplateSelector property.  This dependency property 
-        /// indicates data template selector to use when creating data template for anchorable headers.
+        /// indicates the selector to use when selecting the data template for anchorable headers.
         /// </summary>
         public DataTemplateSelector AnchorableHeaderTemplateSelector
         {
             get { return (DataTemplateSelector)GetValue(AnchorableHeaderTemplateSelectorProperty); }
             set { SetValue(AnchorableHeaderTemplateSelectorProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the AnchorableHeaderTemplateSelector property.
+        /// </summary>
+        private static void OnAnchorableHeaderTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnAnchorableHeaderTemplateSelectorChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the AnchorableHeaderTemplateSelector property.
+        /// </summary>
+        protected virtual void OnAnchorableHeaderTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null)
+                AnchorableHeaderTemplate = null;
         }
 
         #endregion
@@ -947,6 +1167,8 @@ namespace AvalonDock
 
         void ILogicalChildrenContainer.InternalAddLogicalChild(object element)
         {
+            System.Diagnostics.Debug.WriteLine("[{0}]InternalAddLogicalChild({1})", this, element);
+
             if (_logicalChildren.Contains(element))
                 throw new InvalidOperationException();
             _logicalChildren.Add(element);
@@ -955,6 +1177,8 @@ namespace AvalonDock
 
         void ILogicalChildrenContainer.InternalRemoveLogicalChild(object element)
         {
+            System.Diagnostics.Debug.WriteLine("[{0}]InternalRemoveLogicalChild({1})", this, element);
+
             if (_logicalChildren.Contains(element))
             {
                 _logicalChildren.Remove(element);
@@ -1164,7 +1388,7 @@ namespace AvalonDock
             };
 
             bool savePreviousContainer = paneModel.FindParent<LayoutFloatingWindow>() == null;
-
+            int currentSelectedContentIndex = paneModel.SelectedContentIndex;
             while (paneModel.Children.Count > 0)
             {
                 var contentModel = paneModel.Children[paneModel.Children.Count - 1] as LayoutAnchorable;
@@ -1177,6 +1401,11 @@ namespace AvalonDock
 
                 paneModel.RemoveChildAt(paneModel.Children.Count - 1);
                 destPane.Children.Insert(0, contentModel);
+            }
+
+            if (destPane.Children.Count > 0)
+            {
+                destPane.SelectedContentIndex = currentSelectedContentIndex;
             }
 
 
@@ -1269,7 +1498,7 @@ namespace AvalonDock
 
         IOverlayWindow IOverlayWindowHost.ShowOverlayWindow(LayoutFloatingWindowControl draggingWindow)
         {
-            Debug.WriteLine("ShowOverlayWindow");
+            //Debug.WriteLine("ShowOverlayWindow");
             CreateOverlayWindow();
             _overlayWindow.Owner = draggingWindow;
             _overlayWindow.EnableDropTargets();
@@ -1279,7 +1508,7 @@ namespace AvalonDock
 
         void IOverlayWindowHost.HideOverlayWindow()
         {
-            Debug.WriteLine("HideOverlayWindow");
+            //Debug.WriteLine("HideOverlayWindow");
             _areas = null;
             _overlayWindow.Owner = null;
             _overlayWindow.HideDropTargets();
@@ -2037,7 +2266,7 @@ namespace AvalonDock
         }
 
 
-        void DetachAnchorablesSource(LayoutRoot layout, IEnumerable anchorablesSource)
+        void AttachAnchorablesSource(LayoutRoot layout, IEnumerable anchorablesSource)
         {
             if (anchorablesSource == null)
                 return;
@@ -2121,6 +2350,7 @@ namespace AvalonDock
                 if (e.NewItems != null)
                 {
                     LayoutAnchorablePane anchorablePane = null;
+
                     if (Layout.ActiveContent != null)
                     {
                         //look for active content parent pane
@@ -2139,17 +2369,27 @@ namespace AvalonDock
                         anchorablePane = Layout.Descendents().OfType<LayoutAnchorablePane>().FirstOrDefault();
                     }
 
-                    if (anchorablePane == null)
+                    foreach (var anchorableContentToImport in e.NewItems)
                     {
-                        //create a pane on the fly on the right side
-
-                    }
-
-                    if (anchorablePane != null)
-                    {
-                        foreach (var anchorableToImport in e.NewItems)
+                        var anchorableToImport = new LayoutAnchorable()
                         {
-                            anchorablePane.Children.Add(new LayoutAnchorable() { Content = anchorableToImport });
+                            Content = anchorableContentToImport
+                        };
+
+                        bool added = false;
+                        if (LayoutUpdateStrategy != null)
+                        {
+                            added = LayoutUpdateStrategy.BeforeInsertAnchorable(anchorableToImport, anchorablePane);
+                        }
+
+                        if (!added && anchorablePane != null)
+                        {
+                            anchorablePane.Children.Add(anchorableToImport);
+                        }
+
+                        if (!added && LayoutUpdateStrategy != null)
+                        {
+                            LayoutUpdateStrategy.InsertAnchorable(anchorableToImport, anchorablePane);
                         }
                     }
                 }
@@ -2168,7 +2408,7 @@ namespace AvalonDock
             }
         }
 
-        void AttachAnchorablesSource(LayoutRoot layout, IEnumerable anchorablesSource)
+        void DetachAnchorablesSource(LayoutRoot layout, IEnumerable anchorablesSource)
         {
             if (anchorablesSource == null)
                 return;
@@ -2251,8 +2491,21 @@ namespace AvalonDock
         {
             var model = anchorable as LayoutAnchorable;
             if (model != null)
-            { 
+            {
+                if (model.Parent is LayoutAnchorGroup)
+                    model.Root.Manager.ToggleAutoHide(model);
+
                 model.Close();
+                return;
+            }
+
+            var paneModel = anchorable as LayoutAnchorablePane;
+            if (paneModel != null)
+            {
+                foreach (var anchorableModel in paneModel.Children.ToArray())
+                {
+                    anchorableModel.Close();
+                }
             }
         }
 
@@ -2318,6 +2571,8 @@ namespace AvalonDock
             var model = anchorable as LayoutAnchorable;
             if (model != null)
             {
+                if (model.Parent is LayoutAnchorGroup)
+                    model.Root.Manager.ToggleAutoHide(model);
                 //by default hide the anchorable
                 model.Hide();
             }
@@ -2638,6 +2893,59 @@ namespace AvalonDock
         {
             get { return (ContextMenu)GetValue(AnchorableContextMenuProperty); }
             set { SetValue(AnchorableContextMenuProperty, value); }
+        }
+
+        #endregion
+
+        #region Theme
+
+        /// <summary>
+        /// Theme Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty ThemeProperty =
+            DependencyProperty.Register("Theme", typeof(Theme), typeof(DockingManager),
+                new FrameworkPropertyMetadata(null,
+                    new PropertyChangedCallback(OnThemeChanged)));
+
+        /// <summary>
+        /// Gets or sets the Theme property.  This dependency property 
+        /// indicates the theme to use for AvalonDock controls.
+        /// </summary>
+        public Theme Theme
+        {
+            get { return (Theme)GetValue(ThemeProperty); }
+            set { SetValue(ThemeProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the Theme property.
+        /// </summary>
+        private static void OnThemeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnThemeChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the Theme property.
+        /// </summary>
+        protected virtual void OnThemeChanged(DependencyPropertyChangedEventArgs e)
+        {
+            var oldTheme = e.OldValue as Theme;
+            var newTheme = e.NewValue as Theme;
+
+            if (oldTheme != null)
+            {
+                var resourceDictionaryToRemove =
+                    Application.Current.Resources.MergedDictionaries.FirstOrDefault(r => r.Source == oldTheme.GetResourceUri());
+                if (resourceDictionaryToRemove != null)
+                    Application.Current.Resources.MergedDictionaries.Remove(
+                        resourceDictionaryToRemove);
+            }
+
+            if (newTheme != null)
+            {
+                Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = newTheme.GetResourceUri() });
+            }
         }
 
         #endregion

@@ -29,13 +29,18 @@ namespace AvalonDock.Controls
 
         LayoutDocumentFloatingWindow _model;
 
+        public override ILayoutElement Model
+        {
+            get { return _model; }
+        }
+
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
 
             var manager = _model.Root.Manager;
 
-            Content = manager.GetUIElementForModel(_model.RootDocument);
+            Content = manager.CreateUIElementForModel(_model.RootDocument);
 
             ContextMenu = _model.Root.Manager.DocumentContextMenu;
             ContextMenu.DataContext = _model.RootDocument;

@@ -25,7 +25,9 @@ namespace Treefrog.V2.ViewModel
             _tilePoolCollectionVM = new TilePoolCollectionVM();
             _documents = new ObservableCollection<DocumentVM>();
 
-            _documents.Add(new LevelDocumentVM(new Level("Level X")));
+            Level lv = new Level("Level X");
+            lv.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 16, 16));
+            _documents.Add(new LevelDocumentVM(lv));
         }
 
         public ProjectVM (Project project)
@@ -42,6 +44,19 @@ namespace Treefrog.V2.ViewModel
         public ObservableCollection<DocumentVM> Documents
         {
             get { return _documents; }
+        }
+
+        private DocumentVM _currentDocument;
+        public DocumentVM CurrentDocument
+        {
+            get { return _currentDocument; }
+            set
+            {
+                if (_currentDocument != value) {
+                    _currentDocument = value;
+                    RaisePropertyChanged("CurrentDocument");
+                }
+            }
         }
 
         private void Project_LevelAdded (object sender, NamedResourceEventArgs<Level> e)
@@ -66,6 +81,8 @@ namespace Treefrog.V2.ViewModel
             foreach (Level level in project.Levels) {
                 _documents.Add(new LevelDocumentVM(level));
             }
+
+            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
         }
     }
 }

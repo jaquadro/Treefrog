@@ -91,9 +91,9 @@ namespace Treefrog.View.Controls
         private void GraphicsDeviceControl_ControlInitialized (object sender, EventArgs e)
         {
             _registry = new TileRegistry(this.GraphicsDevice);
-            _smallPool = new TilePool("Small View Source", _registry, 32, 32);
+            /*_smallPool = new TilePool("Small View Source", _registry, 32, 32);
             _mediumPool = new TilePool("Medium View Source", _registry, 64, 64);
-            _largePool = new TilePool("Large View Source", _registry, 128, 128);
+            _largePool = new TilePool("Large View Source", _registry, 128, 128);*/
 
             _smallLayer = new TileSetLayer("Small View", _smallPool);
             _mediumLayer = new TileSetLayer("Medium View", _mediumPool);

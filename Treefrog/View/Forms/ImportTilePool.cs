@@ -90,11 +90,11 @@ namespace Treefrog.View.Forms
 
         private void _buttonOK_Click (object sender, EventArgs e)
         {
-            TilePool pool = LoadFile(_project.Registry);
+            TilePool pool = LoadFile();
             if (pool != null) {
                 if (_checkboxTransColor.Checked) {
                     Color c = _buttonTransColor.Color;
-                    pool.ApplyTransparentColor(new XnaColor(c.R / 255f, c.G / 255f, c.B / 255f));
+                    //pool.ApplyTransparentColor(new XnaColor(c.R / 255f, c.G / 255f, c.B / 255f));
                 }
                 _project.TilePools.Add(pool);
             }
@@ -138,10 +138,10 @@ namespace Treefrog.View.Forms
 
             _localRegistry.Reset();
 
-            TilePool preview = TilePool.Import(_textName.Text, registry, _fileStream, 
-                (int)_numTileWidth.Value, (int)_numTileHeight.Value, 
-                (int)_numXSpacing.Value, (int)_numYSpacing.Value,
-                (int)_numXMargin.Value, (int)_numYMargin.Value);
+            TilePool preview = null; /* TilePool.Import(_textName.Text, registry, _fileStream,
+                 (int)_numTileWidth.Value, (int)_numTileHeight.Value,
+                 (int)_numXSpacing.Value, (int)_numYSpacing.Value,
+                 (int)_numXMargin.Value, (int)_numYMargin.Value);*/
             //TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
             _tileLayer.Layer = new TileSetLayer("Preview", preview);

@@ -42,6 +42,8 @@ namespace AvalonDock.Layout
                     RaisePropertyChanged("RootPanel");
                     RaisePropertyChanged("IsSinglePane");
                     RaisePropertyChanged("SinglePane");
+
+                    ((ILayoutElementWithVisibility)this).ComputeVisibility();
                 }
             }
         }
@@ -56,7 +58,7 @@ namespace AvalonDock.Layout
         {
             get
             {
-                Debug.WriteLine("IsSinglePane={0}", RootPanel != null && RootPanel.ChildrenCount == 1);
+                //Debug.WriteLine("IsSinglePane={0}", RootPanel != null && RootPanel.ChildrenCount == 1);
                 return RootPanel != null && RootPanel.ChildrenCount == 1;
             }
         }
@@ -80,6 +82,12 @@ namespace AvalonDock.Layout
         {
             Debug.Assert(element == RootPanel && element != null);
             RootPanel = null;
+        }
+
+        public override void ReplaceChild(ILayoutElement oldElement, ILayoutElement newElement)
+        {
+            Debug.Assert(oldElement == RootPanel && oldElement != null);
+            RootPanel = newElement as LayoutAnchorablePaneGroup;
         }
 
         public override int ChildrenCount
@@ -115,7 +123,8 @@ namespace AvalonDock.Layout
        
         void ILayoutElementWithVisibility.ComputeVisibility()
         {
-            IsVisible = RootPanel.IsVisible;
+            if (RootPanel != null)
+                IsVisible = RootPanel.IsVisible;
         }
     }
 }

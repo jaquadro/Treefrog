@@ -7,6 +7,7 @@ using System.Windows.Interop;
 using System.Windows;
 using System.Diagnostics;
 using AvalonDock.Layout;
+using System.Windows.Media;
 
 namespace AvalonDock.Controls
 {
@@ -51,7 +52,7 @@ namespace AvalonDock.Controls
 
         static void manager_PreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            var focusedElement = e.NewFocus as DependencyObject;
+            var focusedElement = e.NewFocus as Visual;
             if (focusedElement != null && !(focusedElement is LayoutAnchorableTabItem || focusedElement is LayoutDocumentTabItem))
             {
                 var parentAnchorable = focusedElement.FindVisualAncestor<LayoutAnchorableControl>();
@@ -123,7 +124,7 @@ namespace AvalonDock.Controls
 
         static void _focusHandler_FocusChanged(object sender, FocusChangeEventArgs e)
         {
-            Debug.WriteLine("_focusHandler_FocusChanged(Got={0}, Lost={1})", e.GotFocusWinHandle, e.LostFocusWinHandle);
+            //Debug.WriteLine("_focusHandler_FocusChanged(Got={0}, Lost={1})", e.GotFocusWinHandle, e.LostFocusWinHandle);
 
             foreach (var manager in _managers)
             {
@@ -167,11 +168,11 @@ namespace AvalonDock.Controls
                     _lastFocusedElement = null;
             }
 
-            Debug.WriteLine(string.Format("Current_EnterMenuMode({0})", Keyboard.FocusedElement));
+            //Debug.WriteLine(string.Format("Current_EnterMenuMode({0})", Keyboard.FocusedElement));
         }
         static void InputManager_LeaveMenuMode(object sender, EventArgs e)
         {
-            Debug.WriteLine(string.Format("Current_LeaveMenuMode({0})", Keyboard.FocusedElement));
+            //Debug.WriteLine(string.Format("Current_LeaveMenuMode({0})", Keyboard.FocusedElement));
             if (_lastFocusedElement != null)
             {
                 if (_lastFocusedElement != Keyboard.Focus(_lastFocusedElement))

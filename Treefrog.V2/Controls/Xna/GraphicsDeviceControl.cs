@@ -54,6 +54,8 @@ namespace Treefrog.V2.Controls.Xna
         private int capturedMouseClientX;
         private int capturedMouseClientY;
 
+        private object _lock = new object();
+
         #endregion
 
         #region Events
@@ -176,6 +178,8 @@ namespace Treefrog.V2.Controls.Xna
 
             // We use the CompositionTarget.Rendering event to trigger the control to draw itself
             CompositionTarget.Rendering += CompositionTarget_Rendering;
+
+            applicationHasFocus = Application.Current.MainWindow.IsActive;
         }
 
         protected override void Dispose(bool disposing)
@@ -269,19 +273,25 @@ namespace Treefrog.V2.Controls.Xna
             if (width < 1 || height < 1)
                 return;
 
-            // If the control is large than the graphics device, reset the device
-            HandleDeviceReset();
+            // XXX: Try developing some hard-reset mitigation for reset failure
+            lock (_lock) {
+                //try {
+                    // If the control is large than the graphics device, reset the device
+                    HandleDeviceReset();
 
-            // Create the active viewport to which we'll render our content
-            Viewport viewport = new Viewport(0, 0, width, height);
-            graphicsService.GraphicsDevice.Viewport = viewport;
+                    // Create the active viewport to which we'll render our content
+                    Viewport viewport = new Viewport(0, 0, width, height);
+                    graphicsService.GraphicsDevice.Viewport = viewport;
 
-            // Invoke the event to render this control
-            if (RenderXna != null)
-                RenderXna(this, new GraphicsDeviceEventArgs(graphicsService.GraphicsDevice));
+                    // Invoke the event to render this control
+                    if (RenderXna != null)
+                        RenderXna(this, new GraphicsDeviceEventArgs(graphicsService.GraphicsDevice));
 
-            // Present to the screen, but only use the visible area of the back buffer
-            graphicsService.GraphicsDevice.Present(viewport.Bounds, null, hWnd);
+                    // Present to the screen, but only use the visible area of the back buffer
+                    graphicsService.GraphicsDevice.Present(viewport.Bounds, null, hWnd);
+                //}
+                //catch { }
+            }
         }
 
         void XnaWindowHost_Loaded(object sender, RoutedEventArgs e)
@@ -299,9 +309,11 @@ namespace Treefrog.V2.Controls.Xna
 
         void XnaWindowHost_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // If we have a reference to the GraphicsDeviceService, we must reset it based on our updated size
-            if (graphicsService != null)
-                graphicsService.ResetDevice((int)ActualWidth, (int)ActualHeight);
+            lock (_lock) {
+                // If we have a reference to the GraphicsDeviceService, we must reset it based on our updated size
+                if (graphicsService != null)
+                    graphicsService.ResetDevice((int)ActualWidth, (int)ActualHeight);
+            }
         }
 
         private void HandleDeviceReset ()
@@ -425,49 +437,65 @@ namespace Treefrog.V2.Controls.Xna
 
         #region WndProc Implementation
 
+        private void UpdateMousePosition (int lParam)
+        {
+            mouseState.Position = new Point(
+                NativeMethods.GetXLParam(lParam),
+                NativeMethods.GetYLParam(lParam));
+        }
+
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             switch (msg)
             {
                 case NativeMethods.WM_LBUTTONDOWN:
                     mouseState.LeftButton = MouseButtonState.Pressed;
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndLButtonDown != null)
                         HwndLButtonDown(this, new HwndMouseEventArgs(mouseState));
                     break;
                 case NativeMethods.WM_LBUTTONUP:
                     mouseState.LeftButton = MouseButtonState.Released;
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndLButtonUp != null)
                         HwndLButtonUp(this, new HwndMouseEventArgs(mouseState));
                     break;
                 case NativeMethods.WM_LBUTTONDBLCLK:
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndLButtonDblClick != null)
                         HwndLButtonDblClick(this, new HwndMouseEventArgs(mouseState, MouseButton.Left));
                     break;
                 case NativeMethods.WM_RBUTTONDOWN:
                     mouseState.RightButton = MouseButtonState.Pressed;
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndRButtonDown != null)
                         HwndRButtonDown(this, new HwndMouseEventArgs(mouseState));
                     break;
                 case NativeMethods.WM_RBUTTONUP:
                     mouseState.RightButton = MouseButtonState.Released;
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndRButtonUp != null)
                         HwndRButtonUp(this, new HwndMouseEventArgs(mouseState));
                     break;
                 case NativeMethods.WM_RBUTTONDBLCLK:
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndRButtonDblClick != null)
                         HwndRButtonDblClick(this, new HwndMouseEventArgs(mouseState, MouseButton.Right));
                     break;
                 case NativeMethods.WM_MBUTTONDOWN:
                     mouseState.MiddleButton = MouseButtonState.Pressed;
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndMButtonDown != null)
                         HwndMButtonDown(this, new HwndMouseEventArgs(mouseState));
                     break;
                 case NativeMethods.WM_MBUTTONUP:
                     mouseState.MiddleButton = MouseButtonState.Released;
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndMButtonUp != null)
                         HwndMButtonUp(this, new HwndMouseEventArgs(mouseState));
                     break;
                 case NativeMethods.WM_MBUTTONDBLCLK:
+                    UpdateMousePosition(lParam.ToInt32());
                     if (HwndMButtonDblClick != null)
                         HwndMButtonDblClick(this, new HwndMouseEventArgs(mouseState, MouseButton.Middle));
                     break;
@@ -475,12 +503,14 @@ namespace Treefrog.V2.Controls.Xna
                     if (((int)wParam & NativeMethods.MK_XBUTTON1) != 0)
                     {
                         mouseState.X1Button = MouseButtonState.Pressed;
+                        UpdateMousePosition(lParam.ToInt32());
                         if (HwndX1ButtonDown != null)
                             HwndX1ButtonDown(this, new HwndMouseEventArgs(mouseState));
                     }
                     else if (((int)wParam & NativeMethods.MK_XBUTTON2) != 0)
                     {
                         mouseState.X2Button = MouseButtonState.Pressed;
+                        UpdateMousePosition(lParam.ToInt32());
                         if (HwndX2ButtonDown != null)
                             HwndX2ButtonDown(this, new HwndMouseEventArgs(mouseState));
                     }
@@ -489,12 +519,14 @@ namespace Treefrog.V2.Controls.Xna
                     if (((int)wParam & NativeMethods.MK_XBUTTON1) != 0)
                     {
                         mouseState.X1Button = MouseButtonState.Released;
+                        UpdateMousePosition(lParam.ToInt32());
                         if (HwndX1ButtonUp != null)
                             HwndX1ButtonUp(this, new HwndMouseEventArgs(mouseState));
                     }
                     else if (((int)wParam & NativeMethods.MK_XBUTTON2) != 0)
                     {
                         mouseState.X2Button = MouseButtonState.Released;
+                        UpdateMousePosition(lParam.ToInt32());
                         if (HwndX2ButtonUp != null)
                             HwndX2ButtonUp(this, new HwndMouseEventArgs(mouseState));
                     }
@@ -502,11 +534,13 @@ namespace Treefrog.V2.Controls.Xna
                 case NativeMethods.WM_XBUTTONDBLCLK:
                     if (((int)wParam & NativeMethods.MK_XBUTTON1) != 0)
                     {
+                        UpdateMousePosition(lParam.ToInt32());
                         if (HwndX1ButtonDblClick != null)
                             HwndX1ButtonDblClick(this, new HwndMouseEventArgs(mouseState, MouseButton.XButton1));
                     }
                     else if (((int)wParam & NativeMethods.MK_XBUTTON2) != 0)
                     {
+                        UpdateMousePosition(lParam.ToInt32());
                         if (HwndX2ButtonDblClick != null)
                             HwndX2ButtonDblClick(this, new HwndMouseEventArgs(mouseState, MouseButton.XButton2));
                     }

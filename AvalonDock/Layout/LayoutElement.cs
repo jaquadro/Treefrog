@@ -76,7 +76,6 @@ namespace AvalonDock.Layout
                 PropertyChanging(this, new System.ComponentModel.PropertyChangingEventArgs(propertyName));
         }
 
-
         public ILayoutRoot Root
         {
             get
@@ -91,9 +90,5 @@ namespace AvalonDock.Layout
                 return parent as ILayoutRoot;
             }
         }
-
-
-
-
     }
 }

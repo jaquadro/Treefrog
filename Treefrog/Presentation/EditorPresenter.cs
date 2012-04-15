@@ -290,7 +290,7 @@ namespace Treefrog.Presentation
             GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
 
             Project project = new Project();
-            project.Initialize(gds.GraphicsDevice);
+            //project.Initialize(gds.GraphicsDevice);
 
             return project;
         }

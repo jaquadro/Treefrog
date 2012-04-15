@@ -25,6 +25,7 @@ namespace AvalonDock.Layout
                     UpdateParentVisibility();
                     RaisePropertyChanged("IsVisible");
                 }
+                    
             }
         }
 
@@ -132,8 +133,11 @@ namespace AvalonDock.Layout
                 return;
             }
             RaisePropertyChanging("IsHidden");
-            PreviousContainer = Parent as ILayoutPane;
-            PreviousContainerIndex = (Parent as ILayoutContentSelector).SelectedContentIndex;
+            if (Parent is ILayoutPane)
+            {
+                PreviousContainer = Parent as ILayoutPane;
+                PreviousContainerIndex = (Parent as ILayoutContentSelector).SelectedContentIndex;
+            }
             Root.Hidden.Add(this);
             RaisePropertyChanged("IsHidden");
         }
@@ -148,13 +152,30 @@ namespace AvalonDock.Layout
                 return;
 
             RaisePropertyChanging("IsHidden");
-            if (PreviousContainer != null)
+
+            bool added = false;
+            var root = Root;
+            if (root != null && root.Manager != null)
+            {
+                if (root.Manager.LayoutUpdateStrategy != null)
+                    added = root.Manager.LayoutUpdateStrategy.BeforeInsertAnchorable(this, PreviousContainer);
+            }
+
+            if (!added && PreviousContainer != null)
             {
                 var previousContainerAsLayoutGroup = PreviousContainer as ILayoutGroup;
                 previousContainerAsLayoutGroup.InsertChildAt(PreviousContainerIndex, this);
                 IsSelected = true;
                 IsActive = true;
             }
+            
+            if (!added && root != null && root.Manager != null)
+            {
+                if (root.Manager.LayoutUpdateStrategy != null)
+                    root.Manager.LayoutUpdateStrategy.InsertAnchorable(this, PreviousContainer);
+            }
+            
+
             RaisePropertyChanged("IsHidden");
         }
 

@@ -23,7 +23,7 @@ namespace AvalonDock.Controls
             FocusableProperty.OverrideMetadata(typeof(LayoutAnchorableControl), new FrameworkPropertyMetadata(false));
         }
 
-        internal LayoutAnchorableControl()
+        public LayoutAnchorableControl()
         {
         }
 

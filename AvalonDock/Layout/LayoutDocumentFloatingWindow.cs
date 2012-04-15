@@ -54,6 +54,12 @@ namespace AvalonDock.Layout
             RootDocument = null;
         }
 
+        public override void ReplaceChild(ILayoutElement oldElement, ILayoutElement newElement)
+        {
+            Debug.Assert(oldElement == RootDocument && oldElement != null);
+            RootDocument = newElement as LayoutDocument;
+        }
+
         public override int ChildrenCount
         {
             get { return 1; }

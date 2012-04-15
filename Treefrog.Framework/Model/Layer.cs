@@ -14,6 +14,7 @@ namespace Treefrog.Framework.Model
 
         private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible" };
 
+        private Level _level;
         private string _name;
 
         private float _opacity;
@@ -52,6 +53,12 @@ namespace Treefrog.Framework.Model
         #endregion
 
         #region Properties
+
+        public Level Level
+        {
+            get { return _level; }
+            set { _level = value; }
+        }
 
         public bool IsVisible
         {
@@ -284,7 +291,7 @@ namespace Treefrog.Framework.Model
 
         #region XML Import / Export
 
-        public static Layer FromXml (XmlReader reader, IServiceProvider services, Level level)
+        public static Layer FromXml (XmlReader reader, Level level)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
                 "name", "type",
@@ -293,7 +300,10 @@ namespace Treefrog.Framework.Model
             Layer layer = null;
             switch (attribs["type"]) {
                 case "tilemulti":
-                    layer = new MultiTileGridLayer(attribs["name"], level.TileWidth, level.TileHeight, level.TilesWide, level.TilesHigh);
+                    layer = new MultiTileGridLayer(attribs["name"], level.TileWidth, level.TileHeight, level.TilesWide, level.TilesHigh)
+                    {
+                        Level = level,
+                    };
                     break;
             }
 
@@ -311,7 +321,7 @@ namespace Treefrog.Framework.Model
                         AddPropertyFromXml(xmlr, layer);
                         return true;
                     default:
-                        return layer.ReadXmlElement(xmlr, s, services);
+                        return layer.ReadXmlElement(xmlr, s);
                 }
             });
 
@@ -320,7 +330,7 @@ namespace Treefrog.Framework.Model
 
         public abstract void WriteXml(XmlWriter writer);
 
-        protected virtual bool ReadXmlElement (XmlReader reader, string name, IServiceProvider services)
+        protected virtual bool ReadXmlElement (XmlReader reader, string name)
         {
             return true;
         }

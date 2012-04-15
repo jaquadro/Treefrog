@@ -247,30 +247,30 @@ namespace Treefrog.Framework.Model
             writer.WriteEndElement();
         }
 
-        protected override bool ReadXmlElement (XmlReader reader, string name, IServiceProvider services)
+        protected override bool ReadXmlElement (XmlReader reader, string name)
         {
             switch (name) {
                 case "tiles":
-                    ReadXmlTiles(reader, services);
+                    ReadXmlTiles(reader);
                     return true;
             }
 
-            return base.ReadXmlElement(reader, name, services);
+            return base.ReadXmlElement(reader, name);
         }
 
-        private void ReadXmlTiles (XmlReader reader, IServiceProvider services)
+        private void ReadXmlTiles (XmlReader reader)
         {
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
                 switch (s) {
                     case "tile":
-                        AddTileFromXml(xmlr, services);
+                        AddTileFromXml(xmlr);
                         break;
                 }
             });
         }
 
-        private void AddTileFromXml (XmlReader reader, IServiceProvider services)
+        private void AddTileFromXml (XmlReader reader)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
                 "at",
@@ -281,12 +281,12 @@ namespace Treefrog.Framework.Model
             string idstr = reader.ReadString();
             string[] ids = idstr.Split(new char[] { ',' });
 
-            TileRegistry registry = services.GetService(typeof(TileRegistry)) as TileRegistry;
+            TilePoolManager manager = Level.Project.TilePoolManager;
 
             foreach (string id in ids) {
                 int tileId = Convert.ToInt32(id);
 
-                TilePool pool = registry.PoolFromTileId(tileId);
+                TilePool pool = manager.PoolFromTileId(tileId);
                 Tile tile = pool.GetTile(tileId);
 
                 AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);

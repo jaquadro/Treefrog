@@ -20,7 +20,7 @@ namespace AvalonDock.Controls
         }
 
 
-        internal AnchorablePaneTitle()
+        public AnchorablePaneTitle()
         { 
             
         }
@@ -86,7 +86,6 @@ namespace AvalonDock.Controls
         private void OnToggleAutoHide()
         {
             var manager = Model.Root.Manager;
-
             manager.ToggleAutoHide(Model);
         }
 

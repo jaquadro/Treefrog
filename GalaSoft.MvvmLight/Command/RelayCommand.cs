@@ -80,7 +80,11 @@ namespace GalaSoft.MvvmLight.Command
         /// <summary>
         /// Occurs when changes occur that affect whether the command should execute.
         /// </summary>
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
 
         /// <summary>
         /// Raises the <see cref="CanExecuteChanged" /> event.

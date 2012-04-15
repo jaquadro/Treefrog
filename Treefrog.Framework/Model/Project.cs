@@ -24,14 +24,16 @@ namespace Treefrog.Framework.Model
 
         private ServiceContainer _services;
 
-        private TileRegistry _registry;
+        //private TileRegistry _registry;
 
-        private NamedResourceCollection<TilePool> _tilePools;
+        //private NamedResourceCollection<TilePool> _tilePools;
         private NamedResourceCollection<ObjectPool> _objectPools;
         //private NamedResourceCollection<TileSet2D> _tileSets;
         private NamedResourceCollection<Level> _levels;
 
-        private bool _initalized;
+        private TilePoolManager _tilePools;
+
+        //private bool _initalized;
 
         #endregion
 
@@ -41,14 +43,17 @@ namespace Treefrog.Framework.Model
         {
             _services = new ServiceContainer();
 
-            _tilePools = new NamedResourceCollection<TilePool>();
+            //_tilePools = new NamedResourceCollection<TilePool>();
+            _tilePools = new TilePoolManager();
             _objectPools = new NamedResourceCollection<ObjectPool>();
             //_tileSets = new NamedResourceCollection<TileSet2D>();
             _levels = new NamedResourceCollection<Level>();
 
-            _tilePools.Modified += TilePoolsModifiedHandler;
+            _tilePools.Pools.Modified += TilePoolsModifiedHandler;
             _objectPools.Modified += ObjectPoolsModifiedHandler;
             _levels.Modified += LevelsModifiedHandler;
+
+            _services.AddService(typeof(TilePoolManager), _tilePools);
         }
 
         #endregion
@@ -57,10 +62,15 @@ namespace Treefrog.Framework.Model
 
         public bool Initialized
         {
-            get { return _initalized; }
+            get { return true; }
         }
 
         public NamedResourceCollection<TilePool> TilePools
+        {
+            get { return _tilePools.Pools; }
+        }
+
+        public TilePoolManager TilePoolManager
         {
             get { return _tilePools; }
         }
@@ -80,10 +90,10 @@ namespace Treefrog.Framework.Model
             get { return _levels; }
         }
 
-        public TileRegistry Registry
+        /*public TileRegistry Registry
         {
             get { return _registry; }
-        }
+        }*/
 
         public IServiceProvider Services
         {
@@ -170,7 +180,7 @@ namespace Treefrog.Framework.Model
             writer.Close();
         }
 
-        public void Initialize (GraphicsDevice device)
+        /*public void Initialize (GraphicsDevice device)
         {
             _registry = new TileRegistry(device);
 
@@ -178,14 +188,14 @@ namespace Treefrog.Framework.Model
             _services.AddService(typeof(TileRegistry), _registry);
 
             _initalized = true;
-        }
+        }*/
 
         #region XML Import / Export
 
         public static Project FromXml (XmlReader reader, GraphicsDevice device)
         {
             Project project = new Project();
-            project.Initialize(device);
+            //project.Initialize(device);
 
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
@@ -206,7 +216,7 @@ namespace Treefrog.Framework.Model
 
             //   <tilesets>
             writer.WriteStartElement("tilesets");
-            writer.WriteAttributeString("lastid", _registry.LastId.ToString());
+            writer.WriteAttributeString("lastid", _tilePools.LastId.ToString());
 
             foreach (TilePool pool in TilePools) {
                 pool.WriteXml(writer);
@@ -230,7 +240,7 @@ namespace Treefrog.Framework.Model
         public void WriteXmlTilesets (XmlWriter writer)
         {
             writer.WriteStartElement("tilesets");
-            writer.WriteAttributeString("lastid", _registry.LastId.ToString());
+            writer.WriteAttributeString("lastid", _tilePools.LastId.ToString());
 
             foreach (TilePool pool in TilePools) {
                 pool.WriteXml(writer);
@@ -259,13 +269,13 @@ namespace Treefrog.Framework.Model
                 "lastid",
             });
 
-            _registry.LastId = Convert.ToInt32(attribs["lastid"]);
+            _tilePools.LastId = Convert.ToInt32(attribs["lastid"]);
 
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
                 switch (s) {
                     case "tileset":
-                        _tilePools.Add(TilePool.FromXml(xmlr, _services));
+                        TilePool.FromXml(xmlr, _tilePools);
                         break;
                 }
             });
@@ -277,7 +287,7 @@ namespace Treefrog.Framework.Model
             {
                 switch (s) {
                     case "level":
-                        _levels.Add(Level.FromXml(xmlr, _services));
+                        _levels.Add(Level.FromXml(xmlr, this));
                         break;
                 }
             });

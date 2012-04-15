@@ -8,7 +8,8 @@
         xmlns:viewDocuments="clr-namespace:Treefrog.V2.View.Documents"
         xmlns:vm="clr-namespace:Treefrog.V2.ViewModel"
         xmlns:toolbars="clr-namespace:Treefrog.V2.View.ToolBars"
-        Title="{Binding Title}" Height="458" Width="697" xmlns:my="clr-namespace:Treefrog.V2.Controls.Xna" ResizeMode="CanResizeWithGrip">
+        xmlns:panels="clr-namespace:Treefrog.V2.View.Panels"
+        Title="{Binding Title}" Height="662" Width="960" xmlns:my="clr-namespace:Treefrog.V2.Controls.Xna" ResizeMode="CanResizeWithGrip">
     <Window.DataContext>
         <vm:EditorVM />
     </Window.DataContext>
@@ -71,7 +72,7 @@
                         <avalonDockLayout:LayoutAnchorablePane>
                             <avalonDockLayout:LayoutAnchorable x:Name="tilePools" Title="Tile Pools">
                                 <!--<Frame Source="TilePools.xaml" />-->
-                                <view:TilePoolPanel DataContext="{Binding Path=Project.TilePoolCollection}"/>
+                                <panels:TilePoolPanel DataContext="{Binding Path=Project.TilePoolCollection}"/>
                             </avalonDockLayout:LayoutAnchorable>
                             <avalonDockLayout:LayoutAnchorable x:Name="objectPools" Title="Objects">
                                 
@@ -80,6 +81,9 @@
                         <avalonDockLayout:LayoutAnchorablePane>
                             <avalonDockLayout:LayoutAnchorable x:Name="properties" Title="Properties">
                                 
+                            </avalonDockLayout:LayoutAnchorable>
+                            <avalonDockLayout:LayoutAnchorable x:Name="layers" Title="Layers">
+                                <panels:LayerPanel DataContext="{Binding Path=ActiveDocument.LayerCollection}" />
                             </avalonDockLayout:LayoutAnchorable>
                         </avalonDockLayout:LayoutAnchorablePane>
                     </avalonDockLayout:LayoutAnchorablePaneGroup>
@@ -95,7 +99,24 @@
         </avalonDock:DockingManager>
         
         <StatusBar Grid.Row="3">
-            <StatusBarItem Content="Test" />
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Treefrog.V2;component/Images/16/guide-snap.png" Width="16" Height="16" />
+                    <TextBlock Text="{Binding ActiveContent.Coordinates}" Margin="4,0,0,0"/>
+                </StackPanel>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right" Margin="0,0,10,0" Visibility="{Binding ZoomVisibility}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding ZoomText}" />
+                    <Slider Grid.Column="1" Width="120" Height="20" IsSnapToTickEnabled="True" 
+                        Ticks="{Binding ZoomLevels}" Minimum="{Binding ZoomMin}" Maximum="{Binding ZoomMax}" 
+                        Value="{Binding SelectedZoom}" TickPlacement="BottomRight" />
+                </Grid>
+            </StatusBarItem>
         </StatusBar>
     </Grid>
 </Window>

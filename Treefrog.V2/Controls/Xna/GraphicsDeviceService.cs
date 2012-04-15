@@ -125,6 +125,9 @@ namespace Treefrog.V2.Controls.Xna
         /// </summary>
         public void ResetDevice(int width, int height)
         {
+            if (width <= parameters.BackBufferWidth && height <= parameters.BackBufferHeight)
+                return;
+
             if (DeviceResetting != null)
                 DeviceResetting(this, EventArgs.Empty);
 

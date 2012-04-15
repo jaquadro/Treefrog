@@ -54,6 +54,8 @@
     <Compile Include="Controls\AnchorablePaneDropTarget.cs" />
     <Compile Include="Controls\AnchorablePaneTabPanel.cs" />
     <Compile Include="Controls\AnchorablePaneTitle.cs" />
+    <Compile Include="Controls\BindingHelper.cs" />
+    <Compile Include="Controls\DocumentPaneDropAsAnchorableTarget.cs" />
     <Compile Include="Controls\DocumentPaneGroupDropTarget.cs" />
     <Compile Include="Controls\DropDownButton.cs" />
     <Compile Include="Controls\DropDownControlArea.cs" />
@@ -136,6 +138,7 @@
     <Compile Include="Controls\IOverlayWindowArea.cs" />
     <Compile Include="Controls\IOverlayWindowDropTarget.cs" />
     <Compile Include="Controls\IOverlayWindowHost.cs" />
+    <Compile Include="Layout\ILayoutUpdateStrategy.cs" />
     <Compile Include="Layout\LayoutAnchorable.cs" />
     <Compile Include="Layout\LayoutAnchorableFloatingWindow.cs" />
     <Compile Include="Layout\LayoutAnchorablePane.cs" />
@@ -171,6 +174,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Themes\Theme.cs" />
     <Compile Include="Win32Helper.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

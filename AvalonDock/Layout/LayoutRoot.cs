@@ -6,6 +6,7 @@ using System.Windows;
 using System.Collections.ObjectModel;
 using System.Windows.Markup;
 using System.Xml.Serialization;
+using Standard;
 
 namespace AvalonDock.Layout
 {
@@ -267,6 +268,33 @@ namespace AvalonDock.Layout
                 LeftSide = null;
 
         }
+
+        public void ReplaceChild(ILayoutElement oldElement, ILayoutElement newElement)
+        {
+            if (oldElement == RootPanel)
+                RootPanel = (LayoutPanel)newElement;
+            else if (_floatingWindows != null && _floatingWindows.Contains(oldElement))
+            {
+                int index = _floatingWindows.IndexOf(oldElement as LayoutFloatingWindow);
+                _floatingWindows.Remove(oldElement as LayoutFloatingWindow);
+                _floatingWindows.Insert(index, newElement as LayoutFloatingWindow);
+            }
+            else if (_hiddenAnchorables != null && _hiddenAnchorables.Contains(oldElement))
+            {
+                int index = _hiddenAnchorables.IndexOf(oldElement as LayoutAnchorable);
+                _hiddenAnchorables.Remove(oldElement as LayoutAnchorable);
+                _hiddenAnchorables.Insert(index, newElement as LayoutAnchorable);
+            }
+            else if (oldElement == TopSide)
+                TopSide = (LayoutAnchorSide)newElement;
+            else if (oldElement == RightSide)
+                RightSide = (LayoutAnchorSide)newElement;
+            else if (oldElement == BottomSide)
+                BottomSide = (LayoutAnchorSide)newElement;
+            else if (oldElement == LeftSide)
+                LeftSide = (LayoutAnchorSide)newElement;
+        }
+
         public int ChildrenCount
         {
             get { return 5 + _floatingWindows.Count + _hiddenAnchorables.Count; }
@@ -368,11 +396,20 @@ namespace AvalonDock.Layout
                 {
                     //...set null any reference coming from contents not yet hosted in a floating window
                     foreach (var contentReferencingEmptyPane in this.Descendents().OfType<LayoutContent>()
-                        .Where(c => c.PreviousContainer == emptyPane && c.FindParent<LayoutFloatingWindow>() == null))
+                        .Where(c => c.PreviousContainer == emptyPane && !c.IsFloating))
                     {
+                        if (contentReferencingEmptyPane is LayoutAnchorable &&
+                            ((LayoutAnchorable)contentReferencingEmptyPane).IsHidden)
+                            continue;
+
                         contentReferencingEmptyPane.PreviousContainer = null;
                         contentReferencingEmptyPane.PreviousContainerIndex = -1;
                     }
+
+                    //...if this pane is the only documentpane present in the layout than skip it
+                    if (emptyPane is LayoutDocumentPane &&
+                        this.Descendents().OfType<LayoutDocumentPane>().Count(c => c != emptyPane) == 0)
+                        continue;
 
                     //...if this empty panes is not referenced by anyone, than removes it from its parent container
                     if (!this.Descendents().OfType<LayoutContent>().Any(c => c.PreviousContainer == emptyPane))

@@ -5,26 +5,82 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Windows;
+using Treefrog.V2.ViewModel.Layers;
+using System.Collections.Specialized;
+using Treefrog.Framework;
+using System.Windows.Data;
+
+using TextureResource = Treefrog.Framework.Imaging.TextureResource;
+using Treefrog.Aux;
 
 namespace Treefrog.V2.Controls.Layers
 {
+    public enum LayerControlAlignment
+    {
+        Center,
+        Left,
+        Right,
+        Upper,
+        Lower,
+        UpperLeft,
+        UpperRight,
+        LowerLeft,
+        LowerRight
+    }
+
     public class RenderLayer : XnaCanvasLayer
     {
         private SpriteBatch _spriteBatch;
         private RenderTarget2D _target;
 
         public static readonly DependencyProperty OpacityProperty;
+        public static readonly DependencyProperty ModelProperty;
+        public static readonly DependencyProperty AlignmentProperty;
 
         static RenderLayer ()
         {
             OpacityProperty = DependencyProperty.Register("Opacity",
                 typeof(float), typeof(RenderLayer), new PropertyMetadata(1.0f));
+            ModelProperty = DependencyProperty.Register("Model",
+                typeof(RenderLayerVM), typeof(RenderLayer), new PropertyMetadata(null, HandleModelChanged));
+            AlignmentProperty = DependencyProperty.Register("Alignment",
+                typeof(LayerControlAlignment), typeof(RenderLayer), new PropertyMetadata(LayerControlAlignment.Center));
         }
 
         public float Opacity
         {
             get { return (float)this.GetValue(OpacityProperty); }
             set { this.SetValue(OpacityProperty, value); }
+        }
+
+        public RenderLayerVM Model
+        {
+            get { return (RenderLayerVM)this.GetValue(ModelProperty); }
+            set { this.SetValue(ModelProperty, value); }
+        }
+
+        public LayerControlAlignment Alignment
+        {
+            get { return (LayerControlAlignment)this.GetValue(AlignmentProperty); }
+            set { this.SetValue(AlignmentProperty, value); }
+        }
+
+        // TODO: Some of this binding should be broken up better across the layer hierarchy
+        private static void HandleModelChanged (DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            RenderLayer self = sender as RenderLayer;
+            self.RebindTextureSource(e.OldValue as RenderLayerVM, e.NewValue as RenderLayerVM);
+
+            self.SetBinding(OpacityProperty, new Binding("Opacity")
+            {
+                Source = e.NewValue,
+            });
+
+            // This doesn't belong here
+            self.SetBinding(IsRenderedProperty, new Binding("IsVisible")
+            {
+                Source = e.NewValue,
+            });
         }
 
         protected override void RenderCore (GraphicsDevice device)
@@ -39,21 +95,29 @@ namespace Treefrog.V2.Controls.Layers
 
         protected virtual void RenderCore (SpriteBatch spriteBatch)
         {
-            Texture2D tex = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-            tex.SetData(new Color[] { Color.White });
-
-            int x = 40;
-            int y = 40;
-            int w = 40;
-
             Vector offset = BeginDraw(spriteBatch);
 
-            //Matrix mat = Matrix.CreateTranslation(-(float)HorizontalOffset, -(float)VerticalOffset, 0);
-            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, mat);
-            spriteBatch.Draw(tex, new Microsoft.Xna.Framework.Rectangle(x, y, w, w), Color.White);
-            //spriteBatch.End();
+            RenderLayerVM model = Model;
+            if (model != null) {
+                RenderCommands(spriteBatch, model.RenderCommands);
+            }
 
             EndDraw(spriteBatch, offset);
+        }
+
+        protected virtual void RenderCommands (SpriteBatch spriteBatch, IEnumerable<DrawCommand> drawList)
+        {
+            foreach (DrawCommand command in drawList) {
+                Texture2D texture;
+                if (_xnaTextures.TryGetValue(command.Texture, out texture)) {
+                    if (texture == null) {
+                        TextureResource texRef = _textures[command.Texture];
+                        texture = texRef.CreateTexture(spriteBatch.GraphicsDevice);
+                        _xnaTextures[command.Texture] = texture;
+                    }
+                    spriteBatch.Draw(texture, command.DestRect, command.SourceRect, command.BlendColor);
+                }
+            }
         }
 
         protected Rect VisibleRegion
@@ -70,7 +134,40 @@ namespace Treefrog.V2.Controls.Layers
         {
             get
             {
-                return new Vector(0, 0);
+                double offsetX = 0;
+                double offsetY = 0;
+
+                if (ViewportWidth > VirtualWidth * ZoomFactor) {
+                    switch (Alignment) {
+                        case LayerControlAlignment.Center:
+                        case LayerControlAlignment.Upper:
+                        case LayerControlAlignment.Lower:
+                            offsetX = (ViewportWidth - VirtualWidth * ZoomFactor) / 2;
+                            break;
+                        case LayerControlAlignment.Right:
+                        case LayerControlAlignment.UpperRight:
+                        case LayerControlAlignment.LowerRight:
+                            offsetX = (ViewportWidth - VirtualWidth * ZoomFactor);
+                            break;
+                    }
+                }
+
+                if (ViewportHeight > VirtualHeight * ZoomFactor) {
+                    switch (Alignment) {
+                        case LayerControlAlignment.Center:
+                        case LayerControlAlignment.Left:
+                        case LayerControlAlignment.Right:
+                            offsetY = (ViewportHeight - VirtualHeight * ZoomFactor) / 2;
+                            break;
+                        case LayerControlAlignment.Lower:
+                        case LayerControlAlignment.LowerLeft:
+                        case LayerControlAlignment.LowerRight:
+                            offsetY = (ViewportHeight - VirtualHeight * ZoomFactor);
+                            break;
+                    }
+                }
+
+                return new Vector(offsetX, offsetY);
             }
         }
 
@@ -127,7 +224,10 @@ namespace Treefrog.V2.Controls.Layers
         {
             get
             {
-                return 1000;
+                if (double.IsNaN(Height))
+                    return (Model != null) ? Model.LayerHeight : 0;
+                else
+                    return Height;
             }
         }
 
@@ -135,8 +235,69 @@ namespace Treefrog.V2.Controls.Layers
         {
             get
             {
-                return 1000;
+                if (double.IsNaN(Width))
+                    return (Model != null) ? Model.LayerWidth : 0;
+                else
+                    return Width;
             }
         }
+
+        #region Texture Management
+
+        private Dictionary<string, TextureResource> _textures = new Dictionary<string, TextureResource>();
+        private Dictionary<string, Texture2D> _xnaTextures = new Dictionary<string, Texture2D>();
+
+        // TODO: Be smarter about managing TextureSource.  Bind to it instead?
+        // If it changes underneath without a model change, we'll still stay attached to it!
+        // Almost certainly this should be moved to a texture manager in the root control!
+        private void RebindTextureSource (RenderLayerVM oldModel, RenderLayerVM newModel)
+        {
+            if (oldModel != null && oldModel.TextureSource != null) {
+                oldModel.TextureSource.CollectionChanged -= HandleTextureSourceCollectionChanged;
+                _textures.Clear();
+            }
+
+            if (newModel != null && newModel.TextureSource != null) {
+                newModel.TextureSource.CollectionChanged += HandleTextureSourceCollectionChanged;
+
+                foreach (KeyValuePair<string, TextureResource> item in newModel.TextureSource)
+                    AddTexture(item.Key, item.Value);
+            }
+        }
+
+        private void HandleTextureSourceCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (KeyValuePair<string, TextureResource> item in e.NewItems)
+                        AddTexture(item.Key, item.Value);
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (KeyValuePair<string, TextureResource> item in e.OldItems)
+                        RemoveTexture(item.Key, item.Value);
+                    break;
+            }
+        }
+
+        private void AddTexture (string key, TextureResource source)
+        {
+            if (key == null || source == null)
+                return;
+
+            TextureResource tex = source.Crop(source.Bounds);
+            _textures[key] = tex;
+            _xnaTextures[key] = null;
+        }
+
+        private void RemoveTexture (string key, TextureResource source)
+        {
+            if (key == null || source == null)
+                return;
+
+            _textures.Remove(key);
+            _xnaTextures.Remove(key);
+        }
+
+        #endregion
     }
 }

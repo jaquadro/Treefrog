@@ -23,6 +23,8 @@ namespace AvalonDock.Layout
 
         public abstract void RemoveChild(ILayoutElement element);
 
+        public abstract void ReplaceChild(ILayoutElement oldElement, ILayoutElement newElement);
+
         public abstract int ChildrenCount { get; }
     }
 }

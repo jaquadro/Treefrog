@@ -14,6 +14,7 @@ namespace Treefrog.Framework.Model
 
         private static string[] _reservedPropertyNames = { "Name", "TileWidth", "TileHeight" };
 
+        private Project _project;
         private string _name;
 
         private int _tileWidth = 16;
@@ -49,6 +50,12 @@ namespace Treefrog.Framework.Model
             _layers.Modified += LayersModifiedHandler;
         }
 
+        public Level (string name, Project project)
+            : this(name)
+        {
+            _project = project;
+        }
+
         /// <summary>
         /// Creates a <see cref="Level"/> with given dimensions.
         /// </summary>
@@ -69,6 +76,12 @@ namespace Treefrog.Framework.Model
         #endregion
 
         #region Properties
+
+        public Project Project
+        {
+            get { return _project; }
+            private set { _project = value; }
+        }
 
         /// <summary>
         /// Gets the height of the level in pixels.
@@ -541,20 +554,23 @@ namespace Treefrog.Framework.Model
         /// <param name="reader">An <see cref="XmlReader"/> currently set to a "Level" element.</param>
         /// <param name="services">A <see cref="Project"/>-level service provider.</param>
         /// <returns>A new <see cref="Level"/> object.</returns>
-        public static Level FromXml (XmlReader reader, IServiceProvider services)
+        public static Level FromXml (XmlReader reader, Project parent)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
                 "name", "width", "height", "tilewidth", "tileheight",
             });
 
             Level level = new Level(attribs["name"], Convert.ToInt32(attribs["tilewidth"]), Convert.ToInt32(attribs["tileheight"]),
-                Convert.ToInt32(attribs["width"]), Convert.ToInt32(attribs["height"]));
+                Convert.ToInt32(attribs["width"]), Convert.ToInt32(attribs["height"]))
+                {
+                    Project = parent,
+                };
 
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
                 switch (s) {
                     case "layers":
-                        AddLayerFromXml(xmlr, services, level);
+                        AddLayerFromXml(xmlr, level);
                         break;
                     case "properties":
                         AddPropertyFromXml(xmlr, level);
@@ -600,13 +616,13 @@ namespace Treefrog.Framework.Model
             writer.WriteEndElement();
         }
 
-        private static void AddLayerFromXml (XmlReader reader, IServiceProvider services, Level level)
+        private static void AddLayerFromXml (XmlReader reader, Level level)
         {
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
                 switch (s) {
                     case "layer":
-                        level.Layers.Add(Layer.FromXml(xmlr, services, level));
+                        level.Layers.Add(Layer.FromXml(xmlr, level));
                         break;
                 }
             });
