@@ -29,6 +29,8 @@ namespace Treefrog.V2.ViewModel
             _tileToolBar = new TileToolBarVM(_tileMenu);
 
             _selectedZoom = 16;
+
+            ActiveContent = _project.Documents.First();
         }
 
         public ProjectVM Project
@@ -91,7 +93,13 @@ namespace Treefrog.V2.ViewModel
             set
             {
                 if (_activeDocument != value) {
+                    if (_activeDocument != null)
+                        _activeDocument.IsActive = false;
+
                     _activeDocument = value;
+                    if (_activeDocument != null)
+                        _activeDocument.IsActive = true;
+
                     RaisePropertyChanged("ActiveDocument");
                     RaisePropertyChanged("ZoomVisibility");
                     RaisePropertyChanged("CommandHistory");
@@ -115,6 +123,18 @@ namespace Treefrog.V2.ViewModel
             }
         }
 
+        private string _projectFile = "";
+        public string ProjectFile
+        {
+            get { return _projectFile; }
+            set
+            {
+                if (_projectFile != value) {
+                    _projectFile = value;
+                    RaisePropertyChanged("ProjectFile");
+                }
+            }
+        }
 
         public void OpenProject (string path)
         {
@@ -131,6 +151,18 @@ namespace Treefrog.V2.ViewModel
                 }
 
                 RaisePropertyChanged("Project");
+                Title = "Treefrog - " + path;
+                ProjectFile = path;
+            }
+        }
+
+        public void SaveProject (string path)
+        {
+            if (path == null || _project == null)
+                return;
+
+            using (FileStream stream = File.OpenWrite(path)) {
+                _project.Project.Save(stream);
             }
         }
 

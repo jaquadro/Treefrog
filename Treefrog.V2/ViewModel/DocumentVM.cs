@@ -12,6 +12,19 @@ namespace Treefrog.V2.ViewModel
     {
         public abstract string Name { get; }
 
+        private bool _isActive;
+        public bool IsActive
+        {
+            get { return _isActive; }
+            set
+            {
+                if (_isActive != value) {
+                    _isActive = value;
+                    RaisePropertyChanged("IsActive");
+                }
+            }
+        }
+
         public virtual bool SupportsZoom
         {
             get { return false; }

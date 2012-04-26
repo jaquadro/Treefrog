@@ -82,6 +82,42 @@ namespace Treefrog.V2.ViewModel.Menu
 
         #endregion
 
+        #region Save Project Command
+
+        private RelayCommand _saveProjectCommand;
+
+        public ICommand SaveProjectCommand
+        {
+            get
+            {
+                if (_saveProjectCommand == null)
+                    _saveProjectCommand = new RelayCommand(OnSaveProject, CanOpenProject);
+                return _saveProjectCommand;
+            }
+        }
+
+        private bool CanSaveProject ()
+        {
+            return _editor.Project != null;
+        }
+
+        private void OnSaveProject ()
+        {
+            if (String.IsNullOrEmpty(_editor.ProjectFile)) {
+                IOService service = ServiceProvider.GetService<IOService>();
+                if (service != null) {
+                    string path = service.SaveFileDialog("");
+
+                    _editor.SaveProject(path);
+                }
+            }
+            else {
+                _editor.SaveProject(_editor.ProjectFile);
+            }
+        }
+
+        #endregion
+
         #region New Level Command
 
         private RelayCommand _newLevelCommand;

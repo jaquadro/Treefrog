@@ -93,11 +93,12 @@ namespace GalaSoft.MvvmLight.Command
             Justification = "This cannot be an event")]
         public void RaiseCanExecuteChanged()
         {
-            var handler = CanExecuteChanged;
-            if (handler != null)
+            //EventHandler handler = CanExecuteChanged;
+            CommandManager.InvalidateRequerySuggested();
+            /*if (handler != null)
             {
                 handler(this, EventArgs.Empty);
-            }
+            }*/
         }
 
         /// <summary>

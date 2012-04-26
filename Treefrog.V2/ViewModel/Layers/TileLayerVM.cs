@@ -14,7 +14,7 @@ using Treefrog.V2.ViewModel.Menu;
 
 namespace Treefrog.V2.ViewModel.Layers
 {
-    public class TileLayerVM : LevelLayerVM
+    public class TileLayerVM : LevelLayerVM, IDisposable
     {
         private TilePoolManager _manager;
         private ObservableDictionary<string, TextureResource> _textures;
@@ -31,18 +31,41 @@ namespace Treefrog.V2.ViewModel.Layers
             Initialize();
         }
 
+        public void Dispose ()
+        {
+            if (_manager != null) {
+                _manager.Pools.ResourceAdded -= HandleTilePoolAdded;
+                _manager.Pools.ResourceRemoved -= HandleTilePoolRemoved;
+                _manager = null;
+
+                _textures.Clear();
+            }
+        }
+
         private void Initialize ()
         {
             _textures = new ObservableDictionary<string, TextureResource>();
 
             if (Layer != null && Layer.Level != null && Layer.Level.Project != null) {
                 _manager = Layer.Level.Project.TilePoolManager;
+                _manager.Pools.ResourceAdded += HandleTilePoolAdded;
+                _manager.Pools.ResourceRemoved += HandleTilePoolRemoved;
 
                 foreach (TilePool pool in _manager.Pools)
                     _textures[pool.Name] = pool.TileSource;
             }
 
             _currentTool = new TileDrawTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
+        }
+
+        private void HandleTilePoolAdded (object sender, NamedResourceEventArgs<TilePool> e)
+        {
+            _textures[e.Resource.Name] = e.Resource.TileSource;
+        }
+
+        private void HandleTilePoolRemoved (object sender, NamedResourceEventArgs<TilePool> e)
+        {
+            _textures.Remove(e.Resource.Name);
         }
 
         protected new TileGridLayer Layer
@@ -53,10 +76,15 @@ namespace Treefrog.V2.ViewModel.Layers
         public override Vector GetCoordinates (double x, double y)
         {
             Vector pxc = base.GetCoordinates(x, y);
-            pxc.X = (int)(pxc.X / Layer.TileWidth);
-            pxc.Y = (int)(pxc.Y / Layer.TileHeight);
+            pxc.X = Math.Floor(pxc.X / Layer.TileWidth);
+            pxc.Y = Math.Floor(pxc.Y / Layer.TileHeight);
 
             return pxc;
+        }
+
+        public override Rect CoordinateBounds
+        {
+            get { return new Rect(0, 0, Layer.TilesWide, Layer.TilesHigh); }
         }
 
         public override IEnumerable<DrawCommand> RenderCommands
@@ -178,6 +206,12 @@ namespace Treefrog.V2.ViewModel.Layers
         {
             if (_currentTool != null)
                 _currentTool.PointerPosition(info);
+        }
+
+        public override void HandlePointerLeaveField ()
+        {
+            if (_currentTool != null)
+                _currentTool.PointerLeaveField();
         }
     }
 }

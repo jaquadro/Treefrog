@@ -59,6 +59,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Annotations\AnnotationRendererFactory.cs" />
     <Compile Include="Controls\Annotations\SelectionAnnotRenderer.cs" />
     <Compile Include="Controls\ItemsCollection.cs" />
     <Compile Include="Controls\Layers\AnnotRenderLayer.cs" />
@@ -74,9 +75,11 @@
     <Compile Include="ViewModel\Commands\EventArgs.cs" />
     <Compile Include="ViewModel\Commands\TileReplace2DCommand.cs" />
     <Compile Include="ViewModel\Dialogs\IDialogViewModel.cs" />
+    <Compile Include="ViewModel\Dialogs\ImportTilePoolDialogVM.cs" />
     <Compile Include="ViewModel\Dialogs\NewLevelDialogVM.cs" />
     <Compile Include="ViewModel\DocumentVM.cs" />
     <Compile Include="ViewModel\EditorVM.cs" />
+    <Compile Include="ViewModel\LayerItemVM.cs" />
     <Compile Include="ViewModel\Layers\GroupLayerVM.cs" />
     <Compile Include="ViewModel\Layers\LayerVM.cs" />
     <Compile Include="ViewModel\Layers\LevelGroupLayerVM.cs" />
@@ -106,7 +109,11 @@
     <Compile Include="ViewModel\Tools\TileFillTool.cs" />
     <Compile Include="ViewModel\Tools\TilePointerTool.cs" />
     <Compile Include="ViewModel\Utility\ObservableCollectionAdapter.cs" />
+    <Compile Include="ViewModel\Utility\OrderedToObservableAdapter.cs" />
     <Compile Include="ViewModel\ViewportVM.cs" />
+    <Compile Include="View\Dialogs\ImportTilePoolDialog.xaml.cs">
+      <DependentUpon>ImportTilePoolDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Dialogs\NewLevelDialog.xaml.cs">
       <DependentUpon>NewLevelDialog.xaml</DependentUpon>
     </Compile>
@@ -159,6 +166,10 @@
     <Compile Include="ViewModel\LayerCollectionVM.cs">
       <Generator>MSBuild:Compile</Generator>
     </Compile>
+    <Page Include="View\Dialogs\ImportTilePoolDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Dialogs\NewLevelDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

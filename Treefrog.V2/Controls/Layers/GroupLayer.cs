@@ -50,8 +50,16 @@ namespace Treefrog.V2.Controls.Layers
         {
             _adapter.Dependent.CollectionChanged += (s, e) =>
             {
-                if (e.Action == NotifyCollectionChangedAction.Add)
-                    AddLogicalChild((XnaCanvasLayer)e.NewItems[0]);
+                if (e.Action == NotifyCollectionChangedAction.Add) {
+                    XnaCanvasLayer layer = e.NewItems[0] as XnaCanvasLayer;
+                    AddLogicalChild(layer);
+
+                    layer.HorizontalOffset = HorizontalOffset;
+                    layer.VerticalOffset = VerticalOffset;
+                    layer.ZoomFactor = ZoomFactor;
+                    layer.ViewportWidth = ViewportWidth;
+                    layer.ViewportHeight = ViewportHeight;
+                }
             };
         }
 

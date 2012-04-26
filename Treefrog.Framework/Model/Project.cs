@@ -51,7 +51,7 @@ namespace Treefrog.Framework.Model
 
             _tilePools.Pools.Modified += TilePoolsModifiedHandler;
             _objectPools.Modified += ObjectPoolsModifiedHandler;
-            _levels.Modified += LevelsModifiedHandler;
+            _levels.ResourceModified += LevelsModifiedHandler;
 
             _services.AddService(typeof(TilePoolManager), _tilePools);
         }
@@ -180,22 +180,11 @@ namespace Treefrog.Framework.Model
             writer.Close();
         }
 
-        /*public void Initialize (GraphicsDevice device)
-        {
-            _registry = new TileRegistry(device);
-
-            _services.AddService(typeof(IGraphicsDeviceService), device);
-            _services.AddService(typeof(TileRegistry), _registry);
-
-            _initalized = true;
-        }*/
-
         #region XML Import / Export
 
         public static Project FromXml (XmlReader reader, GraphicsDevice device)
         {
             Project project = new Project();
-            //project.Initialize(device);
 
             XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {

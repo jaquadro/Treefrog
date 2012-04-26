@@ -9,12 +9,13 @@
         xmlns:vm="clr-namespace:Treefrog.V2.ViewModel"
         xmlns:toolbars="clr-namespace:Treefrog.V2.View.ToolBars"
         xmlns:panels="clr-namespace:Treefrog.V2.View.Panels"
-        Title="{Binding Title}" Height="662" Width="960" xmlns:my="clr-namespace:Treefrog.V2.Controls.Xna" ResizeMode="CanResizeWithGrip">
+        Title="{Binding Title}" Height="680" Width="980" xmlns:my="clr-namespace:Treefrog.V2.Controls.Xna" ResizeMode="CanResizeWithGrip">
     <Window.DataContext>
         <vm:EditorVM />
     </Window.DataContext>
     <Window.InputBindings>
         <KeyBinding Modifiers="Control" Key="O" Command="{Binding Path=StandardMenu.OpenProjectCommand}"/>
+        <KeyBinding Modifiers="Control" Key="S" Command="{Binding Path=StandardMenu.SaveProjectCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -33,6 +34,11 @@
                 <MenuItem Command="{Binding Path=StandardMenu.OpenProjectCommand}" Header="Open Project..." InputGestureText="Ctrl+O">
                     <MenuItem.Icon>
                         <Image Source="/Treefrog.V2;component/Images/16/folder-horizontal-open.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="{Binding Path=StandardMenu.SaveProjectCommand}" Header="Save Project" InputGestureText="Ctrl+S">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog.V2;component/Images/16/disk.png" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
@@ -57,12 +63,16 @@
             </avalonDock:DockingManager.DocumentTemplate>
             <avalonDock:DockingManager.DocumentHeaderTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Path=Content.Name}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Path=Content.Name}" />
+                    </StackPanel>
                 </DataTemplate>
             </avalonDock:DockingManager.DocumentHeaderTemplate>
             <avalonDock:DockingManager.DocumentTitleTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Path=Content.Name}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Path=Content.Name}" />
+                    </StackPanel>
                 </DataTemplate>
             </avalonDock:DockingManager.DocumentTitleTemplate>
 
@@ -79,11 +89,11 @@
                             </avalonDockLayout:LayoutAnchorable>
                         </avalonDockLayout:LayoutAnchorablePane>
                         <avalonDockLayout:LayoutAnchorablePane>
-                            <avalonDockLayout:LayoutAnchorable x:Name="properties" Title="Properties">
-                                
-                            </avalonDockLayout:LayoutAnchorable>
                             <avalonDockLayout:LayoutAnchorable x:Name="layers" Title="Layers">
                                 <panels:LayerPanel DataContext="{Binding Path=ActiveDocument.LayerCollection}" />
+                            </avalonDockLayout:LayoutAnchorable>
+                            <avalonDockLayout:LayoutAnchorable x:Name="properties" Title="Properties">
+
                             </avalonDockLayout:LayoutAnchorable>
                         </avalonDockLayout:LayoutAnchorablePane>
                     </avalonDockLayout:LayoutAnchorablePaneGroup>
@@ -102,7 +112,7 @@
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/Treefrog.V2;component/Images/16/guide-snap.png" Width="16" Height="16" />
-                    <TextBlock Text="{Binding ActiveContent.Coordinates}" Margin="4,0,0,0"/>
+                    <TextBlock Text="{Binding ActiveDocument.Coordinates}" Margin="4,0,0,0"/>
                 </StackPanel>
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right" Margin="0,0,10,0" Visibility="{Binding ZoomVisibility}">

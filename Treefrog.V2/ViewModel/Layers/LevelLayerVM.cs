@@ -69,6 +69,11 @@ namespace Treefrog.V2.ViewModel.Layers
             return new Vector(x, y);
         }
 
+        public virtual Rect CoordinateBounds
+        {
+            get { return new Rect(0, 0, LayerWidth, LayerHeight); }
+        }
+
         private void HandleVisibilityChanged (object sender, EventArgs e)
         {
             RaisePropertyChanged("IsVisible");
@@ -125,6 +130,10 @@ namespace Treefrog.V2.ViewModel.Layers
         }
 
         public virtual void HandlePointerPosition (PointerEventInfo info)
+        {
+        }
+
+        public virtual void HandlePointerLeaveField ()
         {
         }
 

@@ -20,6 +20,8 @@ namespace Treefrog.V2.Controls.Layers
 
         protected override void RenderCore (SpriteBatch spriteBatch)
         {
+            return;
+
             if (_tileGridBrush == null)
                 BuildTileBrush(spriteBatch.GraphicsDevice);
 

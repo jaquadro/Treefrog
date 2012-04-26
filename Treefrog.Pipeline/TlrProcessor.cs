@@ -38,7 +38,7 @@ namespace Treefrog.Pipeline
             input.Id = TilesetId;
 
             string path = "build\\" + ProjectKey + "_tileset_tex_" + TilesetId + ".png";
-            input.TilePool.Export(path);
+    //        input.TilePool.Export(path);
 
             // the asset name is the entire path, minus extension, after the content directory
             string asset = string.Empty;

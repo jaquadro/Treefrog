@@ -61,6 +61,11 @@ namespace Treefrog.V2.ViewModel.Tools
             ShowPreviewMarker(location);
         }
 
+        public override void PointerLeaveField ()
+        {
+            HidePreviewMarker();
+        }
+
         #region Preview Marker
 
         private bool _previewMarkerVisible;

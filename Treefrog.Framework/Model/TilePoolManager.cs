@@ -36,8 +36,12 @@ namespace Treefrog.Framework.Model
 
         public TilePool ImportTilePool (string name, TextureResource source, TilePool.TileImportOptions options)
         {
-            TilePool pool = CreateTilePool(name, options.TileWidth, options.TileHeight);
+            if (_pools.Contains(name))
+                throw new ArgumentException("Manager already contains a pool with the given name.", "name");
+
+            TilePool pool = new TilePool(this, name, options.TileWidth, options.TileHeight);
             pool.ImportMerge(source, options);
+            _pools.Add(pool);
 
             return pool;
         }

@@ -24,7 +24,8 @@
                                           HwndLButtonDown="HandleHwndLButtonDown" HwndLButtonUp="HandleHwndLButtonUp"
                                           HwndRButtonDown="HandleHwndRButtonDown" HwndRButtonUp="HandleHwndRButtonUp"
                                           HwndMouseMove="HandleHwndMouseMove"
-                                          HwndMouseEnter="HandleHwndMouseEnter" HwndMouseLeave="HandleHwndMouseLeave" />
+                                          HwndMouseEnter="HandleHwndMouseEnter" HwndMouseLeave="HandleHwndMouseLeave" 
+                                          IsHitTestVisible="False" />
             </Grid>
         </DataTemplate>
     </UserControl.ContentTemplate>

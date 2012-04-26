@@ -47,7 +47,7 @@ namespace Treefrog.Framework.Model
 
             _layers.ResourceAdded += LayerAddedHandler;
             _layers.ResourceRemoved += LayerRemovedHandler;
-            _layers.Modified += LayersModifiedHandler;
+            _layers.ResourceModified += LayersModifiedHandler;
         }
 
         public Level (string name, Project project)

@@ -34,7 +34,7 @@ namespace Treefrog.Pipeline
                 );
 
             Project project = new Project();
-            project.Initialize(device);
+   //         project.Initialize(device);
 
             using (FileStream fs = File.OpenRead(filename)) {
                 XmlReader reader = XmlTextReader.Create(fs);

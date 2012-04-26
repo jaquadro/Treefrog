@@ -233,28 +233,70 @@ namespace Treefrog.Aux
 {
     using System.Drawing;
     using System.Drawing.Imaging;
+    using System.IO;
     using System.Runtime.InteropServices;
 
     using TextureResource = Treefrog.Framework.Imaging.TextureResource;
+    using TFColor = Treefrog.Framework.Imaging.Color;
+
 
     public static class TextureResourceBitmapExt
     {
+        public static TextureResource CreateTextureResource (String path)
+        {
+            using (Bitmap bmp = new Bitmap(path)) {
+                if (bmp == null)
+                    throw new ArgumentException("Could not create a Bitmap from the supplied path.", "path");
+                return CreateTextureResource(bmp);
+            }
+        }
+
+        public static TextureResource CreateTextureResource (Stream stream)
+        {
+            using (Bitmap bmp = new Bitmap(stream)) {
+                if (bmp == null)
+                    throw new ArgumentException("Could not create a Bitmap from the supplied stream.", "stream");
+                return CreateTextureResource(bmp);
+            }
+        }
+
         public static TextureResource CreateTextureResource (Bitmap image)
         {
             if (image == null)
                 throw new ArgumentNullException("image");
-            if (image.PixelFormat != PixelFormat.Format32bppArgb)
-                throw new ArgumentException("image must be in 32bppArgb format");
 
             TextureResource tex = new TextureResource(image.Width, image.Height);
 
-            Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
-            BitmapData bmpData = image.LockBits(rect, ImageLockMode.ReadOnly, image.PixelFormat);
+            if (image.PixelFormat != PixelFormat.Format32bppArgb) {
+                using (Bitmap compatImage = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb)) {
+                    compatImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+                    using (Graphics g = Graphics.FromImage(compatImage)) {
+                        g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                        g.DrawImage(image, new Point(0, 0));
+                    }
 
-            IntPtr ptr = bmpData.Scan0;
-            System.Runtime.InteropServices.Marshal.Copy(ptr, tex.RawData, 0, tex.RawData.Length);
+                    Rectangle rect = new Rectangle(0, 0, compatImage.Width, compatImage.Height);
+                    BitmapData bmpData = compatImage.LockBits(rect, ImageLockMode.ReadOnly, compatImage.PixelFormat);
 
-            image.UnlockBits(bmpData);
+                    IntPtr ptr = bmpData.Scan0;
+                    System.Runtime.InteropServices.Marshal.Copy(ptr, tex.RawData, 0, tex.RawData.Length);
+
+                    compatImage.UnlockBits(bmpData);
+                }
+            }
+            else {
+
+                Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
+                BitmapData bmpData = image.LockBits(rect, ImageLockMode.ReadOnly, image.PixelFormat);
+
+                IntPtr ptr = bmpData.Scan0;
+                System.Runtime.InteropServices.Marshal.Copy(ptr, tex.RawData, 0, tex.RawData.Length);
+
+                image.UnlockBits(bmpData);
+            }
+
+            tex.Apply(c => { return new TFColor(c.B, c.G, c.R, c.A); });
 
             return tex;
         }

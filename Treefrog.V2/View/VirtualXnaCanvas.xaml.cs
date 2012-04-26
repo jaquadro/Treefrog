@@ -49,6 +49,7 @@ namespace Treefrog.V2.View
 
         private static readonly Color DefaultClearColor = Color.FromRgb(128, 128, 128);
 
+        public static readonly DependencyProperty ActiveProperty;
         public static readonly DependencyProperty ViewportProperty;
         public static readonly DependencyProperty ClearColorProperty;
         public static readonly DependencyProperty ZoomFactorProperty;
@@ -57,6 +58,8 @@ namespace Treefrog.V2.View
 
         static VirtualXnaCanvas ()
         {
+            ActiveProperty = DependencyProperty.Register("IsActive",
+                typeof(bool), typeof(VirtualXnaCanvas), new PropertyMetadata(false, HandleIsActiveChanged));
             ClearColorProperty = DependencyProperty.Register("ClearColor",
                 typeof(Color), typeof(VirtualXnaCanvas), new PropertyMetadata(DefaultClearColor));
             ViewportProperty = DependencyProperty.Register("Viewport",
@@ -98,6 +101,25 @@ namespace Treefrog.V2.View
             if (_layer != null)
                 _layer.DataContext = e.NewValue;
             InvalidateMeasure();
+        }
+
+        private static void HandleIsActiveChanged (object sender, DependencyPropertyChangedEventArgs e)
+        {
+            VirtualXnaCanvas self = sender as VirtualXnaCanvas;
+            if (self != null && self._graphicsControl != null) {
+                bool val = (bool)e.NewValue;
+
+                if (val)
+                    self._graphicsControl.Activate();
+                else
+                    self._graphicsControl.Deactivate();
+            }
+        }
+
+        public bool IsActive
+        {
+            get { return (bool)this.GetValue(ActiveProperty); }
+            set { this.SetValue(ActiveProperty, value); }
         }
 
         public Color ClearColor
@@ -506,7 +528,8 @@ namespace Treefrog.V2.View
 
         private void HandleHwndMouseLeave (object sender, HwndMouseEventArgs e)
         {
-
+            if (PointerLeaveField != null)
+                PointerLeaveField.Execute(null);
         }
 
         public static readonly DependencyProperty StartPointerSequenceProperty = DependencyProperty.Register(
@@ -547,6 +570,16 @@ namespace Treefrog.V2.View
         {
             get { return (RelayCommand<PointerEventInfo>)GetValue(PointerPositionProperty); }
             set { SetValue(PointerPositionProperty, value); }
+        }
+
+        public static readonly DependencyProperty PointerLeaveFieldProperty = DependencyProperty.Register(
+            "PointerLeaveField", typeof(RelayCommand), typeof(VirtualXnaCanvas),
+            new FrameworkPropertyMetadata(default(RelayCommand)));
+
+        public RelayCommand PointerLeaveField
+        {
+            get { return (RelayCommand)GetValue(PointerLeaveFieldProperty); }
+            set { SetValue(PointerLeaveFieldProperty, value); }
         }
 
         private Dictionary<PointerEventType, bool> _sequenceOpen = new Dictionary<PointerEventType, bool>

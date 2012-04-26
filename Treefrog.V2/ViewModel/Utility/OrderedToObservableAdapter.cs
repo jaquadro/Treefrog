@@ -65,6 +65,14 @@ namespace Treefrog.V2.ViewModel.Utility
             get { return _dependent; }
         }
 
+        public TDependent Lookup (TPrimary value)
+        {
+            TDependent result;
+            if (_map.TryGetValue(value, out result))
+                return result;
+            return default(TDependent);
+        }
+
         private void HandleResourceAdded (object sender, NamedResourceEventArgs<TPrimary> e)
         {
             _map[e.Resource] = _addFunc(e.Resource);

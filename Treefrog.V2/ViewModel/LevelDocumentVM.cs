@@ -38,7 +38,7 @@ namespace Treefrog.V2.ViewModel
             _viewport = new ViewportVM();
             _root = new LevelGroupLayerVM(this, _level.Layers, _viewport);
 
-            _layerCollection = new LayerCollectionVM(_level.Layers, _root);
+            _layerCollection = new LayerCollectionVM(_level.Layers, _root, _level);
 
             _tileToolCollection = new TileTools(this);
         }
@@ -238,7 +238,35 @@ namespace Treefrog.V2.ViewModel
                 layer.HandlePointerPosition(info);
 
                 Vector coords = layer.GetCoordinates(info.X, info.Y);
-                Coordinates = coords.X + ", " + coords.Y;
+                if (coords.X < layer.CoordinateBounds.X || coords.Y < layer.CoordinateBounds.Y ||
+                    coords.X >= layer.CoordinateBounds.Right || coords.Y >= layer.CoordinateBounds.Bottom)
+                    Coordinates = "";
+                else
+                    Coordinates = coords.X + ", " + coords.Y;
+            }
+        }
+
+        #endregion
+
+        #region Pointer Leave Field Command
+
+        private RelayCommand _pointerLeaveFieldCommand;
+
+        public ICommand PointerLeaveFieldCommand
+        {
+            get
+            {
+                if (_pointerLeaveFieldCommand == null)
+                    _pointerLeaveFieldCommand = new RelayCommand(OnExecutePointerLeaveField);
+                return _pointerLeaveFieldCommand;
+            }
+        }
+
+        private void OnExecutePointerLeaveField ()
+        {
+            LevelLayerVM layer = ActiveLayer;
+            if (layer != null) {
+                layer.HandlePointerLeaveField();
             }
         }
 

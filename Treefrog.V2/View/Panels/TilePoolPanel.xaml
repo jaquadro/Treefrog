@@ -7,6 +7,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <Style x:Key="ButtonImageDisabled" TargetType="Image">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.3" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid Margin="-4">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -16,17 +25,19 @@
 
         <StackPanel Grid.Row="0">
             <ComboBox x:Name="tilePoolList" HorizontalAlignment="Stretch" ItemsSource="{Binding TilePools}" Margin="2" SelectedItem="{Binding ActiveTilePool}"
-                          DisplayMemberPath="Name" SelectedValuePath="Name" Style="{StaticResource {x:Static ToolBar.ComboBoxStyleKey}}">
+                          DisplayMemberPath="Name" SelectedValuePath="Name" Style="{StaticResource {x:Static ToolBar.ComboBoxStyleKey}}" IsEnabled="{Binding HasTilePools}">
             </ComboBox>
         </StackPanel>
 
         <ToolBarTray Grid.Row="1" IsLocked="True">
             <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/plus.png" Width="16" Height="16" />
+                <Button Command="{Binding ImportPoolCommand}" IsEnabled="{Binding IsImportPoolEnabled}">
+                    <Image Source="/Treefrog.V2;component/Images/16/plus.png"
+                           Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                 </Button>
-                <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/minus.png" Width="16" Height="16" />
+                <Button Command="{Binding RemovePoolCommand}" IsEnabled="{Binding IsRemovePoolEnabled}">
+                    <Image Source="/Treefrog.V2;component/Images/16/minus.png" 
+                           Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                 </Button>
                 <Separator />
             </ToolBar>
@@ -45,7 +56,7 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderThickness="1" BorderBrush="LightGray" Margin="-3,-1,0,0">
+                    <Border BorderThickness="0" Margin="-2,0,0,0">
                         <Image Source="{Binding ImageSource, Converter={StaticResource BitmapConverter}}"
                                Height="{Binding TileHeight}" Width="{Binding TileWidth}" Margin="1"/>
                     </Border>

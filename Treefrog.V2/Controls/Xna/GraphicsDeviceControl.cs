@@ -23,6 +23,7 @@ namespace Treefrog.V2.Controls.Xna
     /// </summary>
     public class GraphicsDeviceControl : HwndHost
     {
+        
         #region Fields
 
         // The name of our window class
@@ -54,6 +55,8 @@ namespace Treefrog.V2.Controls.Xna
         private int capturedMouseClientX;
         private int capturedMouseClientY;
 
+        private bool _active = false;
+        private bool _disposed = false;
         private object _lock = new object();
 
         #endregion
@@ -177,7 +180,8 @@ namespace Treefrog.V2.Controls.Xna
             Application.Current.Deactivated += new EventHandler(Current_Deactivated);
 
             // We use the CompositionTarget.Rendering event to trigger the control to draw itself
-            CompositionTarget.Rendering += CompositionTarget_Rendering;
+            //CompositionTarget.Rendering += CompositionTarget_Rendering;
+            Activate();
 
             applicationHasFocus = Application.Current.MainWindow.IsActive;
         }
@@ -194,10 +198,28 @@ namespace Treefrog.V2.Controls.Xna
             // Unhook the Rendering event so we no longer attempt to draw
             CompositionTarget.Rendering -= CompositionTarget_Rendering;
 
+            _disposed = true;
+
             base.Dispose(disposing);
         }
 
         #endregion
+
+        public void Activate ()
+        {
+            if (!_disposed && !_active) {
+                CompositionTarget.Rendering += CompositionTarget_Rendering;
+                _active = true;
+            }
+        }
+
+        public void Deactivate ()
+        {
+            if (_active) {
+                CompositionTarget.Rendering -= CompositionTarget_Rendering;
+                _active = false;
+            }
+        }
 
         #region Public Methods
 

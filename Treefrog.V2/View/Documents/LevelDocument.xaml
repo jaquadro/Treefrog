@@ -17,10 +17,12 @@
                                    Viewport="{Binding Path=Viewport}" 
                                    ZoomFactor="{Binding Path=ZoomLevel}"
                                    DataContext="{Binding Path=Model}"
+                                   IsActive="{Binding Path=IsActive}"
                                    StartPointerSequence="{Binding StartPointerSequenceCommand}"
                                    EndPointerSequence="{Binding EndPointerSequenceCommand}"
                                    UpdatePointerSequence="{Binding UpdatePointerSequenceCommand}"
-                                   PointerPosition="{Binding PointerPositionCommand}">
+                                   PointerPosition="{Binding PointerPositionCommand}"
+                                   PointerLeaveField="{Binding PointerLeaveFieldCommand}">
                 <layers:GroupLayer>
                     <layers:GroupLayer Model="{Binding Path=Root}" />
                     <layers:GridRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" />

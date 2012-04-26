@@ -24,9 +24,12 @@ namespace Treefrog.V2.ViewModel
 
         private OrderedToObservableAdapter<Layer, LayerItemVM> _adapter;
 
-        public LayerCollectionVM (OrderedResourceCollection<Layer> layers, LevelGroupLayerVM layerGroup)
+        private Level _level;
+
+        public LayerCollectionVM (OrderedResourceCollection<Layer> layers, LevelGroupLayerVM layerGroup, Level level)
         {
             //_layerGroup = layerGroup;
+            _level = level;
             _layers = layers;
 
             _adapter = new OrderedToObservableAdapter<Layer, LayerItemVM>(layer =>
@@ -78,6 +81,51 @@ namespace Treefrog.V2.ViewModel
         }
 
         #region Commands
+
+        #region New Layer Command
+
+        private RelayCommand<LayerType> _newLayerCommand;
+
+        public ICommand NewLayerCommand
+        {
+            get
+            {
+                if (_newLayerCommand == null)
+                    _newLayerCommand = new RelayCommand<LayerType>(OnExecuteNewLayer, CanExecuteNewLayer);
+                return _newLayerCommand;
+            }
+        }
+
+        private bool CanExecuteNewLayer (LayerType type)
+        {
+            return true;
+        }
+
+        private void OnExecuteNewLayer (LayerType type)
+        {
+            if (CanExecuteNewLayer(type))
+                switch (type) {
+                    case LayerType.Tile:
+                        AddTileLayer();
+                        break;
+                }
+            
+        }
+
+        private void AddTileLayer ()
+        {
+            Layer layer = new MultiTileGridLayer(FindDefaultLayerName(),
+                _level.TileWidth, _level.TileHeight, _level.TilesWide, _level.TilesHigh)
+                {
+                    Level = _level,
+                };
+            _layers.Add(layer);
+
+            _collectionView.Refresh();
+            _collectionView.MoveCurrentTo(_adapter.Lookup(layer));
+        }
+
+        #endregion
 
         #region Delete Command
 
@@ -163,5 +211,39 @@ namespace Treefrog.V2.ViewModel
         #endregion
 
         #endregion
+
+        private string FindDefaultLayerName ()
+        {
+            List<string> names = new List<string>();
+            foreach (Layer layer in _layers) {
+                names.Add(layer.Name);
+            }
+
+            int i = 0;
+            while (true) {
+                string name = "Tile Layer " + ++i;
+                if (names.Contains(name)) {
+                    continue;
+                }
+                return name;
+            }
+        }
+
+        private string FindCloneLayerName (string basename)
+        {
+            List<string> names = new List<string>();
+            foreach (Layer layer in _layers) {
+                names.Add(layer.Name);
+            }
+
+            int i = 0;
+            while (true) {
+                string name = basename + " (" + ++i + ")";
+                if (names.Contains(name)) {
+                    continue;
+                }
+                return name;
+            }
+        }
     }
 }

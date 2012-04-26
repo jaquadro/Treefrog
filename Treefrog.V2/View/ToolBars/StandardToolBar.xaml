@@ -27,7 +27,7 @@
         <Image Source="/Treefrog.V2;component/Images/16/folder-horizontal-open.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
-    <Button>
+    <Button Command="{Binding Menu.SaveProjectCommand}">
         <Image Source="/Treefrog.V2;component/Images/16/disk.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>

@@ -15,6 +15,7 @@ using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight;
 using Treefrog.V2.Messages;
 using Treefrog.V2.ViewModel.Dialogs;
+using Treefrog.V2.View.Dialogs;
 
 namespace Treefrog.V2
 {
@@ -36,6 +37,9 @@ namespace Treefrog.V2
         {
             if (message.DialogVM is NewLevelDialogVM) {
                 message.DialogResult = new NewLevelDialog() { DataContext = message.DialogVM }.ShowDialog();
+            }
+            else if (message.DialogVM is ImportTilePoolDialogVM) {
+                message.DialogResult = new ImportTilePoolDialog() { DataContext = message.DialogVM }.ShowDialog();
             }
         }
     }

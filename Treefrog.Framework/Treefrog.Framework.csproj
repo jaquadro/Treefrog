@@ -116,10 +116,10 @@
     <Compile Include="Model\TileLayer.cs" />
     <Compile Include="NamedResourceEventArgs.cs" />
     <Compile Include="Model\Collections\PropertyCollection.cs" />
-    <Compile Include="ObservableBitmap.cs" />
+    <None Include="ObservableBitmap.cs" />
     <Compile Include="ObservableDictionary.cs" />
     <Compile Include="ServiceContainer.cs" />
-    <Compile Include="TextureSource.cs" />
+    <None Include="TextureSource.cs" />
     <Compile Include="TileCoord.cs" />
     <Compile Include="Model\TileGridLayer.cs" />
     <Compile Include="NamedResource.cs" />
