@@ -80,7 +80,7 @@ namespace Treefrog.Framework.Model
         public Project Project
         {
             get { return _project; }
-            private set { _project = value; }
+            set { _project = value; }
         }
 
         /// <summary>

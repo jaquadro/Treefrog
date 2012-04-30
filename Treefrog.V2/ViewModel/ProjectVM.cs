@@ -6,6 +6,10 @@ using GalaSoft.MvvmLight;
 using Treefrog.Framework.Model;
 using System.Collections.ObjectModel;
 using Treefrog.Framework;
+using System.IO;
+using System.Drawing;
+using Treefrog.Framework.Imaging;
+using Treefrog.Aux;
 
 namespace Treefrog.V2.ViewModel
 {
@@ -14,6 +18,7 @@ namespace Treefrog.V2.ViewModel
         private Project _project;
 
         private TilePoolCollectionVM _tilePoolCollectionVM;
+        private ObjectPoolCollectionVM _objectPoolCollectionVM;
         private ObservableCollection<DocumentVM> _documents;
 
         public ProjectVM ()
@@ -23,10 +28,26 @@ namespace Treefrog.V2.ViewModel
             _project.Modified += HandleProjectModified;
             _project.Levels.ResourceAdded += Project_LevelAdded;
 
+            ObjectPool objPool = new ObjectPool("Default");
+
+            String path = @"E:\Workspace\Image Projects\Graphic Rips\Paper Mario\Environment Textures\Individual\Boo's Mansion";
+            foreach (string name in Directory.EnumerateFiles(path, "*.bmp")) {
+                Console.WriteLine(Path.Combine(path, name));
+                TextureResource tres = TextureResourceBitmapExt.CreateTextureResource(Path.Combine(path, name));
+                ObjectClass objClass = new ObjectClass(name, tres);
+                objPool.AddObject(objClass);
+            }
+            _project.ObjectPools.Add(objPool);
+
+            _objectPoolCollectionVM = new ObjectPoolCollectionVM(_project.ObjectPools);
+
             _tilePoolCollectionVM = new TilePoolCollectionVM(_project.TilePoolManager);
             _documents = new ObservableCollection<DocumentVM>();
 
-            Level lv = new Level("Level 1", 16, 16, 40, 30);
+            Level lv = new Level("Level 1", 16, 16, 40, 30)
+            {
+                Project = _project
+            };
 
             Layer layer = new MultiTileGridLayer("Tile Layer 1", 16, 16, 40, 30)
             {
@@ -34,7 +55,18 @@ namespace Treefrog.V2.ViewModel
             };
             lv.Layers.Add(layer);
 
+            ObjectLayer layer2 = new ObjectLayer("Object Layer 1", 16 * 40, 16 * 30)
+            {
+                Level = lv
+            };
+            lv.Layers.Add(layer2);
+
+            layer2.AddObject(new ObjectInstance(objPool.Objects.First(), 128, 96));
+
             _project.Levels.Add(lv);
+
+            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
+            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
         }
 
         public ProjectVM (Project project)
@@ -46,6 +78,11 @@ namespace Treefrog.V2.ViewModel
         public TilePoolCollectionVM TilePoolCollection
         {
             get { return _tilePoolCollectionVM; }
+        }
+
+        public ObjectPoolCollectionVM ObjectPoolCollection
+        {
+            get { return _objectPoolCollectionVM; }
         }
 
         public ObservableCollection<DocumentVM> Documents
@@ -109,6 +146,7 @@ namespace Treefrog.V2.ViewModel
             }
 
             GalaSoft.MvvmLight.ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
+            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
         }
     }
 }

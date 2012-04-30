@@ -54,6 +54,11 @@ namespace Treefrog.V2.ViewModel
                 if (_selected != value) {
                     _selected = value;
                     RaisePropertyChanged("SelectedTile");
+
+                    if (_selected != null) {
+                        PropertyManagerService service = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<PropertyManagerService>();
+                        service.ActiveProvider = _selected.Tile;
+                    }
                 }
             }
         }

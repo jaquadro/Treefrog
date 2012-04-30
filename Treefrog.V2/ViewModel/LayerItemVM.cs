@@ -28,6 +28,7 @@ namespace Treefrog.V2.ViewModel
             _layer = layer;
             _layers = layers;
 
+            _layer.NameChanged += HandleNameChanged;
             _layer.VisibilityChanged += HandleVisibilityChanged;
         }
 
@@ -66,12 +67,19 @@ namespace Treefrog.V2.ViewModel
             RaisePropertyChanged("IsVisible");
         }
 
+        private void HandleNameChanged (object sender, EventArgs e)
+        {
+            RaisePropertyChanged("LayerName");
+        }
+
         public LayerType LayerType
         {
             get
             {
                 if (_layer is TileLayer)
                     return LayerType.Tile;
+                else if (_layer is ObjectLayer)
+                    return LayerType.Object;
                 else
                     return LayerType.Generic;
             }

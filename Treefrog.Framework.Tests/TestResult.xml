@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\Treefrog.Framework.Tests.csproj" total="80" errors="0" failures="0" not-run="2" inconclusive="0" ignored="2" skipped="0" invalid="0" date="2012-03-09" time="00:09:38">
+  <environment nunit-version="2.5.10.11092" clr-version="2.0.50727.5448" os-version="Microsoft Windows NT 6.1.7601 Service Pack 1" platform="Win32NT" cwd="E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests" machine-name="TALLON" user="Justin" user-domain="Tallon" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="Project" name="E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\Treefrog.Framework.Tests.csproj" executed="True" result="Success" success="True" time="0.714" asserts="0">
+    <results>
+      <test-suite type="Assembly" name="E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\bin\x86\Debug\Treefrog.Framework.Tests.exe" executed="True" result="Success" success="True" time="0.710" asserts="0">
+        <results>
+          <test-suite type="Namespace" name="Treefrog" executed="True" result="Success" success="True" time="0.710" asserts="0">
+            <results>
+              <test-suite type="Namespace" name="Framework" executed="True" result="Success" success="True" time="0.710" asserts="0">
+                <results>
+                  <test-suite type="Namespace" name="Tests" executed="True" result="Success" success="True" time="0.709" asserts="0">
+                    <results>
+                      <test-suite type="Namespace" name="Model" executed="True" result="Success" success="True" time="0.709" asserts="0">
+                        <results>
+                          <test-suite type="Namespace" name="Collections" executed="True" result="Success" success="True" time="0.057" asserts="0">
+                            <results>
+                              <test-suite type="TestFixture" name="PropertyCollectionTests" executed="True" result="Success" success="True" time="0.056" asserts="0">
+                                <results>
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.AddDuplicateNameTest" executed="True" result="Success" success="True" time="0.010" asserts="0" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.AddNullPropertyTest" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.AddPropertyTest" executed="True" result="Success" success="True" time="0.008" asserts="5" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.AddReservedNameTest" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.ClearPropertyTest" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.ModifyPropertyTest" executed="True" result="Success" success="True" time="0.001" asserts="6" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.RemovePropertyStringTest" executed="True" result="Success" success="True" time="0.001" asserts="7" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.RemovePropertyTest" executed="True" result="Success" success="True" time="0.001" asserts="7" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.RenameDuplicateNameTest" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.RenamePropertyTest" executed="True" result="Success" success="True" time="0.001" asserts="7" />
+                                  <test-case name="Treefrog.Framework.Tests.Model.Collections.PropertyCollectionTests.RenameReservedNameTest" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="LayerTests" executed="True" result="Success" success="True" time="0.061" asserts="0">
+                            <results>
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.AddProperty" executed="True" result="Success" success="True" time="0.004" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.ChangeLayerOpacity" executed="True" result="Success" success="True" time="0.029" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.ChangeLayerOpacityProperty" executed="True" result="Success" success="True" time="0.002" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.ChangeLayerVisibiliityProperty" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.ChangeLayerVisibility" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.CloneLayerTest" executed="True" result="Success" success="True" time="0.006" asserts="5" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.LayerOpacityHighRange" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.LayerOpacityLowRange" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.RenamePoolByProperty1" executed="True" result="Success" success="True" time="0.002" asserts="8" />
+                              <test-case name="Treefrog.Framework.Tests.Model.LayerTests.RenamePoolByProperty2" executed="True" result="Success" success="True" time="0.000" asserts="8" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="PropertyTests" executed="True" result="Success" success="True" time="0.046" asserts="0">
+                            <results>
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.BoolToString" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CloneBool" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CloneNumber" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CloneString" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CopyConstructBool" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CopyConstructNumber" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CopyConstructString" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CreateBoolProperty" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CreateNumberProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.CreateStringProperty" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyBool" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyBoolSame" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyName" executed="True" result="Success" success="True" time="0.001" asserts="6" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyNameNull" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyNameSame" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyNumber" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyNumberSame" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyString" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ModifyStringSame" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.NumberToString" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ParseBoolFalse" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ParseBoolTrue" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ParseNumber" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.ParseString" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.PropertyTests.StringToString" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="TileGridLayerTests" executed="True" result="Success" success="True" time="0.275" asserts="0">
+                            <results>
+                              <test-case name="Treefrog.Framework.Tests.Model.TileGridLayerTests.AddTile" executed="True" result="Success" success="True" time="0.034" asserts="6" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileGridLayerTests.AddTileOutOfBounds" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileGridLayerTests.CreateLayer" executed="True" result="Success" success="True" time="0.000" asserts="7" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileGridLayerTests.GetTilesAtLocation" executed="True" result="Success" success="True" time="0.000" asserts="5" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileGridLayerTests.GetTilesInRegion" executed="True" result="Success" success="True" time="0.001" asserts="6" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileGridLayerTests.RemoveTile" executed="True" result="Success" success="True" time="0.001" asserts="6" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="TileLayerTests" executed="True" result="Success" success="True" time="0.003" asserts="0">
+                            <results>
+                              <test-case name="Treefrog.Framework.Tests.Model.TileLayerTests.CloneTileLayer" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileLayerTests.CreateTileLayer" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="TilePoolTests" executed="True" result="Success" success="True" time="0.135" asserts="0">
+                            <results>
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.AddProperty" executed="True" result="Success" success="True" time="0.002" asserts="6" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.AddTile" executed="True" result="Success" success="True" time="0.001" asserts="8" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.AddTileOverCapacity" executed="True" result="Success" success="True" time="0.017" asserts="6" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.DoNotRepeatTileId" executed="True" result="Success" success="True" time="0.003" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.ModifyPropertyValue" executed="True" result="Success" success="True" time="0.001" asserts="7" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.ModifyTileTexture" executed="True" result="Success" success="True" time="0.007" asserts="7" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.ModifyTileTextureData" executed="True" result="Success" success="True" time="0.000" asserts="7" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.ModifyTileTextureDirect" executed="True" result="Success" success="True" time="0.002" asserts="10" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.RemoveProperty" executed="True" result="Success" success="True" time="0.001" asserts="8" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.RemoveTile" executed="True" result="Success" success="True" time="0.001" asserts="7" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.RenamePool" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.RenamePoolByProperty" executed="True" result="Success" success="True" time="0.000" asserts="8" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.RenamePoolByProperty2" executed="True" result="Success" success="True" time="0.000" asserts="8" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.RenameProperty" executed="True" result="Success" success="True" time="0.000" asserts="8" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.TestExport" executed="True" result="Success" success="True" time="0.021" asserts="2" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TilePoolTests.TestImport" executed="True" result="Success" success="True" time="0.003" asserts="5" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="TileStackTests" executed="True" result="Success" success="True" time="0.069" asserts="0">
+                            <results>
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.AddTileDuplicateTest" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.AddTileTest" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.AddTileTest2" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.ClearEmptyTest" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.ClearTest" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.CloneStackTest" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.CreateStackCopyConstructorTest" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.RemoveTileNotPresentTest" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.RemoveTileNullTest" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Treefrog.Framework.Tests.Model.TileStackTests.RemoveTileTest" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="TileTests" executed="True" result="Inconclusive" success="False" time="0.036" asserts="0">
+                            <results>
+                              <test-case name="Treefrog.Framework.Tests.Model.TileTests.CreatePhysicalTile" executed="False" result="Ignored">
+                                <reason>
+                                  <message><![CDATA[]]></message>
+                                </reason>
+                              </test-case>
+                              <test-case name="Treefrog.Framework.Tests.Model.TileTests.UpdatePhysicalTileData" executed="False" result="Ignored">
+                                <reason>
+                                  <message><![CDATA[]]></message>
+                                </reason>
+                              </test-case>
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

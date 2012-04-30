@@ -95,6 +95,7 @@
     <Compile Include="Imaging\Rectangle.cs" />
     <Compile Include="Imaging\Size.cs" />
     <Compile Include="Imaging\TextureResource.cs" />
+    <Compile Include="KeyedObservableCollection.cs" />
     <Compile Include="Model\Collections\EventArgs.cs" />
     <Compile Include="Model\Collections\PredefinedPropertyCollection.cs" />
     <Compile Include="Model\Layer.cs" />
@@ -116,7 +117,6 @@
     <Compile Include="Model\TileLayer.cs" />
     <Compile Include="NamedResourceEventArgs.cs" />
     <Compile Include="Model\Collections\PropertyCollection.cs" />
-    <None Include="ObservableBitmap.cs" />
     <Compile Include="ObservableDictionary.cs" />
     <Compile Include="ServiceContainer.cs" />
     <None Include="TextureSource.cs" />

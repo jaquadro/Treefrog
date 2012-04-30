@@ -50,6 +50,23 @@ namespace Treefrog.Framework.Model
             get { return _objects.Count; }
         }
 
+        public void AddObject (ObjectClass objClass)
+        {
+            if (_objects.Contains(objClass.Name))
+                throw new ArgumentException("Object Pool already contains an object with the same name as objClass.");
+            _objects.Add(objClass);
+        }
+
+        public void RemoveObject (string name)
+        {
+            _objects.Remove(name);
+        }
+
+        public NamedResourceCollection<ObjectClass> Objects
+        {
+            get { return _objects; }
+        }
+
         public event EventHandler<ObjectClassEventArgs> ObjectAdded = (s, e) => { };
 
         public event EventHandler<ObjectClassEventArgs> ObjectRemoved = (s, e) => { };

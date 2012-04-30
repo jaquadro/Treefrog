@@ -27,6 +27,9 @@ namespace Treefrog.V2.ViewModel
             _standardToolBar = new StandardToolBarVM(_standardMenu);
             _tileMenu = new TileMenuVM(this);
             _tileToolBar = new TileToolBarVM(_tileMenu);
+            _propertyCollection = new PropertyCollectionVM();
+
+            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<PropertyManagerService>(_propertyCollection);
 
             _selectedZoom = 16;
 
@@ -108,6 +111,12 @@ namespace Treefrog.V2.ViewModel
         }
 
         #endregion
+
+        private PropertyCollectionVM _propertyCollection;
+        public PropertyCollectionVM PropertyProxy
+        {
+            get { return _propertyCollection; }
+        }
 
         private string _title = "Treefrog";
 

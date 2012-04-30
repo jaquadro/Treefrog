@@ -13,7 +13,7 @@
                       Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                       HorizontalAlignment="Left" Name="scrollViewer1" VerticalAlignment="Top"  
                       HorizontalScrollBarVisibility="Visible" CanContentScroll="True" >
-            <view:VirtualXnaCanvas ClearColor="{Binding Path=BackgroundColor}" 
+                <view:VirtualXnaCanvas ClearColor="{Binding Path=BackgroundColor}" 
                                    Viewport="{Binding Path=Viewport}" 
                                    ZoomFactor="{Binding Path=ZoomLevel}"
                                    DataContext="{Binding Path=Model}"
@@ -23,12 +23,12 @@
                                    UpdatePointerSequence="{Binding UpdatePointerSequenceCommand}"
                                    PointerPosition="{Binding PointerPositionCommand}"
                                    PointerLeaveField="{Binding PointerLeaveFieldCommand}">
-                <layers:GroupLayer>
-                    <layers:GroupLayer Model="{Binding Path=Root}" />
-                    <layers:GridRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" />
-                    <layers:AnnotRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" Annotations="{Binding Annotations}" />
-                </layers:GroupLayer>
-            </view:VirtualXnaCanvas>
+                    <layers:GroupLayer>
+                        <layers:GroupLayer Model="{Binding Path=Root}" />
+                        <layers:GridRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" />
+                        <layers:AnnotRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" Annotations="{Binding Annotations}" />
+                    </layers:GroupLayer>
+                </view:VirtualXnaCanvas>
         </ScrollViewer>
     </Grid>
 </UserControl>

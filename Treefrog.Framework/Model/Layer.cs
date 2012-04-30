@@ -189,7 +189,7 @@ namespace Treefrog.Framework.Model
         /// </summary>
         /// <param name="pixelsWide">The requested minimum width of the layer in pixels.</param>
         /// <param name="pixelsHigh">The request minimum height of the layer in pixels.</param>
-        /// <remarks>If an implementing layer's <see cref="IsResizable"/> property returns to, then it is required to honor
+        /// <remarks>If an implementing layer's <see cref="IsResizable"/> property returns true, then it is required to honor
         /// the new size request.  Due to differences in layer resolution, an implementing layer may not be able to exactly
         /// match the requested pixel size.  However, an implementing layer is required to never pick a size smaller than the
         /// request.</remarks>

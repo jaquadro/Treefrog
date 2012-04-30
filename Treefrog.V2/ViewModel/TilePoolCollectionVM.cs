@@ -126,6 +126,11 @@ namespace Treefrog.V2.ViewModel
                     RaisePropertyChanged("ActiveTilePool");
                     RaisePropertyChanged("SelectedBitmapSource");
                     RefreshCommandState();
+
+                    if (_selected != null) {
+                        PropertyManagerService service = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<PropertyManagerService>();
+                        service.ActiveProvider = _manager.Pools[_selected.Name];
+                    }
                 }
             }
         }

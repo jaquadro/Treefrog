@@ -27,6 +27,8 @@ namespace Treefrog.V2.ViewModel.Layers
             {
                 if (layer is TileGridLayer)
                     return new TileLayerVM(_level, layer as TileGridLayer, _viewport);
+                else if (layer is ObjectLayer)
+                    return new ObjectLayerVM(_level, layer as ObjectLayer, _viewport);
                 else
                     return new LevelLayerVM(_level, layer, _viewport);
             }, model);

@@ -64,14 +64,18 @@ namespace Treefrog.V2.ViewModel
             {
                 if (_selectedLayer != value) {
                     _selectedLayer = value;
-                    OnSelectionChanged();
+                    OnSelectionChanged(); 
                 }
             }
         }
 
         private void OnSelectionChanged ()
         {
-            //RaisePropertyChanged("SelectedLayer");
+            if (SelectedLayer != null) {
+                PropertyManagerService service = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<PropertyManagerService>();
+                service.ActiveProvider = _layers[SelectedLayer.LayerName];
+            }
+
             if (_deleteCommand != null)
                 _deleteCommand.RaiseCanExecuteChanged();
             if (_moveUpCommand != null)

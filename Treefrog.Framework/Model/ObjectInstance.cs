@@ -2,22 +2,47 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectInstance : IPropertyProvider
+    public class ObjectInstance : IPropertyProvider, ICloneable
     {
+        private ObjectClass _class;
         private int _posX;
         private int _posY;
         private float _rotation;
         private float _scaleX;
         private float _scaleY;
 
-        public ObjectInstance ()
+        public ObjectInstance (ObjectClass objClass, int posX, int posY)
         {
+            _class = objClass;
+            _posX = posX;
+            _posY = posY;
             _rotation = 0;
             _scaleX = 1f;
             _scaleY = 1f;
+        }
+
+        public ObjectInstance (ObjectClass objClass)
+            : this(objClass, 0, 0)
+        {
+        }
+
+        public ObjectInstance (ObjectInstance inst)
+        {
+            _class = inst._class;
+            _posX = inst._posX;
+            _posY = inst._posY;
+            _rotation = inst._rotation;
+            _scaleX = inst._scaleX;
+            _scaleY = inst._scaleY;
+        }
+
+        public ObjectClass ObjectClass
+        {
+            get { return _class; }
         }
 
         public float Rotation
@@ -43,6 +68,17 @@ namespace Treefrog.Framework.Model
         public int Y
         {
             get { return _posY; }
+        }
+
+        public Rectangle ImageBounds
+        {
+            get
+            {
+                return new Rectangle(
+                    _posX - _class.Origin.X + _class.ImageBounds.Left,
+                    _posY - _class.Origin.Y + _class.ImageBounds.Top,
+                    _class.ImageBounds.Width, _class.ImageBounds.Height);
+            }
         }
 
         #region IPropertyProvider Members
@@ -80,5 +116,10 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        public object Clone ()
+        {
+            return new ObjectInstance(this);
+        }
     }
 }

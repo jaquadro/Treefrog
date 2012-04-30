@@ -171,7 +171,7 @@ namespace Treefrog.V2.Controls.Layers
             }
         }
 
-        private Vector BeginDrawInner (SpriteBatch spriteBatch)
+        private Vector BeginDrawInner (SpriteBatch spriteBatch, Effect effect)
         {
             Rect region = VisibleRegion;
             Vector offset = VirtualSurfaceOffset;
@@ -179,8 +179,8 @@ namespace Treefrog.V2.Controls.Layers
             offset.X = Math.Ceiling(offset.X - region.X * ZoomFactor);
             offset.Y = Math.Ceiling(offset.Y - region.Y * ZoomFactor);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation((float)offset.X, (float)offset.Y, 0));
-            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, effect, Matrix.CreateTranslation((float)offset.X, (float)offset.Y, 0));
+            //spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
             return offset;
         }
@@ -192,6 +192,11 @@ namespace Treefrog.V2.Controls.Layers
 
         protected Vector BeginDraw (SpriteBatch spriteBatch)
         {
+            return BeginDraw(spriteBatch, null);
+        }
+
+        protected Vector BeginDraw (SpriteBatch spriteBatch, Effect effect)
+        {
             _target = null;
             if (Opacity < 1f) {
                 _target = new RenderTarget2D(spriteBatch.GraphicsDevice,
@@ -202,7 +207,7 @@ namespace Treefrog.V2.Controls.Layers
                 spriteBatch.GraphicsDevice.Clear(Color.Transparent);
             }
 
-            return BeginDrawInner(spriteBatch);
+            return BeginDrawInner(spriteBatch, effect);
         }
 
         protected void EndDraw (SpriteBatch spriteBatch, Vector offset)
@@ -212,7 +217,7 @@ namespace Treefrog.V2.Controls.Layers
             if (_target != null) {
                 spriteBatch.GraphicsDevice.SetRenderTarget(null);
 
-                BeginDrawInner(spriteBatch);
+                BeginDrawInner(spriteBatch, null);
                 spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, Opacity));
                 EndDrawInner(spriteBatch);
 

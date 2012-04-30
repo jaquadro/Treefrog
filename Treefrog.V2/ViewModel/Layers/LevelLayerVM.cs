@@ -23,7 +23,9 @@ namespace Treefrog.V2.ViewModel.Layers
                 Viewport = new Size(layer.LayerWidth, layer.LayerHeight),
             };
 
+            _layer.NameChanged += HandleNameChanged;
             _layer.VisibilityChanged += HandleVisibilityChanged;
+            _layer.OpacityChanged += HandleOpacityChanged;
         }
 
         public LevelLayerVM (LevelDocumentVM level, Layer layer)
@@ -74,11 +76,6 @@ namespace Treefrog.V2.ViewModel.Layers
             get { return new Rect(0, 0, LayerWidth, LayerHeight); }
         }
 
-        private void HandleVisibilityChanged (object sender, EventArgs e)
-        {
-            RaisePropertyChanged("IsVisible");
-        }
-
         public override double LayerWidth
         {
             get { return _layer.LayerWidth; }
@@ -100,17 +97,17 @@ namespace Treefrog.V2.ViewModel.Layers
             set { _layer.Opacity = value; }
         }
 
-        private void LayerNameChanged (object sender, NameChangedEventArgs e)
+        private void HandleNameChanged (object sender, NameChangedEventArgs e)
         {
             RaisePropertyChanged("LayerName");
         }
 
-        private void LayerVisibilityChanged (object sender, EventArgs e)
+        private void HandleVisibilityChanged (object sender, EventArgs e)
         {
             RaisePropertyChanged("IsVisible");
         }
 
-        private void LayerOpacityChanged (object sender, EventArgs e)
+        private void HandleOpacityChanged (object sender, EventArgs e)
         {
             RaisePropertyChanged("Opacity");
         }

@@ -16,52 +16,54 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid Margin="-4">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Border Margin="-4">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
-            <ComboBox x:Name="tilePoolList" HorizontalAlignment="Stretch" ItemsSource="{Binding TilePools}" Margin="2" SelectedItem="{Binding ActiveTilePool}"
+            <StackPanel Grid.Row="0">
+                <ComboBox x:Name="tilePoolList" HorizontalAlignment="Stretch" ItemsSource="{Binding TilePools}" Margin="2" SelectedItem="{Binding ActiveTilePool}"
                           DisplayMemberPath="Name" SelectedValuePath="Name" Style="{StaticResource {x:Static ToolBar.ComboBoxStyleKey}}" IsEnabled="{Binding HasTilePools}">
-            </ComboBox>
-        </StackPanel>
+                </ComboBox>
+            </StackPanel>
 
-        <ToolBarTray Grid.Row="1" IsLocked="True">
-            <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
-                <Button Command="{Binding ImportPoolCommand}" IsEnabled="{Binding IsImportPoolEnabled}">
-                    <Image Source="/Treefrog.V2;component/Images/16/plus.png"
+            <ToolBarTray Grid.Row="1" IsLocked="True">
+                <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
+                    <Button Command="{Binding ImportPoolCommand}" IsEnabled="{Binding IsImportPoolEnabled}">
+                        <Image Source="/Treefrog.V2;component/Images/16/plus.png"
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
-                </Button>
-                <Button Command="{Binding RemovePoolCommand}" IsEnabled="{Binding IsRemovePoolEnabled}">
-                    <Image Source="/Treefrog.V2;component/Images/16/minus.png" 
+                    </Button>
+                    <Button Command="{Binding RemovePoolCommand}" IsEnabled="{Binding IsRemovePoolEnabled}">
+                        <Image Source="/Treefrog.V2;component/Images/16/minus.png" 
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
-                </Button>
-                <Separator />
-            </ToolBar>
-        </ToolBarTray>
+                    </Button>
+                    <Separator />
+                </ToolBar>
+            </ToolBarTray>
 
-        <ListBox Grid.Row="2" ItemsSource="{Binding ActiveTilePool.Tiles}" 
+            <ListBox Grid.Row="2" ItemsSource="{Binding ActiveTilePool.Tiles}" 
                  SelectedItem="{Binding ActiveTilePool.SelectedTile}" 
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#555">
-            <ListBox.Resources>
-                <local:TextureResourceToBitmapSourceConverter x:Key="BitmapConverter" />
-            </ListBox.Resources>
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel IsItemsHost="True" Margin="1,1,0,0" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderThickness="0" Margin="-2,0,0,0">
-                        <Image Source="{Binding ImageSource, Converter={StaticResource BitmapConverter}}"
+                <ListBox.Resources>
+                    <local:TextureResourceToBitmapSourceConverter x:Key="BitmapConverter" />
+                </ListBox.Resources>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" Margin="1,1,0,0" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="0" Margin="-2,0,0,0">
+                            <Image Source="{Binding ImageSource, Converter={StaticResource BitmapConverter}}"
                                Height="{Binding TileHeight}" Width="{Binding TileWidth}" Margin="1"/>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-    </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Border>
 </UserControl>

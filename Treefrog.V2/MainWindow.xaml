@@ -78,14 +78,14 @@
 
             <avalonDockLayout:LayoutRoot>
                 <avalonDockLayout:LayoutPanel Orientation="Horizontal">
-                    <avalonDockLayout:LayoutAnchorablePaneGroup DockWidth="200" Orientation="Vertical">
+                    <avalonDockLayout:LayoutAnchorablePaneGroup DockWidth="240" Orientation="Vertical">
                         <avalonDockLayout:LayoutAnchorablePane>
                             <avalonDockLayout:LayoutAnchorable x:Name="tilePools" Title="Tile Pools">
                                 <!--<Frame Source="TilePools.xaml" />-->
                                 <panels:TilePoolPanel DataContext="{Binding Path=Project.TilePoolCollection}"/>
                             </avalonDockLayout:LayoutAnchorable>
                             <avalonDockLayout:LayoutAnchorable x:Name="objectPools" Title="Objects">
-                                
+                                <panels:ObjectPanel DataContext="{Binding Path=Project.ObjectPoolCollection}" />
                             </avalonDockLayout:LayoutAnchorable>
                         </avalonDockLayout:LayoutAnchorablePane>
                         <avalonDockLayout:LayoutAnchorablePane>
@@ -93,7 +93,7 @@
                                 <panels:LayerPanel DataContext="{Binding Path=ActiveDocument.LayerCollection}" />
                             </avalonDockLayout:LayoutAnchorable>
                             <avalonDockLayout:LayoutAnchorable x:Name="properties" Title="Properties">
-
+                                <panels:PropertyPanel DataContext="{Binding Path=PropertyProxy}" />
                             </avalonDockLayout:LayoutAnchorable>
                         </avalonDockLayout:LayoutAnchorablePane>
                     </avalonDockLayout:LayoutAnchorablePaneGroup>

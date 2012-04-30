@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
@@ -18,7 +17,7 @@ namespace Treefrog.Framework.Model
 
         private int _width;
         private int _height;
-        private Texture2D _image;
+        private TextureResource _image;
         private int _originX;
         private int _originY;
 
@@ -32,7 +31,7 @@ namespace Treefrog.Framework.Model
             _origin = Point.Zero;
         }
 
-        public ObjectClass (string name, Texture2D image)
+        public ObjectClass (string name, TextureResource image)
             : this(name)
         {
             _image = image;
@@ -40,13 +39,13 @@ namespace Treefrog.Framework.Model
             _maskBounds = image.Bounds;
         }
 
-        public ObjectClass (string name, Texture2D image, Rectangle maskBounds)
+        public ObjectClass (string name, TextureResource image, Rectangle maskBounds)
             : this(name, image)
         {
             _maskBounds = maskBounds;
         }
 
-        public ObjectClass (string name, Texture2D image, Rectangle maskBounds, Point origin)
+        public ObjectClass (string name, TextureResource image, Rectangle maskBounds, Point origin)
             : this(name, image, maskBounds)
         {
             _origin = origin;
@@ -99,7 +98,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public Texture2D Image
+        public TextureResource Image
         {
             get { return _image; }
             set

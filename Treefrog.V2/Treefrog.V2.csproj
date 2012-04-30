@@ -53,6 +53,10 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WPFToolkit.Extended, Version=1.6.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Vendor\WPFToolkit.Extended\bin\Release\WPFToolkit.Extended.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -84,12 +88,15 @@
     <Compile Include="ViewModel\Layers\LayerVM.cs" />
     <Compile Include="ViewModel\Layers\LevelGroupLayerVM.cs" />
     <Compile Include="ViewModel\Layers\LevelLayerVM.cs" />
+    <Compile Include="ViewModel\Layers\ObjectLayerVM.cs" />
     <Compile Include="ViewModel\Layers\RenderLayerVM.cs" />
     <Compile Include="ViewModel\Layers\TileLayerVM.cs" />
     <Compile Include="ViewModel\LevelDocumentVM.cs" />
     <Compile Include="ViewModel\Menu\StandardMenuVM.cs" />
     <Compile Include="ViewModel\Menu\TileMenuVM.cs" />
+    <Compile Include="ViewModel\ObjectPoolCollectionVM.cs" />
     <Compile Include="ViewModel\ProjectVM.cs" />
+    <Compile Include="ViewModel\PropertyCollectionVM.cs" />
     <Compile Include="ViewModel\TilePoolCollectionVM.cs" />
     <Compile Include="ViewModel\TilePoolItemVM.cs" />
     <Compile Include="ViewModel\TilePoolVM.cs" />
@@ -100,6 +107,7 @@
     </Compile>
     <Compile Include="ViewModel\ToolBars\TileToolBarVM.cs" />
     <Compile Include="ViewModel\Tools\ITileToolCollection.cs" />
+    <Compile Include="ViewModel\Tools\ObjectDrawTool.cs" />
     <Compile Include="ViewModel\Tools\RubberBand.cs" />
     <Compile Include="ViewModel\Tools\TileEraseTool.cs" />
     <Compile Include="ViewModel\Tools\TileDrawTool.cs" />
@@ -116,6 +124,12 @@
     </Compile>
     <Compile Include="View\Dialogs\NewLevelDialog.xaml.cs">
       <DependentUpon>NewLevelDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Panels\ObjectPanel.xaml.cs">
+      <DependentUpon>ObjectPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Panels\PropertyPanel.xaml.cs">
+      <DependentUpon>PropertyPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Panels\TilePoolPanel.xaml.cs">
       <DependentUpon>TilePoolPanel.xaml</DependentUpon>
@@ -171,6 +185,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Dialogs\NewLevelDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Panels\ObjectPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Panels\PropertyPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

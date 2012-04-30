@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Windows;
 
+using XEffect = Microsoft.Xna.Framework.Graphics.Effect;
+using System.IO;
+
 namespace Treefrog.V2.Controls.Layers
 {
     public class GridRenderLayer : RenderLayer
@@ -18,9 +21,13 @@ namespace Treefrog.V2.Controls.Layers
         private Texture2D _tileGridBrushRight;
         private Texture2D _tileGridBrushBottom;
 
+        public GridRenderLayer ()
+        {
+        }
+
         protected override void RenderCore (SpriteBatch spriteBatch)
         {
-            return;
+            //return;
 
             if (_tileGridBrush == null)
                 BuildTileBrush(spriteBatch.GraphicsDevice);

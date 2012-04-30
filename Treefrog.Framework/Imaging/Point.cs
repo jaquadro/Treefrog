@@ -12,5 +12,7 @@ namespace Treefrog.Framework.Imaging
             X = x;
             Y = y;
         }
+
+        public static Point Zero = new Point(0, 0);
     }
 }
