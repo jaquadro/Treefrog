@@ -1,79 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.V2.ViewModel.Commands;
-using Treefrog.Framework.Model;
-using System.Collections.ObjectModel;
-using Treefrog.V2.ViewModel.Annotations;
-using Treefrog.Framework.Imaging.Drawing;
+﻿using System.Collections.ObjectModel;
 using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework.Model;
+using Treefrog.V2.ViewModel.Annotations;
+using Treefrog.V2.ViewModel.Commands;
 
 namespace Treefrog.V2.ViewModel.Tools
 {
-    public class ObjectDrawTool : PointerTool
+    public class ObjectDrawTool : ObjectPointerTool
     {
-        private ObjectPoolManagerService _poolManager;
-
-        private CommandHistory _history;
-        private ObjectLayer _layer;
-
         private ObservableCollection<Annotation> _annots;
 
         private SelectionAnnot _previewMarker;
 
-        public ObjectDrawTool (CommandHistory history, ObjectLayer layer, ObservableCollection<Annotation> annots)
+        public ObjectDrawTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots)
+            : base(history, layer, gridSize)
         {
-            _history = history;
-            _layer = layer;
             _annots = annots;
         }
 
-        protected ObjectLayer Layer
+        protected override void DisposeManaged ()
         {
-            get { return _layer; }
+            HidePreviewMarker();
         }
 
-        protected CommandHistory History
-        {
-            get { return _history; }
-        }
-
-        protected ObjectClass ActiveObjectClass
-        {
-            get
-            {
-                if (_poolManager == null) {
-                    _poolManager = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<ObjectPoolManagerService>();
-                    if (_poolManager == null)
-                        return null;
-                }
-
-                ObjectPoolItemVM activeClass = _poolManager.ActiveObjectClass;
-                if (activeClass == null)
-                    return null;
-                return activeClass.ObjectClass;
-            }
-        }
-
-        public override void StartPointerSequence (PointerEventInfo info)
+        protected override void StartPointerSequenceCore (PointerEventInfo info)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
                     StartDrawObjectSequence(info);
+                    break;
+                case PointerEventType.Secondary:
+                    Cancel();
                     break;
             }
 
             UpdatePointerSequence(info);
         }
 
-        public override void PointerPosition (PointerEventInfo info)
+        protected override void PointerPositionCore (PointerEventInfo info)
         {
+            base.PointerPositionCore(info);
             ShowPreviewMarker(info);
         }
 
-        public override void PointerLeaveField ()
+        protected override void PointerLeaveFieldCore ()
         {
+            base.PointerLeaveFieldCore();
             HidePreviewMarker();
         }
 
@@ -103,8 +76,12 @@ namespace Treefrog.V2.ViewModel.Tools
                 _previewMarkerVisible = true;
             }
 
-            _previewMarker.Start = new Point((int)info.X, (int)info.Y);
-            _previewMarker.End = new Point((int)info.X + _activeClass.ImageBounds.Width, (int)info.Y + _activeClass.ImageBounds.Height);
+            Point xlat = new Point((int)info.X, (int)info.Y);
+            if (SnapManager != null)
+                xlat = SnapManager.Translate(xlat, SnappingTarget);
+
+            _previewMarker.Start = xlat;
+            _previewMarker.End = new Point(xlat.X + _activeClass.ImageBounds.Width, xlat.Y + _activeClass.ImageBounds.Height);
         }
 
         private void HidePreviewMarker ()
@@ -117,14 +94,16 @@ namespace Treefrog.V2.ViewModel.Tools
 
         #region Draw Object Sequence
 
-        private TileReplace2DCommand _drawCommand;
-
         private void StartDrawObjectSequence (PointerEventInfo info)
         {
             if (ActiveObjectClass == null)
                 return;
 
-            ObjectInstance inst = new ObjectInstance(ActiveObjectClass, (int)info.X, (int)info.Y);
+            Point xlat = new Point((int)info.X, (int)info.Y);
+            if (SnapManager != null)
+                xlat = SnapManager.Translate(xlat, SnappingTarget);
+
+            ObjectInstance inst = new ObjectInstance(ActiveObjectClass, xlat.X, xlat.Y);
             Layer.AddObject(inst);
         }
 

@@ -170,7 +170,7 @@ namespace Treefrog.V2.ViewModel
             if (path == null || _project == null)
                 return;
 
-            using (FileStream stream = File.OpenWrite(path)) {
+            using (FileStream stream = File.Create(path)) {
                 _project.Project.Save(stream);
             }
         }

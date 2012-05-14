@@ -105,6 +105,8 @@
     <Compile Include="Model\ObjectInstance.cs" />
     <Compile Include="Model\ObjectLayer.cs" />
     <Compile Include="Model\ObjectPool.cs" />
+    <Compile Include="Model\ObjectPoolManager.cs" />
+    <Compile Include="Model\PoolManager.cs" />
     <Compile Include="Model\Project.cs" />
     <Compile Include="Model\Property.cs" />
     <Compile Include="Model\Support\LocatedTile.cs" />
@@ -119,6 +121,7 @@
     <Compile Include="Model\Collections\PropertyCollection.cs" />
     <Compile Include="ObservableDictionary.cs" />
     <Compile Include="ServiceContainer.cs" />
+    <None Include="App.config" />
     <None Include="TextureSource.cs" />
     <Compile Include="TileCoord.cs" />
     <Compile Include="Model\TileGridLayer.cs" />

@@ -17,7 +17,7 @@ namespace Treefrog.V2.ViewModel.Tools
         {
         }
 
-        public override void StartPointerSequence (PointerEventInfo info)
+        protected override void StartPointerSequenceCore (PointerEventInfo info)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:

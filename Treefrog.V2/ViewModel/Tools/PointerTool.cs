@@ -5,30 +5,100 @@ using System.Text;
 
 namespace Treefrog.V2.ViewModel.Tools
 {
-    public abstract class PointerTool
+    public abstract class PointerTool : IDisposable
     {
-        public virtual void StartPointerSequence (PointerEventInfo info)
+        public void StartPointerSequence (PointerEventInfo info)
+        {
+            if (IsCancelled)
+                return;
+            StartPointerSequenceCore(info);
+        }
+
+        public void UpdatePointerSequence (PointerEventInfo info)
+        {
+            if (IsCancelled)
+                return;
+            UpdatePointerSequenceCore(info);
+        }
+
+        public void EndPointerSequence (PointerEventInfo info)
+        {
+            if (IsCancelled)
+                return;
+            EndPointerSequenceCore(info);
+        }
+
+        public void PointerPosition (PointerEventInfo info)
+        {
+            if (IsCancelled)
+                return;
+            PointerPositionCore(info);
+        }
+
+        public void PointerEnterField ()
+        {
+            if (IsCancelled)
+                return;
+            PointerEnterFieldCore();
+        }
+
+        public void PointerLeaveField ()
+        {
+            if (IsCancelled)
+                return;
+            PointerLeaveFieldCore();
+        }
+
+        protected virtual void StartPointerSequenceCore (PointerEventInfo info)
         {
         }
 
-        public virtual void UpdatePointerSequence (PointerEventInfo info)
+        protected virtual void UpdatePointerSequenceCore (PointerEventInfo info)
         {
         }
 
-        public virtual void EndPointerSequence (PointerEventInfo info)
+        protected virtual void EndPointerSequenceCore (PointerEventInfo info)
         {
         }
 
-        public virtual void PointerPosition (PointerEventInfo info)
+        protected virtual void PointerPositionCore (PointerEventInfo info)
         {
         }
 
-        public virtual void PointerEnterField ()
+        protected virtual void PointerEnterFieldCore ()
         {
         }
 
-        public virtual void PointerLeaveField ()
+        protected virtual void PointerLeaveFieldCore ()
         {
         }
+
+        public bool IsCancelled
+        {
+            get { return _cancelled; }
+        }
+
+        public void Cancel ()
+        {
+            Dispose();
+        }
+
+        #region Disposable
+
+        private bool _cancelled;
+
+        public void Dispose ()
+        {
+            if (!_cancelled) {
+                DisposeManaged();
+                _cancelled = true;
+            }
+        }
+
+        protected virtual void DisposeManaged ()
+        {
+        }
+
+        #endregion
     }
 }

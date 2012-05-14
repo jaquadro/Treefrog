@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Content.Pipeline;
-using Treefrog.Pipeline.Content;
+﻿using System.IO;
 using System.Windows.Forms;
+using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework.Model;
-using System.IO;
+using Treefrog.Pipeline.Content;
 
 namespace Treefrog.Pipeline
 {

@@ -6,6 +6,8 @@ using System.Xml;
 using System.IO.Compression;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Imaging;
+using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace Treefrog.Framework.Model
 {
@@ -205,6 +207,8 @@ namespace Treefrog.Framework.Model
             _tiles[id].Modified += TileModifiedHandler;
 
             _manager.LinkTile(id, this);
+            if (_manager.LastId < id)
+                _manager.LastId = id;
 
             OnTileAdded(new TileEventArgs(_tiles[id]));
         }
@@ -882,5 +886,133 @@ namespace Treefrog.Framework.Model
             StringProperty property = sender as StringProperty;
             Name = property.Value;
         }
+
+        public static TilePoolXmlProxy ToXmlProxy (TilePool pool)
+        {
+            if (pool == null)
+                return null;
+
+            List<TileDefXmlProxy> tiledefs = new List<TileDefXmlProxy>();
+            foreach (Tile tile in pool._tiles.Values)
+                tiledefs.Add(ToXmlProxy(tile));
+
+            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
+            foreach (Property prop in pool.CustomProperties)
+                props.Add(Property.ToXmlProxy(prop));
+
+            return new TilePoolXmlProxy()
+            {
+                Name = pool.Name,
+                Source = TextureResource.ToXmlProxy(pool._tileSource),
+                TileWidth = pool._tileWidth,
+                TileHeight = pool._tileHeight,
+                TileDefinitions = tiledefs.Count > 0 ? tiledefs : null,
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static TilePool FromXmlProxy (TilePoolXmlProxy proxy, TilePoolManager manager)
+        {
+            if (proxy == null)
+                return null;
+
+            TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
+            pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
+
+            foreach (TileDefXmlProxy tiledef in proxy.TileDefinitions)
+                FromXmlProxy(tiledef, pool);
+
+            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
+                pool.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+            return pool;
+        }
+
+        public static TileDefXmlProxy ToXmlProxy (Tile tile)
+        {
+            if (tile == null)
+                return null;
+
+            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
+            foreach (Property prop in tile.CustomProperties)
+                props.Add(Property.ToXmlProxy(prop));
+
+            TileCoord loc = tile.Pool.GetTileLocation(tile.Id);
+            return new TileDefXmlProxy()
+            {
+                Id = tile.Id,
+                Loc = loc.X + "," + loc.Y,
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static Tile FromXmlProxy (TileDefXmlProxy proxy, TilePool pool)
+        {
+            if (proxy == null)
+                return null;
+
+            string[] loc = proxy.Loc.Split(new char[] { ',' });
+            if (loc.Length != 2)
+                throw new Exception("Malformed location: " + proxy.Loc);
+
+            int x = Convert.ToInt32(loc[0]);
+            int y = Convert.ToInt32(loc[1]);
+            if (x < 0 || y < 0)
+                throw new Exception("Invalid location: " + proxy.Loc);
+
+            TileCoord coord = new TileCoord(x, y);
+            Tile tile = new PhysicalTile(proxy.Id, pool);
+
+            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
+                tile.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+            pool._locations[proxy.Id] = coord;
+            pool._tiles[proxy.Id] = tile;
+            pool._tiles[proxy.Id].Modified += pool.TileModifiedHandler;
+
+            pool._manager.LinkTile(proxy.Id, pool);
+            if (pool._manager.LastId < proxy.Id)
+                pool._manager.LastId = proxy.Id;
+
+            return tile;
+        }
+    }
+
+    [XmlRoot("TilePool")]
+    public class TilePoolXmlProxy
+    {
+        [XmlAttribute]
+        public string Name { get; set; }
+
+        [XmlAttribute]
+        public int TileWidth { get; set; }
+
+        [XmlAttribute]
+        public int TileHeight { get; set; }
+
+        [XmlElement]
+        public TextureResource.XmlProxy Source { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("TileDef")]
+        public List<TileDefXmlProxy> TileDefinitions { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Property")]
+        public List<PropertyXmlProxy> Properties { get; set; }
+    }
+
+    [XmlRoot("TileDef")]
+    public class TileDefXmlProxy
+    {
+        [XmlAttribute]
+        public int Id { get; set; }
+
+        [XmlAttribute]
+        public string Loc { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Property")]
+        public List<PropertyXmlProxy> Properties { get; set; }
     }
 }

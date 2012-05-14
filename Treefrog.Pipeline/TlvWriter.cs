@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
-using Treefrog.Pipeline.Content;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content.Pipeline;
+using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 using Treefrog.Framework.Model;
-using Treefrog.Framework;
 using Treefrog.Framework.Model.Support;
+using Treefrog.Pipeline.Content;
 
 namespace Treefrog.Pipeline
 {
@@ -15,6 +11,7 @@ namespace Treefrog.Pipeline
     {
         Unknown = 0,
         Tiles = 1,
+        Objects = 2,
     }
 
     [ContentTypeWriter]
@@ -35,6 +32,11 @@ namespace Treefrog.Pipeline
                 output.Write(asset);
             }
 
+            output.Write(value.ObjectPoolAssets.Count);
+            foreach (string asset in value.ObjectPoolAssets) {
+                output.Write(asset);
+            }
+
             output.Write((short)value.Level.Layers.Count);
 
             int id = 0;
@@ -42,6 +44,9 @@ namespace Treefrog.Pipeline
                 switch (LayerType(layer)) {
                     case Pipeline.LayerType.Tiles:
                         output.Write("TILE");
+                        break;
+                    case Pipeline.LayerType.Objects:
+                        output.Write("OBJE");
                         break;
                 }
 
@@ -56,6 +61,9 @@ namespace Treefrog.Pipeline
                     case Pipeline.LayerType.Tiles:
                         WriteTileLayerBlock(output, layer as MultiTileGridLayer);
                         break;
+                    case Pipeline.LayerType.Objects:
+                        WriteObjectLayerBlock(output, layer as ObjectLayer);
+                        break;
                 }
 
                 id++;
@@ -66,6 +74,8 @@ namespace Treefrog.Pipeline
         {
             if (layer is MultiTileGridLayer)
                 return Pipeline.LayerType.Tiles;
+            if (layer is ObjectLayer)
+                return Pipeline.LayerType.Objects;
 
             return Pipeline.LayerType.Unknown;
         }
@@ -91,6 +101,22 @@ namespace Treefrog.Pipeline
                 foreach (Tile tile in stack.Stack) {
                     output.Write((short)tile.Id);
                 }
+            }
+        }
+
+        private void WriteObjectLayerBlock (ContentWriter output, ObjectLayer layer)
+        {
+            int objcount = 0;
+            foreach (ObjectInstance inst in layer.Objects)
+                objcount++;
+
+            output.Write(objcount);
+            foreach (ObjectInstance inst in layer.Objects) {
+                output.Write((short)inst.X);
+                output.Write((short)inst.Y);
+                output.Write((short)inst.ObjectClass.Id);
+
+                //WritePropertyBlock(output, inst.CustomProperties);
             }
         }
 

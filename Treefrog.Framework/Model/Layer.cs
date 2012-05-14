@@ -305,6 +305,12 @@ namespace Treefrog.Framework.Model
                         Level = level,
                     };
                     break;
+                case "object":
+                    layer = new ObjectLayer(attribs["name"], level.PixelsWide, level.PixelsHigh)
+                    {
+                        Level = level,
+                    };
+                    break;
             }
 
             if (attribs.ContainsKey("opacity")) {

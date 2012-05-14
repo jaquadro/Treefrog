@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Xml;
 using Treefrog.Framework.Model.Collections;
+using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace Treefrog.Framework.Model
 {
@@ -643,5 +645,192 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion 
+
+        public static Level FromXmlProxy (LevelXmlProxy proxy, Project project)
+        {
+            if (proxy == null)
+                return null;
+
+            Level level = new Level(proxy.Name, proxy.TileWidth, proxy.TileHeight, proxy.Width, proxy.Height);
+            level.Project = project;
+
+            foreach (LayerXmlProxy layerProxy in proxy.Layers) {
+                if (layerProxy is MultiTileGridLayerXmlProxy)
+                    level.Layers.Add(new MultiTileGridLayer(layerProxy as MultiTileGridLayerXmlProxy, level));
+                else if (layerProxy is ObjectLayerXmlProxy)
+                    level.Layers.Add(new ObjectLayer(layerProxy as ObjectLayerXmlProxy, level));
+            }
+
+            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
+                level.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+            return level;
+        }
+
+        public static LevelXmlProxy ToXmlProxy (Level level)
+        {
+            if (level == null)
+                return null;
+
+            List<LayerXmlProxy> layers = new List<LayerXmlProxy>();
+            foreach (Layer layer in level.Layers) {
+                if (layer is MultiTileGridLayer)
+                    layers.Add(MultiTileGridLayer.ToXmlProxy(layer as MultiTileGridLayer));
+                else if (layer is ObjectLayer)
+                    layers.Add(ObjectLayer.ToXmlProxy(layer as ObjectLayer));
+            }
+
+            return new LevelXmlProxy()
+            {
+                Name = level.Name,
+                Width = level.TilesWide,
+                Height = level.TilesHigh,
+                TileWidth = level.TileWidth,
+                TileHeight = level.TileHeight,
+                Layers = layers.Count > 0 ? layers : null,
+            };
+        }
+    }
+
+    [XmlRoot("Level")]
+    public class LevelXmlProxy
+    {
+        [XmlAttribute]
+        public string Name { get; set; }
+
+        [XmlAttribute]
+        public int Width { get; set; }
+
+        [XmlAttribute]
+        public int Height { get; set; }
+
+        [XmlAttribute]
+        public int TileWidth { get; set; }
+
+        [XmlAttribute]
+        public int TileHeight { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Layer", Type = typeof(AbstractXmlSerializer<LayerXmlProxy>))]
+        public List<LayerXmlProxy> Layers { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Property")]
+        public List<PropertyXmlProxy> Properties { get; set; }
+    }
+
+    public class AbstractXmlSerializer<TBase> : IXmlSerializable
+    {
+        private AbstractXmlSerializer () { }
+
+        public AbstractXmlSerializer (TBase data) 
+        {
+            Data = data;
+        }
+
+        public TBase Data { get; set; }
+
+        public static implicit operator TBase (AbstractXmlSerializer<TBase> val)
+        {
+            return val.Data;
+        }
+
+        public static implicit operator AbstractXmlSerializer<TBase> (TBase val)
+        {
+            return val == null ? null : new AbstractXmlSerializer<TBase>(val);
+        }
+
+        public System.Xml.Schema.XmlSchema GetSchema ()
+        {
+            return null;
+        }
+
+        public void ReadXml (XmlReader reader) 
+        {
+            string typeAttr = reader.GetAttribute("Type");
+            if (typeAttr == null)
+                throw new ArgumentNullException("Unable to read Xml data for Abstract Type '" + typeof(TBase).Name +
+                    " because no 'Type' attribute was specified in the Xml.");
+
+            Type type = Type.GetType(typeAttr);
+            if (type == null)
+                throw new InvalidCastException("Unable to read Xml data for Abstract Type '" + typeof(TBase).Name +
+                    " because the type specified in the Xml was not found ('" + typeAttr + "').");
+
+            if (!type.IsSubclassOf(typeof(TBase)))
+                throw new InvalidCastException("Unable to read Xml data for Abstract Type '" + typeof(TBase).Name +
+                    " because the type in the specified Xml differs ('" + type.Name + "').");
+            
+            reader.ReadStartElement();
+            XmlSerializer serializer = new XmlSerializer(type);
+            Data = (TBase)serializer.Deserialize(reader);
+            reader.ReadEndElement();
+        }
+
+        public void WriteXml (XmlWriter writer)
+        {
+            Type type = Data.GetType();
+
+            writer.WriteAttributeString("Type", type.FullName);
+            new XmlSerializer(type).Serialize(writer, Data);
+        }
+    }
+
+    public abstract class LayerXmlProxy
+    {
+        protected LayerXmlProxy ()
+        {
+            Opacity = 1.0f;
+            Visible = true;
+        }
+
+        [XmlAttribute]
+        public string Name { get; set; }
+
+        [XmlAttribute]
+        [DefaultValue(1.0F)]
+        public float Opacity { get; set; }
+
+        [XmlAttribute]
+        [DefaultValue(true)]
+        public bool Visible { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Property")]
+        public List<PropertyXmlProxy> Properties { get; set; }
+    }
+
+    [XmlRoot("LayerData")]
+    public class MultiTileGridLayerXmlProxy : LayerXmlProxy
+    {
+        [XmlArray]
+        [XmlArrayItem("Tile")]
+        public List<TileStackXmlProxy> Tiles { get; set; }
+    }
+
+    [XmlRoot("LayerData")]
+    public class ObjectLayerXmlProxy : LayerXmlProxy
+    {
+        [XmlArray]
+        [XmlArrayItem("Object")]
+        public List<ObjectInstanceXmlProxy> Objects { get; set; }
+    }
+
+    public class TileStackXmlProxy
+    {
+        [XmlAttribute]
+        public string At { get; set; }
+
+        [XmlText]
+        public string Items { get; set; }
+    }
+
+    public class ObjectInstanceXmlProxy
+    {
+        [XmlAttribute]
+        public int Class { get; set; }
+
+        [XmlAttribute]
+        public string At { get; set; }
     }
 }

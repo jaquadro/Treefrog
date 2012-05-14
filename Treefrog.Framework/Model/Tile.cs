@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using System.Security.Cryptography;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Imaging;
+using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {

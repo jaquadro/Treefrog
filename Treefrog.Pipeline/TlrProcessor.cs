@@ -10,6 +10,9 @@ using Treefrog.Pipeline.Content;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using System.ComponentModel;
+using System.Drawing;
+using Treefrog.Aux;
+using System.Drawing.Imaging;
 
 namespace Treefrog.Pipeline
 {
@@ -38,7 +41,8 @@ namespace Treefrog.Pipeline
             input.Id = TilesetId;
 
             string path = "build\\" + ProjectKey + "_tileset_tex_" + TilesetId + ".png";
-    //        input.TilePool.Export(path);
+            Bitmap image = TextureResourceBitmapExt.CreateBitmap(input.TilePool.TileSource);
+            image.Save(path, ImageFormat.Png);
 
             // the asset name is the entire path, minus extension, after the content directory
             string asset = string.Empty;

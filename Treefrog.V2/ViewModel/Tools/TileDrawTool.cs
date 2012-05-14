@@ -21,7 +21,7 @@ namespace Treefrog.V2.ViewModel.Tools
             _annots = annots;
         }
 
-        public override void StartPointerSequence (PointerEventInfo info)
+        protected override void StartPointerSequenceCore (PointerEventInfo info)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -32,7 +32,7 @@ namespace Treefrog.V2.ViewModel.Tools
             UpdatePointerSequence(info);
         }
 
-        public override void UpdatePointerSequence (PointerEventInfo info)
+        protected override void UpdatePointerSequenceCore (PointerEventInfo info)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -41,7 +41,7 @@ namespace Treefrog.V2.ViewModel.Tools
             }
         }
 
-        public override void EndPointerSequence (PointerEventInfo info)
+        protected override void EndPointerSequenceCore (PointerEventInfo info)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -50,7 +50,7 @@ namespace Treefrog.V2.ViewModel.Tools
             }
         }
 
-        public override void PointerPosition (PointerEventInfo info)
+        protected override void PointerPositionCore (PointerEventInfo info)
         {
             TileCoord location = TileLocation(info);
             if (!TileInRange(location)) {
@@ -61,7 +61,7 @@ namespace Treefrog.V2.ViewModel.Tools
             ShowPreviewMarker(location);
         }
 
-        public override void PointerLeaveField ()
+        protected override void PointerLeaveFieldCore ()
         {
             HidePreviewMarker();
         }

@@ -129,12 +129,12 @@ namespace Treefrog.View.Controls
             //AddObject(@"E:\Workspace\Image Projects\Graphic Rips\Paper Mario 2\Environment Textures\Individual\Creepy Steeple\25.png");
         }
 
-        public event EventHandler<ObjectClassEventArgs> ObjectMouseDown = (s, e) => { };
+        /*public event EventHandler<ObjectClassEventArgs> ObjectMouseDown = (s, e) => { };
 
         protected virtual void OnObjectMouseDown (ObjectClassEventArgs e)
         {
             ObjectMouseDown(this, e);
-        }
+        }*/
 
         private void TileControl_MouseDown (object sender, TileMouseEventArgs e)
         {

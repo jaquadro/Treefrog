@@ -1,12 +1,22 @@
 ﻿using System;
+using System.Globalization;
+using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Imaging
 {
+    [XmlType]
     public struct Rectangle
     {
+        [XmlAttribute]
         public int X;
+
+        [XmlAttribute]
         public int Y;
+
+        [XmlAttribute]
         public int Height;
+
+        [XmlAttribute]
         public int Width;
 
         public int Left
@@ -71,5 +81,51 @@ namespace Treefrog.Framework.Imaging
         {
             return rect.Width <= 0 || rect.Height <= 0;
         }
+
+        public static bool operator == (Rectangle a, Rectangle b)
+        {
+            return a.X == b.X
+                && a.Y == b.Y
+                && a.Width == b.Width
+                && a.Height == b.Height;
+        }
+
+        public static bool operator != (Rectangle a, Rectangle b)
+        {
+            return a.X != b.X
+                || a.Y != b.Y
+                || a.Width != b.Width
+                || a.Height != b.Height;
+        }
+
+        public bool Equals (Rectangle other)
+        {
+            return this.X == other.X
+                && this.Y == other.Y
+                && this.Width == other.Width
+                && this.Height == other.Height;
+        }
+
+        public override bool Equals (object obj)
+        {
+            if (obj is Rectangle)
+                return Equals((Rectangle)obj);
+            return false;
+        }
+
+        public override int GetHashCode ()
+        {
+            return X.GetHashCode() + Y.GetHashCode() + Width.GetHashCode() + Height.GetHashCode();
+        }
+
+        public override string ToString ()
+        {
+            CultureInfo culture = CultureInfo.CurrentCulture;
+            return string.Format(culture, "{{X:{0} Y:{1} W:{2} H:{3}}}", new object[] { 
+                X.ToString(culture), Y.ToString(culture), Width.ToString(culture), Height.ToString(culture)
+            });
+        }
+
+        public static readonly Rectangle Empty = new Rectangle(0, 0, 0, 0);
     }
 }

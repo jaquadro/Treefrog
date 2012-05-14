@@ -28,18 +28,16 @@ namespace Treefrog.V2.ViewModel
             _project.Modified += HandleProjectModified;
             _project.Levels.ResourceAdded += Project_LevelAdded;
 
-            ObjectPool objPool = new ObjectPool("Default");
+            ObjectPool objPool = _project.ObjectPoolManager.CreatePool("Default");
 
-            String path = @"E:\Workspace\Image Projects\Graphic Rips\Paper Mario\Environment Textures\Individual\Boo's Mansion";
-            foreach (string name in Directory.EnumerateFiles(path, "*.bmp")) {
-                Console.WriteLine(Path.Combine(path, name));
+            String path = @"E:\Workspace\Managed\Game\Roots\preview";
+            foreach (string name in Directory.EnumerateFiles(path, "*.png")) {
                 TextureResource tres = TextureResourceBitmapExt.CreateTextureResource(Path.Combine(path, name));
-                ObjectClass objClass = new ObjectClass(name, tres);
+                ObjectClass objClass = new ObjectClass(Path.GetFileNameWithoutExtension(name), tres);
                 objPool.AddObject(objClass);
             }
-            _project.ObjectPools.Add(objPool);
 
-            _objectPoolCollectionVM = new ObjectPoolCollectionVM(_project.ObjectPools);
+            _objectPoolCollectionVM = new ObjectPoolCollectionVM(_project.ObjectPoolManager);
 
             _tilePoolCollectionVM = new TilePoolCollectionVM(_project.TilePoolManager);
             _documents = new ObservableCollection<DocumentVM>();
@@ -139,14 +137,18 @@ namespace Treefrog.V2.ViewModel
             _project.Levels.ResourceAdded += Project_LevelAdded;
 
             _tilePoolCollectionVM = new TilePoolCollectionVM(project.TilePoolManager);
+            _objectPoolCollectionVM = new ObjectPoolCollectionVM(project.ObjectPoolManager);
+
+            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
+            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
+
             _documents = new ObservableCollection<DocumentVM>();
 
             foreach (Level level in project.Levels) {
                 _documents.Add(new LevelDocumentVM(level));
             }
 
-            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
-            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
+            
         }
     }
 }

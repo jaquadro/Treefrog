@@ -108,7 +108,10 @@
     <Compile Include="ViewModel\ToolBars\TileToolBarVM.cs" />
     <Compile Include="ViewModel\Tools\ITileToolCollection.cs" />
     <Compile Include="ViewModel\Tools\ObjectDrawTool.cs" />
+    <Compile Include="ViewModel\Tools\ObjectPointerTool.cs" />
+    <Compile Include="ViewModel\Tools\ObjectSelectTool.cs" />
     <Compile Include="ViewModel\Tools\RubberBand.cs" />
+    <Compile Include="ViewModel\Tools\SnappingManager.cs" />
     <Compile Include="ViewModel\Tools\TileEraseTool.cs" />
     <Compile Include="ViewModel\Tools\TileDrawTool.cs" />
     <Compile Include="ViewModel\Tools\IToolCollection.cs" />
@@ -151,6 +154,7 @@
     <Compile Include="View\VirtualXnaCanvas.xaml.cs">
       <DependentUpon>VirtualXnaCanvas.xaml</DependentUpon>
     </Compile>
+    <None Include="App.config" />
     <None Include="Style.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

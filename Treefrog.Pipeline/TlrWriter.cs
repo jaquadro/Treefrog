@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
-using Treefrog.Pipeline.Content;
-using Treefrog.Framework.Model;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content.Pipeline;
+using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 using Treefrog.Framework;
+using Treefrog.Framework.Model;
+using Treefrog.Pipeline.Content;
 
 namespace Treefrog.Pipeline
 {

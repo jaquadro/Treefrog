@@ -34,4 +34,10 @@ namespace Treefrog.Runtime
             }
         }
     }
+
+    public class ObjectRegistry
+    {
+
+        //private Dictionary<int, ObjectClass> _objectRegistry;
+    }
 }

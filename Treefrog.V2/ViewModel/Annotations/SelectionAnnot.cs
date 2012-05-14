@@ -38,5 +38,18 @@ namespace Treefrog.V2.ViewModel.Annotations
             Start = newStart;
             End = newEnd;
         }
+
+        public void MoveTo (Point location)
+        {
+            int diffX = location.X - Start.X;
+            int diffY = location.Y - Start.Y;
+            MoveBy(diffX, diffY);
+        }
+
+        public void MoveBy (int diffX, int diffY)
+        {
+            Start = new Point(Start.X + diffX, Start.Y + diffY);
+            End = new Point(End.X + diffX, End.Y + diffY);
+        }
     }
 }

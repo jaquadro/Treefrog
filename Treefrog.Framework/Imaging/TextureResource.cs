@@ -2,11 +2,65 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
+using System.IO;
+using System.IO.Compression;
 
 namespace Treefrog.Framework.Imaging
 {
     public class TextureResource
     {
+        public class XmlProxy
+        {
+            private byte[] _data = new byte[0];
+
+            [XmlAttribute]
+            public int Width { get; set; }
+
+            [XmlAttribute]
+            public int Height { get; set; }
+
+            [XmlElement]
+            public byte[] Data
+            {
+                get 
+                {
+                    using (MemoryStream inStr = new MemoryStream(_data)) {
+                        using (MemoryStream outStr = new MemoryStream()) {
+                            using (DeflateStream zStr = new DeflateStream(outStr, CompressionMode.Compress, true)) {
+                                inStr.CopyTo(zStr);
+                            }
+
+                            byte[] data = new byte[outStr.Length];
+                            Array.Copy(outStr.GetBuffer(), data, data.Length);
+                            return data;
+                        }
+                    }
+                }
+
+                set
+                {
+                    using (MemoryStream inStr = new MemoryStream(value)) {
+                        using (MemoryStream outStr = new MemoryStream()) {
+                            using (DeflateStream zStr = new DeflateStream(inStr, CompressionMode.Decompress)) {
+                                zStr.CopyTo(outStr);
+                            }
+
+                            _data = new byte[outStr.Length];
+                            Array.Copy(outStr.GetBuffer(), _data, _data.Length);
+                        }
+                    }
+                }
+            }
+
+            [XmlIgnore]
+            public byte[] RawData
+            {
+                get { return _data; }
+                set { _data = value; }
+            }
+        }
+
         private const int _bytesPerPixel = 4;
 
         private readonly int _width;
@@ -225,6 +279,27 @@ namespace Treefrog.Framework.Imaging
                 rect.Height = bounds.Y + bounds.Height - rect.Y;
 
             return rect;
+        }
+
+        public static XmlProxy ToXmlProxy (TextureResource tex)
+        {
+            if (tex == null)
+                return null;
+
+            return new XmlProxy()
+            {
+                Width = tex._width,
+                Height = tex._height,
+                RawData = tex._data,
+            };
+        }
+
+        public static TextureResource FromXmlProxy (XmlProxy proxy)
+        {
+            if (proxy == null)
+                return null;
+
+            return new TextureResource(proxy.Width, proxy.Height, proxy.RawData, 0);
         }
     }
 }

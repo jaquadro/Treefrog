@@ -63,11 +63,13 @@ namespace Treefrog.Framework.Model
         public int X
         {
             get { return _posX; }
+            set { _posX = value; }
         }
 
         public int Y
         {
             get { return _posY; }
+            set { _posY = value; }
         }
 
         public Rectangle ImageBounds
@@ -78,6 +80,17 @@ namespace Treefrog.Framework.Model
                     _posX - _class.Origin.X + _class.ImageBounds.Left,
                     _posY - _class.Origin.Y + _class.ImageBounds.Top,
                     _class.ImageBounds.Width, _class.ImageBounds.Height);
+            }
+        }
+
+        public Rectangle MaskBounds
+        {
+            get
+            {
+                return new Rectangle(
+                    _posX - _class.Origin.X + _class.MaskBounds.Left,
+                    _posY - _class.Origin.Y + _class.MaskBounds.Top,
+                    _class.MaskBounds.Width, _class.MaskBounds.Height);
             }
         }
 

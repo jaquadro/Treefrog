@@ -8,6 +8,7 @@ using System.IO;
 using System.Xml;
 using Treefrog.Pipeline.Content;
 using Treefrog.Framework.Model.Support;
+using System.Xml.Serialization;
 
 namespace Treefrog.Pipeline
 {
@@ -22,16 +23,51 @@ namespace Treefrog.Pipeline
 
             string asset = context.OutputFilename.Remove(context.OutputFilename.LastIndexOf('.')).Substring(context.OutputDirectory.Length);
 
+            // Stage and bulid Object Pools
+
+            Dictionary<ObjectPool, string> objectPoolAssetIndex = new Dictionary<ObjectPool, string>();
+
+            int id = 0;
+            foreach (ObjectPool pool in input.ObjectPoolManager.Pools) {
+                string asset_reg = asset + "_objectpool_" + id;
+                string build_reg = "build\\" + asset_reg + ".tlo";
+
+                Project poolContent = new Project();
+                poolContent.ObjectPoolManager.Pools.Add(pool);
+
+                using (FileStream fs = File.Create(build_reg)) {
+                    XmlWriter writer = XmlTextWriter.Create(fs);
+                    XmlSerializer ser = new XmlSerializer(typeof(ProjectXmlProxy));
+                    ser.Serialize(writer, Project.ToXmlProxy(poolContent));
+                    writer.Close();
+                }
+
+                OpaqueDataDictionary data = new OpaqueDataDictionary();
+                data.Add("ProjectKey", asset);
+                data.Add("ObjectPoolKey", pool.Name);
+                data.Add("ObjectPoolId", id);
+
+                context.BuildAsset<ObjectRegistryContent, ObjectRegistryContent>(
+                    new ExternalReference<ObjectRegistryContent>(build_reg),
+                    "TloProcessor",
+                    data,
+                    "TloImporter",
+                    asset_reg);
+
+                objectPoolAssetIndex[pool] = asset_reg;
+                id++;
+            }
+
             // Stage and build Tile Pools
 
             Dictionary<TilePool, string> tilesetAssetIndex = new Dictionary<TilePool, string>();
 
-            int id = 0;
+            id = 0;
             foreach (TilePool pool in input.TilePools) {
                 string asset_reg = asset + "_tileset_map_" + id;
                 string build_reg = "build\\" + asset_reg + ".tlr";
 
-                using (FileStream fs = new FileStream(build_reg, FileMode.OpenOrCreate, FileAccess.Write)) {
+                using (FileStream fs = File.Create(build_reg)) {
                     XmlWriter writer = XmlTextWriter.Create(fs);
                     input.WriteXmlTilesets(writer);
                     writer.Close();
@@ -68,9 +104,17 @@ namespace Treefrog.Pipeline
                     poolAssets.Add(tilesetAssetIndex[pool]);
                 }
 
-                using (FileStream fs = new FileStream(build_level, FileMode.OpenOrCreate, FileAccess.Write)) {
+                List<ObjectPool> objectPools = ObjectPoolsByLevel(level);
+                List<string> objectPoolAssets = new List<string>();
+                foreach (ObjectPool pool in objectPools) {
+                    objectPoolAssets.Add(objectPoolAssetIndex[pool]);
+                }
+
+                using (FileStream fs = File.Create(build_level)) {
                     XmlWriter writer = XmlTextWriter.Create(fs);
-                    input.WriteXml(writer);
+                    XmlSerializer ser = new XmlSerializer(typeof(ProjectXmlProxy));
+                    ser.Serialize(writer, Project.ToXmlProxy(input));
+                    //input.WriteXml(writer);
                     writer.Close();
                 }
 
@@ -78,6 +122,7 @@ namespace Treefrog.Pipeline
                 data.Add("ProjectKey", asset);
                 data.Add("LevelKey", level.Name);
                 data.Add("TilesetAssets", string.Join(";", poolAssets));
+                data.Add("ObjectPoolAssets", string.Join(";", objectPoolAssets));
 
                 context.BuildAsset<LevelContent, LevelContent>(
                     new ExternalReference<LevelContent>(build_level),
@@ -110,6 +155,25 @@ namespace Treefrog.Pipeline
                     foreach (LocatedTile t in tileLayer.Tiles) {
                         if (!pools.Contains(t.Tile.Pool)) {
                             pools.Add(t.Tile.Pool);
+                        }
+                    }
+                }
+            }
+
+            return pools;
+        }
+
+        private List<ObjectPool> ObjectPoolsByLevel (Level level)
+        {
+            List<ObjectPool> pools = new List<ObjectPool>();
+
+            foreach (Layer layer in level.Layers) {
+                ObjectLayer objLayer = layer as ObjectLayer;
+                if (objLayer != null) {
+                    foreach (ObjectInstance inst in objLayer.Objects) {
+                        ObjectPool pool = level.Project.ObjectPoolManager.PoolFromItemKey(inst.ObjectClass.Id);
+                        if (!pools.Contains(pool)) {
+                            pools.Add(pool);
                         }
                     }
                 }

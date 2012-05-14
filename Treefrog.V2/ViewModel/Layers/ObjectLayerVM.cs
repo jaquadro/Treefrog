@@ -5,17 +5,22 @@ using System.Text;
 using GalaSoft.MvvmLight;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
-using Treefrog.Framework.Imaging;
-using System.Windows;
 using XRectangle = Microsoft.Xna.Framework.Rectangle;
 using XColor = Microsoft.Xna.Framework.Color;
 using Treefrog.V2.ViewModel.Tools;
+using System.ComponentModel;
+using Treefrog.Framework.Imaging;
+
+using Rect = System.Windows.Rect;
 
 namespace Treefrog.V2.ViewModel.Layers
 {
     public class ObjectLayerVM : LevelLayerVM
     {
+        private ObjectPoolManagerService _poolService;
         private ObservableDictionary<string, TextureResource> _textures;
+
+        private Size _gridSize = new Size(16, 16);
 
         public ObjectLayerVM (LevelDocumentVM level, ObjectLayer layer, ViewportVM viewport)
             : base(level, layer, viewport)
@@ -31,6 +36,8 @@ namespace Treefrog.V2.ViewModel.Layers
 
         private void Initialize ()
         {
+            SetupPoolService();
+
             _textures = new ObservableDictionary<string, TextureResource>();
 
             if (Layer != null && Layer.Level != null && Layer.Level.Project != null) {
@@ -42,7 +49,25 @@ namespace Treefrog.V2.ViewModel.Layers
                 Layer.ObjectAdded += HandleObjectAdded;
             }
 
-            _currentTool = new ObjectDrawTool(Level.CommandHistory, Layer as ObjectLayer, Level.Annotations);
+            _currentTool = new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+        }
+
+        private void SetupPoolService ()
+        {
+            if (_poolService == null) {
+                _poolService = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<ObjectPoolManagerService>();
+                if (_poolService != null)
+                    _poolService.PropertyChanged += HandlePoolServicePropertyChanged;
+            }
+        }
+
+        private void HandlePoolServicePropertyChanged (object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ActiveObjectClass" && _poolService.ActiveObjectClass != null) {
+                if (_currentTool != null)
+                    _currentTool.Cancel();
+                _currentTool = new ObjectDrawTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+            }
         }
 
         private void HandleObjectAdded (object sender, ObjectInstanceEventArgs e)
@@ -70,7 +95,7 @@ namespace Treefrog.V2.ViewModel.Layers
                     (int)Math.Ceiling(region.Width),
                     (int)Math.Ceiling(region.Height));
 
-                foreach (ObjectInstance inst in Layer.ObjectsInRegion(castRegion)) {
+                foreach (ObjectInstance inst in Layer.ObjectsInRegion(castRegion, ObjectRegionTest.PartialImage)) {
                     Rectangle srcRect = inst.ObjectClass.ImageBounds;
                     Rectangle dstRect = inst.ImageBounds;
                     yield return new DrawCommand()
@@ -100,6 +125,8 @@ namespace Treefrog.V2.ViewModel.Layers
 
         public override void HandleStartPointerSequence (PointerEventInfo info)
         {
+            SetupPoolService();
+
             if (_currentTool != null)
                 _currentTool.StartPointerSequence(info);
         }
@@ -114,6 +141,9 @@ namespace Treefrog.V2.ViewModel.Layers
         {
             if (_currentTool != null)
                 _currentTool.EndPointerSequence(info);
+
+            if (_currentTool is ObjectDrawTool && _currentTool.IsCancelled)
+                _currentTool = new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
         }
 
         public override void HandlePointerPosition (PointerEventInfo info)

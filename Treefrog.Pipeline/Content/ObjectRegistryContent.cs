@@ -6,23 +6,21 @@ using Treefrog.Framework.Model;
 
 namespace Treefrog.Pipeline.Content
 {
-    public class LevelContent
+    public class ObjectRegistryContent
     {
-        public LevelContent (Project project)
+        public ObjectRegistryContent (Project project)
         {
             Project = project;
         }
 
         public short Version
         {
-            get { return 1; }
+            get { return 0; }
         }
 
         public Project Project { get; private set; }
-        public Level Level { get; set; }
-
-        public List<string> TilesetAssets { get; set; }
-        public List<string> ObjectPoolAssets { get; set; }
+        public ObjectPool ObjectPool { get; set; }
+        public int Id { get; set; }
 
         public string Filename { get; set; }
         public string Directory { get; set; }

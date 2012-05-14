@@ -6,17 +6,96 @@ using System;
 
 namespace Treefrog.Framework
 {
+    public class KeyProviderException : Exception
+    {
+        public KeyProviderException ()
+            : base() { }
+
+        public KeyProviderException (string message)
+            : base(message) { }
+    }
+
+    public class KeyProviderEventArgs<TKey> : EventArgs
+    {
+        public TKey OldValue { get; private set; }
+        public TKey NewValue { get; private set; }
+
+        public KeyProviderEventArgs (TKey oldValue, TKey newValue)
+        {
+            OldValue = oldValue;
+            NewValue = newValue;
+        }
+    }
+
     public interface IKeyProvider<TKey>
     {
         TKey GetKey ();
+
+        event EventHandler<KeyProviderEventArgs<TKey>> KeyChanging;
+        event EventHandler<KeyProviderEventArgs<TKey>> KeyChanged;
     }
 
-    public class KeyProviderObservableCollection<TKey, TItem> : KeyedObservableCollection<TKey, TItem>
+    public class NamedObservableCollection<TItem> : KeyProviderObservableCollection<string, TItem>
+        where TItem : IKeyProvider<string>
+    {
+    }
+
+    public class KeyProviderObservableCollection<TKey, TItem> : KeyedObservableCollection<TKey, TItem>, IDisposable
         where TItem : IKeyProvider<TKey>
     {
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            ClearItems();
+        }
+
         protected override TKey GetKeyForItem (TItem item)
         {
             return item.GetKey();
+        }
+
+        protected override void ClearItems ()
+        {
+            foreach (TItem item in this)
+                item.KeyChanging -= HandleKeyChanging;
+            base.ClearItems();
+        }
+
+        protected override void InsertItem (int index, TItem item)
+        {
+            if (item != null)
+                item.KeyChanging += HandleKeyChanging;
+            base.InsertItem(index, item);
+        }
+
+        protected override void RemoveItem (int index)
+        {
+            TItem item = base[index];
+            if (item != null)
+                item.KeyChanging -= HandleKeyChanging;
+            base.RemoveItem(index);
+        }
+
+        protected override void SetItem (int index, TItem item)
+        {
+            TItem oldItem = base[index];
+            if (oldItem != null)
+                oldItem.KeyChanging -= HandleKeyChanging;
+            if (item != null)
+                item.KeyChanging += HandleKeyChanging;
+            base.SetItem(index, item);
+        }
+
+        private void HandleKeyChanging (object sender, KeyProviderEventArgs<TKey> e)
+        {
+            if (base.Contains(e.NewValue))
+                throw new KeyProviderException("The collection already has a key with value '" + e.NewValue + "'");
+            base.ChangeItemKey(base[e.OldValue], e.NewValue);
         }
     }
 

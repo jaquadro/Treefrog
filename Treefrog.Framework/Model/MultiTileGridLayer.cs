@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
@@ -35,6 +36,69 @@ namespace Treefrog.Framework.Model
                     }
                 }
             }
+        }
+
+        public MultiTileGridLayer (MultiTileGridLayerXmlProxy proxy, Level level)
+            : this(proxy.Name, level.TileWidth, level.TileHeight, level.TilesWide, level.TilesHigh)
+        {
+            Opacity = proxy.Opacity;
+            IsVisible = proxy.Visible;
+            Level = level;
+
+            foreach (TileStackXmlProxy tileProxy in proxy.Tiles) {
+                string[] coords = tileProxy.At.Split(new char[] { ',' });
+                string[] ids = tileProxy.Items.Split(new char[] { ',' });
+
+                TilePoolManager manager = Level.Project.TilePoolManager;
+
+                foreach (string id in ids) {
+                    int tileId = Convert.ToInt32(id);
+
+                    TilePool pool = manager.PoolFromTileId(tileId);
+                    Tile tile = pool.GetTile(tileId);
+
+                    AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
+                }
+            }
+
+            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
+                CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+        }
+
+        public static MultiTileGridLayerXmlProxy ToXmlProxy (MultiTileGridLayer layer)
+        {
+            if (layer == null)
+                return null;
+
+            List<TileStackXmlProxy> tiles = new List<TileStackXmlProxy>();
+            foreach (LocatedTileStack ts in layer.TileStacks) {
+                if (ts.Stack != null && ts.Stack.Count > 0) {
+                    List<int> ids = new List<int>();
+                    foreach (Tile tile in ts.Stack) {
+                        ids.Add(tile.Id);
+                    }
+                    string idSet = String.Join(",", ids);
+
+                    tiles.Add(new TileStackXmlProxy()
+                    {
+                        At = ts.X + "," + ts.Y,
+                        Items = idSet,
+                    });
+                }
+            }
+
+            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
+            foreach (Property prop in layer.CustomProperties)
+                props.Add(Property.ToXmlProxy(prop));
+
+            return new MultiTileGridLayerXmlProxy()
+            {
+                Name = layer.Name,
+                Opacity = layer.Opacity,
+                Visible = layer.IsVisible,
+                Tiles = tiles.Count > 0 ? tiles : null,
+                Properties = props.Count > 0 ? props : null,
+            };
         }
 
         #endregion
@@ -303,5 +367,9 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        
     }
+
+    
 }

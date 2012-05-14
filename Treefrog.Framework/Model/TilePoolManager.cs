@@ -3,9 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Treefrog.Framework.Imaging;
+using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
+    [XmlRoot("TilePools")]
+    public class TilePoolManagerXmlProxy
+    {
+        [XmlAttribute]
+        public int LastKey { get; set; }
+
+        [XmlElement("TilePool")]
+        public TilePoolXmlProxy[] Pools { get; set; }
+    }
+
     public class TilePoolManager
     {
         private int _lastId = 0;
@@ -78,6 +89,36 @@ namespace Treefrog.Framework.Model
         internal void UnlinkTile (int id)
         {
             _tileIndexMap.Remove(id);
+        }
+
+        public static TilePoolManagerXmlProxy ToXmlProxy (TilePoolManager manager)
+        {
+            if (manager == null)
+                return null;
+
+            List<TilePoolXmlProxy> pools = new List<TilePoolXmlProxy>();
+            foreach (TilePool pool in manager.Pools)
+                pools.Add(TilePool.ToXmlProxy(pool));
+
+            return new TilePoolManagerXmlProxy()
+            {
+                LastKey = manager.LastId,
+                Pools = pools.ToArray(),
+            };
+        }
+
+        public static TilePoolManager FromXmlProxy (TilePoolManagerXmlProxy proxy)
+        {
+            if (proxy == null)
+                return null;
+
+            TilePoolManager manager = new TilePoolManager();
+
+            if (proxy.Pools != null)
+                foreach (TilePoolXmlProxy pool in proxy.Pools)
+                    TilePool.FromXmlProxy(pool, manager);
+
+            return manager;
         }
     }
 }

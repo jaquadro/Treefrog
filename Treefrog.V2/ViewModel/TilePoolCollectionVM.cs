@@ -18,10 +18,11 @@ using GalaSoft.MvvmLight.Messaging;
 using Treefrog.Aux;
 using Treefrog.Framework.Imaging;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace Treefrog.V2.ViewModel
 {
-    public interface TilePoolManagerService
+    public interface TilePoolManagerService : INotifyPropertyChanged
     {
         TilePoolVM ActiveTilePool { get; }
         TilePoolItemVM ActiveTile { get; }
@@ -62,8 +63,9 @@ namespace Treefrog.V2.ViewModel
                 _manager.Pools.ResourceRemoved -= HandlePoolRemoved;
                 _manager = null;
 
+                ChangeActiveTilePool(null);
+
                 _tilePools.Clear();
-                ActiveTilePool = null;
 
                 RefreshCommandState();
             }
@@ -114,22 +116,32 @@ namespace Treefrog.V2.ViewModel
             get { return _tilePools.Count > 0; }
         }
 
-        private TilePoolVM _selected;
+        public TextureResource SelectedBitmapSource
+        {
+            get
+            {
+                if (_activeTilePool == null)
+                    return null;
+                return _activeTilePool.BitmapSource;
+            }
+        }
+
+        #region TilePoolManagerService
+
+        private TilePoolVM _activeTilePool;
 
         public TilePoolVM ActiveTilePool
         {
-            get { return _selected; }
+            get { return _activeTilePool; }
             set
             {
-                if (_selected != value) {
-                    _selected = value;
-                    RaisePropertyChanged("ActiveTilePool");
-                    RaisePropertyChanged("SelectedBitmapSource");
+                if (_activeTilePool != value) {
+                    ChangeActiveTilePool(value);
                     RefreshCommandState();
 
-                    if (_selected != null) {
+                    if (_activeTilePool != null) {
                         PropertyManagerService service = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<PropertyManagerService>();
-                        service.ActiveProvider = _manager.Pools[_selected.Name];
+                        service.ActiveProvider = _manager.Pools[_activeTilePool.Name];
                     }
                 }
             }
@@ -146,15 +158,27 @@ namespace Treefrog.V2.ViewModel
             }
         }
 
-        public TextureResource SelectedBitmapSource
+        private void ChangeActiveTilePool (TilePoolVM newPool)
         {
-            get
-            {
-                if (_selected == null)
-                    return null;
-                return _selected.BitmapSource;
-            }
+            if (_activeTilePool != null)
+                _activeTilePool.PropertyChanged -= HandleActiveTilePropertyChanged;
+
+            _activeTilePool = newPool;
+            if (_activeTilePool != null)
+                _activeTilePool.PropertyChanged += HandleActiveTilePropertyChanged;
+
+            RaisePropertyChanged("ActiveTilePool");
+            RaisePropertyChanged("ActiveTile");
+            RaisePropertyChanged("SelectedBitmapSource");
         }
+
+        private void HandleActiveTilePropertyChanged (object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "SelectedTile")
+                RaisePropertyChanged("ActiveTile");
+        }
+
+        #endregion
 
         #region Commands
 

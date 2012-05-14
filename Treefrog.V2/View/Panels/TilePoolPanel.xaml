@@ -26,17 +26,17 @@
 
             <StackPanel Grid.Row="0">
                 <ComboBox x:Name="tilePoolList" HorizontalAlignment="Stretch" ItemsSource="{Binding TilePools}" Margin="2" SelectedItem="{Binding ActiveTilePool}"
-                          DisplayMemberPath="Name" SelectedValuePath="Name" Style="{StaticResource {x:Static ToolBar.ComboBoxStyleKey}}" IsEnabled="{Binding HasTilePools}">
+                          DisplayMemberPath="Name" SelectedValuePath="Name" Style="{StaticResource {x:Static ToolBar.ComboBoxStyleKey}}" IsEnabled="{Binding HasTilePools}" IsTabStop="False">
                 </ComboBox>
             </StackPanel>
 
             <ToolBarTray Grid.Row="1" IsLocked="True">
                 <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
-                    <Button Command="{Binding ImportPoolCommand}" IsEnabled="{Binding IsImportPoolEnabled}">
+                    <Button Command="{Binding ImportPoolCommand}" IsEnabled="{Binding IsImportPoolEnabled}" IsTabStop="False">
                         <Image Source="/Treefrog.V2;component/Images/16/plus.png"
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
-                    <Button Command="{Binding RemovePoolCommand}" IsEnabled="{Binding IsRemovePoolEnabled}">
+                    <Button Command="{Binding RemovePoolCommand}" IsEnabled="{Binding IsRemovePoolEnabled}" IsTabStop="False">
                         <Image Source="/Treefrog.V2;component/Images/16/minus.png" 
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>

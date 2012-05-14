@@ -1,9 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
+    public class PropertyXmlProxy
+    {
+        [XmlAttribute]
+        public string Name { get; set; }
+
+        [XmlText]
+        public string Value { get; set; }
+    }
+
     /// <summary>
     /// A generic named property base class.
     /// </summary>
@@ -177,6 +187,26 @@ namespace Treefrog.Framework.Model
         public abstract object Clone ();
 
         #endregion
+
+        public static Property FromXmlProxy (PropertyXmlProxy proxy)
+        {
+            if (proxy == null)
+                return null;
+
+            return new StringProperty(proxy.Name, proxy.Value);
+        }
+
+        public static PropertyXmlProxy ToXmlProxy (Property property)
+        {
+            if (property == null)
+                return null;
+
+            return new PropertyXmlProxy()
+            {
+                Name = property.Name,
+                Value = property.ToString(),
+            };
+        }
     }
 
     /// <summary>

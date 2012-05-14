@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Treefrog.V2.View.Panels"
+             xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             xmlns:vm="clr-namespace:Treefrog.V2.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" UseLayoutRounding="True">
     <UserControl.Resources>
@@ -49,27 +51,216 @@
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Separator />
-                    <Menu>
-                        <MenuItem>
+                    <Menu Background="Transparent" IsTabStop="False">
+                        <Menu.Resources>
+                            <local:SnappingSourceToIconFilenameConverter x:Key="SnapSourceIconConverter" />
+                            <local:SnappingSourceToTooltipConverter x:Key="SnapSourceTooltipConverter" />
+                        </Menu.Resources>
+                        <MenuItem Margin="0" Padding="2" Header="{Binding}">
                             <MenuItem.HeaderTemplate>
                                 <DataTemplate>
-                                    <Image Source="/Treefrog.V2;component/Images/16/icons-large.png" 
-                                           Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="8" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Width="16" Height="16" 
+                                               Source="{Binding SelectedSnappingSource, Converter={StaticResource SnapSourceIconConverter}}" 
+                                               ToolTip="{Binding SelectedSnappingSource, Converter={StaticResource SnapSourceTooltipConverter}}" />
+                                        <Grid Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Path Fill="Black" Data="M 0 0 L 3 3 L 6 0 Z" />
+                                        </Grid>
+                                    </Grid>
                                 </DataTemplate>
                             </MenuItem.HeaderTemplate>
-                            <MenuItem Header="Large Icons" IsChecked="False">
+                            <MenuItem Header="Snap to Image Bounds" 
+                                      Command="{Binding SelectObjectSourceCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingSource.ImageBounds}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-borders.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to Mask Bounds"
+                                      Command="{Binding SelectObjectSourceCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingSource.MaskBounds}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-bounds.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to Origin"
+                                      Command="{Binding SelectObjectSourceCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingSource.Origin}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-origin.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+                    </Menu>
+                    <Menu Background="Transparent" IsTabStop="False">
+                        <Menu.Resources>
+                            <local:SnappingTargetToIconFilenameConverter x:Key="SnapTargetIconConverter" />
+                            <local:SnappingTargetToTooltipConverter x:Key="SnapTargetTooltipConverter" />
+                        </Menu.Resources>
+                        <MenuItem Margin="0" Padding="2" Header="{Binding}">
+                            <MenuItem.HeaderTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="8" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Width="16" Height="16" 
+                                               Source="{Binding SelectedSnappingTarget, Converter={StaticResource SnapTargetIconConverter}}" 
+                                               ToolTip="{Binding SelectedSnappingTarget, Converter={StaticResource SnapTargetTooltipConverter}}" />
+                                        <Grid Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Path Fill="Black" Data="M 0 0 L 3 3 L 6 0 Z" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </MenuItem.HeaderTemplate>
+                            <MenuItem Header="Do not snap" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.None}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-none.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to top-left corner" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.TopLeft}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-topleft.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to top-right corner" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.TopRight}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-topright.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to bottom-left corner" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.BottomLeft}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-bottomleft.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to bottom-right corner" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.BottomRight}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-bottomright.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to top edge" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.Top}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-top.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to bottom edge" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.Bottom}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-bottom.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to left edge" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.Left}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-left.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to right edge" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.Right}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-right.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap between top and bottom edges" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.CenterHorizontal}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-horizontal.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap between left and right edges" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.CenterVertical}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-vertical.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Snap to center" 
+                                      Command="{Binding SelectSnappingTargetCommand}" 
+                                      CommandParameter="{x:Static vm:ObjectSnappingTarget.Center}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog.V2;component/Images/16/snap-center.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+                    </Menu>
+                    <Separator />
+                    <Menu Background="Transparent" IsTabStop="False">
+                        <Menu.Resources>
+                            <local:PreviewSizeToIconFilenameConverter x:Key="PreviewSizeIconConverter" />
+                            <local:PreviewSizeToTooltipConverter x:Key="PreviewSizeTooltipConverter" />
+                        </Menu.Resources>
+                        <MenuItem Margin="0" Padding="2" Header="{Binding}">
+                            <MenuItem.HeaderTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="8" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Width="16" Height="16" 
+                                               Source="{Binding PreviewSize, Converter={StaticResource PreviewSizeIconConverter}}" 
+                                               ToolTip="{Binding PreviewSize, Converter={StaticResource PreviewSizeTooltipConverter}}" />
+                                        <Grid Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Path Fill="Black" Data="M 0 0 L 3 3 L 6 0 Z" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </MenuItem.HeaderTemplate>
+                            <MenuItem Header="Show large icons" 
+                                      Command="{Binding PreviewSizeCommand}" 
+                                      CommandParameter="{x:Static vm:PreviewSize.Large}">
                                 <MenuItem.Icon>
                                     <Image Source="/Treefrog.V2;component/Images/16/icons-large.png" 
                                             Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Medium Icons">
+                            <MenuItem Header="Show medium icons" 
+                                      Command="{Binding PreviewSizeCommand}" 
+                                      CommandParameter="{x:Static vm:PreviewSize.Medium}">
                                 <MenuItem.Icon>
                                     <Image Source="/Treefrog.V2;component/Images/16/icons-medium.png" 
                                             Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Small Icons">
+                            <MenuItem Header="Show small icons" 
+                                      Command="{Binding PreviewSizeCommand}" 
+                                      CommandParameter="{x:Static vm:PreviewSize.Small}">
                                 <MenuItem.Icon>
                                     <Image Source="/Treefrog.V2;component/Images/16/icons-small.png" 
                                             Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
@@ -85,6 +276,7 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#555">
                 <ListBox.Resources>
                     <local:TextureResourceToBitmapSourceConverter x:Key="BitmapConverter" />
+                    <local:PreviewSizeToDimensionConverter x:Key="PreviewSizeDimConverter" />
                 </ListBox.Resources>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -93,7 +285,10 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderThickness="0" Margin="0,2,2,2" Width="96" Height="96" Background="#666" ToolTip="{Binding Name}">
+                        <Border BorderThickness="0" Margin="0,2,2,2" 
+                                Width="{Binding Parent.Parent.PreviewSize, Converter={StaticResource PreviewSizeDimConverter}}" 
+                                Height="{Binding Parent.Parent.PreviewSize, Converter={StaticResource PreviewSizeDimConverter}}" 
+                                Background="#666" ToolTip="{Binding Name}">
                             <Image Source="{Binding ImageSource, Converter={StaticResource BitmapConverter}}" StretchDirection="DownOnly" />
                         </Border>
                     </DataTemplate>

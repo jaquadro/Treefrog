@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model.Collections;
+using System.Collections.Specialized;
+using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectClassEventArgs : EventArgs
+    [XmlRoot("ObjectPool")]
+    public class ObjectPoolXmlProxy
     {
-        public ObjectClass ObjectClass { get; private set; }
+        [XmlAttribute]
+        public string Name { get; set; }
 
-        public ObjectClassEventArgs (ObjectClass objectClass)
-        {
-            ObjectClass = objectClass;
-        }
+        [XmlArray]
+        [XmlArrayItem("ObjectClass")]
+        public List<ObjectClassXmlProxy> ObjectClasses { get; set; }
     }
 
-    public class ObjectPool : INamedResource, IEnumerable<ObjectClass>, IPropertyProvider
+    public class ObjectPool : IKeyProvider<string>, IEnumerable<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
@@ -24,25 +28,30 @@ namespace Treefrog.Framework.Model
 
         private string _name;
 
-        private NamedResourceCollection<ObjectClass> _objects;
+        private ObjectPoolManager _manager;
+
+        private NamedObservableCollection<ObjectClass> _objects;
 
         private PropertyCollection _properties;
         private ObjectPoolProperties _predefinedProperties;
 
         #endregion
 
-        public ObjectPool (string name)
+        protected ObjectPool ()
         {
-            _name = name;
-            _objects = new NamedResourceCollection<ObjectClass>();
+            _objects = new NamedObservableCollection<ObjectClass>();
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectPoolProperties(this);
 
             _properties.Modified += Properties_Modified;
+            _objects.CollectionChanged += HandleCollectionChanged;
+        }
 
-            _objects.ResourceAdded += Objects_ResourceAdded;
-            _objects.ResourceRemoved += Objects_ResourceRemoved;
-            _objects.ResourceModified += Objects_ResourceModified;
+        public ObjectPool (string name, ObjectPoolManager manager)
+            : this()
+        {
+            _name = name;
+            _manager = manager;
         }
 
         public int Count
@@ -52,66 +61,96 @@ namespace Treefrog.Framework.Model
 
         public void AddObject (ObjectClass objClass)
         {
+            int id = _manager.TakeKey();
+            AddObject(objClass, id);
+        }
+
+        public void AddObject (ObjectClass objClass, int id)
+        {
             if (_objects.Contains(objClass.Name))
                 throw new ArgumentException("Object Pool already contains an object with the same name as objClass.");
             _objects.Add(objClass);
+
+            objClass.Id = id;
+
+            _manager.LinkItemKey(id, this);
+            if (_manager.LastKey < id)
+                _manager.LastKey = id;
         }
 
         public void RemoveObject (string name)
         {
-            _objects.Remove(name);
+            if (_objects.Contains(name)) {
+                ObjectClass objClass = _objects[name];
+                _manager.UnlinkItemKey(objClass.Id);
+
+                _objects.Remove(name);
+            }
         }
 
-        public NamedResourceCollection<ObjectClass> Objects
+        public NamedObservableCollection<ObjectClass> Objects
         {
             get { return _objects; }
         }
 
-        public event EventHandler<ObjectClassEventArgs> ObjectAdded = (s, e) => { };
-
-        public event EventHandler<ObjectClassEventArgs> ObjectRemoved = (s, e) => { };
-
-        public event EventHandler<ObjectClassEventArgs> ObjectModified = (s, e) => { };
-
-        protected virtual void OnObjectAdded (ObjectClassEventArgs e)
+        private void HandleCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
         {
-            ObjectAdded(this, e);
-            OnModified(e);
-        }
-
-        protected virtual void OnObjectRemoved (ObjectClassEventArgs e)
-        {
-            ObjectRemoved(this, e);
-            OnModified(e);
-        }
-
-        protected virtual void OnObjectModified (ObjectClassEventArgs e)
-        {
-            ObjectModified(this, e);
-            OnModified(e);
+            //OnModified(EventArgs.Empty);
+            RaisePropertyChanged("Objects");
         }
 
         private void Properties_Modified (object sender, EventArgs e)
         {
-            OnModified(e);
+            //OnModified(e);
+            RaisePropertyChanged("Objects");
         }
 
-        private void Objects_ResourceAdded (object sender, NamedResourceEventArgs<ObjectClass> e)
+        public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
+        public event EventHandler<KeyProviderEventArgs<string>> KeyChanged;
+
+        protected virtual void OnKeyChanging (KeyProviderEventArgs<string> e)
         {
-            OnObjectAdded(new ObjectClassEventArgs(e.Resource));
+            if (KeyChanging != null)
+                KeyChanging(this, e);
         }
 
-        private void Objects_ResourceRemoved (object sender, NamedResourceEventArgs<ObjectClass> e)
+        protected virtual void OnKeyChanged (KeyProviderEventArgs<string> e)
         {
-            OnObjectRemoved(new ObjectClassEventArgs(e.Resource));
+            if (KeyChanged != null)
+                KeyChanged(this, e);
         }
 
-        private void Objects_ResourceModified (object sender, NamedResourceEventArgs<ObjectClass> e)
+        public string GetKey ()
         {
-            OnObjectModified(new ObjectClassEventArgs(e.Resource));
+            return Name;
         }
 
-        #region INamedResource Members
+        public string Name
+        {
+            get { return _name; }
+        }
+
+        public bool SetName (string name)
+        {
+            if (_name != name) {
+                KeyProviderEventArgs<string> e = new KeyProviderEventArgs<string>(_name, name);
+                try {
+                    OnKeyChanging(e);
+                }
+                catch (KeyProviderException) {
+                    return false;
+                }
+
+                _name = name;
+                OnKeyChanged(e);
+                OnPropertyProviderNameChanged(EventArgs.Empty);
+                RaisePropertyChanged("Name");
+            }
+
+            return true;
+        }
+
+        /*#region INamedResource Members
 
         public string Name
         {
@@ -154,7 +193,7 @@ namespace Treefrog.Framework.Model
             Modified(this, e);
         }
 
-        #endregion
+        #endregion*/
 
         #region IEnumerable<ObjectClass> Members
 
@@ -247,9 +286,58 @@ namespace Treefrog.Framework.Model
         private void NameProperty_ValueChanged (object sender, EventArgs e)
         {
             StringProperty property = sender as StringProperty;
-            Name = property.Value;
+            SetName(property.Value);
         }
 
         #endregion
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged (PropertyChangedEventArgs e)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, e);
+        }
+
+        private void RaisePropertyChanged (string name)
+        {
+            OnPropertyChanged(new PropertyChangedEventArgs(name));
+        }
+
+        #endregion
+
+        public static ObjectPoolXmlProxy ToXmlProxy (ObjectPool pool)
+        {
+            if (pool == null)
+                return null;
+
+            List<ObjectClassXmlProxy> objects = new List<ObjectClassXmlProxy>();
+            foreach (ObjectClass objClass in pool._objects) {
+                ObjectClassXmlProxy classProxy = ObjectClass.ToXmlProxy(objClass);
+                objects.Add(classProxy);
+            }
+
+            return new ObjectPoolXmlProxy()
+            {
+                Name = pool._name,
+                ObjectClasses = objects,
+            };
+        }
+
+        public static ObjectPool FromXmlProxy (ObjectPoolXmlProxy proxy, ObjectPoolManager manager)
+        {
+            if (proxy == null)
+                return null;
+
+            ObjectPool pool = manager.CreatePool(proxy.Name);
+            foreach (ObjectClassXmlProxy objClass in proxy.ObjectClasses) {
+                ObjectClass inst = ObjectClass.FromXmlProxy(objClass);
+                pool.AddObject(inst, objClass.Id);
+            }
+
+            return pool;
+        }
     }
 }
