@@ -21,6 +21,7 @@ namespace Treefrog.Pipeline
 
             output.Write((short)pool.Count);
             foreach (ObjectClass objClass in pool.Objects) {
+                output.Write((short)objClass.Id);
                 output.Write(objClass.Name);
 
                 //WritePropertyBlock(output, objClass.CustomProperties);

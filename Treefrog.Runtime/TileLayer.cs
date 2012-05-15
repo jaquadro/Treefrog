@@ -8,10 +8,65 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.Runtime
 {
+    public class ObjectInstance
+    {
+        private ObjectPool _objectPool;
+
+        public ObjectInstance (ObjectPool objectPool, int id, int x, int y)
+        {
+            _objectPool = objectPool;
+            Id = id;
+            X = x;
+            Y = y;
+        }
+
+        public int Id { get; private set; }
+
+        public int X { get; private set; }
+        public int Y { get; private set; }
+
+        public ObjectPool ObjectPool 
+        {
+            get { return _objectPool; }
+        }
+
+        public ObjectClass ObjectClass
+        {
+            get { return _objectPool.ObjectClasses[Id]; }
+        }
+    }
+
+    public class ObjectLayer : Layer
+    {
+        private ObjectRegistry _registry;
+        private List<ObjectInstance> _objects;
+
+        internal ObjectLayer (ContentReader reader, ObjectRegistry registry)
+            : base(reader)
+        {
+            _registry = registry;
+            _objects = new List<ObjectInstance>();
+
+            int objCount = reader.ReadInt32();
+            for (int i = 0; i < objCount; i++) {
+                int dx = reader.ReadInt32();
+                int dy = reader.ReadInt32();
+                int id = reader.ReadInt16();
+
+                _objects.Add(new ObjectInstance(_registry.GetObjectPool(id), id, dx, dy));
+            }
+        }
+
+        public List<ObjectInstance> Objects
+        {
+            get { return _objects; }
+        }
+    }
+
     public class TileLayer : Layer
     {
-        private TileGrid _tiles;
         private TileRegistry _registry;
+        private TileGrid _tiles;
 
         public int TileHeight { get; private set; }
 

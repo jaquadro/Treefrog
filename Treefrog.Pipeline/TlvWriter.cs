@@ -112,8 +112,8 @@ namespace Treefrog.Pipeline
 
             output.Write(objcount);
             foreach (ObjectInstance inst in layer.Objects) {
-                output.Write((short)inst.X);
-                output.Write((short)inst.Y);
+                output.Write(inst.X);
+                output.Write(inst.Y);
                 output.Write((short)inst.ObjectClass.Id);
 
                 //WritePropertyBlock(output, inst.CustomProperties);

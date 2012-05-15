@@ -36,7 +36,7 @@ namespace Treefrog.Pipeline
 
             input.Level = input.Project.Levels[LevelKey];
             input.TilesetAssets = new List<string>(assets.Split(new char[] { ';' }));
-            input.ObjectPoolAssets = new List<string>(assets.Split(new char[] { ';' }));
+            input.ObjectPoolAssets = new List<string>(objectPoolAssets.Split(new char[] { ';' }));
 
             return input;
         }

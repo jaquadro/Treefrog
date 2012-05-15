@@ -378,13 +378,17 @@ namespace Treefrog.Aux
 
         public static Bitmap CreateBitmap (this TextureResource self)
         {
-            Bitmap bmp = new Bitmap(self.Width, self.Height, PixelFormat.Format32bppArgb);
+            TextureResource tex = self.Crop(self.Bounds);
 
-            Rectangle rect = new Rectangle(0, 0, self.Width, self.Height);
+            tex.Apply(c => { return new TFColor(c.B, c.G, c.R, c.A); });
+
+            Bitmap bmp = new Bitmap(tex.Width, tex.Height, PixelFormat.Format32bppArgb);
+
+            Rectangle rect = new Rectangle(0, 0, tex.Width, tex.Height);
             BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.WriteOnly, bmp.PixelFormat);
 
             IntPtr ptr = bmpData.Scan0;
-            Marshal.Copy(self.RawData, 0, ptr, self.RawData.Length);
+            Marshal.Copy(tex.RawData, 0, ptr, tex.RawData.Length);
 
             bmp.UnlockBits(bmpData);
 

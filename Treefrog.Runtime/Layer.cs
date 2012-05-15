@@ -10,6 +10,8 @@ namespace Treefrog.Runtime
 {
     public class Layer
     {
+        public int Id { get; private set; }
+
         public string Name { get; private set; }
 
         public bool Visible { get; set; }
@@ -29,7 +31,7 @@ namespace Treefrog.Runtime
             ScaleX = 1f;
             ScaleY = 1f;
 
-            int id = reader.ReadInt16();
+            Id = reader.ReadInt16();
             Name = reader.ReadString();
             Visible = reader.ReadBoolean();
             Opacity = reader.ReadSingle();
