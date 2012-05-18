@@ -19,12 +19,4 @@ namespace Treefrog.Runtime
             return new Tileset(input);
         }
     }
-
-    public class ObjectPoolReader : ContentTypeReader<ObjectPool>
-    {
-        protected override ObjectPool Read (ContentReader input, ObjectPool existingInstance)
-        {
-            return new ObjectPool(input);
-        }
-    }
 }
