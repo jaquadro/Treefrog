@@ -72,7 +72,7 @@ namespace Treefrog.V2.ViewModel
         private void OnSelectionChanged ()
         {
             if (SelectedLayer != null) {
-                PropertyManagerService service = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<PropertyManagerService>();
+                PropertyManagerService service = ServiceContainer.Default.GetService<PropertyManagerService>();
                 service.ActiveProvider = _layers[SelectedLayer.LayerName];
             }
 

@@ -12,7 +12,7 @@
     <AssemblyName>GalaSoft.MvvmLight</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>GalaSoft.MvvmLight.snk</AssemblyOriginatorKeyFile>
     <SccProjectName>
     </SccProjectName>
@@ -106,7 +106,6 @@
     <Compile Include="Command\RelayCommand.cs" />
     <Compile Include="Command\RelayCommandGeneric.cs" />
     <Compile Include="Properties\AssemblyInfo.Net35.cs" />
-    <Compile Include="ServiceContainer.cs" />
     <Compile Include="Threading\DispatcherHelper.cs" />
     <Compile Include="ViewModelBase.cs" />
   </ItemGroup>
@@ -137,6 +136,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Treefrog.Framework\Treefrog.Framework.csproj">
+      <Project>{DFDC210B-3181-4F4D-92B9-6FCDE456697B}</Project>
+      <Name>Treefrog.Framework</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

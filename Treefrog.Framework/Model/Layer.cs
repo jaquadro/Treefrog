@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
 using System.Xml;
 using Treefrog.Framework.Model.Collections;
 
@@ -79,7 +76,7 @@ namespace Treefrog.Framework.Model
             get { return _opacity; }
             set
             {
-                float opac = MathHelper.Clamp(value, 0f, 1f);
+                float opac = Math.Min(1f, Math.Max(0f, value));
                 if (_opacity != opac) {
                     _opacity = opac;
 
@@ -138,7 +135,7 @@ namespace Treefrog.Framework.Model
         private void OpacityPropertyChangedHandler (object sender, EventArgs e)
         {
             NumberProperty property = sender as NumberProperty;
-            _opacity = MathHelper.Clamp(property.Value, 0f, 1f);
+            _opacity = Math.Min(1f, Math.Max(0f, property.Value));
 
             OnOpacityChanged(e);
             OnModified(e);
@@ -314,7 +311,7 @@ namespace Treefrog.Framework.Model
             }
 
             if (attribs.ContainsKey("opacity")) {
-                layer._opacity = MathHelper.Clamp(Convert.ToSingle(attribs["opacity"]), 0f, 1f);
+                layer._opacity = Math.Min(1f, Math.Max(0f, Convert.ToSingle(attribs["opacity"])));
             }
 
             if (attribs.ContainsKey("visible")) {

@@ -106,14 +106,14 @@ namespace Treefrog.Presentation.Layers
 
             Vector2 offset = BeginDraw(spriteBatch);
 
-            foreach (LocatedTile locTile in _layer.TilesAt(tileRegion)) {
+            /*foreach (LocatedTile locTile in _layer.TilesAt(tileRegion)) {
                 Rectangle dest = new Rectangle(
                     locTile.X * (int)(_layer.TileWidth * Control.Zoom),
                     locTile.Y * (int)(_layer.TileHeight * Control.Zoom),
                     (int)(_layer.TileWidth * Control.Zoom),
                     (int)(_layer.TileHeight * Control.Zoom));
                 //locTile.Tile.Draw(spriteBatch, dest);
-            }
+            }*/
 
             EndDraw(spriteBatch);
 

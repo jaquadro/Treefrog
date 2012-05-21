@@ -116,7 +116,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\LayerTests.cs" />
-    <Compile Include="MockGraphicsDeviceService.cs" />
     <Compile Include="Model\Collections\PropertyCollectionTests.cs" />
     <Compile Include="Model\PropertyTests.cs" />
     <None Include="Model\TileGridLayerTests.cs" />

@@ -15,23 +15,9 @@ namespace Treefrog.Pipeline
     {
         public override Project Import (string filename, ContentImporterContext context)
         {
-            Form form = new Form();
-
-            PresentationParameters presentation = new PresentationParameters();
-            presentation.DeviceWindowHandle = form.Handle;
-
-            GraphicsAdapter.UseReferenceDevice = true;
-            GraphicsAdapter.UseNullDevice = true;
-
-            GraphicsDevice device = new GraphicsDevice(
-                GraphicsAdapter.DefaultAdapter,
-                GraphicsProfile.Reach,
-                presentation
-                );
-
             Project project;
             using (FileStream fs = File.OpenRead(filename)) {
-                project = Project.Open(fs, device);
+                project = Project.Open(fs);
             }
 
             //project.Filename = filename;

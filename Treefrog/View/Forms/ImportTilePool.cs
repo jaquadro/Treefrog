@@ -20,7 +20,7 @@ namespace Treefrog.View.Forms
         LayerControl _layerControl;
         TileSetControlLayer _tileLayer;
 
-        TileRegistry _localRegistry;
+        //TileRegistry _localRegistry;
         Stream _fileStream;
 
         int _width;
@@ -47,7 +47,7 @@ namespace Treefrog.View.Forms
             _previewPanel.Controls.Add(_layerControl);
 
             GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
-            _localRegistry = new TileRegistry(gds.GraphicsDevice);
+            //_localRegistry = new TileRegistry(gds.GraphicsDevice);
 
             _message.Text = "";
 
@@ -78,7 +78,7 @@ namespace Treefrog.View.Forms
 
                         FileInfo();
 
-                        LoadFile();
+                        //LoadFile();
                         CheckValid();
                     }
                 }
@@ -90,7 +90,7 @@ namespace Treefrog.View.Forms
 
         private void _buttonOK_Click (object sender, EventArgs e)
         {
-            TilePool pool = LoadFile();
+            /*TilePool pool = LoadFile();
             if (pool != null) {
                 if (_checkboxTransColor.Checked) {
                     Color c = _buttonTransColor.Color;
@@ -99,7 +99,7 @@ namespace Treefrog.View.Forms
                 _project.TilePools.Add(pool);
             }
 
-            Close();
+            Close();*/
         }
 
         private void _buttonCancel_Click (object sender, EventArgs e)
@@ -109,22 +109,22 @@ namespace Treefrog.View.Forms
             }
         }
 
-        private TilePool LoadFile ()
+        /*private TilePool LoadFile ()
         {
             return LoadFile(_localRegistry);
-        }
+        }*/
 
         private void FileInfo ()
         {
-            Texture2D source = Texture2D.FromStream(_localRegistry.GraphicsDevice, _fileStream);
+            //Texture2D source = Texture2D.FromStream(_localRegistry.GraphicsDevice, _fileStream);
 
-            _width = source.Width;
-            _height = source.Height;
+            //_width = source.Width;
+            //_height = source.Height;
 
             _fileStream.Position = 0;
         }
 
-        private TilePool LoadFile (TileRegistry registry)
+        /*private TilePool LoadFile (TileRegistry registry)
         {
             if (_fileStream == null) {
                 return null;
@@ -138,10 +138,6 @@ namespace Treefrog.View.Forms
 
             _localRegistry.Reset();
 
-            TilePool preview = null; /* TilePool.Import(_textName.Text, registry, _fileStream,
-                 (int)_numTileWidth.Value, (int)_numTileHeight.Value,
-                 (int)_numXSpacing.Value, (int)_numYSpacing.Value,
-                 (int)_numXMargin.Value, (int)_numYMargin.Value);*/
             //TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
             _tileLayer.Layer = new TileSetLayer("Preview", preview);
@@ -154,7 +150,7 @@ namespace Treefrog.View.Forms
             _countUniqueTiles.Text = preview.Count.ToString();
 
             return preview;
-        }
+        }*/
 
         private void ButtonTransColorClickHandler (object sender, EventArgs e)
         {
@@ -185,32 +181,32 @@ namespace Treefrog.View.Forms
 
         private void _numTileHeight_ValueChanged (object sender, EventArgs e)
         {
-            LoadFile();
+            //LoadFile();
         }
 
         private void _numTileWidth_ValueChanged (object sender, EventArgs e)
         {
-            LoadFile();
+            //LoadFile();
         }
 
         private void _numXSpacing_ValueChanged (object sender, EventArgs e)
         {
-            LoadFile();
+            //LoadFile();
         }
 
         private void _numYSpacing_ValueChanged (object sender, EventArgs e)
         {
-            LoadFile();
+            //LoadFile();
         }
 
         private void _numXMargin_ValueChanged (object sender, EventArgs e)
         {
-            LoadFile();
+            //LoadFile();
         }
 
         private void _numYMargin_ValueChanged (object sender, EventArgs e)
         {
-            LoadFile();
+            //LoadFile();
         }
 
         private void _textName_TextChanged (object sender, EventArgs e)

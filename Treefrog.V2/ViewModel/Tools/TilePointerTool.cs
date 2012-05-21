@@ -36,7 +36,7 @@ namespace Treefrog.V2.ViewModel.Tools
             get
             {
                 if (_poolManager == null) {
-                    _poolManager = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<TilePoolManagerService>();
+                    _poolManager = ServiceContainer.Default.GetService<TilePoolManagerService>();
                     if (_poolManager == null)
                         return null;
                 }

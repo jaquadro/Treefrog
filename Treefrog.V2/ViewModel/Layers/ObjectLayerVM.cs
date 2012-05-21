@@ -5,8 +5,6 @@ using System.Text;
 using GalaSoft.MvvmLight;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
-using XRectangle = Microsoft.Xna.Framework.Rectangle;
-using XColor = Microsoft.Xna.Framework.Color;
 using Treefrog.V2.ViewModel.Tools;
 using System.ComponentModel;
 using Treefrog.Framework.Imaging;
@@ -55,7 +53,7 @@ namespace Treefrog.V2.ViewModel.Layers
         private void SetupPoolService ()
         {
             if (_poolService == null) {
-                _poolService = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<ObjectPoolManagerService>();
+                _poolService = ServiceContainer.Default.GetService<ObjectPoolManagerService>();
                 if (_poolService != null)
                     _poolService.PropertyChanged += HandlePoolServicePropertyChanged;
             }
@@ -101,13 +99,13 @@ namespace Treefrog.V2.ViewModel.Layers
                     yield return new DrawCommand()
                     {
                         Texture = inst.ObjectClass.Name,
-                        SourceRect = new XRectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height),
-                        DestRect = new XRectangle(
+                        SourceRect = new Rectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height),
+                        DestRect = new Rectangle(
                             (int)(dstRect.X * Viewport.ZoomFactor), 
                             (int)(dstRect.Y * Viewport.ZoomFactor), 
                             (int)(dstRect.Width * Viewport.ZoomFactor), 
                             (int)(dstRect.Height * Viewport.ZoomFactor)),
-                        BlendColor = XColor.White,
+                        BlendColor = Colors.White,
                     };
                 }
             }

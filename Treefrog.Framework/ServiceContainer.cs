@@ -5,30 +5,62 @@ namespace Treefrog.Framework
 {
     public class ServiceContainer : IServiceProvider
     {
-        private Dictionary<Type, object> _services = new Dictionary<Type, object>();
+        private static readonly ServiceContainer _default = new ServiceContainer();
 
-        public void AddService<T> (T service)
+        private readonly object _lock;
+        private readonly Dictionary<Type, object> _registry;
+
+        public ServiceContainer ()
         {
-            _services.Add(typeof(T), service);
+            _lock = new object();
+            _registry = new Dictionary<Type, object>();
         }
 
-        public void AddService (Type serviceType, object provider)
+        public static ServiceContainer Default
         {
-            _services.Add(serviceType, provider);
+            get { return _default; }
+        }
+
+        public void AddService (Type serviceType, object service)
+        {
+            lock (_lock) {
+                _registry[serviceType] = service;
+            }
+        }
+
+        public void AddService<TService> (TService service)
+        {
+            lock (_lock) {
+                _registry[typeof(TService)] = service;
+            }
         }
 
         public object GetService (Type serviceType)
         {
             object service;
-
-            _services.TryGetValue(serviceType, out service);
-
+            lock (_lock) {
+                _registry.TryGetValue(serviceType, out service);
+            }
             return service;
         }
 
-        public void RemoveService (Type serviceType)
+        public TService GetService<TService> ()
+            where TService : class
         {
-            _services.Remove(serviceType);
+            object service;
+            lock (_lock) {
+                _registry.TryGetValue(typeof(TService), out service);
+            }
+            return service as TService;
+        }
+    }
+
+    public static class IServiceProviderExtensions
+    {
+        public static TService GetService<TService> (this IServiceProvider container)
+            where TService : class
+        {
+            return container.GetService(typeof(TService)) as TService;
         }
     }
 }

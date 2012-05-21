@@ -32,6 +32,24 @@ namespace Treefrog.V2.ViewModel
             foreach (Tile tile in _tilePool) {
                 _tiles.Add(new TilePoolItemVM(tile));
             }
+
+            _tilePool.TileAdded += HandleTileAdded;
+            _tilePool.TileRemoved -= HandleTileRemoved;
+        }
+
+        private void HandleTileAdded (object sender, TileEventArgs e)
+        {
+            _tiles.Add(new TilePoolItemVM(e.Tile));
+        }
+
+        private void HandleTileRemoved (object sender, TileEventArgs e)
+        {
+            foreach (TilePoolItemVM vm in _tiles) {
+                if (vm.Tile.Id == e.Tile.Id) {
+                    _tiles.Remove(vm);
+                    break;
+                }
+            }
         }
 
         public TilePool TilePool
@@ -56,7 +74,7 @@ namespace Treefrog.V2.ViewModel
                     RaisePropertyChanged("SelectedTile");
 
                     if (_selected != null) {
-                        PropertyManagerService service = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<PropertyManagerService>();
+                        PropertyManagerService service = ServiceContainer.Default.GetService<PropertyManagerService>();
                         service.ActiveProvider = _selected.Tile;
                     }
                 }

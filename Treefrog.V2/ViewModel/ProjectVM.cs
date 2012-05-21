@@ -63,8 +63,8 @@ namespace Treefrog.V2.ViewModel
 
             _project.Levels.Add(lv);
 
-            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
-            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
+            ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
+            ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
         }
 
         public ProjectVM (Project project)
@@ -139,8 +139,8 @@ namespace Treefrog.V2.ViewModel
             _tilePoolCollectionVM = new TilePoolCollectionVM(project.TilePoolManager);
             _objectPoolCollectionVM = new ObjectPoolCollectionVM(project.ObjectPoolManager);
 
-            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
-            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
+            ServiceContainer.Default.AddService<TilePoolManagerService>(_tilePoolCollectionVM);
+            ServiceContainer.Default.AddService<ObjectPoolManagerService>(_objectPoolCollectionVM);
 
             _documents = new ObservableCollection<DocumentVM>();
 

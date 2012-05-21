@@ -140,7 +140,7 @@ namespace Treefrog.V2.ViewModel
                     RefreshCommandState();
 
                     if (_activeTilePool != null) {
-                        PropertyManagerService service = GalaSoft.MvvmLight.ServiceContainer.Default.GetService<PropertyManagerService>();
+                        PropertyManagerService service = ServiceContainer.Default.GetService<PropertyManagerService>();
                         service.ActiveProvider = _manager.Pools[_activeTilePool.Name];
                     }
                 }
@@ -222,7 +222,7 @@ namespace Treefrog.V2.ViewModel
                     SpaceY = vm.TileSpaceY ?? 0,
                     MarginX = vm.TileMarginX ?? 0,
                     MarginY = vm.TileMarginY ?? 0,
-                    ImportPolicty = TileImportPolicy.ImprotAll,
+                    ImportPolicty = TileImportPolicy.SetUnique,
                 };
 
                 using (Bitmap source = new Bitmap(vm.SourceFile)) {
@@ -237,7 +237,22 @@ namespace Treefrog.V2.ViewModel
                         });
                     }
 
-                    _manager.ImportTilePool(vm.TilePoolName, resource, options);
+                    if (vm.ImportMode == ImportTilePoolDialogVM.TileImportMode.Create) {
+                        _manager.ImportTilePool(vm.TilePoolName, resource, options);
+                    }
+                    else if (vm.ImportMode == ImportTilePoolDialogVM.TileImportMode.Merge) {
+                        TilePoolVM mergeTarget = null;
+                        foreach (TilePoolVM pool in _tilePools) {
+                            if (pool.Name == vm.MergeTarget) {
+                                mergeTarget = pool;
+                                break;
+                            }
+                        }
+
+                        if (mergeTarget != null) {
+                            mergeTarget.TilePool.ImportMerge(resource, options);
+                        }
+                    }
                 }
             }
         }

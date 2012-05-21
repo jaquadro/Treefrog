@@ -16,6 +16,7 @@ using GalaSoft.MvvmLight;
 using Treefrog.V2.Messages;
 using Treefrog.V2.ViewModel.Dialogs;
 using Treefrog.V2.View.Dialogs;
+using Treefrog.Framework;
 
 namespace Treefrog.V2
 {

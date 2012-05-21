@@ -27,6 +27,7 @@ using System.Linq.Expressions;
 using PropertyChangedEventArgs = Windows.UI.Xaml.Data.PropertyChangedEventArgs;
 #else
 using System.Windows;
+using Treefrog.Framework;
 #endif
 
 ////using GalaSoft.Utilities.Attributes;

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace Treefrog.Framework.Model
 {
     using Support;
+    using Treefrog.Framework.Imaging;
 
     public class LocatedTileEventArgs : TileEventArgs 
     {

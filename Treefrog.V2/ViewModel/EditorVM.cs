@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Windows;
 using Treefrog.V2.ViewModel.Commands;
+using Treefrog.Framework;
 
 namespace Treefrog.V2.ViewModel
 {
@@ -29,7 +30,7 @@ namespace Treefrog.V2.ViewModel
             _tileToolBar = new TileToolBarVM(_tileMenu);
             _propertyCollection = new PropertyCollectionVM();
 
-            GalaSoft.MvvmLight.ServiceContainer.Default.AddService<PropertyManagerService>(_propertyCollection);
+            ServiceContainer.Default.AddService<PropertyManagerService>(_propertyCollection);
 
             _selectedZoom = 16;
 
@@ -151,7 +152,7 @@ namespace Treefrog.V2.ViewModel
                 return;
 
             using (FileStream stream = File.OpenRead(path)) {
-                Treefrog.Framework.Model.Project project = Treefrog.Framework.Model.Project.Open(stream, null);
+                Treefrog.Framework.Model.Project project = Treefrog.Framework.Model.Project.Open(stream);
                 _project = new ProjectVM(project);
 
                 if (_project.Documents.Count > 0) {

@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
 using Treefrog.Framework;
-
-using TextureResource = Treefrog.Framework.Imaging.TextureResource;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.V2.ViewModel.Layers
 {

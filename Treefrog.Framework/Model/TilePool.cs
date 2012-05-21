@@ -8,12 +8,13 @@ using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Imaging;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using System.Security.Cryptography;
 
 namespace Treefrog.Framework.Model
 {
     public enum TileImportPolicy
     {
-        ImprotAll,      // Import all tiles, including duplicate tiles in source
+        ImportAll,      // Import all tiles, including duplicate tiles in source
         SourceUnique,   // Import each unique tile in source
         SetUnique,      // Import each unique tile in source that is not already in set
     }
@@ -391,6 +392,26 @@ namespace Treefrog.Framework.Model
             _tileSource = newTex;
         }
 
+        private void RecalculateOpenLocations ()
+        {
+            _openLocations.Clear();
+
+            int factorX = _tileSource.Width / _tileWidth;
+            int factorY = _tileSource.Height / _tileHeight;
+
+            HashSet<TileCoord> usedKeys = new HashSet<TileCoord>();
+            foreach (TileCoord coord in _locations.Values)
+                usedKeys.Add(coord);
+
+            for (int y = 0; y < factorY; y++) {
+                for (int x = 0; x < factorX; x++) {
+                    if (!usedKeys.Contains(new TileCoord(x, y))) {
+                        _openLocations.Add(new TileCoord(x, y));
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Import / Export
@@ -435,15 +456,38 @@ namespace Treefrog.Framework.Model
             int tilesWide = (image.Width - options.MarginX) / (_tileWidth + options.SpaceX);
             int tilesHigh = (image.Height - options.MarginY) / (_tileHeight + options.SpaceY);
 
-            for (int y = 0; y < tilesHigh; y++) {
-                for (int x = 0; x < tilesWide; x++) {
-                    Rectangle srcLoc = new Rectangle(
-                        options.MarginX + x * (_tileWidth + options.SpaceX), 
-                        options.MarginY + y * (_tileHeight + options.SpaceY), 
-                        _tileWidth, _tileHeight);
+            Dictionary<string, Tile> existingHashes = new Dictionary<string, Tile>();
+            Dictionary<string, Tile> newHashes = new Dictionary<string,Tile>();
 
-                    TextureResource tileTex = image.Crop(srcLoc);
-                    AddTile(tileTex, _manager.TakeId());
+            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider()) {
+                foreach (Tile tile in _tiles.Values) {
+                    TextureResource tileTex = GetTileTexture(tile.Id);
+                    string hash = Convert.ToBase64String(sha1.ComputeHash(tileTex.RawData));
+                    existingHashes[hash] = tile;
+                }
+
+                for (int y = 0; y < tilesHigh; y++) {
+                    for (int x = 0; x < tilesWide; x++) {
+                        Rectangle srcLoc = new Rectangle(
+                            options.MarginX + x * (_tileWidth + options.SpaceX),
+                            options.MarginY + y * (_tileHeight + options.SpaceY),
+                            _tileWidth, _tileHeight);
+
+                        TextureResource tileTex = image.Crop(srcLoc);
+                        string hash = Convert.ToBase64String(sha1.ComputeHash(tileTex.RawData));
+
+                        if (options.ImportPolicty == TileImportPolicy.SourceUnique && newHashes.ContainsKey(hash))
+                            continue;
+                        else if (options.ImportPolicty == TileImportPolicy.SetUnique && existingHashes.ContainsKey(hash))
+                            continue;
+
+                        int newTileId = _manager.TakeId();
+                        AddTile(tileTex, newTileId);
+
+                        Tile newTile = _tiles[newTileId];
+                        existingHashes[hash] = newTile;
+                        newHashes[hash] = newTile;
+                    }
                 }
             }
         }
@@ -919,11 +963,18 @@ namespace Treefrog.Framework.Model
             TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
             pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
 
+            pool._tileSource.Apply(c =>
+            {
+                return (c.A == 0) ? Colors.Transparent : c;
+            });
+
             foreach (TileDefXmlProxy tiledef in proxy.TileDefinitions)
                 FromXmlProxy(tiledef, pool);
 
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
                 pool.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+            pool.RecalculateOpenLocations();
 
             return pool;
         }

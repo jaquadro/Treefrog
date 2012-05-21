@@ -11,6 +11,7 @@ using Treefrog.V2.ViewModel.Dialogs;
 using Treefrog.V2.Messages;
 using Treefrog.V2.ViewModel.Commands;
 using System.ComponentModel;
+using Treefrog.Framework;
 
 namespace Treefrog.V2.ViewModel.Menu
 {
@@ -74,7 +75,11 @@ namespace Treefrog.V2.ViewModel.Menu
         {
             IOService service = ServiceProvider.GetService<IOService>();
             if (service != null) {
-                string path = service.OpenFileDialog("");
+                string path = service.OpenFileDialog(new OpenFileOptions()
+                {
+                    Filter = "Treefrog Projects|*.tlp|All Files|*",
+                    FilterIndex = 0,
+                });
 
                 _editor.OpenProject(path);
             }
@@ -106,7 +111,11 @@ namespace Treefrog.V2.ViewModel.Menu
             if (String.IsNullOrEmpty(_editor.ProjectFile)) {
                 IOService service = ServiceProvider.GetService<IOService>();
                 if (service != null) {
-                    string path = service.SaveFileDialog("");
+                    string path = service.SaveFileDialog(new SaveFileOptions()
+                    {
+                        Filter = "Treefrog Projects|*.tlp|All Files|*",
+                        FilterIndex = 0,
+                    });
 
                     _editor.SaveProject(path);
                 }

@@ -8,6 +8,7 @@ using GalaSoft.MvvmLight.Command;
 using Treefrog.Aux;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
+using Treefrog.Framework;
 
 namespace Treefrog.V2.ViewModel.Dialogs
 {
@@ -61,9 +62,9 @@ namespace Treefrog.V2.ViewModel.Dialogs
                     TestValidState(() =>
                     {
                         _sourceFile = value;
-                        RaisePropertyChanged("SourceFile");
-
                         LoadTilePreview(value);
+
+                        RaisePropertyChanged("SourceFile");
                     });
                 }
             }
@@ -92,7 +93,11 @@ namespace Treefrog.V2.ViewModel.Dialogs
         {
             IOService service = ServiceProvider.GetService<IOService>();
             if (service != null) {
-                string path = service.OpenFileDialog("");
+                string path = service.OpenFileDialog(new OpenFileOptions()
+                {
+                    Filter = "Image Files|*.png;*.gif;*.bmp|All Files|*",
+                    FilterIndex = 0,
+                });
 
                 SourceFile = path;
             }
@@ -326,6 +331,7 @@ namespace Treefrog.V2.ViewModel.Dialogs
             get
             {
                 return ValidateTilePoolName() == null
+                    && ValidateMergeTarget() == null
                     && ValidateSourceFile() == null
                     && ValidateTileHeight() == null
                     && ValidateTileWidth() == null
@@ -338,10 +344,21 @@ namespace Treefrog.V2.ViewModel.Dialogs
 
         private string ValidateTilePoolName ()
         {
-            if (string.IsNullOrWhiteSpace(_name))
-                return "Tile Pool Name must not be empty";
-            if (_reservedNames.Contains(_name))
-                return "Tile Pool Name conflicts with another Tile Pool";
+            if (_mode == TileImportMode.Create) {
+                if (string.IsNullOrWhiteSpace(_name))
+                    return "Tile Pool Name must not be empty";
+                if (_reservedNames.Contains(_name))
+                    return "Tile Pool Name conflicts with another Tile Pool";
+            }
+            return null;
+        }
+
+        private string ValidateMergeTarget ()
+        {
+            if (_mode == TileImportMode.Merge) {
+                if (string.IsNullOrWhiteSpace(_mergeTarget))
+                    return "Merge Target must be selected.";
+            }
             return null;
         }
 
@@ -489,6 +506,10 @@ namespace Treefrog.V2.ViewModel.Dialogs
         private TilePool _tilePool;
         private TilePoolVM _poolVM;
 
+        private int _tilesWide;
+        private int _tilesHigh;
+        private int _tilesUnique;
+
         public ObservableCollection<TilePoolItemVM> Tiles
         {
             get { return _poolVM.Tiles; }
@@ -525,7 +546,7 @@ namespace Treefrog.V2.ViewModel.Dialogs
                     SpaceY = _tileSpaceY ?? 0,
                     MarginX = _tileMarginX ?? 0,
                     MarginY = _tileMarginY ?? 0,
-                    ImportPolicty = TileImportPolicy.ImprotAll,
+                    ImportPolicty = TileImportPolicy.SetUnique,
                 };
                 _manager = new TilePoolManager();
                 _manager.ImportTilePool("preview", resource, options);
@@ -535,9 +556,44 @@ namespace Treefrog.V2.ViewModel.Dialogs
 
                 _sourceFileValid = true;
                 RaisePropertyChanged("Tiles");
+
+                // Stats
+                TilesWide = (resource.Width - options.MarginX) / (options.TileWidth + options.SpaceX);
+                TilesHigh = (resource.Height - options.MarginY) / (options.TileHeight + options.SpaceY);
+                UniqueTiles = _tilePool.Count;
             }
             catch (Exception) {
                 _sourceFileValid = false;
+            }
+        }
+
+        public int TilesWide
+        {
+            get { return _tilesWide; }
+            private set
+            {
+                _tilesWide = value;
+                RaisePropertyChanged("TilesWide");
+            }
+        }
+
+        public int TilesHigh
+        {
+            get { return _tilesHigh; }
+            private set
+            {
+                _tilesHigh = value;
+                RaisePropertyChanged("TilesHigh");
+            }
+        }
+
+        public int UniqueTiles
+        {
+            get { return _tilesUnique; }
+            private set
+            {
+                _tilesUnique = value;
+                RaisePropertyChanged("UniqueTiles");
             }
         }
 
@@ -548,6 +604,50 @@ namespace Treefrog.V2.ViewModel.Dialogs
 
             if (_sourceFileValid)
                 LoadTilePreview(_sourceFile);
+        }
+
+        #endregion
+
+        #region Creation Type
+
+        public enum TileImportMode {
+            Create,
+            Merge,
+        };
+
+        private TileImportMode _mode;
+        private string _mergeTarget;
+
+        public TileImportMode ImportMode
+        {
+            get { return _mode; }
+            set
+            {
+                if (_mode != value) {
+                    _mode = value;
+                    RaisePropertyChanged("ImportMode");
+                    RaisePropertyChanged("TilePoolName");
+                    RaisePropertyChanged("IsValid");
+                }
+            }
+        }
+
+        public List<string> ExistingPools
+        {
+            get { return _reservedNames; }
+        }
+
+        public string MergeTarget
+        {
+            get { return _mergeTarget; }
+            set
+            {
+                if (_mergeTarget != value) {
+                    _mergeTarget = value;
+                    RaisePropertyChanged("MergeTarget");
+                    RaisePropertyChanged("IsValid");
+                }
+            }
         }
 
         #endregion

@@ -71,8 +71,10 @@
     <Compile Include="Controls\Layers\GroupLayer.cs" />
     <Compile Include="Controls\Layers\RenderLayer.cs" />
     <Compile Include="Controls\Layers\XnaTileLayer.cs" />
+    <Compile Include="Converters\EnumBoolConverter.cs" />
     <Compile Include="Converters\StringToIntNull.cs" />
     <Compile Include="Messages\BlockingDialogMessage.cs" />
+    <Compile Include="TreefrogAux.cs" />
     <Compile Include="ViewModel\Annotations\SelectionAnnot.cs" />
     <Compile Include="ViewModel\Commands\Command.cs" />
     <Compile Include="ViewModel\Commands\CommandHistory.cs" />

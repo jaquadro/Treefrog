@@ -7,20 +7,37 @@ using Microsoft.Win32;
 
 namespace Treefrog.V2
 {
+    public abstract class FileOptions
+    {
+        public string InitialDirectory { get; set; }
+        public string Filter { get; set; }
+        public int FilterIndex { get; set; }
+    }
+
+    public class OpenFileOptions : FileOptions
+    {
+    }
+
+    public class SaveFileOptions : FileOptions
+    {
+    }
+
     public interface IOService
     {
-        string OpenFileDialog (string defaultPath);
+        string OpenFileDialog (OpenFileOptions options);
 
-        string SaveFileDialog (string defaultPath);
+        string SaveFileDialog (SaveFileOptions options);
     }
 
     public class DefaultIOService : IOService
     {
-        public string OpenFileDialog (string defaultPath)
+        public string OpenFileDialog (OpenFileOptions options)
         {
             OpenFileDialog dlg = new OpenFileDialog()
             {
-                InitialDirectory = defaultPath,
+                InitialDirectory = options.InitialDirectory,
+                Filter = options.Filter,
+                FilterIndex = options.FilterIndex,
                 Multiselect = false,
             };
 
@@ -30,11 +47,13 @@ namespace Treefrog.V2
                 return null;
         }
 
-        public string SaveFileDialog (string defaultPath)
+        public string SaveFileDialog (SaveFileOptions options)
         {
             SaveFileDialog dlg = new SaveFileDialog()
             {
-                InitialDirectory = defaultPath,
+                InitialDirectory = options.InitialDirectory,
+                Filter = options.Filter,
+                FilterIndex = options.FilterIndex,
             };
 
             if (dlg.ShowDialog() == true)

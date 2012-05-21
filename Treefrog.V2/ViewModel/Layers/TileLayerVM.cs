@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using Microsoft.Xna.Framework;
 using Treefrog.Framework.Model.Support;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
@@ -11,6 +10,7 @@ using Treefrog.Framework;
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 using Treefrog.V2.ViewModel.Tools;
 using Treefrog.V2.ViewModel.Menu;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.V2.ViewModel.Layers
 {
@@ -34,6 +34,11 @@ namespace Treefrog.V2.ViewModel.Layers
         public void Dispose ()
         {
             if (_manager != null) {
+                foreach (TilePool pool in _manager.Pools) {
+                    pool.Modified -= HandlePoolModified;
+                    pool.NameChanged -= HandlePoolNameChanged;
+                }
+
                 _manager.Pools.ResourceAdded -= HandleTilePoolAdded;
                 _manager.Pools.ResourceRemoved -= HandleTilePoolRemoved;
                 _manager = null;
@@ -51,8 +56,11 @@ namespace Treefrog.V2.ViewModel.Layers
                 _manager.Pools.ResourceAdded += HandleTilePoolAdded;
                 _manager.Pools.ResourceRemoved += HandleTilePoolRemoved;
 
-                foreach (TilePool pool in _manager.Pools)
+                foreach (TilePool pool in _manager.Pools) {
                     _textures[pool.Name] = pool.TileSource;
+                    pool.Modified += HandlePoolModified;
+                    pool.NameChanged += HandlePoolNameChanged;
+                }
             }
 
             _currentTool = new TileDrawTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
@@ -61,11 +69,30 @@ namespace Treefrog.V2.ViewModel.Layers
         private void HandleTilePoolAdded (object sender, NamedResourceEventArgs<TilePool> e)
         {
             _textures[e.Resource.Name] = e.Resource.TileSource;
+            e.Resource.Modified += HandlePoolModified;
+            e.Resource.NameChanged += HandlePoolNameChanged;
         }
 
         private void HandleTilePoolRemoved (object sender, NamedResourceEventArgs<TilePool> e)
         {
             _textures.Remove(e.Resource.Name);
+            e.Resource.Modified -= HandlePoolModified;
+            e.Resource.NameChanged -= HandlePoolNameChanged;
+        }
+
+        private void HandlePoolModified (object sender, EventArgs e)
+        {
+            TilePool pool = sender as TilePool;
+            if (pool != null) {
+                _textures.Remove(pool.Name);
+                _textures.Add(pool.Name, pool.TileSource);
+            }
+        }
+
+        private void HandlePoolNameChanged (object sender, NameChangedEventArgs e)
+        {
+            _textures.Remove(e.OldName);
+            _textures.Add(e.NewName, _manager.Pools[e.NewName].TileSource);
         }
 
         protected new TileGridLayer Layer
@@ -112,7 +139,7 @@ namespace Treefrog.V2.ViewModel.Layers
                             (int)(tile.Y * tile.Tile.Height * Viewport.ZoomFactor), 
                             (int)(tile.Tile.Width * Viewport.ZoomFactor), 
                             (int)(tile.Tile.Height * Viewport.ZoomFactor)),
-                        BlendColor = Color.White,
+                        BlendColor = Colors.White,
                     };
                 }
             }

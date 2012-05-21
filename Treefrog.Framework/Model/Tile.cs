@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using System.Security.Cryptography;
-using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Imaging;
-using System.Xml.Serialization;
+using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
 {

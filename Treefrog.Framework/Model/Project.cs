@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using System.Xml;
-using System.IO;
-using System.Xml.Serialization;
 using System.ComponentModel;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
@@ -161,7 +158,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        public static Project Open (Stream stream, GraphicsDevice device)
+        public static Project Open (Stream stream)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
             {
@@ -204,7 +201,7 @@ namespace Treefrog.Framework.Model
 
         #region XML Import / Export
 
-        public static Project FromXml (XmlReader reader, GraphicsDevice device)
+        public static Project FromXml (XmlReader reader)
         {
             Project project = new Project();
 

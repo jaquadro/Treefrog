@@ -8,6 +8,7 @@
     <Window.Resources>
         <conv:StringToIntNull x:Key="convInt"/>
         <dialog:TreefrogColorConverter x:Key="convColor"/>
+        <conv:EnumBoolConverter x:Key="convEnumBool" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -18,6 +19,54 @@
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0" Header="Tile Pool" Margin="6" VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="Source File:" ClipToBounds="True" />
+                        <Grid Grid.Row="0" Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="80" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Margin="2" 
+                             Text="{Binding SourceFile, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="1" Margin="2" Content="Browse" Command="{Binding OpenSourceFileCommand}" />
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="25" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    
+                    <RadioButton Grid.Row="0" Grid.Column="0" GroupName="ImportMode"
+                                 IsChecked="{Binding ImportMode, Converter={StaticResource convEnumBool}, ConverterParameter=Create}" 
+                                 HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Label Grid.Row="0" Grid.Column="1" Content="Create as New Pool:" ClipToBounds="True" />
+                    <TextBox Grid.Row="0" Grid.Column="3" Margin="2" 
+                         Text="{Binding TilePoolName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <RadioButton Grid.Row="1" Grid.Column="0" GroupName="ImportMode"
+                                 IsChecked="{Binding ImportMode, Converter={StaticResource convEnumBool}, ConverterParameter=Merge}"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Label Grid.Row="1" Grid.Column="1" Content="Merge into Pool:" ClipToBounds="True" />
+                    <ComboBox Grid.Row="1" Grid.Column="2" ItemsSource="{Binding ExistingPools}" SelectedItem="{Binding MergeTarget}" Margin="2" />
+                </Grid>
+            </Grid>
+            <!--<Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="*" />
@@ -40,7 +89,7 @@
                              Text="{Binding SourceFile, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
                     <Button Grid.Column="1" Margin="2" Content="Browse" Command="{Binding OpenSourceFileCommand}" />
                 </Grid>
-            </Grid>
+            </Grid>-->
         </GroupBox>
 
         <GroupBox Grid.Row="1" Header="Tiles" HorizontalAlignment="Stretch" Margin="6" VerticalAlignment="Top">
@@ -144,6 +193,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0">
@@ -158,14 +208,14 @@
                         </Grid.RowDefinitions>
                         
                         <Label Grid.Column="0" Grid.Row="0" Content="Tiles Wide:" />
-                        <Label Grid.Column="1" Grid.Row="0" Content="0" HorizontalAlignment="Right" />
+                        <Label Grid.Column="1" Grid.Row="0" Content="{Binding TilesWide}" HorizontalAlignment="Right" />
                         <Label Grid.Column="0" Grid.Row="1" Content="Tiles High:" />
-                        <Label Grid.Column="1" Grid.Row="1" Content="0" HorizontalAlignment="Right" />
+                        <Label Grid.Column="1" Grid.Row="1" Content="{Binding TilesHigh}" HorizontalAlignment="Right" />
                         <Label Grid.Column="0" Grid.Row="2" Content="Unique Tiles:" />
-                        <Label Grid.Column="1" Grid.Row="2" Content="0" HorizontalAlignment="Right" />
+                        <Label Grid.Column="1" Grid.Row="2" Content="{Binding UniqueTiles}" HorizontalAlignment="Right" />
                     </Grid>
                     
-                    <Grid Grid.Row="2">
+                    <Grid Grid.Row="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />

@@ -11,6 +11,8 @@ using Treefrog.Framework;
 using System.Windows.Data;
 
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
+using TRectangle = Treefrog.Framework.Imaging.Rectangle;
+using TColor = Treefrog.Framework.Imaging.Color;
 using Treefrog.Aux;
 
 namespace Treefrog.V2.Controls.Layers
@@ -33,13 +35,13 @@ namespace Treefrog.V2.Controls.Layers
         private SpriteBatch _spriteBatch;
         private RenderTarget2D _target;
 
-        public static readonly DependencyProperty OpacityProperty;
+        public static readonly DependencyProperty LayerOpacityProperty;
         public static readonly DependencyProperty ModelProperty;
         public static readonly DependencyProperty AlignmentProperty;
 
         static RenderLayer ()
         {
-            OpacityProperty = DependencyProperty.Register("Opacity",
+            LayerOpacityProperty = DependencyProperty.Register("LayerOpacity",
                 typeof(float), typeof(RenderLayer), new PropertyMetadata(1.0f));
             ModelProperty = DependencyProperty.Register("Model",
                 typeof(RenderLayerVM), typeof(RenderLayer), new PropertyMetadata(null, HandleModelChanged));
@@ -47,10 +49,10 @@ namespace Treefrog.V2.Controls.Layers
                 typeof(LayerControlAlignment), typeof(RenderLayer), new PropertyMetadata(LayerControlAlignment.Center));
         }
 
-        public float Opacity
+        public float LayerOpacity
         {
-            get { return (float)this.GetValue(OpacityProperty); }
-            set { this.SetValue(OpacityProperty, value); }
+            get { return (float)this.GetValue(LayerOpacityProperty); }
+            set { this.SetValue(LayerOpacityProperty, value); }
         }
 
         public RenderLayerVM Model
@@ -71,7 +73,7 @@ namespace Treefrog.V2.Controls.Layers
             RenderLayer self = sender as RenderLayer;
             self.RebindTextureSource(e.OldValue as RenderLayerVM, e.NewValue as RenderLayerVM);
 
-            self.SetBinding(OpacityProperty, new Binding("Opacity")
+            self.SetBinding(LayerOpacityProperty, new Binding("LayerOpacity")
             {
                 Source = e.NewValue,
             });
@@ -105,6 +107,16 @@ namespace Treefrog.V2.Controls.Layers
             EndDraw(spriteBatch, offset);
         }
 
+        public static Rectangle ToXnaRectangle (TRectangle rect)
+        {
+            return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
+        }
+
+        public static Color ToXnaColor (TColor color)
+        {
+            return new Color(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+        }
+
         protected virtual void RenderCommands (SpriteBatch spriteBatch, IEnumerable<DrawCommand> drawList)
         {
             foreach (DrawCommand command in drawList) {
@@ -115,7 +127,7 @@ namespace Treefrog.V2.Controls.Layers
                         texture = texRef.CreateTexture(spriteBatch.GraphicsDevice);
                         _xnaTextures[command.Texture] = texture;
                     }
-                    spriteBatch.Draw(texture, command.DestRect, command.SourceRect, command.BlendColor);
+                    spriteBatch.Draw(texture, ToXnaRectangle(command.DestRect), ToXnaRectangle(command.SourceRect), ToXnaColor(command.BlendColor));
                 }
             }
         }
@@ -198,7 +210,7 @@ namespace Treefrog.V2.Controls.Layers
         protected Vector BeginDraw (SpriteBatch spriteBatch, Effect effect)
         {
             _target = null;
-            if (Opacity < 1f) {
+            if (LayerOpacity < 1f) {
                 _target = new RenderTarget2D(spriteBatch.GraphicsDevice,
                     spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height,
                     false, SurfaceFormat.Color, DepthFormat.None);
@@ -218,7 +230,7 @@ namespace Treefrog.V2.Controls.Layers
                 spriteBatch.GraphicsDevice.SetRenderTarget(null);
 
                 BeginDrawInner(spriteBatch, null);
-                spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, Opacity));
+                spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, LayerOpacity));
                 EndDrawInner(spriteBatch);
 
                 _target = null;

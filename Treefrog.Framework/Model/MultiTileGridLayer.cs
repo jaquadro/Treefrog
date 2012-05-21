@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using System.Xml;
-using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
     using Support;
+    using Treefrog.Framework.Imaging;
 
     public class MultiTileGridLayer : TileGridLayer
     {
