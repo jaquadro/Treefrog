@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Treefrog.V2
+namespace Treefrog
 {
     /// <summary>
     /// Interaction logic for LayerPanel.xaml

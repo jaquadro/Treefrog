@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 
-namespace Treefrog.V2.ViewModel.Utility
+namespace Treefrog.ViewModel.Utility
 {
     public class ObservableCollectionAdapter<TPrimary, TDependent>
     {

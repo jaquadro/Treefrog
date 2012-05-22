@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Data;
 using System.Windows;
 
-namespace Treefrog.V2.Converters
+namespace Treefrog.Converters
 {
     [ValueConversion(typeof(Enum), typeof(bool))]
     class EnumBoolConverter : IValueConverter

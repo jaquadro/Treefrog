@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections.ObjectModel;
 using Treefrog.Framework.Model;
 
-namespace Treefrog.V2.ViewModel.Layers
+namespace Treefrog.ViewModel.Layers
 {
     public class GroupLayerVM : LayerVM
     {

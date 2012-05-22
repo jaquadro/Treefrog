@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows;
 using GalaSoft.MvvmLight;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class ViewportVM : ViewModelBase
     {

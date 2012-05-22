@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections.ObjectModel;
 using Treefrog.Framework;
 
-namespace Treefrog.V2.ViewModel.Utility
+namespace Treefrog.ViewModel.Utility
 {
     public class OrderedToObservableAdapter<TPrimary, TDependent>
         where TPrimary : INamedResource

@@ -1,9 +1,9 @@
 ﻿using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
-using Treefrog.V2.ViewModel.Commands;
+using Treefrog.ViewModel.Commands;
 using Treefrog.Framework;
 
-namespace Treefrog.V2.ViewModel.Tools
+namespace Treefrog.ViewModel.Tools
 {
     public class ObjectPointerTool : PointerTool
     {

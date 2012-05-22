@@ -4,23 +4,23 @@ using System.Linq;
 using System.Text;
 using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
-using Treefrog.V2.Controls.Xna;
+using Treefrog.Controls.Xna;
 using Treefrog.Framework.Model;
 using System.Windows.Input;
 using Treefrog.Framework;
 using GalaSoft.MvvmLight.Command;
-using Treefrog.V2.ViewModel.Layers;
+using Treefrog.ViewModel.Layers;
 
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
-using Treefrog.V2.ViewModel.Dialogs;
-using Treefrog.V2.Messages;
+using Treefrog.ViewModel.Dialogs;
+using Treefrog.Messages;
 using GalaSoft.MvvmLight.Messaging;
 using Treefrog.Aux;
 using Treefrog.Framework.Imaging;
 using System.Drawing;
 using System.ComponentModel;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public interface TilePoolManagerService : INotifyPropertyChanged
     {

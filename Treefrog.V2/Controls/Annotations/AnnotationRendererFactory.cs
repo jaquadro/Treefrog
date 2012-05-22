@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Treefrog.V2.ViewModel.Annotations;
+using Treefrog.ViewModel.Annotations;
 
-namespace Treefrog.V2.Controls.Annotations
+namespace Treefrog.Controls.Annotations
 {
     public class AnnotationRendererFactory
     {

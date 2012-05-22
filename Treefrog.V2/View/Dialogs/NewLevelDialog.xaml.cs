@@ -14,9 +14,9 @@ using GalaSoft.MvvmLight;
 using System.ComponentModel;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
-using Treefrog.V2.ViewModel.Dialogs;
+using Treefrog.ViewModel.Dialogs;
 
-namespace Treefrog.V2
+namespace Treefrog
 {
     /// <summary>
     /// Interaction logic for NewLevelDialog.xaml

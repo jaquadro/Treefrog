@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using Treefrog.V2.Controls.Xna;
+using Treefrog.Controls.Xna;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Treefrog.V2.Controls.Layers
+namespace Treefrog.Controls.Layers
 {
     public class XnaCanvasLayer : FrameworkElement // DependencyObject
     {

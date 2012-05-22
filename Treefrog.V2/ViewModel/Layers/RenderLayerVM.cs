@@ -5,7 +5,7 @@ using System.Text;
 using Treefrog.Framework;
 using Treefrog.Framework.Imaging;
 
-namespace Treefrog.V2.ViewModel.Layers
+namespace Treefrog.ViewModel.Layers
 {
     public struct DrawCommand
     {

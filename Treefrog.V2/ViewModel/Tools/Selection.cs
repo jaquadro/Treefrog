@@ -6,7 +6,7 @@ using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Framework.Model.Support;
 
-namespace Treefrog.V2.ViewModel.Tools
+namespace Treefrog.ViewModel.Tools
 {
     public class TileSelection : IEnumerable<LocatedTileStack>
     {

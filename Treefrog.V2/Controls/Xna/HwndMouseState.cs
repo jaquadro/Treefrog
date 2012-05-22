@@ -10,7 +10,7 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace Treefrog.V2.Controls.Xna
+namespace Treefrog.Controls.Xna
 {
     /// <summary>
     /// Represents the state of a mouse. Used by the GraphicsDeviceControl to track mouse state

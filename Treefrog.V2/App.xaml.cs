@@ -6,7 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Treefrog.V2
+namespace Treefrog
 {
     /// <summary>
     /// Interaction logic for App.xaml

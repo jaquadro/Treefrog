@@ -10,7 +10,7 @@ using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
 
-namespace Treefrog.V2.ViewModel.Dialogs
+namespace Treefrog.ViewModel.Dialogs
 {
     public class ImportTilePoolDialogVM : ViewModelBase, IDataErrorInfo, IDialogViewModel
     {

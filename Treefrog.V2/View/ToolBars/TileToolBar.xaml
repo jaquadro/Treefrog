@@ -1,4 +1,4 @@
-﻿<ToolBar x:Class="Treefrog.V2.View.ToolBars.TileToolBar"
+﻿<ToolBar x:Class="Treefrog.View.ToolBars.TileToolBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -15,40 +15,40 @@
     </ToolBar.Resources>
     
     <ToggleButton IsChecked="{Binding Path=Menu.SelectToolSelected}" IsEnabled="{Binding Menu.SelectToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/cursor.png"
+        <Image Source="/Treefrog;component/Images/16/cursor.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </ToggleButton>
     <ToggleButton IsChecked="{Binding Path=Menu.DrawToolSelected}" IsEnabled="{Binding Menu.DrawToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/paint-brush.png"
+        <Image Source="/Treefrog;component/Images/16/paint-brush.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </ToggleButton>
     <ToggleButton IsChecked="{Binding Path=Menu.EraseToolSelected}" IsEnabled="{Binding Menu.EraseToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/eraser.png"
+        <Image Source="/Treefrog;component/Images/16/eraser.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </ToggleButton>
     <ToggleButton IsChecked="{Binding Path=Menu.FillToolSelected}" IsEnabled="{Binding Menu.FillToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/paint-can.png"
+        <Image Source="/Treefrog;component/Images/16/paint-can.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </ToggleButton>
     <ToggleButton IsChecked="{Binding Path=Menu.StampToolSelected}" IsEnabled="{Binding Menu.StampToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/stamp.png"
+        <Image Source="/Treefrog;component/Images/16/stamp.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </ToggleButton>
     <Separator />
     <Button IsEnabled="{Binding Menu.RotateLeftToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/layer-rotate-left.png"
+        <Image Source="/Treefrog;component/Images/16/layer-rotate-left.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button IsEnabled="{Binding Menu.RotateRightToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/layer-rotate.png"
+        <Image Source="/Treefrog;component/Images/16/layer-rotate.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button IsEnabled="{Binding Menu.FlipHToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/layer-flip.png"
+        <Image Source="/Treefrog;component/Images/16/layer-flip.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button IsEnabled="{Binding Menu.FlipVToolEnabled}">
-        <Image Source="/Treefrog.V2;component/Images/16/layer-flip-vertical.png"
+        <Image Source="/Treefrog;component/Images/16/layer-flip-vertical.png"
                Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
 </ToolBar>

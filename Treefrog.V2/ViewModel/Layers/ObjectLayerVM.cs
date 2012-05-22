@@ -5,13 +5,13 @@ using System.Text;
 using GalaSoft.MvvmLight;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
-using Treefrog.V2.ViewModel.Tools;
+using Treefrog.ViewModel.Tools;
 using System.ComponentModel;
 using Treefrog.Framework.Imaging;
 
 using Rect = System.Windows.Rect;
 
-namespace Treefrog.V2.ViewModel.Layers
+namespace Treefrog.ViewModel.Layers
 {
     public class ObjectLayerVM : LevelLayerVM
     {

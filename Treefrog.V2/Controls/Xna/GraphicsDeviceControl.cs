@@ -15,7 +15,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Treefrog.V2.Controls.Xna
+namespace Treefrog.Controls.Xna
 {
     /// <summary>
     /// A control that enables XNA graphics rendering inside a WPF control through

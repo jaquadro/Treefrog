@@ -1,13 +1,13 @@
 ﻿using System;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
-using Treefrog.V2.ViewModel.Commands;
+using Treefrog.ViewModel.Commands;
 using System.Collections.ObjectModel;
-using Treefrog.V2.ViewModel.Annotations;
+using Treefrog.ViewModel.Annotations;
 using Treefrog.Framework.Imaging.Drawing;
 using Treefrog.Framework.Imaging;
 
-namespace Treefrog.V2.ViewModel.Tools
+namespace Treefrog.ViewModel.Tools
 {
     public class TileDrawTool : TilePointerTool
     {

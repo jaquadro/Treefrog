@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Treefrog.V2.ViewModel.Commands
+namespace Treefrog.ViewModel.Commands
 {
     public abstract class Command
     {

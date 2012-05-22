@@ -12,16 +12,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
-using Treefrog.V2.Controls.Layers;
+using Treefrog.Controls.Layers;
 using System.Windows.Markup;
-using Treefrog.V2.Controls;
-using Treefrog.V2.Controls.Xna;
+using Treefrog.Controls;
+using Treefrog.Controls.Xna;
 
 using XColor = Microsoft.Xna.Framework.Color;
-using Treefrog.V2.ViewModel;
+using Treefrog.ViewModel;
 using GalaSoft.MvvmLight.Command;
 
-namespace Treefrog.V2.View
+namespace Treefrog.View
 {
     /// <summary>
     /// Interaction logic for VirtualXnaCanvas.xaml

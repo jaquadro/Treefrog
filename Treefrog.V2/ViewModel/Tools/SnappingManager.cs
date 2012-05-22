@@ -1,6 +1,6 @@
 ﻿using Treefrog.Framework.Imaging;
 
-namespace Treefrog.V2.ViewModel.Tools
+namespace Treefrog.ViewModel.Tools
 {
     public class SnappingManager
     {

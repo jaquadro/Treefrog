@@ -1,9 +1,9 @@
-﻿<Window x:Class="Treefrog.V2.NewLevelDialog"
+﻿<Window x:Class="Treefrog.NewLevelDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Treefrog.V2"
-        xmlns:conv="clr-namespace:Treefrog.V2.Converters"
-        xmlns:vm="Treefrog.V2.NewLevelDialogVM"
+        xmlns:local="clr-namespace:Treefrog"
+        xmlns:conv="clr-namespace:Treefrog.Converters"
+        xmlns:vm="Treefrog.NewLevelDialogVM"
         Title="New Level" Height="236" Width="449">
     <Window.Resources>
         <conv:StringToIntNull x:Key="convInt"/>

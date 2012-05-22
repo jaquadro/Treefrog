@@ -1,4 +1,4 @@
-﻿<ToolBar x:Class="Treefrog.V2.View.ToolBars.StandardToolBar"
+﻿<ToolBar x:Class="Treefrog.View.ToolBars.StandardToolBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -16,41 +16,41 @@
     </ToolBar.Resources>
 
     <Button>
-        <Image Source="/Treefrog.V2;component/Images/16/applications-blue--asterisk.png" 
+        <Image Source="/Treefrog;component/Images/16/applications-blue--asterisk.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button Command="{Binding Menu.NewLevelCommand}">
-        <Image Source="/Treefrog.V2;component/Images/16/map--asterisk.png" 
+        <Image Source="/Treefrog;component/Images/16/map--asterisk.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button Command="{Binding Menu.OpenProjectCommand}">
-        <Image Source="/Treefrog.V2;component/Images/16/folder-horizontal-open.png" 
+        <Image Source="/Treefrog;component/Images/16/folder-horizontal-open.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button Command="{Binding Menu.SaveProjectCommand}">
-        <Image Source="/Treefrog.V2;component/Images/16/disk.png" 
+        <Image Source="/Treefrog;component/Images/16/disk.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Separator />
     <Button>
-        <Image Source="/Treefrog.V2;component/Images/16/scissors.png" 
+        <Image Source="/Treefrog;component/Images/16/scissors.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button>
-        <Image Source="/Treefrog.V2;component/Images/16/documents.png" 
+        <Image Source="/Treefrog;component/Images/16/documents.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button>
-        <Image Source="/Treefrog.V2;component/Images/16/clipboard-paste.png" 
+        <Image Source="/Treefrog;component/Images/16/clipboard-paste.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Separator />
     <Button Command="{Binding Menu.UndoCommand}">
-        <Image Source="/Treefrog.V2;component/Images/16/arrow-turn-180-left.png" 
+        <Image Source="/Treefrog;component/Images/16/arrow-turn-180-left.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Button Command="{Binding Menu.RedoCommand}">
-        <Image Source="/Treefrog.V2;component/Images/16/arrow-turn.png" 
+        <Image Source="/Treefrog;component/Images/16/arrow-turn.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
 </ToolBar>

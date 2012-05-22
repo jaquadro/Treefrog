@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Treefrog.V2.View.Panels
+namespace Treefrog.View.Panels
 {
     /// <summary>
     /// Interaction logic for PropertyPanel.xaml

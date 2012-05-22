@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Win32;
 
-namespace Treefrog.V2
+namespace Treefrog
 {
     public abstract class FileOptions
     {
@@ -54,6 +54,7 @@ namespace Treefrog.V2
                 InitialDirectory = options.InitialDirectory,
                 Filter = options.Filter,
                 FilterIndex = options.FilterIndex,
+                OverwritePrompt = true,
             };
 
             if (dlg.ShowDialog() == true)

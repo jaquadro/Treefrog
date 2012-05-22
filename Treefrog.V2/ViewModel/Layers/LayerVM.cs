@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using GalaSoft.MvvmLight;
 
-namespace Treefrog.V2.ViewModel.Layers
+namespace Treefrog.ViewModel.Layers
 {
     public abstract class LayerVM : ViewModelBase
     {

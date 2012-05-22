@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Specialized;
 
-namespace Treefrog.V2.Controls
+namespace Treefrog.Controls
 {
     public class ItemsCollection<T> : IList<T>
     {

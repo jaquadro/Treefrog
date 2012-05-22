@@ -6,7 +6,7 @@ using GalaSoft.MvvmLight;
 using Treefrog.Framework.Model;
 using Treefrog.Framework.Imaging;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class TilePoolItemVM : ViewModelBase
     {

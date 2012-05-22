@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Treefrog.V2.ViewModel.Dialogs;
+using Treefrog.ViewModel.Dialogs;
 using GalaSoft.MvvmLight.Messaging;
 
-namespace Treefrog.V2.Messages
+namespace Treefrog.Messages
 {
     public class BlockingDialogMessage : MessageBase
     {

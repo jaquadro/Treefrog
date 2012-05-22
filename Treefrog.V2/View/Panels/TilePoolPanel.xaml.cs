@@ -11,12 +11,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Treefrog.V2.Controls.Xna;
-using Treefrog.V2.ViewModel;
+using Treefrog.Controls.Xna;
+using Treefrog.ViewModel;
 
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 
-namespace Treefrog.V2.View.Panels
+namespace Treefrog.View.Panels
 {
     /// <summary>
     /// Interaction logic for TilePoolPanel.xaml

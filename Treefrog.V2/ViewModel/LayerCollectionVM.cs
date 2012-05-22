@@ -4,18 +4,18 @@ using System.Linq;
 using System.Text;
 using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
-using Treefrog.V2.Controls.Xna;
+using Treefrog.Controls.Xna;
 using Treefrog.Framework.Model;
 using System.Windows.Input;
 using Treefrog.Framework;
 using GalaSoft.MvvmLight.Command;
-using Treefrog.V2.ViewModel.Layers;
+using Treefrog.ViewModel.Layers;
 using System.Windows.Data;
 using System.ComponentModel;
 using System.Collections.Specialized;
-using Treefrog.V2.ViewModel.Utility;
+using Treefrog.ViewModel.Utility;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class LayerCollectionVM : ViewModelBase
     {

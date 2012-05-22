@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Treefrog.V2.ViewModel.Commands
+namespace Treefrog.ViewModel.Commands
 {
     public class CommandHistory
     {

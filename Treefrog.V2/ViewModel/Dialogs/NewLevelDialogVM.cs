@@ -7,7 +7,7 @@ using System.ComponentModel;
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
 
-namespace Treefrog.V2.ViewModel.Dialogs
+namespace Treefrog.ViewModel.Dialogs
 {
     public class NewLevelDialogVM : ViewModelBase, IDataErrorInfo, IDialogViewModel
     {

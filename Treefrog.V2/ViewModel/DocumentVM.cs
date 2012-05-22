@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GalaSoft.MvvmLight;
-using Treefrog.V2.ViewModel.Commands;
-using Treefrog.V2.ViewModel.Tools;
+using Treefrog.ViewModel.Commands;
+using Treefrog.ViewModel.Tools;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public abstract class DocumentVM : ViewModelBase
     {

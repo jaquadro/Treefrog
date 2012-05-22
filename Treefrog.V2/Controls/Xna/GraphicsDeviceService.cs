@@ -11,7 +11,7 @@ using System;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Treefrog.V2.Controls.Xna
+namespace Treefrog.Controls.Xna
 {
     /// <summary>
     /// Helper class responsible for creating and managing the GraphicsDevice.

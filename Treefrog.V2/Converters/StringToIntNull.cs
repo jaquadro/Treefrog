@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Data;
 
-namespace Treefrog.V2.Converters
+namespace Treefrog.Converters
 {
     public class StringToIntNull : IValueConverter
     {

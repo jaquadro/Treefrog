@@ -5,17 +5,17 @@ using System.Text;
 using Treefrog.Framework.Model;
 using System.Collections.ObjectModel;
 
-using Treefrog.V2.Controls.Layers;
+using Treefrog.Controls.Layers;
 using System.Windows.Media;
-using Treefrog.V2.ViewModel.Layers;
+using Treefrog.ViewModel.Layers;
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
 using System.Windows;
-using Treefrog.V2.ViewModel.Commands;
-using Treefrog.V2.ViewModel.Tools;
-using Treefrog.V2.ViewModel.Annotations;
+using Treefrog.ViewModel.Commands;
+using Treefrog.ViewModel.Tools;
+using Treefrog.ViewModel.Annotations;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class LevelDocumentVM : DocumentVM
     {

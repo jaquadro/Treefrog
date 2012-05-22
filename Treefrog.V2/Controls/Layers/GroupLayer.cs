@@ -9,12 +9,12 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.Windows.Media;
-using Treefrog.V2.ViewModel.Layers;
+using Treefrog.ViewModel.Layers;
 using System.Collections.Specialized;
 using System.Collections;
-using Treefrog.V2.ViewModel.Utility;
+using Treefrog.ViewModel.Utility;
 
-namespace Treefrog.V2.Controls.Layers
+namespace Treefrog.Controls.Layers
 {
     [ContentProperty("Layers")]
     public class GroupLayer : XnaCanvasLayer

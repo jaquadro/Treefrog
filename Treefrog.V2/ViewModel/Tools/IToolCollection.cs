@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Treefrog.V2.ViewModel.Tools
+namespace Treefrog.ViewModel.Tools
 {
     public interface IToolCollection
     {

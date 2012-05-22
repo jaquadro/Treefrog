@@ -11,7 +11,7 @@ using System.ComponentModel;
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public interface ObjectPoolManagerService : INotifyPropertyChanged
     {

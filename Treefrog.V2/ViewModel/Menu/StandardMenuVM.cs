@@ -7,13 +7,13 @@ using System.Windows.Input;
 using Treefrog.Framework.Model;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight;
-using Treefrog.V2.ViewModel.Dialogs;
-using Treefrog.V2.Messages;
-using Treefrog.V2.ViewModel.Commands;
+using Treefrog.ViewModel.Dialogs;
+using Treefrog.Messages;
+using Treefrog.ViewModel.Commands;
 using System.ComponentModel;
 using Treefrog.Framework;
 
-namespace Treefrog.V2.ViewModel.Menu
+namespace Treefrog.ViewModel.Menu
 {
     public class StandardMenuVM : ViewModelBase
     {
@@ -73,15 +73,27 @@ namespace Treefrog.V2.ViewModel.Menu
 
         private void OnOpenProject ()
         {
-            IOService service = ServiceProvider.GetService<IOService>();
-            if (service != null) {
-                string path = service.OpenFileDialog(new OpenFileOptions()
-                {
-                    Filter = "Treefrog Projects|*.tlp|All Files|*",
-                    FilterIndex = 0,
-                });
+            try {
+                IOService service = ServiceProvider.GetService<IOService>();
+                if (service != null) {
+                    string path = service.OpenFileDialog(new OpenFileOptions()
+                    {
+                        Filter = "Treefrog Projects|*.tlp|All Files|*",
+                        FilterIndex = 0,
+                    });
 
-                _editor.OpenProject(path);
+                    _editor.OpenProject(path);
+                }
+            }
+            catch {
+                IMessageService service = ServiceProvider.GetService<IMessageService>();
+                if (service != null) {
+                    service.ShowMessage(new MessageInfo()
+                    {
+                        Message = "Error opening requested file.",
+                        Type = MessageType.Warning
+                    });
+                }
             }
         }
 
@@ -96,7 +108,7 @@ namespace Treefrog.V2.ViewModel.Menu
             get
             {
                 if (_saveProjectCommand == null)
-                    _saveProjectCommand = new RelayCommand(OnSaveProject, CanOpenProject);
+                    _saveProjectCommand = new RelayCommand(OnSaveProject, CanSaveProject);
                 return _saveProjectCommand;
             }
         }
@@ -122,6 +134,41 @@ namespace Treefrog.V2.ViewModel.Menu
             }
             else {
                 _editor.SaveProject(_editor.ProjectFile);
+            }
+        }
+
+        #endregion
+
+        #region Save Project As Command
+
+        private RelayCommand _saveProjectAsCommand;
+
+        public ICommand SaveProjectAsCommand
+        {
+            get
+            {
+                if (_saveProjectAsCommand == null)
+                    _saveProjectAsCommand = new RelayCommand(OnSaveProjectAs, CanSaveProjectAs);
+                return _saveProjectAsCommand;
+            }
+        }
+
+        private bool CanSaveProjectAs ()
+        {
+            return _editor.Project != null;
+        }
+
+        private void OnSaveProjectAs ()
+        {
+            IOService service = ServiceProvider.GetService<IOService>();
+            if (service != null) {
+                string path = service.SaveFileDialog(new SaveFileOptions()
+                {
+                    Filter = "Treefrog Projects|*.tlp|All Files|*",
+                    FilterIndex = 0,
+                });
+
+                _editor.SaveProject(path);
             }
         }
 

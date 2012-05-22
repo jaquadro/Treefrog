@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GalaSoft.MvvmLight;
-using Treefrog.V2.ViewModel.ToolBars;
-using Treefrog.V2.ViewModel.Menu;
+using Treefrog.ViewModel.ToolBars;
+using Treefrog.ViewModel.Menu;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Windows;
-using Treefrog.V2.ViewModel.Commands;
+using Treefrog.ViewModel.Commands;
 using Treefrog.Framework;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class EditorVM : ViewModelBase
     {
@@ -173,6 +173,9 @@ namespace Treefrog.V2.ViewModel
 
             using (FileStream stream = File.Create(path)) {
                 _project.Project.Save(stream);
+
+                Title = "Treefrog - " + path;
+                ProjectFile = path;
             }
         }
 

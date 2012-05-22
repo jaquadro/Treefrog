@@ -11,9 +11,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Treefrog.V2.ViewModel;
+using Treefrog.ViewModel;
 
-namespace Treefrog.V2.View.Panels
+namespace Treefrog.View.Panels
 {
     /// <summary>
     /// Interaction logic for ObjectPanel.xaml
@@ -29,7 +29,7 @@ namespace Treefrog.V2.View.Panels
     [ValueConversion(typeof(PreviewSize), typeof(string))]
     public class PreviewSizeToIconFilenameConverter : IValueConverter
     {
-        private static string IconPath = "/Treefrog.V2;component/Images/16/";
+        private static string IconPath = "/Treefrog;component/Images/16/";
 
         public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -54,7 +54,7 @@ namespace Treefrog.V2.View.Panels
     [ValueConversion(typeof(PreviewSize), typeof(string))]
     public class PreviewSizeToTooltipConverter : IValueConverter
     {
-        private static string IconPath = "/Treefrog.V2;component/Images/16/";
+        private static string IconPath = "/Treefrog;component/Images/16/";
 
         public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -79,7 +79,7 @@ namespace Treefrog.V2.View.Panels
     [ValueConversion(typeof(PreviewSize), typeof(int))]
     public class PreviewSizeToDimensionConverter : IValueConverter
     {
-        private static string IconPath = "/Treefrog.V2;component/Images/16/";
+        private static string IconPath = "/Treefrog;component/Images/16/";
 
         public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -104,7 +104,7 @@ namespace Treefrog.V2.View.Panels
     [ValueConversion(typeof(ObjectSnappingSource), typeof(string))]
     public class SnappingSourceToIconFilenameConverter : IValueConverter
     {
-        private static string IconPath = "/Treefrog.V2;component/Images/16/";
+        private static string IconPath = "/Treefrog;component/Images/16/";
 
         public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -152,7 +152,7 @@ namespace Treefrog.V2.View.Panels
     [ValueConversion(typeof(ObjectSnappingTarget), typeof(string))]
     public class SnappingTargetToIconFilenameConverter : IValueConverter
     {
-        private static string IconPath = "/Treefrog.V2;component/Images/16/";
+        private static string IconPath = "/Treefrog;component/Images/16/";
 
         public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

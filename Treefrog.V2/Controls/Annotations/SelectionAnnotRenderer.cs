@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Treefrog.V2.ViewModel.Annotations;
+using Treefrog.ViewModel.Annotations;
 using Treefrog.Aux;
 
 using Drawing = Treefrog.Framework.Imaging.Drawing;
@@ -10,7 +10,7 @@ using XnaDrawing = Amphibian.Drawing;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace Treefrog.V2.Controls.Annotations
+namespace Treefrog.Controls.Annotations
 {
     public abstract class AnnotationRenderer
     {

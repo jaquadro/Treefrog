@@ -8,7 +8,7 @@ using GalaSoft.MvvmLight;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class PropertyProviderAdapter : ICustomTypeDescriptor
     {

@@ -11,9 +11,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Treefrog.V2.ViewModel;
+using Treefrog.ViewModel;
 
-namespace Treefrog.V2.View.Panels
+namespace Treefrog.View.Panels
 {
     /// <summary>
     /// Interaction logic for LayerPanel.xaml
@@ -61,7 +61,7 @@ namespace Treefrog.V2.View.Panels
     [ValueConversion(typeof(LayerType), typeof(string))]
     public class LayerTypeToIconFilenameConverter : IValueConverter
     {
-        private static string IconPath = "/Treefrog.V2;component/Images/16/";
+        private static string IconPath = "/Treefrog;component/Images/16/";
 
         public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -86,7 +86,7 @@ namespace Treefrog.V2.View.Panels
     [ValueConversion(typeof(bool), typeof(string))]
     public class VisibilityToIconFilenameConverter : IValueConverter
     {
-        private static string IconPath = "/Treefrog.V2;component/Images/16/";
+        private static string IconPath = "/Treefrog;component/Images/16/";
 
         public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

@@ -6,9 +6,9 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
 using System.ComponentModel;
-using Treefrog.V2.ViewModel.Tools;
+using Treefrog.ViewModel.Tools;
 
-namespace Treefrog.V2.ViewModel.Menu
+namespace Treefrog.ViewModel.Menu
 {
     public class TileMenuVM : ViewModelBase
     {

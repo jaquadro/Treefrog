@@ -10,7 +10,7 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Treefrog.V2.Controls.Xna
+namespace Treefrog.Controls.Xna
 {
     /// <summary>
     /// Arguments used for GraphicsDevice related events.

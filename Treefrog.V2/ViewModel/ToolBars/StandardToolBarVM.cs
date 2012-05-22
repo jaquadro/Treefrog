@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Treefrog.V2.ViewModel.Menu;
+using Treefrog.ViewModel.Menu;
 
-namespace Treefrog.V2.ViewModel.ToolBars
+namespace Treefrog.ViewModel.ToolBars
 {
     public class StandardToolBarVM
     {

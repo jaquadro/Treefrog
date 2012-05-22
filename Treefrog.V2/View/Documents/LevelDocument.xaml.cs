@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Treefrog.V2.View.Documents
+namespace Treefrog.View.Documents
 {
     /// <summary>
     /// Interaction logic for LevelDocument.xaml

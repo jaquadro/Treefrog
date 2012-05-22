@@ -1,13 +1,13 @@
 ﻿using System;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
-using Treefrog.V2.ViewModel.Commands;
-using Treefrog.V2.ViewModel.Annotations;
+using Treefrog.ViewModel.Commands;
+using Treefrog.ViewModel.Annotations;
 using System.Collections.ObjectModel;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
 
-namespace Treefrog.V2.ViewModel.Tools
+namespace Treefrog.ViewModel.Tools
 {
     public class TileEraseTool : TilePointerTool
     {

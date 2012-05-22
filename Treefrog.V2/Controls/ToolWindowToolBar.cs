@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 
-namespace Treefrog.V2.Controls
+namespace Treefrog.Controls
 {
     class ToolWindowToolBar : ToolBar
     {

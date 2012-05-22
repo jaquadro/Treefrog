@@ -9,7 +9,7 @@ using System.Windows;
 using XEffect = Microsoft.Xna.Framework.Graphics.Effect;
 using System.IO;
 
-namespace Treefrog.V2.Controls.Layers
+namespace Treefrog.Controls.Layers
 {
     public class GridRenderLayer : RenderLayer
     {

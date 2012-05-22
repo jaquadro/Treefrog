@@ -11,7 +11,7 @@ using System;
 using System.Windows.Input;
 using System.Windows;
 
-namespace Treefrog.V2.Controls.Xna
+namespace Treefrog.Controls.Xna
 {
     /// <summary>
     /// Event arguments used for mouse events in the GraphicsDeviceControl.

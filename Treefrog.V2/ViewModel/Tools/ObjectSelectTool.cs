@@ -3,10 +3,10 @@ using System.Collections.ObjectModel;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
 using Treefrog.Framework.Model;
-using Treefrog.V2.ViewModel.Annotations;
-using Treefrog.V2.ViewModel.Commands;
+using Treefrog.ViewModel.Annotations;
+using Treefrog.ViewModel.Commands;
 
-namespace Treefrog.V2.ViewModel.Tools
+namespace Treefrog.ViewModel.Tools
 {
     public class ObjectSelectTool : ObjectPointerTool
     {

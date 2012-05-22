@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Collections.ObjectModel;
-using Treefrog.V2.ViewModel.Annotations;
-using Treefrog.V2.Controls.Annotations;
+using Treefrog.ViewModel.Annotations;
+using Treefrog.Controls.Annotations;
 using System.Collections.Specialized;
 
-namespace Treefrog.V2.Controls.Layers
+namespace Treefrog.Controls.Layers
 {
     public class AnnotRenderLayer : RenderLayer
     {

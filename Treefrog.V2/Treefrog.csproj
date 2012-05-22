@@ -8,8 +8,8 @@
     <ProjectGuid>{08684495-15D1-47AD-9C53-2FBE7E310584}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Treefrog.V2</RootNamespace>
-    <AssemblyName>Treefrog.V2</AssemblyName>
+    <RootNamespace>Treefrog</RootNamespace>
+    <AssemblyName>Treefrog</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -73,6 +73,7 @@
     <Compile Include="Controls\Layers\XnaTileLayer.cs" />
     <Compile Include="Converters\EnumBoolConverter.cs" />
     <Compile Include="Converters\StringToIntNull.cs" />
+    <Compile Include="MessageService.cs" />
     <Compile Include="Messages\BlockingDialogMessage.cs" />
     <Compile Include="TreefrogAux.cs" />
     <Compile Include="ViewModel\Annotations\SelectionAnnot.cs" />

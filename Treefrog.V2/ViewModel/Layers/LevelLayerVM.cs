@@ -6,7 +6,7 @@ using Treefrog.Framework.Model;
 using System.Windows;
 using Treefrog.Framework;
 
-namespace Treefrog.V2.ViewModel.Layers
+namespace Treefrog.ViewModel.Layers
 {
     public class LevelLayerVM : RenderLayerVM
     {

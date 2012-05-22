@@ -10,9 +10,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Treefrog.V2.ViewModel.Dialogs;
+using Treefrog.ViewModel.Dialogs;
 
-namespace Treefrog.V2.View.Dialogs
+namespace Treefrog.View.Dialogs
 {
     /// <summary>
     /// Interaction logic for ImportTilePoolDialog.xaml

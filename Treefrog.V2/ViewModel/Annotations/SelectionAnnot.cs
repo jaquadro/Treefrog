@@ -5,7 +5,7 @@ using System.Text;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
 
-namespace Treefrog.V2.ViewModel.Annotations
+namespace Treefrog.ViewModel.Annotations
 {
     public abstract class Annotation
     {

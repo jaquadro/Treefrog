@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Treefrog.V2.View.ToolBars
+namespace Treefrog.View.ToolBars
 {
     /// <summary>
     /// Interaction logic for TileToolBar.xaml

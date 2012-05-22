@@ -8,11 +8,11 @@ using Treefrog.Framework.Model;
 using Treefrog.Framework;
 
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
-using Treefrog.V2.ViewModel.Tools;
-using Treefrog.V2.ViewModel.Menu;
+using Treefrog.ViewModel.Tools;
+using Treefrog.ViewModel.Menu;
 using Treefrog.Framework.Imaging;
 
-namespace Treefrog.V2.ViewModel.Layers
+namespace Treefrog.ViewModel.Layers
 {
     public class TileLayerVM : LevelLayerVM, IDisposable
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Framework.Model.Support;
-using Treefrog.V2.ViewModel.Tools;
+using Treefrog.ViewModel.Tools;
 
-namespace Treefrog.V2.ViewModel.Commands
+namespace Treefrog.ViewModel.Commands
 {
     public class CreateFloatingSelectionCommand : Command
     {

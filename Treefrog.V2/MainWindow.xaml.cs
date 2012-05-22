@@ -13,12 +13,12 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight;
-using Treefrog.V2.Messages;
-using Treefrog.V2.ViewModel.Dialogs;
-using Treefrog.V2.View.Dialogs;
+using Treefrog.Messages;
+using Treefrog.ViewModel.Dialogs;
+using Treefrog.View.Dialogs;
 using Treefrog.Framework;
 
-namespace Treefrog.V2
+namespace Treefrog
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -32,6 +32,7 @@ namespace Treefrog.V2
             Messenger.Default.Register<BlockingDialogMessage>(this, act => DialogMessageHandler(act));
 
             ServiceContainer.Default.AddService<IOService>(new DefaultIOService());
+            ServiceContainer.Default.AddService<IMessageService>(new MessageService());
         }
 
         private void DialogMessageHandler (BlockingDialogMessage message)

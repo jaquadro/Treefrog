@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Windows;
-using Treefrog.V2.ViewModel.Layers;
+using Treefrog.ViewModel.Layers;
 using System.Collections.Specialized;
 using Treefrog.Framework;
 using System.Windows.Data;
@@ -15,7 +15,7 @@ using TRectangle = Treefrog.Framework.Imaging.Rectangle;
 using TColor = Treefrog.Framework.Imaging.Color;
 using Treefrog.Aux;
 
-namespace Treefrog.V2.Controls.Layers
+namespace Treefrog.Controls.Layers
 {
     public enum LayerControlAlignment
     {

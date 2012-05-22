@@ -1,7 +1,7 @@
-﻿<UserControl x:Class="Treefrog.V2.View.Panels.TilePoolPanel"
+﻿<UserControl x:Class="Treefrog.View.Panels.TilePoolPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:local="clr-namespace:Treefrog.V2.View.Panels"
-             xmlns:my="clr-namespace:Treefrog.V2.Controls.Xna"
+             xmlns:local="clr-namespace:Treefrog.View.Panels"
+             xmlns:my="clr-namespace:Treefrog.Controls.Xna"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
@@ -33,11 +33,11 @@
             <ToolBarTray Grid.Row="1" IsLocked="True">
                 <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
                     <Button Command="{Binding ImportPoolCommand}" IsEnabled="{Binding IsImportPoolEnabled}" IsTabStop="False">
-                        <Image Source="/Treefrog.V2;component/Images/16/plus.png"
+                        <Image Source="/Treefrog;component/Images/16/plus.png"
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Button Command="{Binding RemovePoolCommand}" IsEnabled="{Binding IsRemovePoolEnabled}" IsTabStop="False">
-                        <Image Source="/Treefrog.V2;component/Images/16/minus.png" 
+                        <Image Source="/Treefrog;component/Images/16/minus.png" 
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Separator />

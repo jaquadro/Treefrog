@@ -10,7 +10,7 @@ using System.Windows;
 using Microsoft.Xna.Framework;
 using System.Collections.ObjectModel;
 
-namespace Treefrog.V2.Controls.Layers
+namespace Treefrog.Controls.Layers
 {
     public class XnaTileLayer : RenderLayer
     {

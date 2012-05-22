@@ -11,7 +11,7 @@ using System.Drawing;
 using Treefrog.Framework.Imaging;
 using Treefrog.Aux;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class ProjectVM : ViewModelBase
     {

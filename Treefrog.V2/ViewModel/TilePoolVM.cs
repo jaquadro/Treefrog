@@ -5,18 +5,18 @@ using System.Text;
 using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
 using Treefrog.Framework.Model;
-using Treefrog.V2.Controls.Xna;
+using Treefrog.Controls.Xna;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using Treefrog.Framework;
 using System.IO;
-using Treefrog.V2.ViewModel.Menu;
-using Treefrog.V2.ViewModel.ToolBars;
+using Treefrog.ViewModel.Menu;
+using Treefrog.ViewModel.ToolBars;
 
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 
-namespace Treefrog.V2.ViewModel
+namespace Treefrog.ViewModel
 {
     public class TilePoolVM : ViewModelBase
     {

@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog", "Treefrog\Treefrog.csproj", "{DCDDA578-009A-4994-8B30-4589B69248FB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog.Content", "Treefrog.Content\Treefrog.Content.contentproj", "{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog.Framework", "Treefrog.Framework\Treefrog.Framework.csproj", "{DFDC210B-3181-4F4D-92B9-6FCDE456697B}"
@@ -35,34 +33,6 @@ Global
 		Release|Xbox 360 = Release|Xbox 360
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Debug|x86.ActiveCfg = Debug|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Debug|x86.Build.0 = Debug|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Debug|Xbox 360.ActiveCfg = Debug|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Debug|Xbox 360.Build.0 = Debug|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release Win32|Any CPU.ActiveCfg = Release Win32|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release Win32|Mixed Platforms.ActiveCfg = Release Win32|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release Win32|Mixed Platforms.Build.0 = Release Win32|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release Win32|x86.ActiveCfg = Release Win32|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release Win32|x86.Build.0 = Release Win32|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release Win32|Xbox 360.ActiveCfg = Release Win32|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release Win32|Xbox 360.Build.0 = Release Win32|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release.Xbox|Any CPU.ActiveCfg = Release.Xbox|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release.Xbox|Mixed Platforms.ActiveCfg = Release.Xbox|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release.Xbox|Mixed Platforms.Build.0 = Release.Xbox|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release.Xbox|x86.ActiveCfg = Release.Xbox|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release.Xbox|x86.Build.0 = Release.Xbox|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release.Xbox|Xbox 360.ActiveCfg = Release.Xbox|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release.Xbox|Xbox 360.Build.0 = Release.Xbox|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release|Any CPU.ActiveCfg = Release|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release|Mixed Platforms.Build.0 = Release|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release|x86.ActiveCfg = Release|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release|x86.Build.0 = Release|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release|Xbox 360.ActiveCfg = Release|x86
-		{DCDDA578-009A-4994-8B30-4589B69248FB}.Release|Xbox 360.Build.0 = Release|x86
 		{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}.Debug|x86.ActiveCfg = Debug|x86

@@ -5,9 +5,9 @@ using System.Text;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using System.Collections.ObjectModel;
-using Treefrog.V2.ViewModel.Utility;
+using Treefrog.ViewModel.Utility;
 
-namespace Treefrog.V2.ViewModel.Layers
+namespace Treefrog.ViewModel.Layers
 {
     public class LevelGroupLayerVM : GroupLayerVM
     {

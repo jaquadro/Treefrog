@@ -1,10 +1,10 @@
-﻿<UserControl x:Class="Treefrog.V2.View.Panels.LayerPanel"
+﻿<UserControl x:Class="Treefrog.View.Panels.LayerPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Treefrog.V2.View.Panels"
-             xmlns:vm="clr-namespace:Treefrog.V2.ViewModel"
+             xmlns:local="clr-namespace:Treefrog.View.Panels"
+             xmlns:vm="clr-namespace:Treefrog.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -53,24 +53,24 @@
         <ToolBarTray Grid.Row="0" IsLocked="True">
             <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
                 <Button Command="{Binding NewLayerCommand}" CommandParameter="{x:Static vm:LayerType.Tile}">
-                    <Image Source="/Treefrog.V2;component/Images/16/layer--plus.png" Width="16" Height="16"
+                    <Image Source="/Treefrog;component/Images/16/layer--plus.png" Width="16" Height="16"
                            Style="{StaticResource ButtonImageDisabled}"/>
                 </Button>
                 <Button Command="{Binding DeleteCommand}">
-                    <Image Source="/Treefrog.V2;component/Images/16/layer--minus.png" Width="16" Height="16" 
+                    <Image Source="/Treefrog;component/Images/16/layer--minus.png" Width="16" Height="16" 
                            Style="{StaticResource ButtonImageDisabled}" />
                 </Button>
                 <Button>
-                    <Image Source="/Treefrog.V2;component/Images/16/layers.png" Width="16" Height="16"
+                    <Image Source="/Treefrog;component/Images/16/layers.png" Width="16" Height="16"
                            Style="{StaticResource ButtonImageDisabled}"/>
                 </Button>
                 <Separator />
                 <Button Command="{Binding MoveUpCommand}">
-                    <Image Source="/Treefrog.V2;component/Images/16/arrow-090.png" Width="16" Height="16"
+                    <Image Source="/Treefrog;component/Images/16/arrow-090.png" Width="16" Height="16"
                            Style="{StaticResource ButtonImageDisabled}"/>
                 </Button>
                 <Button Command="{Binding MoveDownCommand}">
-                    <Image Source="/Treefrog.V2;component/Images/16/arrow-270.png" Width="16" Height="16"
+                    <Image Source="/Treefrog;component/Images/16/arrow-270.png" Width="16" Height="16"
                            Style="{StaticResource ButtonImageDisabled}"/>
                 </Button>
             </ToolBar>
