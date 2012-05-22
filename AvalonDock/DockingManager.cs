@@ -1,4 +1,26 @@
-﻿using System;
+﻿//Copyright (c) 2007-2012, Adolfo Marinucci
+//All rights reserved.
+
+//Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+//following conditions are met:
+
+//* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+//* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
+//disclaimer in the documentation and/or other materials provided with the distribution.
+
+//* Neither the name of Adolfo Marinucci nor the names of its contributors may be used to endorse or promote products
+//derived from this software without specific prior written permission.
+
+//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+//INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+//IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+//EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+//STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+//EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +50,7 @@ namespace AvalonDock
         static DockingManager()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(DockingManager), new FrameworkPropertyMetadata(typeof(DockingManager)));
-            FocusableProperty.OverrideMetadata(typeof(DockingManager), new FrameworkPropertyMetadata(true));
+            FocusableProperty.OverrideMetadata(typeof(DockingManager), new FrameworkPropertyMetadata(false));
             HwndSource.DefaultAcquireHwndFocusInMenuMode = false;
             Keyboard.DefaultRestoreFocusMode = RestoreFocusMode.None;
         }
@@ -75,6 +97,7 @@ namespace AvalonDock
         /// </summary>
         protected virtual void OnLayoutChanged(LayoutRoot oldLayout, LayoutRoot newLayout)
         {
+
             if (oldLayout != null)
             {
                 oldLayout.PropertyChanged -= new PropertyChangedEventHandler(OnLayoutRootPropertyChanged);
@@ -83,16 +106,18 @@ namespace AvalonDock
 
             foreach (var fwc in _fwList.ToArray())
                 fwc.InternalClose();
-            //Debug.Assert(_fwList.Count == 0, "FloatingWindow list must be empty at this point!");
+
             _fwList.Clear();
 
             DetachDocumentsSource(oldLayout, DocumentsSource);
+            DetachAnchorablesSource(oldLayout, AnchorablesSource);
 
             if (oldLayout != null &&
                 oldLayout.Manager == this)
                 oldLayout.Manager = null;
 
             ClearLogicalChildrenList();
+            DetachLayoutItems();
 
             Layout.Manager = this;
 
@@ -104,14 +129,18 @@ namespace AvalonDock
                 RightSidePanel = CreateUIElementForModel(Layout.RightSide) as LayoutAnchorSideControl;
                 BottomSidePanel = CreateUIElementForModel(Layout.BottomSide) as LayoutAnchorSideControl;
 
-                foreach (var fw in Layout.FloatingWindows)
-                    _fwList.Add(CreateUIElementForModel(fw) as LayoutFloatingWindowControl);
+                foreach (var fw in Layout.FloatingWindows.ToArray())
+                {
+                    if (fw.IsValid)
+                       _fwList.Add(CreateUIElementForModel(fw) as LayoutFloatingWindowControl);
+                }
 
                 foreach (var fw in _fwList)
                     fw.Owner = Window.GetWindow(this);
             }
 
             AttachDocumentsSource(newLayout, DocumentsSource);
+            AttachAnchorablesSource(newLayout, AnchorablesSource);
 
             if (newLayout != null)
             {
@@ -119,8 +148,11 @@ namespace AvalonDock
                 newLayout.Updated += new EventHandler(OnLayoutRootUpdated);
             }
 
+            AttachLayoutItems();
+
             if (LayoutChanged != null)
                 LayoutChanged(this, EventArgs.Empty);
+
 
             CommandManager.InvalidateRequerySuggested();
         }
@@ -145,7 +177,7 @@ namespace AvalonDock
                         {
                             if (Layout.ActiveContent != null)
                                 FocusElementManager.SetFocusOnLastElement(Layout.ActiveContent);
-                        }), DispatcherPriority.Loaded);
+                        }), DispatcherPriority.Background);
                 }
 
                 if (!_insideInternalSetActiveContent)
@@ -327,6 +359,8 @@ namespace AvalonDock
 
             return null;
         }
+
+        
 
         #region DocumentPaneTemplate
 
@@ -573,6 +607,8 @@ namespace AvalonDock
         /// </summary>
         protected virtual void OnDocumentHeaderTemplateChanged(DependencyPropertyChangedEventArgs e)
         {
+            if (DocumentPaneMenuItemHeaderTemplate == null)
+                DocumentPaneMenuItemHeaderTemplate = DocumentHeaderTemplate;
         }
 
         /// <summary>
@@ -625,6 +661,10 @@ namespace AvalonDock
             if (e.NewValue != null &&
                 DocumentHeaderTemplate != null)
                 DocumentHeaderTemplate = null;
+
+            if (DocumentPaneMenuItemHeaderTemplateSelector == null)
+                DocumentPaneMenuItemHeaderTemplateSelector = DocumentHeaderTemplateSelector;
+
         }
 
         /// <summary>
@@ -915,20 +955,20 @@ namespace AvalonDock
 
         protected override void OnGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
-            if (e.NewFocus is Grid)
-                Debug.WriteLine(string.Format("DockingManager.OnGotKeyboardFocus({0})", e.NewFocus));
+            //if (e.NewFocus is Grid)
+            //    Debug.WriteLine(string.Format("DockingManager.OnGotKeyboardFocus({0})", e.NewFocus));
             base.OnGotKeyboardFocus(e);
         }
 
         protected override void OnPreviewGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
-            Debug.WriteLine(string.Format("DockingManager.OnPreviewGotKeyboardFocus({0})", e.NewFocus));
+            //Debug.WriteLine(string.Format("DockingManager.OnPreviewGotKeyboardFocus({0})", e.NewFocus));
             base.OnPreviewGotKeyboardFocus(e);
         }
 
         protected override void OnPreviewLostKeyboardFocus(KeyboardFocusChangedEventArgs e)
         {
-            Debug.WriteLine(string.Format("DockingManager.OnPreviewLostKeyboardFocus({0})", e.OldFocus));
+            //Debug.WriteLine(string.Format("DockingManager.OnPreviewLostKeyboardFocus({0})", e.OldFocus));
             base.OnPreviewLostKeyboardFocus(e);
         }
 
@@ -956,7 +996,7 @@ namespace AvalonDock
 
         /// <summary>
         /// Gets or sets the LayoutRootPanel property.  This dependency property 
-        /// indicates ....
+        /// indicates the layout panel control which is attached to the Layout.Root property.
         /// </summary>
         public LayoutPanelControl LayoutRootPanel
         {
@@ -1150,8 +1190,6 @@ namespace AvalonDock
         #endregion
 
 
-
-
         #region LogicalChildren
 
         List<object> _logicalChildren = new List<object>();
@@ -1167,7 +1205,7 @@ namespace AvalonDock
 
         void ILogicalChildrenContainer.InternalAddLogicalChild(object element)
         {
-            System.Diagnostics.Debug.WriteLine("[{0}]InternalAddLogicalChild({1})", this, element);
+            //System.Diagnostics.Debug.WriteLine("[{0}]InternalAddLogicalChild({1})", this, element);
 
             if (_logicalChildren.Contains(element))
                 throw new InvalidOperationException();
@@ -1177,7 +1215,7 @@ namespace AvalonDock
 
         void ILogicalChildrenContainer.InternalRemoveLogicalChild(object element)
         {
-            System.Diagnostics.Debug.WriteLine("[{0}]InternalRemoveLogicalChild({1})", this, element);
+            //System.Diagnostics.Debug.WriteLine("[{0}]InternalRemoveLogicalChild({1})", this, element);
 
             if (_logicalChildren.Contains(element))
             {
@@ -1246,7 +1284,7 @@ namespace AvalonDock
 
         /// <summary>
         /// Gets the AutoHideWindow property.  This dependency property 
-        /// indicates ....
+        /// indicates the currently shown autohide window.
         /// </summary>
         public LayoutAutoHideWindowControl AutoHideWindow
         {
@@ -1255,7 +1293,7 @@ namespace AvalonDock
 
         /// <summary>
         /// Provides a secure method for setting the AutoHideWindow property.  
-        /// This dependency property indicates ....
+        /// This dependency property indicates the currently shown autohide window.
         /// </summary>
         /// <param name="value">The new value for the property.</param>
         protected void SetAutoHideWindow(LayoutAutoHideWindowControl value)
@@ -1291,8 +1329,13 @@ namespace AvalonDock
         #region Floating Windows
         List<LayoutFloatingWindowControl> _fwList = new List<LayoutFloatingWindowControl>();
 
-        internal void StartDraggingFloatingWindowForContent(LayoutContent contentModel)
+        internal void StartDraggingFloatingWindowForContent(LayoutContent contentModel, bool startDrag = true)
         {
+            var contentModelAsAnchorable = contentModel as LayoutAnchorable;
+            if (contentModelAsAnchorable != null &&
+                contentModelAsAnchorable.IsAutoHidden)
+                contentModelAsAnchorable.ToggleAutoHide();
+
             var parentPane = contentModel.Parent as ILayoutPane;
             var parentPaneAsPositionableElement = contentModel.Parent as ILayoutPositionableElement;
             var parentPaneAsWithActualSize = contentModel.Parent as ILayoutPositionableElementWithActualSize;
@@ -1327,7 +1370,11 @@ namespace AvalonDock
                             DockWidth = parentPaneAsPositionableElement.DockWidth,
                             DockHeight = parentPaneAsPositionableElement.DockHeight,
                             DockMinHeight = parentPaneAsPositionableElement.DockMinHeight,
-                            DockMinWidth = parentPaneAsPositionableElement.DockMinWidth
+                            DockMinWidth = parentPaneAsPositionableElement.DockMinWidth,
+                            FloatingLeft = parentPaneAsPositionableElement.FloatingLeft,
+                            FloatingTop = parentPaneAsPositionableElement.FloatingTop,
+                            FloatingWidth = parentPaneAsPositionableElement.FloatingWidth,
+                            FloatingHeight = parentPaneAsPositionableElement.FloatingHeight,
                         })
                 };
 
@@ -1362,7 +1409,8 @@ namespace AvalonDock
             
             Layout.CollectGarbage();
 
-            fwc.AttachDrag();
+            if (startDrag)
+                fwc.AttachDrag();
             fwc.Show();
         }
 
@@ -1384,7 +1432,11 @@ namespace AvalonDock
                 DockWidth = paneAsPositionableElement.DockWidth,
                 DockHeight = paneAsPositionableElement.DockHeight,
                 DockMinHeight = paneAsPositionableElement.DockMinHeight,
-                DockMinWidth = paneAsPositionableElement.DockMinWidth
+                DockMinWidth = paneAsPositionableElement.DockMinWidth,
+                FloatingLeft = paneAsPositionableElement.FloatingLeft,
+                FloatingTop = paneAsPositionableElement.FloatingTop,
+                FloatingWidth = paneAsPositionableElement.FloatingWidth,
+                FloatingHeight = paneAsPositionableElement.FloatingHeight,
             };
 
             bool savePreviousContainer = paneModel.FindParent<LayoutFloatingWindow>() == null;
@@ -1438,7 +1490,6 @@ namespace AvalonDock
 
         }
 
-
         internal IEnumerable<LayoutFloatingWindowControl> GetFloatingWindowsByZOrder()
         {
             var parentWindow = Window.GetWindow(this);
@@ -1462,6 +1513,11 @@ namespace AvalonDock
         internal void RemoveFloatingWindow(LayoutFloatingWindowControl floatingWindow)
         {
             _fwList.Remove(floatingWindow);
+        }
+
+        public IEnumerable<LayoutFloatingWindowControl> FloatingWindows
+        {
+            get { return _fwList; }
         }
         #endregion
 
@@ -1563,284 +1619,82 @@ namespace AvalonDock
 
         #endregion
 
-        #region AutoHide
-        public void ToggleAutoHide(LayoutAnchorable anchorableModel)
-        {
-            #region Anchorable is already auto hidden
-            if (anchorableModel.Parent is LayoutAnchorGroup)
-            {
-                var parentGroup = anchorableModel.Parent as LayoutAnchorGroup;
-                var parentSide = parentGroup.Parent as LayoutAnchorSide;
-                var previousContainer = parentGroup.PreviousContainer;
-
-                if (previousContainer == null)
-                {
-                    AnchorSide side = (parentGroup.Parent as LayoutAnchorSide).Side;
-                    switch (side)
-                    {
-                        case AnchorSide.Right:
-                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Horizontal)
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                parentGroup.Root.RootPanel.Children.Add(previousContainer);
-                            }
-                            else
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Horizontal };
-                                LayoutRoot root = parentGroup.Root as LayoutRoot;
-                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
-                                root.RootPanel = panel;
-                                panel.Children.Add(oldRootPanel);
-                                panel.Children.Add(previousContainer);
-                            }
-                            break;
-                        case AnchorSide.Left:
-                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Horizontal)
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                parentGroup.Root.RootPanel.Children.Insert(0, previousContainer);
-                            }
-                            else
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Horizontal };
-                                LayoutRoot root = parentGroup.Root as LayoutRoot;
-                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
-                                root.RootPanel = panel;
-                                panel.Children.Add(previousContainer);
-                                panel.Children.Add(oldRootPanel);
-                            }
-                            break;
-                        case AnchorSide.Top:
-                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Vertical)
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                parentGroup.Root.RootPanel.Children.Insert(0, previousContainer);
-                            }
-                            else
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Vertical };
-                                LayoutRoot root = parentGroup.Root as LayoutRoot;
-                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
-                                root.RootPanel = panel;
-                                panel.Children.Add(previousContainer);
-                                panel.Children.Add(oldRootPanel);
-                            }
-                            break;
-                        case AnchorSide.Bottom:
-                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Vertical)
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                parentGroup.Root.RootPanel.Children.Add(previousContainer);
-                            }
-                            else
-                            {
-                                previousContainer = new LayoutAnchorablePane();
-                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Vertical };
-                                LayoutRoot root = parentGroup.Root as LayoutRoot;
-                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
-                                root.RootPanel = panel;
-                                panel.Children.Add(oldRootPanel);
-                                panel.Children.Add(previousContainer);
-                            }
-                            break;
-                    }
-                }
-
-
-                foreach (var anchorableToToggle in parentGroup.Children.ToArray())
-                    previousContainer.Children.Add(anchorableToToggle);
-
-                parentSide.Children.Remove(parentGroup);
-
-                HideAutoHideWindow();
-            }
-            #endregion
-            #region Anchorable is docked
-            else if (anchorableModel.Parent is LayoutAnchorablePane)
-            {
-                var parentPane = anchorableModel.Parent as LayoutAnchorablePane;
-
-                var newAnchorGroup = new LayoutAnchorGroup() { PreviousContainer = parentPane };
-
-                foreach (var anchorableToImport in parentPane.Children.ToArray())
-                    newAnchorGroup.Children.Add(anchorableToImport);
-
-                //detect anchor side for the pane
-                var anchorSide = parentPane.GetSide();
-
-                switch (anchorSide)
-                {
-                    case AnchorSide.Right:
-                        Layout.RightSide.Children.Add(newAnchorGroup);
-                        break;
-                    case AnchorSide.Left:
-                        Layout.LeftSide.Children.Add(newAnchorGroup);
-                        break;
-                    case AnchorSide.Top:
-                        Layout.TopSide.Children.Add(newAnchorGroup);
-                        break;
-                    case AnchorSide.Bottom:
-                        Layout.BottomSide.Children.Add(newAnchorGroup);
-                        break;
-                }
-            }
-            #endregion
-        }
-
-        #endregion
-
         #region LayoutDocument & LayoutAnchorable Templates
 
-        #region DocumentTemplate
+        #region LayoutItemTemplate
 
         /// <summary>
-        /// DocumentTemplate Dependency Property
+        /// LayoutItemTemplate Dependency Property
         /// </summary>
-        public static readonly DependencyProperty DocumentTemplateProperty =
-            DependencyProperty.Register("DocumentTemplate", typeof(DataTemplate), typeof(DockingManager),
+        public static readonly DependencyProperty LayoutItemTemplateProperty =
+            DependencyProperty.Register("LayoutItemTemplate", typeof(DataTemplate), typeof(DockingManager),
                 new FrameworkPropertyMetadata((DataTemplate)null,
-                    new PropertyChangedCallback(OnDocumentTemplateChanged)));
-
-        /// <summary>
-        /// Gets or sets the DocumentTemplate property.  This dependency property 
-        /// indicates data template to used when creating document contents.
-        /// </summary>
-        public DataTemplate DocumentTemplate
-        {
-            get { return (DataTemplate)GetValue(DocumentTemplateProperty); }
-            set { SetValue(DocumentTemplateProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the DocumentTemplate property.
-        /// </summary>
-        private static void OnDocumentTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnDocumentTemplateChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the DocumentTemplate property.
-        /// </summary>
-        protected virtual void OnDocumentTemplateChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        #endregion
-
-        #region DocumentTemplateSelector
-
-        /// <summary>
-        /// DocumentTemplateSelector Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty DocumentTemplateSelectorProperty =
-            DependencyProperty.Register("DocumentTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplateSelector)null,
-                    new PropertyChangedCallback(OnDocumentTemplateSelectorChanged)));
-
-        /// <summary>
-        /// Gets or sets the DocumentTemplateSelector property.  This dependency property 
-        /// indicates the data template selector to use when creating data templates for documents.
-        /// </summary>
-        public DataTemplateSelector DocumentTemplateSelector
-        {
-            get { return (DataTemplateSelector)GetValue(DocumentTemplateSelectorProperty); }
-            set { SetValue(DocumentTemplateSelectorProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the DocumentTemplateSelector property.
-        /// </summary>
-        private static void OnDocumentTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnDocumentTemplateSelectorChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the DocumentTemplateSelector property.
-        /// </summary>
-        protected virtual void OnDocumentTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        #endregion
-
-        #region AnchorableTemplate
-
-        /// <summary>
-        /// AnchorableTemplate Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty AnchorableTemplateProperty =
-            DependencyProperty.Register("AnchorableTemplate", typeof(DataTemplate), typeof(DockingManager),
-                new FrameworkPropertyMetadata((DataTemplate)null,
-                    new PropertyChangedCallback(OnAnchorableTemplateChanged)));
+                    new PropertyChangedCallback(OnLayoutItemTemplateChanged)));
 
         /// <summary>
         /// Gets or sets the AnchorableTemplate property.  This dependency property 
-        /// indicates the template to use to render anchorable contents.
+        /// indicates the template to use to render anchorable and document contents.
         /// </summary>
-        public DataTemplate AnchorableTemplate
+        public DataTemplate LayoutItemTemplate
         {
-            get { return (DataTemplate)GetValue(AnchorableTemplateProperty); }
-            set { SetValue(AnchorableTemplateProperty, value); }
+            get { return (DataTemplate)GetValue(LayoutItemTemplateProperty); }
+            set { SetValue(LayoutItemTemplateProperty, value); }
         }
 
         /// <summary>
         /// Handles changes to the AnchorableTemplate property.
         /// </summary>
-        private static void OnAnchorableTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnLayoutItemTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((DockingManager)d).OnAnchorableTemplateChanged(e);
+            ((DockingManager)d).OnLayoutItemTemplateChanged(e);
         }
 
         /// <summary>
         /// Provides derived classes an opportunity to handle changes to the AnchorableTemplate property.
         /// </summary>
-        protected virtual void OnAnchorableTemplateChanged(DependencyPropertyChangedEventArgs e)
+        protected virtual void OnLayoutItemTemplateChanged(DependencyPropertyChangedEventArgs e)
         {
         }
 
         #endregion
 
-        #region AnchorableTemplateSelector
+        #region LayoutItemTemplateSelector
 
         /// <summary>
-        /// AnchorableTemplateSelector Dependency Property
+        /// LayoutItemTemplateSelector Dependency Property
         /// </summary>
-        public static readonly DependencyProperty AnchorableTemplateSelectorProperty =
-            DependencyProperty.Register("AnchorableTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
+        public static readonly DependencyProperty LayoutItemTemplateSelectorProperty =
+            DependencyProperty.Register("LayoutItemTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
                 new FrameworkPropertyMetadata((DataTemplateSelector)null,
-                    new PropertyChangedCallback(OnAnchorableTemplateSelectorChanged)));
+                    new PropertyChangedCallback(OnLayoutItemTemplateSelectorChanged)));
 
         /// <summary>
-        /// Gets or sets the AnchorableTemplateSelector property.  This dependency property 
+        /// Gets or sets the LayoutItemTemplateSelector property.  This dependency property 
         /// indicates selector object to use for anchorable templates.
         /// </summary>
-        public DataTemplateSelector AnchorableTemplateSelector
+        public DataTemplateSelector LayoutItemTemplateSelector
         {
-            get { return (DataTemplateSelector)GetValue(AnchorableTemplateSelectorProperty); }
-            set { SetValue(AnchorableTemplateSelectorProperty, value); }
+            get { return (DataTemplateSelector)GetValue(LayoutItemTemplateSelectorProperty); }
+            set { SetValue(LayoutItemTemplateSelectorProperty, value); }
         }
 
         /// <summary>
-        /// Handles changes to the AnchorableTemplateSelector property.
+        /// Handles changes to the LayoutItemTemplateSelector property.
         /// </summary>
-        private static void OnAnchorableTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnLayoutItemTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((DockingManager)d).OnAnchorableTemplateSelectorChanged(e);
+            ((DockingManager)d).OnLayoutItemTemplateSelectorChanged(e);
         }
 
         /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the AnchorableTemplateSelector property.
+        /// Provides derived classes an opportunity to handle changes to the LayoutItemTemplateSelector property.
         /// </summary>
-        protected virtual void OnAnchorableTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
+        protected virtual void OnLayoutItemTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
         {
         }
 
         #endregion
+
 
         #endregion
 
@@ -1890,10 +1744,19 @@ namespace AvalonDock
             if (layout == null)
                 return;
 
-            if (layout.Descendents().OfType<LayoutDocument>().Any())
-                throw new InvalidOperationException("Unable to set the DocumentsSource property if LayoutDocument objects are already present in the model");
-
+            //if (layout.Descendents().OfType<LayoutDocument>().Any())
+            //    throw new InvalidOperationException("Unable to set the DocumentsSource property if LayoutDocument objects are already present in the model");
+            var documentsImported = layout.Descendents().OfType<LayoutDocument>().Select(d => d.Content).ToArray();
             var documents = documentsSource as IEnumerable;
+            var listOfDocumentsToImport = new List<object>(documents.OfType<object>());
+
+            foreach (var document in listOfDocumentsToImport.ToArray())
+            {
+                if (documentsImported.Contains(document))
+                    listOfDocumentsToImport.Remove(document);
+            }
+
+
             LayoutDocumentPane documentPane = null;
             if (layout.LastFocusedDocument != null)
             {
@@ -1907,7 +1770,7 @@ namespace AvalonDock
 
             if (documentPane != null)
             {
-                foreach (var documentToImport in (documentsSource as IEnumerable))
+                foreach (var documentToImport in listOfDocumentsToImport)
                 {
                     documentPane.Children.Add(new LayoutDocument() { Content = documentToImport });
                 }
@@ -2012,69 +1875,7 @@ namespace AvalonDock
 
         #region DocumentCloseCommand
 
-        static ICommand _defaultDocumentCloseCommand = new RelayCommand((p)=>ExecuteDocumentCloseCommand(p), (p) => CanExecuteDocumentCloseCommand(p));
-
-        /// <summary>
-        /// DocumentCloseCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty DocumentCloseCommandProperty =
-            DependencyProperty.Register("DocumentCloseCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata(_defaultDocumentCloseCommand,
-                    new PropertyChangedCallback(OnDocumentCloseCommandChanged),
-                    new CoerceValueCallback(CoerceDocumentCloseCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the DocumentCloseCommand property.  This dependency property 
-        /// indicates the command to execute when user click the document close button.
-        /// </summary>
-        public ICommand DocumentCloseCommand
-        {
-            get { return (ICommand)GetValue(DocumentCloseCommandProperty); }
-            set { SetValue(DocumentCloseCommandProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the DocumentCloseCommand property.
-        /// </summary>
-        private static void OnDocumentCloseCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnDocumentCloseCommandChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the DocumentCloseCommand property.
-        /// </summary>
-        protected virtual void OnDocumentCloseCommandChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Coerces the DocumentCloseCommand value.
-        /// </summary>
-        private static object CoerceDocumentCloseCommandValue(DependencyObject d, object value)
-        {
-            if (value == null)
-                return _defaultDocumentCloseCommand;
-
-            return value;
-        }
-
-        private static bool CanExecuteDocumentCloseCommand(object parameter)
-        {
-            return parameter != null;
-        }
-
-        private static void ExecuteDocumentCloseCommand(object parameter)
-        {
-            var document = parameter as LayoutDocument;
-            if (document == null)
-                return;
-
-            var dockingManager = document.Root.Manager;
-            dockingManager._ExecuteDocumentCloseCommand(document);
-        }
-
-        void _ExecuteDocumentCloseCommand(LayoutDocument document)
+        internal void _ExecuteCloseCommand(LayoutDocument document)
         {
             if (DocumentClosing != null)
             {
@@ -2086,10 +1887,10 @@ namespace AvalonDock
 
             document.Close();
 
-            if (DocumentClose != null)
+            if (DocumentClosed != null)
             { 
-                var evargs = new DocumentCloseEventArgs(document);
-                DocumentClose(this, evargs);
+                var evargs = new DocumentClosedEventArgs(document);
+                DocumentClosed(this, evargs);
             }
         }
 
@@ -2097,113 +1898,27 @@ namespace AvalonDock
         /// Event fired when a document is about to be closed
         /// </summary>
         /// <remarks>Subscribers have the opportuniy to cancel the operation.</remarks>
-        public event EventHandler<CancelEventArgs> DocumentClosing;
+        public event EventHandler<DocumentClosingEventArgs> DocumentClosing;
 
         /// <summary>
         /// Event fired after a document is closed
         /// </summary>
-        public event EventHandler DocumentClose;
+        public event EventHandler<DocumentClosedEventArgs> DocumentClosed;
 
 
 
         #endregion
 
-        #region DocumentCloseAllButThisCommand
-        static ICommand _defaultDocumentCloseAllButThisCommand = new RelayCommand((p) => ExecuteDocumentCloseAllButThisCommand(p), (p) => CanExecuteDocumentCloseAllButThisCommand(p));
-
-        /// <summary>
-        /// DocumentCloseAllButThisCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty DocumentCloseAllButThisCommandProperty =
-            DependencyProperty.Register("DocumentCloseAllButThisCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata(_defaultDocumentCloseAllButThisCommand,
-                    new PropertyChangedCallback(OnDocumentCloseAllButThisCommandChanged),
-                    new CoerceValueCallback(CoerceDocumentCloseAllButThisCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the DocumentCloseAllButThisCommand property.  This dependency property 
-        /// indicates the 'Close All But This' command.
-        /// </summary>
-        public ICommand DocumentCloseAllButThisCommand
+        internal void _ExecuteCloseAllButThisCommand(LayoutContent contentSelected)
         {
-            get { return (ICommand)GetValue(DocumentCloseAllButThisCommandProperty); }
-            set { SetValue(DocumentCloseAllButThisCommandProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the DocumentCloseAllButThisCommand property.
-        /// </summary>
-        private static void OnDocumentCloseAllButThisCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnDocumentCloseAllButThisCommandChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the DocumentCloseAllButThisCommand property.
-        /// </summary>
-        protected virtual void OnDocumentCloseAllButThisCommandChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Coerces the DocumentCloseAllButThisCommand value.
-        /// </summary>
-        private static object CoerceDocumentCloseAllButThisCommandValue(DependencyObject d, object value)
-        {
-            if (value == null)
-                return _defaultDocumentCloseAllButThisCommand;
-
-            return value;
-        }
-
-        private static bool CanExecuteDocumentCloseAllButThisCommand(object parameter)
-        {
-            var document = parameter as LayoutDocument;
-            if (document == null)
-                return false;
-            var root = document.Root;
-            if (root == null)
-                return false;
-
-            return document.Root.Manager.Layout.
-                Descendents().OfType<LayoutDocument>().Where(d => d != document).Any();
-        }
-
-        private static void ExecuteDocumentCloseAllButThisCommand(object parameter)
-        {
-            var document = parameter as LayoutDocument;
-            if (document == null)
-                return;
-            var root = document.Root;
-            if (root == null)
-                return;
-
-            root.Manager._ExecuteDocumentCloseAllButThisCommand(document);
-        }
-
-        void _ExecuteDocumentCloseAllButThisCommand(LayoutDocument document)
-        {
-            foreach (var documentToClose in Layout.Descendents().OfType<LayoutDocument>().Where(d => d != document).ToArray())
+            foreach (var contentToClose in Layout.Descendents().OfType<LayoutContent>().Where(d => d != contentSelected && (d.Parent is LayoutDocumentPane || d.Parent is LayoutDocumentFloatingWindow)).ToArray())
             {
-                if (DocumentClosing != null)
-                {
-                    var evargs = new DocumentClosingEventArgs(documentToClose);
-                    DocumentClosing(this, evargs);
-                    if (evargs.Cancel)
-                        continue;
-                }
-
-                documentToClose.Close();
-
-                if (DocumentClose != null)
-                {
-                    var evargs = new DocumentCloseEventArgs(document);
-                    DocumentClose(this, evargs);
-                }
+                if (contentToClose is LayoutDocument)
+                    _ExecuteCloseCommand(contentToClose as LayoutDocument);
+                else if (contentToClose is LayoutAnchorable)
+                    _ExecuteCloseCommand(contentToClose as LayoutAnchorable);
             }
         }
-
-        #endregion
 
         #region DocumentContextMenu
 
@@ -2225,8 +1940,6 @@ namespace AvalonDock
         }
 
         #endregion
-
-
 
         #region AnchorablesSource
 
@@ -2265,7 +1978,6 @@ namespace AvalonDock
             AttachAnchorablesSource(Layout, e.NewValue as IEnumerable);
         }
 
-
         void AttachAnchorablesSource(LayoutRoot layout, IEnumerable anchorablesSource)
         {
             if (anchorablesSource == null)
@@ -2274,10 +1986,18 @@ namespace AvalonDock
             if (layout == null)
                 return;
 
-            if (layout.Descendents().OfType<LayoutAnchorable>().Any())
-                throw new InvalidOperationException("Unable to set the AnchorablesSource property if LayoutAnchorable objects are already present in the model");
-
+            //if (layout.Descendents().OfType<LayoutAnchorable>().Any())
+            //    throw new InvalidOperationException("Unable to set the AnchorablesSource property if LayoutAnchorable objects are already present in the model");
+            var anchorablesImported = layout.Descendents().OfType<LayoutAnchorable>().Select(d => d.Content).ToArray();
             var anchorables = anchorablesSource as IEnumerable;
+            var listOfAnchorablesToImport = new List<object>(anchorables.OfType<object>());
+
+            foreach (var document in listOfAnchorablesToImport.ToArray())
+            {
+                if (anchorablesImported.Contains(document))
+                    listOfAnchorablesToImport.Remove(document);
+            }
+
             LayoutAnchorablePane anchorablePane = null;
             if (layout.ActiveContent != null)
             {
@@ -2305,10 +2025,40 @@ namespace AvalonDock
 
             if (anchorablePane != null)
             {
-                foreach (var anchorableToImport in (anchorablesSource as IEnumerable))
+                _suspendLayoutItemCreation = true;
+                foreach (var anchorableContentToImport in listOfAnchorablesToImport)
                 {
-                    anchorablePane.Children.Add(new LayoutAnchorable() { Content = anchorableToImport });
+                    var anchorableToImport = new LayoutAnchorable()
+                    {
+                        Content = anchorableContentToImport
+                    };
+
+                    bool added = false;
+                    if (LayoutUpdateStrategy != null)
+                    {
+                        added = LayoutUpdateStrategy.BeforeInsertAnchorable(layout, anchorableToImport, anchorablePane);
+                    }
+
+                    if (!added && anchorablePane != null)
+                    {
+                        anchorablePane.Children.Add(anchorableToImport);
+                        added = true;
+                    }
+
+                    if (!added && LayoutUpdateStrategy != null)
+                    {
+                        added = LayoutUpdateStrategy.InsertAnchorable(layout, anchorableToImport, anchorablePane);
+                    }
+
+                    if (added)
+                    {
+                        var anchorableItem = new LayoutAnchorableItem(anchorableToImport);
+                        ApplyStyleToLayoutItem(anchorableItem);
+                        _layoutItems.Add(anchorableItem);
+                    }
                 }
+
+                _suspendLayoutItemCreation = false;
             }
 
             var anchorablesSourceAsNotifier = anchorablesSource as INotifyCollectionChanged;
@@ -2333,7 +2083,7 @@ namespace AvalonDock
             {
                 if (e.OldItems != null)
                 {
-                    var anchorablesToRemove = Layout.Descendents().OfType<LayoutDocument>().Where(d => e.OldItems.Contains(d.Content)).ToArray();
+                    var anchorablesToRemove = Layout.Descendents().OfType<LayoutAnchorable>().Where(d => e.OldItems.Contains(d.Content)).ToArray();
                     foreach (var anchorableToRemove in anchorablesToRemove)
                     {
                         (anchorableToRemove.Parent as ILayoutContainer).RemoveChild(
@@ -2368,7 +2118,7 @@ namespace AvalonDock
                         //look for an available pane
                         anchorablePane = Layout.Descendents().OfType<LayoutAnchorablePane>().FirstOrDefault();
                     }
-
+                    _suspendLayoutItemCreation = true;
                     foreach (var anchorableContentToImport in e.NewItems)
                     {
                         var anchorableToImport = new LayoutAnchorable()
@@ -2379,27 +2129,39 @@ namespace AvalonDock
                         bool added = false;
                         if (LayoutUpdateStrategy != null)
                         {
-                            added = LayoutUpdateStrategy.BeforeInsertAnchorable(anchorableToImport, anchorablePane);
+                            added = LayoutUpdateStrategy.BeforeInsertAnchorable(Layout, anchorableToImport, anchorablePane);
                         }
 
                         if (!added && anchorablePane != null)
                         {
                             anchorablePane.Children.Add(anchorableToImport);
+                            added = true;
                         }
 
                         if (!added && LayoutUpdateStrategy != null)
                         {
-                            LayoutUpdateStrategy.InsertAnchorable(anchorableToImport, anchorablePane);
+                            added = LayoutUpdateStrategy.InsertAnchorable(Layout, anchorableToImport, anchorablePane);
                         }
+
+                        var root = anchorableToImport.Root;
+
+                        if (added && root != null && root.Manager == this)
+                        {
+                            var anchorableItem = new LayoutAnchorableItem(anchorableToImport);
+                            ApplyStyleToLayoutItem(anchorableItem);
+                            _layoutItems.Add(anchorableItem);
+                        }
+
                     }
+                    _suspendLayoutItemCreation = false;
                 }
             }
 
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                //NOTE: I'm going to clear every document present in layout but
-                //some documents may have been added directly to the layout, for now I clear them too
-                var anchorablesToRemove = Layout.Descendents().OfType<LayoutDocument>().ToArray();
+                //NOTE: I'm going to clear every anchorable present in layout but
+                //some anchorable may have been added directly to the layout, for now I clear them too
+                var anchorablesToRemove = Layout.Descendents().OfType<LayoutAnchorable>().ToArray();
                 foreach (var anchorableToRemove in anchorablesToRemove)
                 {
                     (anchorableToRemove.Parent as ILayoutContainer).RemoveChild(
@@ -2432,397 +2194,59 @@ namespace AvalonDock
 
         #endregion
 
-        #region AnchorableCloseCommand
-
-        static ICommand _defaultAnchorableCloseCommand = new RelayCommand((p) => ExecuteAnchorableCloseCommand(p), (p) => CanExecuteAnchorableCloseCommand(p));
-
-        /// <summary>
-        /// AnchorableCloseCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty AnchorableCloseCommandProperty =
-            DependencyProperty.Register("AnchorableCloseCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata((ICommand)_defaultAnchorableCloseCommand,
-                    new PropertyChangedCallback(OnAnchorableCloseCommandChanged),
-                    new CoerceValueCallback(CoerceAnchorableCloseCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the AnchorableCloseCommand property.  This dependency property 
-        /// indicates the command to execute when an anchorable is closed.
-        /// </summary>
-        public ICommand AnchorableCloseCommand
-        {
-            get { return (ICommand)GetValue(AnchorableCloseCommandProperty); }
-            set { SetValue(AnchorableCloseCommandProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the AnchorableCloseCommand property.
-        /// </summary>
-        private static void OnAnchorableCloseCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnAnchorableCloseCommandChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the AnchorableCloseCommand property.
-        /// </summary>
-        protected virtual void OnAnchorableCloseCommandChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Coerces the AnchorableCloseCommand value.
-        /// </summary>
-        private static object CoerceAnchorableCloseCommandValue(DependencyObject d, object value)
-        {
-            if (value == null)
-                return _defaultAnchorableCloseCommand;
-
-            return value;
-        }
-
-
-        private static bool CanExecuteAnchorableCloseCommand(object anchorable)
-        {
-            return true;
-        }
-
-        private static void ExecuteAnchorableCloseCommand(object anchorable)
+        internal void _ExecuteCloseCommand(LayoutAnchorable anchorable)
         {
             var model = anchorable as LayoutAnchorable;
             if (model != null)
             {
-                if (model.Parent is LayoutAnchorGroup)
-                    model.Root.Manager.ToggleAutoHide(model);
+                if (model.IsAutoHidden)
+                    model.ToggleAutoHide();
 
                 model.Close();
                 return;
             }
-
-            var paneModel = anchorable as LayoutAnchorablePane;
-            if (paneModel != null)
-            {
-                foreach (var anchorableModel in paneModel.Children.ToArray())
-                {
-                    anchorableModel.Close();
-                }
-            }
         }
 
-        #endregion
-
-        #region AnchorableHideCommand
-
-        static ICommand _defaultAnchorableHideCommand = new RelayCommand((p) => ExecuteAnchorableHideCommand(p), (p) => CanExecuteAnchorableHideCommand(p));
-
-        /// <summary>
-        /// AnchorableHideCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty AnchorableHideCommandProperty =
-            DependencyProperty.Register("AnchorableHideCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata((ICommand)_defaultAnchorableHideCommand,
-                    new PropertyChangedCallback(OnAnchorableHideCommandChanged),
-                    new CoerceValueCallback(CoerceAnchorableHideCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the AnchorableHideCommand property.  This dependency property 
-        /// indicates the command to execute when an anchorable is hidden.
-        /// </summary>
-        public ICommand AnchorableHideCommand
-        {
-            get { return (ICommand)GetValue(AnchorableHideCommandProperty); }
-            set { SetValue(AnchorableHideCommandProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the AnchorableHideCommand property.
-        /// </summary>
-        private static void OnAnchorableHideCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnAnchorableHideCommandChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the AnchorableHideCommand property.
-        /// </summary>
-        protected virtual void OnAnchorableHideCommandChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Coerces the AnchorableHideCommand value.
-        /// </summary>
-        private static object CoerceAnchorableHideCommandValue(DependencyObject d, object value)
-        {
-            if (value == null)
-                return _defaultAnchorableHideCommand;
-
-            return value;
-        }
-
-
-        private static bool CanExecuteAnchorableHideCommand(object anchorable)
-        {
-            return true;
-        }
-
-        private static void ExecuteAnchorableHideCommand(object anchorable)
+        internal void _ExecuteHideCommand(LayoutAnchorable anchorable)
         {
             var model = anchorable as LayoutAnchorable;
             if (model != null)
             {
-                if (model.Parent is LayoutAnchorGroup)
-                    model.Root.Manager.ToggleAutoHide(model);
+                if (model.IsAutoHidden)
+                    model.ToggleAutoHide();
                 //by default hide the anchorable
                 model.Hide();
             }
+
+            //var paneModel = anchorable as LayoutAnchorablePane;
+            //if (paneModel != null)
+            //{
+            //    foreach (var anchorableModel in paneModel.Children.ToArray())
+            //    {
+            //        anchorableModel.Hide();
+            //    }
+            //}
         }
 
-        #endregion
-
-        #region AnchorableAutoHideCommand
-
-        static ICommand _defaultAnchorableAutoHideCommand = new RelayCommand((p) => ExecuteAnchorableAutoHideCommand(p), (p) => CanExecuteAnchorableAutoHideCommand(p));
-
-        /// <summary>
-        /// AnchorableAutoHideCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty AnchorableAutoHideCommandProperty =
-            DependencyProperty.Register("AnchorableAutoHideCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata((ICommand)_defaultAnchorableAutoHideCommand,
-                    new PropertyChangedCallback(OnAnchorableAutoHideCommandChanged),
-                    new CoerceValueCallback(CoerceAnchorableAutoHideCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the AnchorableAutoHideCommand property.  This dependency property 
-        /// indicates the command to execute when user click the auto hide button.
-        /// </summary>
-        /// <remarks>By default this command toggles auto hide state for an anchorable.</remarks>
-        public ICommand AnchorableAutoHideCommand
+        internal void _ExecuteAutoHideCommand(LayoutAnchorable _anchorable)
         {
-            get { return (ICommand)GetValue(AnchorableAutoHideCommandProperty); }
-            set { SetValue(AnchorableAutoHideCommandProperty, value); }
+            _anchorable.ToggleAutoHide();
         }
 
-        /// <summary>
-        /// Handles changes to the AnchorableAutoHideCommand property.
-        /// </summary>
-        private static void OnAnchorableAutoHideCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        internal void _ExecuteFloatCommand(LayoutContent contentToFloat)
         {
-            ((DockingManager)d).OnAnchorableAutoHideCommandChanged(e);
+            contentToFloat.Float();
         }
 
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the AnchorableAutoHideCommand property.
-        /// </summary>
-        protected virtual void OnAnchorableAutoHideCommandChanged(DependencyPropertyChangedEventArgs e)
+        internal void _ExecuteDockCommand(LayoutAnchorable anchorable)
         {
+            anchorable.Dock();
         }
 
-        /// <summary>
-        /// Coerces the AnchorableAutoHideCommand value.
-        /// </summary>
-        private static object CoerceAnchorableAutoHideCommandValue(DependencyObject d, object value)
+        internal void _ExecuteDockAsDocumentCommand(LayoutContent content)
         {
-            return value;
+            content.DockAsDocument();
         }
-
-        private static bool CanExecuteAnchorableAutoHideCommand(object anchorable)
-        {
-            var model = anchorable as LayoutAnchorable;
-            if (model == null || model.FindParent<LayoutAnchorableFloatingWindow>() != null)
-                return false;//is floating
-            return true;
-        }
-
-        private static void ExecuteAnchorableAutoHideCommand(object anchorable)
-        {
-            var model = anchorable as LayoutAnchorable;
-            if (model != null)
-                model.Root.Manager.ToggleAutoHide(model);
-        }
-
-        #endregion
-
-        #region AnchorableFloatCommand
-
-        static ICommand _defaultAnchorableFloatCommand = new RelayCommand((p) => ExecuteAnchorableFloatCommand(p), (p) => CanExecuteAnchorableFloatCommand(p));
-
-        /// <summary>
-        /// AnchorableFloatCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty AnchorableFloatCommandProperty =
-            DependencyProperty.Register("AnchorableFloatCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata((ICommand)_defaultAnchorableFloatCommand,
-                    new PropertyChangedCallback(OnAnchorableFloatCommandChanged),
-                    new CoerceValueCallback(CoerceAnchorableFloatCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the AnchorableFloatCommand property.  This dependency property 
-        /// indicates the command to execute when user click the float button.
-        /// </summary>
-        /// <remarks>By default this command move the anchorable inside new floating window.</remarks>
-        public ICommand AnchorableFloatCommand
-        {
-            get { return (ICommand)GetValue(AnchorableFloatCommandProperty); }
-            set { SetValue(AnchorableFloatCommandProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the AnchorableFloatCommand property.
-        /// </summary>
-        private static void OnAnchorableFloatCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnAnchorableFloatCommandChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the AnchorableFloatCommand property.
-        /// </summary>
-        protected virtual void OnAnchorableFloatCommandChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Coerces the AnchorableFloatCommand value.
-        /// </summary>
-        private static object CoerceAnchorableFloatCommandValue(DependencyObject d, object value)
-        {
-            return value;
-        }
-
-        private static bool CanExecuteAnchorableFloatCommand(object p)
-        {
-            return true;
-        }
-
-        private static void ExecuteAnchorableFloatCommand(object anchorable)
-        {
-            var model = anchorable as LayoutAnchorable;
-            
-        }
-
-        #endregion
-
-        #region AnchorableDockCommand
-
-        static ICommand _defaultAnchorableDockCommand = new RelayCommand((p) => ExecuteAnchorableDockCommand(p), (p) => CanExecuteAnchorableDockCommand(p));
-
-        /// <summary>
-        /// AnchorableDockCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty AnchorableDockCommandProperty =
-            DependencyProperty.Register("AnchorableDockCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata((ICommand)_defaultAnchorableDockCommand,
-                    new PropertyChangedCallback(OnAnchorableDockCommandChanged),
-                    new CoerceValueCallback(CoerceAnchorableDockCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the AnchorableDockCommand property.  This dependency property 
-        /// indicates the command to execute when user click the Dock button.
-        /// </summary>
-        /// <remarks>By default this command moves the anchorable inside the container pane which previously hosted the object.</remarks>
-        public ICommand AnchorableDockCommand
-        {
-            get { return (ICommand)GetValue(AnchorableDockCommandProperty); }
-            set { SetValue(AnchorableDockCommandProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the AnchorableDockCommand property.
-        /// </summary>
-        private static void OnAnchorableDockCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnAnchorableDockCommandChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the AnchorableDockCommand property.
-        /// </summary>
-        protected virtual void OnAnchorableDockCommandChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Coerces the AnchorableDockCommand value.
-        /// </summary>
-        private static object CoerceAnchorableDockCommandValue(DependencyObject d, object value)
-        {
-            return value;
-        }
-
-        private static bool CanExecuteAnchorableDockCommand(object p)
-        {
-            return true;
-        }
-
-        private static void ExecuteAnchorableDockCommand(object anchorable)
-        {
-            var model = anchorable as LayoutAnchorable;
-
-        }
-
-        #endregion
-
-        #region AnchorableDockAsDocumentCommand
-
-        static ICommand _defaultAnchorableDockAsDocumentCommand = new RelayCommand((p) => ExecuteAnchorableDockAsDocumentCommand(p), (p) => CanExecuteAnchorableDockAsDocumentCommand(p));
-
-        /// <summary>
-        /// AnchorableDockAsDocumentCommand Dependency Property
-        /// </summary>
-        public static readonly DependencyProperty AnchorableDockAsDocumentCommandProperty =
-            DependencyProperty.Register("AnchorableDockAsDocumentCommand", typeof(ICommand), typeof(DockingManager),
-                new FrameworkPropertyMetadata((ICommand)_defaultAnchorableDockAsDocumentCommand,
-                    new PropertyChangedCallback(OnAnchorableDockAsDocumentCommandChanged),
-                    new CoerceValueCallback(CoerceAnchorableDockAsDocumentCommandValue)));
-
-        /// <summary>
-        /// Gets or sets the AnchorableDockAsDocumentCommand property.  This dependency property 
-        /// indicates the command to execute when user click the DockAsDocument button.
-        /// </summary>
-        /// <remarks>By default this command move the anchorable inside the last focused document pane.</remarks>
-        public ICommand AnchorableDockAsDocumentCommand
-        {
-            get { return (ICommand)GetValue(AnchorableDockAsDocumentCommandProperty); }
-            set { SetValue(AnchorableDockAsDocumentCommandProperty, value); }
-        }
-
-        /// <summary>
-        /// Handles changes to the AnchorableDockAsDocumentCommand property.
-        /// </summary>
-        private static void OnAnchorableDockAsDocumentCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((DockingManager)d).OnAnchorableDockAsDocumentCommandChanged(e);
-        }
-
-        /// <summary>
-        /// Provides derived classes an opportunity to handle changes to the AnchorableDockAsDocumentCommand property.
-        /// </summary>
-        protected virtual void OnAnchorableDockAsDocumentCommandChanged(DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Coerces the AnchorableDockAsDocumentCommand value.
-        /// </summary>
-        private static object CoerceAnchorableDockAsDocumentCommandValue(DependencyObject d, object value)
-        {
-            return value;
-        }
-
-        private static bool CanExecuteAnchorableDockAsDocumentCommand(object p)
-        {
-            return true;
-        }
-
-        private static void ExecuteAnchorableDockAsDocumentCommand(object anchorable)
-        {
-            var model = anchorable as LayoutAnchorable;
-
-        }
-
-        #endregion
 
         #region ActiveContent
 
@@ -2950,6 +2374,459 @@ namespace AvalonDock
 
         #endregion
 
+        #region GridSplitterWidth
 
+        /// <summary>
+        /// GridSplitterWidth Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty GridSplitterWidthProperty =
+            DependencyProperty.Register("GridSplitterWidth", typeof(double), typeof(DockingManager),
+                new FrameworkPropertyMetadata((double)6.0));
+
+        /// <summary>
+        /// Gets or sets the GridSplitterWidth property.  This dependency property 
+        /// indicates width of grid splitters.
+        /// </summary>
+        public double GridSplitterWidth
+        {
+            get { return (double)GetValue(GridSplitterWidthProperty); }
+            set { SetValue(GridSplitterWidthProperty, value); }
+        }
+
+        #endregion
+
+        #region GridSplitterHeight
+
+        /// <summary>
+        /// GridSplitterHeight Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty GridSplitterHeightProperty =
+            DependencyProperty.Register("GridSplitterHeight", typeof(double), typeof(DockingManager),
+                new FrameworkPropertyMetadata((double)6.0));
+
+        /// <summary>
+        /// Gets or sets the GridSplitterHeight property.  This dependency property 
+        /// indicates height of grid splitters.
+        /// </summary>
+        public double GridSplitterHeight
+        {
+            get { return (double)GetValue(GridSplitterHeightProperty); }
+            set { SetValue(GridSplitterHeightProperty, value); }
+        }
+
+        #endregion
+
+        internal void _ExecuteContentActivateCommand(LayoutContent content)
+        {
+            content.IsActive = true;
+        }
+
+        #region DocumentPaneMenuItemHeaderTemplate
+
+        /// <summary>
+        /// DocumentPaneMenuItemHeaderTemplate Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty DocumentPaneMenuItemHeaderTemplateProperty =
+            DependencyProperty.Register("DocumentPaneMenuItemHeaderTemplate", typeof(DataTemplate), typeof(DockingManager),
+                new FrameworkPropertyMetadata((DataTemplate)null,
+                    new PropertyChangedCallback(OnDocumentPaneMenuItemHeaderTemplateChanged),
+                    new CoerceValueCallback(CoerceDocumentPaneMenuItemHeaderTemplateValue)));
+
+        /// <summary>
+        /// Gets or sets the DocumentPaneMenuItemHeaderTemplate property.  This dependency property 
+        /// indicates the header template to use while creating menu items for the document panes.
+        /// </summary>
+        public DataTemplate DocumentPaneMenuItemHeaderTemplate
+        {
+            get { return (DataTemplate)GetValue(DocumentPaneMenuItemHeaderTemplateProperty); }
+            set { SetValue(DocumentPaneMenuItemHeaderTemplateProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the DocumentPaneMenuItemHeaderTemplate property.
+        /// </summary>
+        private static void OnDocumentPaneMenuItemHeaderTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnDocumentPaneMenuItemHeaderTemplateChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the DocumentPaneMenuItemHeaderTemplate property.
+        /// </summary>
+        protected virtual void OnDocumentPaneMenuItemHeaderTemplateChanged(DependencyPropertyChangedEventArgs e)
+        { 
+        }
+
+        /// <summary>
+        /// Coerces the DocumentPaneMenuItemHeaderTemplate value.
+        /// </summary>
+        private static object CoerceDocumentPaneMenuItemHeaderTemplateValue(DependencyObject d, object value)
+        {
+            if (value != null &&
+                d.GetValue(DocumentPaneMenuItemHeaderTemplateSelectorProperty) != null)
+                return null; 
+            
+            return value;
+        }
+
+        #endregion
+
+        #region DocumentPaneMenuItemHeaderTemplateSelector
+
+        /// <summary>
+        /// DocumentPaneMenuItemHeaderTemplateSelector Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty DocumentPaneMenuItemHeaderTemplateSelectorProperty =
+            DependencyProperty.Register("DocumentPaneMenuItemHeaderTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
+                new FrameworkPropertyMetadata((DataTemplateSelector)null,
+                    new PropertyChangedCallback(OnDocumentPaneMenuItemHeaderTemplateSelectorChanged),
+                    new CoerceValueCallback(CoerceDocumentPaneMenuItemHeaderTemplateSelectorValue)));
+
+        /// <summary>
+        /// Gets or sets the DocumentPaneMenuItemHeaderTemplateSelector property.  This dependency property 
+        /// indicates the data template selector to use for the menu items show when user select the DocumentPane document switch context menu.
+        /// </summary>
+        public DataTemplateSelector DocumentPaneMenuItemHeaderTemplateSelector
+        {
+            get { return (DataTemplateSelector)GetValue(DocumentPaneMenuItemHeaderTemplateSelectorProperty); }
+            set { SetValue(DocumentPaneMenuItemHeaderTemplateSelectorProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the DocumentPaneMenuItemHeaderTemplateSelector property.
+        /// </summary>
+        private static void OnDocumentPaneMenuItemHeaderTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnDocumentPaneMenuItemHeaderTemplateSelectorChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the DocumentPaneMenuItemHeaderTemplateSelector property.
+        /// </summary>
+        protected virtual void OnDocumentPaneMenuItemHeaderTemplateSelectorChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null &&
+                DocumentPaneMenuItemHeaderTemplate != null)
+                DocumentPaneMenuItemHeaderTemplate = null;
+
+        }
+
+        /// <summary>
+        /// Coerces the DocumentPaneMenuItemHeaderTemplateSelector value.
+        /// </summary>
+        private static object CoerceDocumentPaneMenuItemHeaderTemplateSelectorValue(DependencyObject d, object value)
+        {
+            return value;
+        }
+
+        #endregion
+
+        #region IconContentTemplate
+
+        /// <summary>
+        /// IconContentTemplate Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty IconContentTemplateProperty =
+            DependencyProperty.Register("IconContentTemplate", typeof(DataTemplate), typeof(DockingManager),
+                new FrameworkPropertyMetadata((DataTemplate)null));
+
+        /// <summary>
+        /// Gets or sets the IconContentTemplate property.  This dependency property 
+        /// indicates the data template to use while extracting the icon from model.
+        /// </summary>
+        public DataTemplate IconContentTemplate
+        {
+            get { return (DataTemplate)GetValue(IconContentTemplateProperty); }
+            set { SetValue(IconContentTemplateProperty, value); }
+        }
+
+        #endregion
+
+        #region IconContentTemplateSelector
+
+        /// <summary>
+        /// IconContentTemplateSelector Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty IconContentTemplateSelectorProperty =
+            DependencyProperty.Register("IconContentTemplateSelector", typeof(DataTemplateSelector), typeof(DockingManager),
+                new FrameworkPropertyMetadata((DataTemplateSelector)null));
+
+        /// <summary>
+        /// Gets or sets the IconContentTemplateSelector property.  This dependency property 
+        /// indicates data template selector to use while selecting the datatamplate for content icons.
+        /// </summary>
+        public DataTemplateSelector IconContentTemplateSelector
+        {
+            get { return (DataTemplateSelector)GetValue(IconContentTemplateSelectorProperty); }
+            set { SetValue(IconContentTemplateSelectorProperty, value); }
+        }
+
+        #endregion
+
+
+        #region LayoutItems
+
+        List<LayoutItem> _layoutItems = new List<LayoutItem>();
+
+        bool _suspendLayoutItemCreation = false;
+
+        void DetachLayoutItems()
+        {
+            if (Layout != null)
+            {
+                _layoutItems.Clear();
+                Layout.ElementAdded -= new EventHandler<LayoutElementEventArgs>(Layout_ElementAdded);
+                Layout.ElementRemoved -= new EventHandler<LayoutElementEventArgs>(Layout_ElementRemoved);
+            }
+        }
+
+        void Layout_ElementRemoved(object sender, LayoutElementEventArgs e)
+        {
+            if (_suspendLayoutItemCreation)
+                return;
+
+            if (e.Element is LayoutContent)
+                _layoutItems.Remove(_layoutItems.First(item => item.LayoutElement == e.Element));
+            else if (e.Element is ILayoutContainer)
+            {
+                foreach (var content in e.Element.Descendents().OfType<LayoutContent>())
+                {
+                    var itemToRemove = _layoutItems.First(item => item.LayoutElement == content);
+                    _layoutItems.Remove(itemToRemove);
+                }
+            }
+        }
+
+        void Layout_ElementAdded(object sender, LayoutElementEventArgs e)
+        {
+            if (_suspendLayoutItemCreation)
+                return;
+            
+            if (e.Element is LayoutDocument)
+            {
+                var document = e.Element as LayoutDocument;
+                var documentItem = new LayoutDocumentItem(document);
+                ApplyStyleToLayoutItem(documentItem);
+                _layoutItems.Add(documentItem);
+            }
+            else if (e.Element is LayoutAnchorable)
+            {
+                var anchorable = e.Element as LayoutAnchorable;
+                var anchorableItem = new LayoutAnchorableItem(anchorable);
+                ApplyStyleToLayoutItem(anchorableItem);
+                _layoutItems.Add(anchorableItem);
+            }
+            else if (e.Element is ILayoutContainer)
+            {
+                foreach (var document in e.Element.Descendents().OfType<LayoutDocument>().ToArray())
+                {
+                    var documentItem = new LayoutDocumentItem(document);
+                    ApplyStyleToLayoutItem(documentItem);
+                    _layoutItems.Add(documentItem);
+                }
+                foreach (var anchorable in e.Element.Descendents().OfType<LayoutAnchorable>().ToArray())
+                {
+                    var anchorableItem = new LayoutAnchorableItem(anchorable);
+                    ApplyStyleToLayoutItem(anchorableItem);
+                    _layoutItems.Add(anchorableItem);
+                }                
+            }
+        }
+
+        void AttachLayoutItems()
+        {
+            if (Layout != null)
+            {
+                foreach (var document in Layout.Descendents().OfType<LayoutDocument>().ToArray())
+                {
+                    var documentItem = new LayoutDocumentItem(document);
+                    ApplyStyleToLayoutItem(documentItem);
+                    _layoutItems.Add(documentItem);
+                }
+                foreach (var anchorable in Layout.Descendents().OfType<LayoutAnchorable>().ToArray())
+                {
+                    var anchorableItem = new LayoutAnchorableItem(anchorable);
+                    ApplyStyleToLayoutItem(anchorableItem);
+                    _layoutItems.Add(anchorableItem);
+                }
+
+                Layout.ElementAdded += new EventHandler<LayoutElementEventArgs>(Layout_ElementAdded);
+                Layout.ElementRemoved += new EventHandler<LayoutElementEventArgs>(Layout_ElementRemoved);
+            }
+        }
+
+        void ApplyStyleToLayoutItem(LayoutItem layoutItem)
+        {
+            layoutItem._ClearDefaultCommandBindings();
+            if (LayoutItemContainerStyle != null)
+                layoutItem.Style = LayoutItemContainerStyle;
+            else if (LayoutItemContainerStyleSelector != null)
+                layoutItem.Style = LayoutItemContainerStyleSelector.SelectStyle(layoutItem.Model, layoutItem);
+            layoutItem._SetDefaultCommandBindings();
+        }
+
+        #region LayoutItemContainerStyle
+
+        /// <summary>
+        /// LayoutItemContainerStyle Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty LayoutItemContainerStyleProperty =
+            DependencyProperty.Register("LayoutItemContainerStyle", typeof(Style), typeof(DockingManager),
+                new FrameworkPropertyMetadata((Style)null,
+                    new PropertyChangedCallback(OnLayoutItemContainerStyleChanged)));
+
+        /// <summary>
+        /// Gets or sets the LayoutItemContainerStyle property.  This dependency property 
+        /// indicates the style to apply to LayoutDocumentItem objects. A LayoutDocumentItem object is created when a new LayoutDocument is created inside the current Layout.
+        /// </summary>
+        public Style LayoutItemContainerStyle
+        {
+            get { return (Style)GetValue(LayoutItemContainerStyleProperty); }
+            set { SetValue(LayoutItemContainerStyleProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the LayoutItemContainerStyle property.
+        /// </summary>
+        private static void OnLayoutItemContainerStyleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnLayoutItemContainerStyleChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the LayoutItemContainerStyle property.
+        /// </summary>
+        protected virtual void OnLayoutItemContainerStyleChanged(DependencyPropertyChangedEventArgs e)
+        {
+            AttachLayoutItems();
+        }
+
+        #endregion
+
+        #region LayoutItemContainerStyleSelector
+
+        /// <summary>
+        /// LayoutItemContainerStyleSelector Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty LayoutItemContainerStyleSelectorProperty =
+            DependencyProperty.Register("LayoutItemContainerStyleSelector", typeof(StyleSelector), typeof(DockingManager),
+                new FrameworkPropertyMetadata((StyleSelector)null,
+                    new PropertyChangedCallback(OnLayoutItemContainerStyleSelectorChanged)));
+
+        /// <summary>
+        /// Gets or sets the LayoutItemContainerStyleSelector property.  This dependency property 
+        /// indicates style selector of the LayoutDocumentItemStyle.
+        /// </summary>
+        public StyleSelector LayoutItemContainerStyleSelector
+        {
+            get { return (StyleSelector)GetValue(LayoutItemContainerStyleSelectorProperty); }
+            set { SetValue(LayoutItemContainerStyleSelectorProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the LayoutItemContainerStyleSelector property.
+        /// </summary>
+        private static void OnLayoutItemContainerStyleSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((DockingManager)d).OnLayoutItemContainerStyleSelectorChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the LayoutItemContainerStyleSelector property.
+        /// </summary>
+        protected virtual void OnLayoutItemContainerStyleSelectorChanged(DependencyPropertyChangedEventArgs e)
+        {
+            AttachLayoutItems();
+        }
+
+        #endregion
+
+
+        internal LayoutItem GetLayoutItemFromModel(LayoutContent content)
+        {
+            return _layoutItems.FirstOrDefault(item => item.LayoutElement == content);
+        }
+        #endregion
+
+
+        #region NavigatorWindow
+        NavigatorWindow _navigatorWindow = null;
+
+        void ShowNavigatorWindow()
+        {
+            if (_navigatorWindow == null)
+            {
+                _navigatorWindow = new NavigatorWindow(this) { Owner = Window.GetWindow(this), WindowStartupLocation = WindowStartupLocation.CenterOwner };
+            }
+
+            _navigatorWindow.Show();
+            Debug.WriteLine("ShowNavigatorWindow()");
+        }
+
+        void HideNavigatorWindow()
+        {
+            if (_navigatorWindow == null)
+                return;
+
+            _navigatorWindow.Hide();
+
+
+            if (_navigatorWindow.SelectedAnchorable == null &&
+                _navigatorWindow.SelectedDocument != null &&
+                _navigatorWindow.SelectedDocument.ActivateCommand.CanExecute(null))
+                _navigatorWindow.SelectedDocument.ActivateCommand.Execute(null);
+
+            _navigatorWindow.Close();
+            _navigatorWindow = null;
+            Debug.WriteLine("HideNavigatorWindow()");
+
+        }
+
+        bool IsNavigatorWindowActive
+        {
+            get { return _navigatorWindow != null; }
+        }
+
+        
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                if (e.IsDown && e.Key == Key.Tab)
+                {
+                    if (!IsNavigatorWindowActive)
+                    {
+                        ShowNavigatorWindow();
+                        e.Handled = true;
+                    }
+                    else
+                    {
+                        _navigatorWindow.SelectNextDocument();
+                        e.Handled = true;
+                    }
+                }
+            }
+
+            if (e.Key != Key.Tab && IsNavigatorWindowActive)
+            {
+                HideNavigatorWindow();
+                e.Handled = true;
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
+
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
+        {
+            if (e.Key != Key.Tab && IsNavigatorWindowActive)
+            {
+                HideNavigatorWindow();
+                e.Handled = true;
+            }
+
+            base.OnPreviewKeyUp(e);
+        }
+
+        #endregion
     }
 }

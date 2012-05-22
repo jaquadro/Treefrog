@@ -4,7 +4,7 @@
         xmlns:avalonDock="clr-namespace:AvalonDock;assembly=AvalonDock"
         xmlns:avalonDockControls="clr-namespace:AvalonDock.Controls;assembly=AvalonDock"
         xmlns:avalonDockLayout="clr-namespace:AvalonDock.Layout;assembly=AvalonDock"
-        xmlns:view="clr-namespace:Treefrog"
+        xmlns:view="clr-namespace:Treefrog.View"
         xmlns:viewDocuments="clr-namespace:Treefrog.View.Documents"
         xmlns:vm="clr-namespace:Treefrog.ViewModel"
         xmlns:toolbars="clr-namespace:Treefrog.View.ToolBars"
@@ -61,32 +61,32 @@
                                    Grid.Row="2" 
                                    DocumentsSource="{Binding Project.Documents}"
                                    ActiveContent="{Binding ActiveContent, Mode=TwoWay}">
-            <avalonDock:DockingManager.DocumentTemplate>
-                <DataTemplate>
-                    <viewDocuments:LevelDocument />
-                </DataTemplate>
-            </avalonDock:DockingManager.DocumentTemplate>
-            <avalonDock:DockingManager.DocumentHeaderTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Path=Content.Name}" />
-                    </StackPanel>
-                </DataTemplate>
-            </avalonDock:DockingManager.DocumentHeaderTemplate>
-            <avalonDock:DockingManager.DocumentTitleTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Path=Content.Name}" />
-                    </StackPanel>
-                </DataTemplate>
-            </avalonDock:DockingManager.DocumentTitleTemplate>
+            <avalonDock:DockingManager.LayoutItemTemplateSelector>
+                <view:PanelsTemplateSelector>
+                    <view:PanelsTemplateSelector.LevelDocumentTemplate>
+                        <DataTemplate>
+                            <viewDocuments:LevelDocument />
+                        </DataTemplate>
+                    </view:PanelsTemplateSelector.LevelDocumentTemplate>
+                </view:PanelsTemplateSelector>
+            </avalonDock:DockingManager.LayoutItemTemplateSelector>
+            
+            <avalonDock:DockingManager.LayoutItemContainerStyleSelector>
+                <view:PanelsStyleSelector>
+                    <view:PanelsStyleSelector.LevelDocumentStyle>
+                        <Style TargetType="{x:Type avalonDockControls:LayoutItem}">
+                            <Setter Property="Title" Value="{Binding Model.Name}" />
+                            <Setter Property="IconSource" Value="/Treefrog;component/Images/16/map.png" />
+                        </Style>
+                    </view:PanelsStyleSelector.LevelDocumentStyle>
+                </view:PanelsStyleSelector>
+            </avalonDock:DockingManager.LayoutItemContainerStyleSelector>
 
             <avalonDockLayout:LayoutRoot>
                 <avalonDockLayout:LayoutPanel Orientation="Horizontal">
                     <avalonDockLayout:LayoutAnchorablePaneGroup DockWidth="240" Orientation="Vertical">
                         <avalonDockLayout:LayoutAnchorablePane>
                             <avalonDockLayout:LayoutAnchorable x:Name="tilePools" Title="Tile Pools">
-                                <!--<Frame Source="TilePools.xaml" />-->
                                 <panels:TilePoolPanel DataContext="{Binding Path=Project.TilePoolCollection}"/>
                             </avalonDockLayout:LayoutAnchorable>
                             <avalonDockLayout:LayoutAnchorable x:Name="objectPools" Title="Objects">
@@ -103,11 +103,7 @@
                         </avalonDockLayout:LayoutAnchorablePane>
                     </avalonDockLayout:LayoutAnchorablePaneGroup>
                     <avalonDockLayout:LayoutDocumentPaneGroup>
-                        <avalonDockLayout:LayoutDocumentPane>
-                            <!--<avalonDockLayout:LayoutDocument Title="Level 1">
-                                
-                            </avalonDockLayout:LayoutDocument>-->
-                        </avalonDockLayout:LayoutDocumentPane>
+                        <avalonDockLayout:LayoutDocumentPane />
                     </avalonDockLayout:LayoutDocumentPaneGroup>
                 </avalonDockLayout:LayoutPanel>
             </avalonDockLayout:LayoutRoot>

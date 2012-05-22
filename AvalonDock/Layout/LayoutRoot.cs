@@ -1,4 +1,26 @@
-﻿using System;
+﻿//Copyright (c) 2007-2012, Adolfo Marinucci
+//All rights reserved.
+
+//Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+//following conditions are met:
+
+//* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+//* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
+//disclaimer in the documentation and/or other materials provided with the distribution.
+
+//* Neither the name of Adolfo Marinucci nor the names of its contributors may be used to endorse or promote products
+//derived from this software without specific prior written permission.
+
+//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+//INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+//IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+//EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+//STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+//EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,12 +42,13 @@ namespace AvalonDock.Layout
             LeftSide = new LayoutAnchorSide();
             TopSide = new LayoutAnchorSide();
             BottomSide = new LayoutAnchorSide();
+            RootPanel = new LayoutPanel(new LayoutDocumentPane());
         }
 
 
         #region RootPanel
 
-        private LayoutPanel _rootPanel = new LayoutPanel();
+        private LayoutPanel _rootPanel;
         public LayoutPanel RootPanel
         {
             get { return _rootPanel; }
@@ -34,7 +57,14 @@ namespace AvalonDock.Layout
                 if (_rootPanel != value)
                 {
                     RaisePropertyChanging("RootPanel");
+                    if (_rootPanel != null &&
+                        _rootPanel.Parent == this)
+                        _rootPanel.Parent = null;
                     _rootPanel = value;
+
+                    if (_rootPanel == null)
+                        _rootPanel = new LayoutPanel(new LayoutDocumentPane());
+
                     if (_rootPanel != null)
                         _rootPanel.Parent = this;
                     RaisePropertyChanged("RootPanel");
@@ -322,10 +352,13 @@ namespace AvalonDock.Layout
                         _activeContent.IsActive = true;
                     RaisePropertyChanged("ActiveContent");
 
-                    if (_activeContent != null && _activeContent.Parent is LayoutDocumentPane)
+                    if (_activeContent != null)
                     {
-                        LastFocusedDocument = _activeContent;
+                        if (_activeContent.Parent is LayoutDocumentPane || _activeContent is LayoutDocument)
+                            LastFocusedDocument = _activeContent;
                     }
+                    else
+                        LastFocusedDocument = null;
                 }
             }
         }
@@ -399,7 +432,7 @@ namespace AvalonDock.Layout
                         .Where(c => c.PreviousContainer == emptyPane && !c.IsFloating))
                     {
                         if (contentReferencingEmptyPane is LayoutAnchorable &&
-                            ((LayoutAnchorable)contentReferencingEmptyPane).IsHidden)
+                            !((LayoutAnchorable)contentReferencingEmptyPane).IsVisible)
                             continue;
 
                         contentReferencingEmptyPane.PreviousContainer = null;
@@ -424,16 +457,50 @@ namespace AvalonDock.Layout
                 if (!exitFlag)
                 {
                     //removes any empty anchorable pane group
-                    foreach (var emptyPaneGroup in this.Descendents().OfType<LayoutAnchorablePaneGroup>().Where(p => p.Children.Count == 0))
+                    foreach (var emptyPaneGroup in this.Descendents().OfType<LayoutAnchorablePaneGroup>().Where(p => p.ChildrenCount == 0))
                     {
                         var parentGroup = emptyPaneGroup.Parent as ILayoutContainer;
                         parentGroup.RemoveChild(emptyPaneGroup);
                         exitFlag = false;
                         break;
                     }
-                
                 }
 
+                if (!exitFlag)
+                {
+                    //removes any empty layout panel
+                    foreach (var emptyPaneGroup in this.Descendents().OfType<LayoutPanel>().Where(p => p.ChildrenCount == 0))
+                    {
+                        var parentGroup = emptyPaneGroup.Parent as ILayoutContainer;
+                        parentGroup.RemoveChild(emptyPaneGroup);
+                        exitFlag = false;
+                        break;
+                    }
+                }
+
+                if (!exitFlag)
+                {
+                    //removes any empty floating window
+                    foreach (var emptyPaneGroup in this.Descendents().OfType<LayoutFloatingWindow>().Where(p => p.ChildrenCount == 0))
+                    {
+                        var parentGroup = emptyPaneGroup.Parent as ILayoutContainer;
+                        parentGroup.RemoveChild(emptyPaneGroup);
+                        exitFlag = false;
+                        break;
+                    }
+                }
+
+                if (!exitFlag)
+                {
+                    //removes any empty anchor group
+                    foreach (var emptyPaneGroup in this.Descendents().OfType<LayoutAnchorGroup>().Where(p => p.ChildrenCount == 0))
+                    {
+                        var parentGroup = emptyPaneGroup.Parent as ILayoutContainer;
+                        parentGroup.RemoveChild(emptyPaneGroup);
+                        exitFlag = false;
+                        break;
+                    }
+                }
 
             }
             while (!exitFlag);
@@ -444,7 +511,7 @@ namespace AvalonDock.Layout
             {
                 exitFlag = true;
                 //for each pane that is empty
-                foreach (var paneGroupToCollapse in this.Descendents().OfType<LayoutAnchorablePaneGroup>().Where(p => p.ChildrenCount == 1 && p.Children[0] is LayoutAnchorablePaneGroup))
+                foreach (var paneGroupToCollapse in this.Descendents().OfType<LayoutAnchorablePaneGroup>().Where(p => p.ChildrenCount == 1 && p.Children[0] is LayoutAnchorablePaneGroup).ToArray())
                 {
                     var singleChild = paneGroupToCollapse.Children[0] as LayoutAnchorablePaneGroup;
                     paneGroupToCollapse.Orientation = singleChild.Orientation;
@@ -471,7 +538,7 @@ namespace AvalonDock.Layout
             {
                 exitFlag = true;
                 //for each pane that is empty
-                foreach (var paneGroupToCollapse in this.Descendents().OfType<LayoutDocumentPaneGroup>().Where(p => p.ChildrenCount == 1 && p.Children[0] is LayoutDocumentPaneGroup))
+                foreach (var paneGroupToCollapse in this.Descendents().OfType<LayoutDocumentPaneGroup>().Where(p => p.ChildrenCount == 1 && p.Children[0] is LayoutDocumentPaneGroup).ToArray())
                 {
                     var singleChild = paneGroupToCollapse.Children[0] as LayoutDocumentPaneGroup;
                     paneGroupToCollapse.Orientation = singleChild.Orientation;
@@ -504,6 +571,24 @@ namespace AvalonDock.Layout
                 Updated(this, EventArgs.Empty);
         }
 
+        #region LayoutElement Added/Removed events
 
+        internal void OnLayoutElementAdded(LayoutElement element)
+        {
+            if (ElementAdded != null)
+                ElementAdded(this, new LayoutElementEventArgs(element));
+        }
+
+        public event EventHandler<LayoutElementEventArgs> ElementAdded;
+
+        internal void OnLayoutElementRemoved(LayoutElement element)
+        {
+            if (ElementRemoved != null)
+                ElementRemoved(this, new LayoutElementEventArgs(element));
+        }
+
+        public event EventHandler<LayoutElementEventArgs> ElementRemoved;
+
+        #endregion
     }
 }

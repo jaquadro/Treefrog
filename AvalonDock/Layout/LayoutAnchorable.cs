@@ -1,9 +1,32 @@
-﻿using System;
+﻿//Copyright (c) 2007-2012, Adolfo Marinucci
+//All rights reserved.
+
+//Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+//following conditions are met:
+
+//* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+//* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
+//disclaimer in the documentation and/or other materials provided with the distribution.
+
+//* Neither the name of Adolfo Marinucci nor the names of its contributors may be used to endorse or promote products
+//derived from this software without specific prior written permission.
+
+//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+//INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+//IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+//EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+//STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+//EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Xml.Serialization;
+using System.Windows.Controls;
 
 namespace AvalonDock.Layout
 {
@@ -11,27 +34,58 @@ namespace AvalonDock.Layout
     public class LayoutAnchorable : LayoutContent
     {
         #region IsVisible
-
-        private bool _isVisible = true;
+        [XmlIgnore]
         public bool IsVisible
         {
-            get { return _isVisible; }
+            get
+            {
+                return Parent != null && !(Parent is LayoutRoot);
+            }
             set
             {
-                if (_isVisible != value)
+                if (value)
                 {
-                    RaisePropertyChanging("IsVisible");
-                    _isVisible = value;
-                    UpdateParentVisibility();
-                    RaisePropertyChanged("IsVisible");
+                    Show();
                 }
-                    
+                else
+                {
+                    Hide();
+                }
+            }
+        }
+
+        [NonSerialized, XmlIgnore]
+        bool _isVisibleFlag = false;
+        
+        public event EventHandler IsVisibleChanged;
+
+        void NotifyIsVisibleChanged()
+        {
+            if ((_isVisibleFlag && !IsVisible) ||
+                (!_isVisibleFlag && IsVisible))
+            {
+                _isVisibleFlag = IsVisible;
+                if (IsVisibleChanged != null)
+                    IsVisibleChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [XmlIgnore]
+        public bool IsHidden
+        {
+            get
+            {
+                return (Parent is LayoutRoot);
             }
         }
 
         protected override void OnParentChanged(ILayoutContainer oldValue, ILayoutContainer newValue)
         {
-            UpdateParentVisibility(); 
+            UpdateParentVisibility();
+            RaisePropertyChanged("IsVisible");
+            NotifyIsVisibleChanged();
+            RaisePropertyChanged("IsHidden");
+            RaisePropertyChanged("IsAutoHidden");
             base.OnParentChanged(oldValue, newValue);
         }
 
@@ -126,20 +180,23 @@ namespace AvalonDock.Layout
         /// <remarks>Add this content to <see cref="ILayoutRoot.Hidden"/> collection of parent root.</remarks>
         public void Hide()
         {
-            if (IsHidden)
+            if (!IsVisible)
             {
                 IsSelected = true;
                 IsActive = true;
                 return;
             }
             RaisePropertyChanging("IsHidden");
+            RaisePropertyChanging("IsVisible");
             if (Parent is ILayoutPane)
             {
                 PreviousContainer = Parent as ILayoutPane;
                 PreviousContainerIndex = (Parent as ILayoutContentSelector).SelectedContentIndex;
             }
             Root.Hidden.Add(this);
+            RaisePropertyChanged("IsVisible");
             RaisePropertyChanged("IsHidden");
+            NotifyIsVisibleChanged();
         }
 
         /// <summary>
@@ -148,44 +205,241 @@ namespace AvalonDock.Layout
         /// <remarks>Try to show the content where it was previously hidden.</remarks>
         public void Show()
         {
-            if (!IsHidden)
+            if (IsVisible)
                 return;
 
+            if (!IsHidden)
+                throw new InvalidOperationException();
+
             RaisePropertyChanging("IsHidden");
+            RaisePropertyChanging("IsVisible");
 
             bool added = false;
             var root = Root;
             if (root != null && root.Manager != null)
             {
                 if (root.Manager.LayoutUpdateStrategy != null)
-                    added = root.Manager.LayoutUpdateStrategy.BeforeInsertAnchorable(this, PreviousContainer);
+                    added = root.Manager.LayoutUpdateStrategy.BeforeInsertAnchorable(root as LayoutRoot, this, PreviousContainer);
             }
 
             if (!added && PreviousContainer != null)
             {
                 var previousContainerAsLayoutGroup = PreviousContainer as ILayoutGroup;
-                previousContainerAsLayoutGroup.InsertChildAt(PreviousContainerIndex, this);
+                if (PreviousContainerIndex < previousContainerAsLayoutGroup.ChildrenCount)
+                    previousContainerAsLayoutGroup.InsertChildAt(PreviousContainerIndex, this);
+                else
+                    previousContainerAsLayoutGroup.InsertChildAt(previousContainerAsLayoutGroup.ChildrenCount, this);
                 IsSelected = true;
                 IsActive = true;
             }
-            
+
             if (!added && root != null && root.Manager != null)
             {
                 if (root.Manager.LayoutUpdateStrategy != null)
-                    root.Manager.LayoutUpdateStrategy.InsertAnchorable(this, PreviousContainer);
+                    root.Manager.LayoutUpdateStrategy.InsertAnchorable(root as LayoutRoot, this, PreviousContainer);
             }
-            
 
+
+            RaisePropertyChanged("IsVisible");
             RaisePropertyChanged("IsHidden");
+            NotifyIsVisibleChanged();
         }
 
-        [XmlIgnore]
-        public bool IsHidden
+        /// <summary>
+        /// Add the anchorable to a DockingManager layout
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <param name="strategy"></param>
+        public void AddToLayout(DockingManager manager, AnchorableShowStrategy strategy)
         {
-            get
+            if (IsVisible ||
+                IsHidden)
+                throw new InvalidOperationException();
+
+
+            bool most = (strategy & AnchorableShowStrategy.Most) == AnchorableShowStrategy.Most;
+            bool left = (strategy & AnchorableShowStrategy.Left) == AnchorableShowStrategy.Left;
+            bool right = (strategy & AnchorableShowStrategy.Right) == AnchorableShowStrategy.Right;
+            bool top = (strategy & AnchorableShowStrategy.Top) == AnchorableShowStrategy.Top;
+            bool bottom = (strategy & AnchorableShowStrategy.Bottom) == AnchorableShowStrategy.Bottom;
+            if (most)
             {
-                return Parent is LayoutRoot;
+                if (manager.Layout.RootPanel == null)
+                    manager.Layout.RootPanel = new LayoutPanel() { Orientation = (left || right ? Orientation.Horizontal : Orientation.Vertical) };
+
+                if (left || right)
+                {
+                    if (manager.Layout.RootPanel.Orientation == Orientation.Vertical &&
+                        manager.Layout.RootPanel.ChildrenCount > 1)
+                    {
+                        manager.Layout.RootPanel = new LayoutPanel(manager.Layout.RootPanel);
+                    }
+
+                    manager.Layout.RootPanel.Orientation = Orientation.Horizontal;
+
+                    if (left)
+                        manager.Layout.RootPanel.Children.Insert(0, new LayoutAnchorablePane(this));
+                    else
+                        manager.Layout.RootPanel.Children.Add(new LayoutAnchorablePane(this));
+                }
+                else
+                {
+                    if (manager.Layout.RootPanel.Orientation == Orientation.Horizontal &&
+                        manager.Layout.RootPanel.ChildrenCount > 1)
+                    {
+                        manager.Layout.RootPanel = new LayoutPanel(manager.Layout.RootPanel);
+                    }
+
+                    manager.Layout.RootPanel.Orientation = Orientation.Vertical;
+
+                    if (top)
+                        manager.Layout.RootPanel.Children.Insert(0, new LayoutAnchorablePane(this));
+                    else
+                        manager.Layout.RootPanel.Children.Add(new LayoutAnchorablePane(this));
+                }
+                
             }
         }
+
+
+        /// <summary>
+        /// Get a value indicating if the anchorable is anchored to a border in an autohide status
+        /// </summary>
+        public bool IsAutoHidden
+        {
+            get { return Parent != null && Parent is LayoutAnchorGroup; }
+        }
+
+
+        #region AutoHide
+        public void ToggleAutoHide()
+        {
+            #region Anchorable is already auto hidden
+            if (IsAutoHidden)
+            {
+                var parentGroup = Parent as LayoutAnchorGroup;
+                var parentSide = parentGroup.Parent as LayoutAnchorSide;
+                var previousContainer = parentGroup.PreviousContainer;
+
+                if (previousContainer == null)
+                {
+                    AnchorSide side = (parentGroup.Parent as LayoutAnchorSide).Side;
+                    switch (side)
+                    {
+                        case AnchorSide.Right:
+                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Horizontal)
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                parentGroup.Root.RootPanel.Children.Add(previousContainer);
+                            }
+                            else
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Horizontal };
+                                LayoutRoot root = parentGroup.Root as LayoutRoot;
+                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
+                                root.RootPanel = panel;
+                                panel.Children.Add(oldRootPanel);
+                                panel.Children.Add(previousContainer);
+                            }
+                            break;
+                        case AnchorSide.Left:
+                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Horizontal)
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                parentGroup.Root.RootPanel.Children.Insert(0, previousContainer);
+                            }
+                            else
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Horizontal };
+                                LayoutRoot root = parentGroup.Root as LayoutRoot;
+                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
+                                root.RootPanel = panel;
+                                panel.Children.Add(previousContainer);
+                                panel.Children.Add(oldRootPanel);
+                            }
+                            break;
+                        case AnchorSide.Top:
+                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Vertical)
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                parentGroup.Root.RootPanel.Children.Insert(0, previousContainer);
+                            }
+                            else
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Vertical };
+                                LayoutRoot root = parentGroup.Root as LayoutRoot;
+                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
+                                root.RootPanel = panel;
+                                panel.Children.Add(previousContainer);
+                                panel.Children.Add(oldRootPanel);
+                            }
+                            break;
+                        case AnchorSide.Bottom:
+                            if (parentGroup.Root.RootPanel.Orientation == Orientation.Vertical)
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                parentGroup.Root.RootPanel.Children.Add(previousContainer);
+                            }
+                            else
+                            {
+                                previousContainer = new LayoutAnchorablePane();
+                                LayoutPanel panel = new LayoutPanel() { Orientation = Orientation.Vertical };
+                                LayoutRoot root = parentGroup.Root as LayoutRoot;
+                                LayoutPanel oldRootPanel = parentGroup.Root.RootPanel as LayoutPanel;
+                                root.RootPanel = panel;
+                                panel.Children.Add(oldRootPanel);
+                                panel.Children.Add(previousContainer);
+                            }
+                            break;
+                    }
+                }
+
+
+                foreach (var anchorableToToggle in parentGroup.Children.ToArray())
+                    previousContainer.Children.Add(anchorableToToggle);
+
+                parentSide.Children.Remove(parentGroup);
+            }
+            #endregion
+            #region Anchorable is docked
+            else if (Parent is LayoutAnchorablePane)
+            {
+                var root = Root;
+                var parentPane = Parent as LayoutAnchorablePane;
+
+                var newAnchorGroup = new LayoutAnchorGroup() { PreviousContainer = parentPane };
+
+                foreach (var anchorableToImport in parentPane.Children.ToArray())
+                    newAnchorGroup.Children.Add(anchorableToImport);
+
+                //detect anchor side for the pane
+                var anchorSide = parentPane.GetSide();
+
+                switch (anchorSide)
+                {
+                    case AnchorSide.Right:
+                        root.RightSide.Children.Add(newAnchorGroup);
+                        break;
+                    case AnchorSide.Left:
+                        root.LeftSide.Children.Add(newAnchorGroup);
+                        break;
+                    case AnchorSide.Top:
+                        root.TopSide.Children.Add(newAnchorGroup);
+                        break;
+                    case AnchorSide.Bottom:
+                        root.BottomSide.Children.Add(newAnchorGroup);
+                        break;
+                }
+            }
+            #endregion
+        }
+
+        #endregion
+
+
+
     }
 }

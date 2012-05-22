@@ -131,6 +131,7 @@
     <Compile Include="View\Dialogs\NewLevelDialog.xaml.cs">
       <DependentUpon>NewLevelDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\PanelsStyleSelector.cs" />
     <Compile Include="View\Panels\ObjectPanel.xaml.cs">
       <DependentUpon>ObjectPanel.xaml</DependentUpon>
     </Compile>
@@ -148,6 +149,7 @@
     <Compile Include="View\Panels\LayerPanel.xaml.cs">
       <DependentUpon>LayerPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\PanelsTemplateSelector.cs" />
     <Compile Include="View\ToolBars\StandardToolBar.xaml.cs">
       <DependentUpon>StandardToolBar.xaml</DependentUpon>
     </Compile>

@@ -1,4 +1,26 @@
-﻿using System;
+﻿//Copyright (c) 2007-2012, Adolfo Marinucci
+//All rights reserved.
+
+//Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+//following conditions are met:
+
+//* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+//* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
+//disclaimer in the documentation and/or other materials provided with the distribution.
+
+//* Neither the name of Adolfo Marinucci nor the names of its contributors may be used to endorse or promote products
+//derived from this software without specific prior written permission.
+
+//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+//INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+//IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+//EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+//STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+//EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +32,10 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Input;
 using AvalonDock.Layout;
+using AvalonDock.Converters;
+using System.Diagnostics;
+using System.Windows.Controls.Primitives;
+using AvalonDock.Commands;
 
 namespace AvalonDock.Controls
 {
@@ -25,8 +51,9 @@ namespace AvalonDock.Controls
             :base(model)
         {
             _model = model;
-            
+            HideWindowCommand = new RelayCommand((p) => OnExecuteHideWindowCommand(p), (p) => CanExecuteHideWindowCommand(p));
         }
+
 
         LayoutAnchorableFloatingWindow _model;
 
@@ -34,6 +61,45 @@ namespace AvalonDock.Controls
         {
             get { return _model; }
         }
+
+        #region SingleContentLayoutItem
+
+        /// <summary>
+        /// SingleContentLayoutItem Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty SingleContentLayoutItemProperty =
+            DependencyProperty.Register("SingleContentLayoutItem", typeof(LayoutItem), typeof(LayoutAnchorableFloatingWindowControl),
+                new FrameworkPropertyMetadata((LayoutItem)null,
+                    new PropertyChangedCallback(OnSingleContentLayoutItemChanged)));
+
+        /// <summary>
+        /// Gets or sets the SingleContentLayoutItem property.  This dependency property 
+        /// indicates the layout item of the selected content when is shown a single anchorable pane.
+        /// </summary>
+        public LayoutItem SingleContentLayoutItem
+        {
+            get { return (LayoutItem)GetValue(SingleContentLayoutItemProperty); }
+            set { SetValue(SingleContentLayoutItemProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the SingleContentLayoutItem property.
+        /// </summary>
+        private static void OnSingleContentLayoutItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayoutAnchorableFloatingWindowControl)d).OnSingleContentLayoutItemChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the SingleContentLayoutItem property.
+        /// </summary>
+        protected virtual void OnSingleContentLayoutItemChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        #endregion
+
+
 
         protected override void OnInitialized(EventArgs e)
         {
@@ -43,29 +109,54 @@ namespace AvalonDock.Controls
 
             Content = manager.CreateUIElementForModel(_model.RootPanel);
 
-            SetBinding(VisibilityProperty, new Binding("IsVisible") { Source = _model, Converter = new BooleanToVisibilityConverter(), Mode = BindingMode.OneWay, ConverterParameter = Visibility.Hidden });
+            //SetBinding(VisibilityProperty, new Binding("IsVisible") { Source = _model, Converter = new BoolToVisibilityConverter(), Mode = BindingMode.OneWay, ConverterParameter = Visibility.Hidden });
 
-            ContextMenu = _model.Root.Manager.AnchorableContextMenu;
-            ContextMenu.DataContext = _model;
-            _model.PropertyChanged += (s, args) =>
+            //Issue: http://avalondock.codeplex.com/workitem/15036
+            IsVisibleChanged += (s, args) =>
+            {
+                var visibilityBinding = GetBindingExpression(VisibilityProperty);
+                if (IsVisible && (visibilityBinding == null))
                 {
-                    if (_model.IsSinglePane &&
-                        _model.Root != null &&
-                        _model.Root.Manager != null)
-                    {
-                        ContextMenu = _model.Root.Manager.AnchorableContextMenu;
-                        if (ContextMenu != null)
-                            ContextMenu.DataContext = _model;
-                    }
-                    else
-                        ContextMenu = null;
-                };
+                    SetBinding(VisibilityProperty, new Binding("IsVisible") { Source = _model, Converter = new BoolToVisibilityConverter(), Mode = BindingMode.OneWay, ConverterParameter = Visibility.Hidden });
+                }
+            };
+
+            SetBinding(SingleContentLayoutItemProperty, new Binding("Model.SinglePane.SelectedContent") { Source = this, Converter = new LayoutItemFromLayoutModelConverter() });
+
+            //ContextMenu = _model.Root.Manager.AnchorableContextMenu;
+            //ContextMenu.SetBinding(ContextMenu.DataContextProperty, new Binding("SingleContentLayoutItem") { Source = this });
+
+
+            //ContextMenu.DataContext = SingleContentLayoutItem;
+
+            _model.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(_model_PropertyChanged);
+        }
+
+
+        void _model_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            //if (_model.IsSinglePane &&
+            //    _model.Root != null &&
+            //    _model.Root.Manager != null)
+            //{
+            //    ContextMenu = _model.Root.Manager.AnchorableContextMenu;
+            //    if (ContextMenu != null)
+            //        ContextMenu.DataContext = SingleContentLayoutItem;
+            //}
+            //else
+            //    ContextMenu = null;
+
+            if (e.PropertyName == "RootPanel" &&
+                _model.RootPanel == null)
+            {
+                InternalClose();
+            }
         }
 
 
         bool IOverlayWindowHost.HitTest(Point dragPoint)
         {
-            Rect detectionRect = new Rect(new Point(Left, Top), new Size(Width, Height));
+            Rect detectionRect = new Rect(this.PointToScreenDPI(new Point()), this.TransformActualSizeToAncestor());
             return detectionRect.Contains(dragPoint);
         }
 
@@ -74,7 +165,7 @@ namespace AvalonDock.Controls
         {
             if (_overlayWindow == null)
                 _overlayWindow = new OverlayWindow(this);
-            Rect rectWindow = new Rect(new Point(Left, Top), new Size(Width, Height));
+            Rect rectWindow = new Rect(this.PointToScreenDPI(new Point()), this.TransformActualSizeToAncestor());
             _overlayWindow.Left = rectWindow.Left;
             _overlayWindow.Top = rectWindow.Top;
             _overlayWindow.Width = rectWindow.Width;
@@ -144,6 +235,8 @@ namespace AvalonDock.Controls
             {
                 root.FloatingWindows.Remove(_model);
             }
+
+            _model.PropertyChanged -= new System.ComponentModel.PropertyChangedEventHandler(_model_PropertyChanged);
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -154,8 +247,94 @@ namespace AvalonDock.Controls
                 _model.Descendents().OfType<LayoutAnchorable>().ToArray().ForEach<LayoutAnchorable>((a) => a.Hide());
             }
 
-
             base.OnClosing(e);
         }
+
+        protected override IntPtr FilterMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            switch (msg)
+            {
+                case Win32Helper.WM_NCLBUTTONDOWN: //Left button down on title -> start dragging over docking manager
+                    if (wParam.ToInt32() == Win32Helper.HT_CAPTION)
+                    {
+                        _model.Descendents().OfType<LayoutAnchorablePane>().First(p => p.ChildrenCount > 0 && p.SelectedContent != null).SelectedContent.IsActive = true;
+                        handled = true;
+                    }
+                    break;
+                case Win32Helper.WM_NCRBUTTONDOWN:
+                    if (wParam.ToInt32() == Win32Helper.HT_CAPTION)
+                    {
+                        if (OpenContextMenu())
+                            handled = true;
+                    }
+                    break;
+            }
+
+            return base.FilterMessage(hwnd, msg, wParam, lParam, ref handled);
+        }
+
+        bool OpenContextMenu()
+        {
+            var ctxMenu = _model.Root.Manager.AnchorableContextMenu;
+            if (ctxMenu != null && SingleContentLayoutItem != null)
+            {
+                ctxMenu.PlacementTarget = null;
+                ctxMenu.Placement = PlacementMode.MousePoint;
+                ctxMenu.DataContext = SingleContentLayoutItem;
+                ctxMenu.IsOpen = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        #region HideWindowCommand
+        public ICommand HideWindowCommand
+        {
+            get;
+            private set;
+        }
+
+        private bool CanExecuteHideWindowCommand(object parameter)
+        {
+            if (Model == null)
+                return false;
+
+            var root = Model.Root;
+            if (root == null)
+                return false;
+
+            var manager = root.Manager;
+            if (manager == null)
+                return false;
+
+            bool canExecute = false;
+            foreach (var anchorable in this.Model.Descendents().OfType<LayoutAnchorable>().ToArray())
+            {
+                var anchorableLayoutItem = manager.GetLayoutItemFromModel(anchorable) as LayoutAnchorableItem;
+                if (anchorableLayoutItem == null ||
+                    anchorableLayoutItem.HideCommand == null ||
+                    !anchorableLayoutItem.HideCommand.CanExecute(parameter))
+                {
+                    canExecute = false;
+                    break;
+                }
+
+                canExecute = true;
+            }
+
+            return canExecute;
+        }
+
+        private void OnExecuteHideWindowCommand(object parameter)
+        {
+            var manager = Model.Root.Manager;
+            foreach (var anchorable in this.Model.Descendents().OfType<LayoutAnchorable>().ToArray())
+            {
+                var anchorableLayoutItem = manager.GetLayoutItemFromModel(anchorable) as LayoutAnchorableItem;
+                anchorableLayoutItem.HideCommand.Execute(parameter);
+            }
+        }
+        #endregion
     }
 }

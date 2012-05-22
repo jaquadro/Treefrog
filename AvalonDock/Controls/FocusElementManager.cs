@@ -1,4 +1,26 @@
-﻿using System;
+﻿//Copyright (c) 2007-2012, Adolfo Marinucci
+//All rights reserved.
+
+//Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+//following conditions are met:
+
+//* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+//* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
+//disclaimer in the documentation and/or other materials provided with the distribution.
+
+//* Neither the name of Adolfo Marinucci nor the names of its contributors may be used to endorse or promote products
+//derived from this software without specific prior written permission.
+
+//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+//INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+//IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+//EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+//STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+//EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,10 +43,12 @@ namespace AvalonDock.Controls
             {
                 InputManager.Current.EnterMenuMode += new EventHandler(InputManager_EnterMenuMode);
                 InputManager.Current.LeaveMenuMode += new EventHandler(InputManager_LeaveMenuMode);
-                _focusHandler = new FocusHookHandler();
-                _focusHandler.FocusChanged += new EventHandler<FocusChangeEventArgs>(_focusHandler_FocusChanged);
-                _focusHandler.Attach();
+                _windowHandler = new WindowHookHandler();
+                _windowHandler.FocusChanged += new EventHandler<FocusChangeEventArgs>(_windowHandler_FocusChanged);
+                _windowHandler.Activate += new EventHandler(_windowHandler_Activate);
+                _windowHandler.Attach();
 
+                Application.Current.Exit += new ExitEventHandler(Current_Exit);
             }
 
             manager.PreviewGotKeyboardFocus += new KeyboardFocusChangedEventHandler(manager_PreviewGotKeyboardFocus);
@@ -42,13 +66,44 @@ namespace AvalonDock.Controls
             {
                 InputManager.Current.EnterMenuMode -= new EventHandler(InputManager_EnterMenuMode);
                 InputManager.Current.LeaveMenuMode -= new EventHandler(InputManager_LeaveMenuMode);
-                _focusHandler.FocusChanged -= new EventHandler<FocusChangeEventArgs>(_focusHandler_FocusChanged);
-                _focusHandler.Detach();
-                _focusHandler = null;
+                if (_windowHandler != null)
+                {
+                    _windowHandler.FocusChanged -= new EventHandler<FocusChangeEventArgs>(_windowHandler_FocusChanged);
+                    _windowHandler.Activate -= new EventHandler(_windowHandler_Activate);
+                    _windowHandler.Detach();
+                    _windowHandler = null;
+                }
             }
 
             RefreshDetachedElements();
         }
+
+        static void _windowHandler_Activate(object sender, EventArgs e)
+        {
+            if (Keyboard.FocusedElement == null && _lastFocusedElement != null && _lastFocusedElement.IsAlive)
+            {
+                var elementToSetFocus = _lastFocusedElement.Target as ILayoutElement;
+                if (elementToSetFocus != null)
+                {
+                    SetFocusOnLastElement(elementToSetFocus);
+                    _lastFocusedElement = null;
+                }
+            }
+        }
+
+
+
+        private static void Current_Exit(object sender, ExitEventArgs e)
+        {
+            Application.Current.Exit -= new ExitEventHandler(Current_Exit);
+            if (_windowHandler != null)
+            {
+                _windowHandler.FocusChanged -= new EventHandler<FocusChangeEventArgs>(_windowHandler_FocusChanged);
+                _windowHandler.Detach();
+                _windowHandler = null;
+            }
+        }
+
 
         static void manager_PreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
@@ -110,22 +165,25 @@ namespace AvalonDock.Controls
 
             return IntPtr.Zero;
         }
+        static WeakReference _lastFocusedElement;
 
         internal static void SetFocusOnLastElement(ILayoutElement model)
         {
+            bool focused = false;
             if (_modelFocusedElement.ContainsKey(model))
-                Keyboard.Focus(_modelFocusedElement[model]);
+                focused = _modelFocusedElement[model] == Keyboard.Focus(_modelFocusedElement[model]);
 
             if (_modelFocusedWindowHandle.ContainsKey(model))
-                Win32Helper.SetFocus(_modelFocusedWindowHandle[model]);
+                focused = IntPtr.Zero !=  Win32Helper.SetFocus(_modelFocusedWindowHandle[model]);
+
+            if (focused)
+                _lastFocusedElement = new WeakReference(model);
         }
 
-        static FocusHookHandler _focusHandler = null;
+        static WindowHookHandler _windowHandler = null;
 
-        static void _focusHandler_FocusChanged(object sender, FocusChangeEventArgs e)
+        static void _windowHandler_FocusChanged(object sender, FocusChangeEventArgs e)
         {
-            //Debug.WriteLine("_focusHandler_FocusChanged(Got={0}, Lost={1})", e.GotFocusWinHandle, e.LostFocusWinHandle);
-
             foreach (var manager in _managers)
             {
                 var hostContainingFocusedHandle = manager.FindLogicalChildren<HwndHost>().FirstOrDefault(hw => Win32Helper.IsChild(hw.Handle, e.GotFocusWinHandle));
@@ -138,6 +196,8 @@ namespace AvalonDock.Controls
                         if (_modelFocusedElement.ContainsKey(parentAnchorable.Model))
                             _modelFocusedElement.Remove(parentAnchorable.Model);
                         _modelFocusedWindowHandle[parentAnchorable.Model] = e.GotFocusWinHandle;
+                        if (parentAnchorable.Model != null)
+                            parentAnchorable.Model.IsActive = true;
                     }
                     else
                     {
@@ -148,6 +208,8 @@ namespace AvalonDock.Controls
                                 _modelFocusedElement.Remove(parentDocument.Model);
 
                             _modelFocusedWindowHandle[parentDocument.Model] = e.GotFocusWinHandle;
+                            if (parentDocument.Model != null)
+                                parentDocument.Model.IsActive = true;
                         }
                     }
                 }
@@ -156,27 +218,30 @@ namespace AvalonDock.Controls
             }
         }
 
-        static IInputElement _lastFocusedElement = null;
+        static WeakReference _lastFocusedElementBeforeEnterMenuMode = null;
         static void InputManager_EnterMenuMode(object sender, EventArgs e)
         {
-            _lastFocusedElement = Keyboard.FocusedElement;
+            if (Keyboard.FocusedElement == null)
+                return;
 
-            if (_lastFocusedElement != null)
+            var lastfocusDepObj = Keyboard.FocusedElement as DependencyObject;
+            if (lastfocusDepObj.FindLogicalAncestor<DockingManager>() == null)
             {
-                var lastfocusDepObj = _lastFocusedElement as DependencyObject;
-                if (lastfocusDepObj.FindLogicalAncestor<DockingManager>() == null)
-                    _lastFocusedElement = null;
+                _lastFocusedElementBeforeEnterMenuMode = null;
+                return;
             }
 
-            //Debug.WriteLine(string.Format("Current_EnterMenuMode({0})", Keyboard.FocusedElement));
+            _lastFocusedElementBeforeEnterMenuMode = new WeakReference(Keyboard.FocusedElement);
         }
         static void InputManager_LeaveMenuMode(object sender, EventArgs e)
         {
-            //Debug.WriteLine(string.Format("Current_LeaveMenuMode({0})", Keyboard.FocusedElement));
-            if (_lastFocusedElement != null)
+            if (_lastFocusedElementBeforeEnterMenuMode != null &&
+                _lastFocusedElementBeforeEnterMenuMode.IsAlive)
             {
-                if (_lastFocusedElement != Keyboard.Focus(_lastFocusedElement))
-                    Debug.WriteLine("Unable to activate the element");
+                var lastFocusedInputElement = _lastFocusedElementBeforeEnterMenuMode.Target as IInputElement;
+                if (lastFocusedInputElement != null)
+                    if (lastFocusedInputElement != Keyboard.Focus(lastFocusedInputElement))
+                        Debug.WriteLine("Unable to activate the element");
             }
         }
 

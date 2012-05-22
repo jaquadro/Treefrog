@@ -32,6 +32,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -55,13 +57,21 @@
     <Compile Include="Controls\AnchorablePaneTabPanel.cs" />
     <Compile Include="Controls\AnchorablePaneTitle.cs" />
     <Compile Include="Controls\BindingHelper.cs" />
+    <Compile Include="Controls\ContextMenuEx.cs" />
     <Compile Include="Controls\DocumentPaneDropAsAnchorableTarget.cs" />
     <Compile Include="Controls\DocumentPaneGroupDropTarget.cs" />
     <Compile Include="Controls\DropDownButton.cs" />
     <Compile Include="Controls\DropDownControlArea.cs" />
-    <Compile Include="Controls\FocusHookHandler.cs" />
+    <Compile Include="Controls\DropTargetBase.cs" />
+    <Compile Include="Controls\WindowHookHandler.cs" />
     <Compile Include="Controls\FocusElementManager.cs" />
     <Compile Include="Controls\ILogicalChildrenContainer.cs" />
+    <Compile Include="Controls\LayoutAnchorableItem.cs" />
+    <Compile Include="Controls\LayoutDocumentItem.cs" />
+    <Compile Include="Controls\LayoutItem.cs" />
+    <Compile Include="Controls\MenuItemEx.cs" />
+    <Compile Include="Controls\NavigatorWindow.cs" />
+    <Compile Include="Controls\ReentrantFlag.cs" />
     <Compile Include="Controls\Shell\Standard\ComGuids.cs" />
     <Compile Include="Controls\Shell\Standard\Debug.cs" />
     <Compile Include="Controls\Shell\Standard\DoubleUtil.cs" />
@@ -77,10 +87,15 @@
     <Compile Include="Controls\Shell\SystemParameters2.cs" />
     <Compile Include="Controls\Shell\WindowChrome.cs" />
     <Compile Include="Controls\Shell\WindowChromeWorker.cs" />
+    <Compile Include="Converters\ActivateCommandLayoutItemFromLayoutModelConverter.cs" />
     <Compile Include="Converters\InverseBoolToVisibilityConverter.cs" />
-    <Compile Include="DocumentCloseEventArgs.cs" />
+    <Compile Include="Converters\LayoutItemFromLayoutModelConverter.cs" />
+    <Compile Include="Converters\NullToDoNothingConverter.cs" />
+    <Compile Include="Converters\UriSourceToBitmapImageConverter.cs" />
+    <Compile Include="DocumentClosedEventArgs.cs" />
     <Compile Include="DocumentClosingEventArgs.cs" />
     <Compile Include="Extentions.cs" />
+    <Compile Include="Layout\AnchorableShowStrategy.cs" />
     <Compile Include="Layout\AnchorSide.cs" />
     <Compile Include="Controls\DockingManagerDropTarget.cs" />
     <Compile Include="Controls\DockingManagerOverlayArea.cs" />
@@ -119,6 +134,7 @@
     <Compile Include="Converters\AnchorSideToOrientationConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="DockingManager.cs" />
+    <Compile Include="Layout\ChildrenTreeChangedEventArgs.cs" />
     <Compile Include="Layout\Extentions.cs" />
     <Compile Include="Layout\ILayoutAnchorablePane.cs" />
     <Compile Include="Layout\ILayoutContainer.cs" />
@@ -152,8 +168,10 @@
     <Compile Include="Layout\LayoutDocumentPane.cs" />
     <Compile Include="Layout\LayoutDocumentPaneGroup.cs" />
     <Compile Include="Layout\LayoutElement.cs" />
+    <Compile Include="Layout\LayoutElementEventArgs.cs" />
     <Compile Include="Layout\LayoutFloatingWindow.cs" />
     <Compile Include="Layout\LayoutGroup.cs" />
+    <Compile Include="Layout\LayoutGroupBase.cs" />
     <Compile Include="Layout\LayoutPanel.cs" />
     <Compile Include="Layout\LayoutPositionableGroup.cs" />
     <Compile Include="Layout\LayoutRoot.cs" />

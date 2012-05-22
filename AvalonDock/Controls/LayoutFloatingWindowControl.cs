@@ -1,4 +1,26 @@
-﻿using System;
+﻿//Copyright (c) 2007-2012, Adolfo Marinucci
+//All rights reserved.
+
+//Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+//following conditions are met:
+
+//* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+//* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
+//disclaimer in the documentation and/or other materials provided with the distribution.
+
+//* Neither the name of Adolfo Marinucci nor the names of its contributors may be used to endorse or promote products
+//derived from this software without specific prior written permission.
+
+//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+//INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+//IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+//EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+//STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+//EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,6 +62,7 @@ namespace AvalonDock.Controls
 
             HwndSource _wpfContentHost = null;
             Border _rootPresenter = null;
+            DockingManager _manager = null;
 
             protected override System.Runtime.InteropServices.HandleRef BuildWindowCore(System.Runtime.InteropServices.HandleRef hwndParent)
             {
@@ -56,8 +79,8 @@ namespace AvalonDock.Controls
                 _rootPresenter.SetBinding(Border.BackgroundProperty, new Binding("Background") { Source = _owner });
                 _wpfContentHost.RootVisual = _rootPresenter;
                 _wpfContentHost.SizeToContent = SizeToContent.Manual;
-                var manager = _owner.Model.Root.Manager;
-                ((ILogicalChildrenContainer)manager).InternalAddLogicalChild(_rootPresenter);
+                _manager = _owner.Model.Root.Manager;
+                ((ILogicalChildrenContainer)_manager).InternalAddLogicalChild(_rootPresenter);
 
                 return new HandleRef(this, _wpfContentHost.Handle);
             }
@@ -74,8 +97,7 @@ namespace AvalonDock.Controls
             }
             protected override void DestroyWindowCore(HandleRef hwnd)
             {
-                var manager = _owner.Model.Root.Manager;
-                ((ILogicalChildrenContainer)manager).InternalRemoveLogicalChild(_rootPresenter);
+                ((ILogicalChildrenContainer)_manager).InternalRemoveLogicalChild(_rootPresenter);
                 if (_wpfContentHost != null)
                 {
                     _wpfContentHost.Dispose();
@@ -157,11 +179,14 @@ namespace AvalonDock.Controls
 
         protected override void OnClosed(EventArgs e)
         {
-            var host = Content as FloatingWindowContentHost;
-            host.Dispose();
+            if (Content != null)
+            {
+                var host = Content as FloatingWindowContentHost;
+                host.Dispose();
 
-            _hwndSrc.RemoveHook(_hwndSrcHook);
-            _hwndSrc.Dispose();
+                _hwndSrc.RemoveHook(_hwndSrcHook);
+                _hwndSrc.Dispose();
+            }
 
             base.OnClosed(e);
         }
@@ -291,23 +316,6 @@ namespace AvalonDock.Controls
                 posElement.FloatingHeight = Height;
                 posElement.IsMaximized = this.WindowState == System.Windows.WindowState.Maximized;
             }
-            //var rootVisual = (Content as FloatingWindowContentHost).RootVisual;
-            //foreach (var pane in rootVisual.FindVisualChildren<LayoutAnchorablePaneControl>())
-            //{
-            //    var paneModelAsPositionableElement = pane.Model as ILayoutPositionableElement;
-            //    paneModelAsPositionableElement.FloatingLeft = Left;
-            //    paneModelAsPositionableElement.FloatingTop = Top;
-            //    paneModelAsPositionableElement.FloatingWidth = Width;
-            //    paneModelAsPositionableElement.FloatingHeight = Height;
-            //}
-            //foreach (var pane in rootVisual.FindVisualChildren<LayoutDocumentPaneControl>())
-            //{
-            //    var paneModelAsPositionableElement = pane.Model as ILayoutPositionableElement;
-            //    paneModelAsPositionableElement.FloatingLeft = Left;
-            //    paneModelAsPositionableElement.FloatingTop = Top;
-            //    paneModelAsPositionableElement.FloatingWidth = Width;
-            //    paneModelAsPositionableElement.FloatingHeight = Height;
-            //}
         }
 
         protected virtual IntPtr FilterMessage(
@@ -376,6 +384,8 @@ namespace AvalonDock.Controls
                 //    break;
 
                 case Win32Helper.WM_EXITSIZEMOVE:
+                    UpdatePositionAndSizeOfPanes();
+
                     if (_dragService != null)
                     {
                         bool dropFlag;
@@ -387,8 +397,6 @@ namespace AvalonDock.Controls
                             InternalClose();
                     }
                     
-                    UpdatePositionAndSizeOfPanes();
-
                     break;
                 case Win32Helper.WM_MOVING:
                     {
