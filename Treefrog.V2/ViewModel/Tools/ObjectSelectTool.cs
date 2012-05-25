@@ -58,13 +58,20 @@ namespace Treefrog.ViewModel.Tools
         private Point _initialLocation;
         private List<SelectedObjectRecord> _selectedObjects = new List<SelectedObjectRecord>();
 
+        private SnappingManager _selectSnapManager;
+
         private void StartSelectObjectSequence (PointerEventInfo info)
         {
             ClearSelected();
 
             _initialLocation = new Point((int)info.X, (int)info.Y);
 
+            _selectSnapManager = null;
+
             foreach (ObjectInstance inst in CoarseHitTest((int)info.X, (int)info.Y)) {
+                if (_selectSnapManager == null)
+                    _selectSnapManager = GetSnappingManager(inst.ObjectClass);
+
                 SelectedObjectRecord record = new SelectedObjectRecord()
                 {
                     Instance = inst,
@@ -88,8 +95,8 @@ namespace Treefrog.ViewModel.Tools
 
             foreach (SelectedObjectRecord record in _selectedObjects) {
                 Point newLoc = new Point(record.InitialLocation.X + diffx, record.InitialLocation.Y + diffy);
-                if (SnapManager != null)
-                    newLoc = SnapManager.Translate(newLoc, SnappingTarget);
+                if (_selectSnapManager != null)
+                    newLoc = _selectSnapManager.Translate(newLoc, SnappingTarget);
 
                 record.Instance.X = newLoc.X;
                 record.Instance.Y = newLoc.Y;

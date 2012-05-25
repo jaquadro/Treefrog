@@ -26,14 +26,31 @@ namespace Treefrog.ViewModel.Menu
         {
             switch (e.PropertyName) {
                 case "ActiveDocument":
-                    RaisePropertyChanged("Enabled");
-                    RaisePropertyChanged("SelectToolEnabled");
-                    RaisePropertyChanged("DrawToolEnabled");
-                    RaisePropertyChanged("EraseToolEnabled");
-                    RaisePropertyChanged("FillToolEnabled");
-                    RaisePropertyChanged("StampToolEnabled");
+                    InvalidateProperties();
+
+                    if (ToolCollection != null) {
+                        ChangeTool(ToolCollection.SelectedTool);
+
+                        ToolCollection.Invalidated -= HandleToolCollectionInvalidated;
+                        ToolCollection.Invalidated += HandleToolCollectionInvalidated;
+                    }
                     break;
             }
+        }
+
+        private void HandleToolCollectionInvalidated (object sender, EventArgs e)
+        {
+            InvalidateProperties();
+        }
+
+        private void InvalidateProperties ()
+        {
+            RaisePropertyChanged("Enabled");
+            RaisePropertyChanged("SelectToolEnabled");
+            RaisePropertyChanged("DrawToolEnabled");
+            RaisePropertyChanged("EraseToolEnabled");
+            RaisePropertyChanged("FillToolEnabled");
+            RaisePropertyChanged("StampToolEnabled");
         }
 
         private DocumentVM ActiveDocument

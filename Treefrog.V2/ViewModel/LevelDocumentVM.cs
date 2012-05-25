@@ -14,6 +14,7 @@ using System.Windows;
 using Treefrog.ViewModel.Commands;
 using Treefrog.ViewModel.Tools;
 using Treefrog.ViewModel.Annotations;
+using System.ComponentModel;
 
 namespace Treefrog.ViewModel
 {
@@ -39,8 +40,31 @@ namespace Treefrog.ViewModel
             _root = new LevelGroupLayerVM(this, _level.Layers, _viewport);
 
             _layerCollection = new LayerCollectionVM(_level.Layers, _root, _level);
+            _layerCollection.PropertyChanged += HandleLayerCollectionPropertyChanged;
 
             _tileToolCollection = new TileTools(this);
+
+            IsInitialized = true;
+            OnInitialized(EventArgs.Empty);
+        }
+
+        public bool IsInitialized { get; private set; }
+
+        public event EventHandler Initialized;
+
+        protected virtual void OnInitialized (EventArgs e)
+        {
+            if (Initialized != null)
+                Initialized(this, e);
+        }
+
+        private void HandleLayerCollectionPropertyChanged (object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName) {
+                case "SelectedLayer":
+                    RaisePropertyChanged("ActiveLayer");
+                    break;
+            }
         }
 
         public override string Name
@@ -282,8 +306,16 @@ namespace Treefrog.ViewModel
             public TileTools (LevelDocumentVM level)
             {
                 _level = level;
-                if (TileLayer != null)
-                    TileLayer.SetTool(_selectedTool);
+                _level.PropertyChanged += HandleLevelDocumentPropertyChanged;
+            }
+
+            private void HandleLevelDocumentPropertyChanged (object sender, PropertyChangedEventArgs e)
+            {
+                switch (e.PropertyName) {
+                    case "ActiveLayer":
+                        OnInvalidated(EventArgs.Empty);
+                        break;
+                }
             }
 
             private TileLayerVM TileLayer
@@ -328,10 +360,25 @@ namespace Treefrog.ViewModel
                 {
                     if (_selectedTool != value) {
                         _selectedTool = value;
-                        if (TileLayer != null)
-                            TileLayer.SetTool(_selectedTool);
+                        OnSelectedToolChanged(EventArgs.Empty);
                     }
                 }
+            }
+
+            public event EventHandler Invalidated;
+
+            protected virtual void OnInvalidated (EventArgs e)
+            {
+                if (Invalidated != null)
+                    Invalidated(this, e);
+            }
+
+            public event EventHandler SelectedToolChanged;
+
+            protected virtual void OnSelectedToolChanged (EventArgs e)
+            {
+                if (SelectedToolChanged != null)
+                    SelectedToolChanged(this, e);
             }
         }
     }

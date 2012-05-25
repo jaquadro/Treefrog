@@ -73,7 +73,7 @@ namespace Treefrog.Controls.Layers
             RenderLayer self = sender as RenderLayer;
             self.RebindTextureSource(e.OldValue as RenderLayerVM, e.NewValue as RenderLayerVM);
 
-            self.SetBinding(LayerOpacityProperty, new Binding("LayerOpacity")
+            self.SetBinding(LayerOpacityProperty, new Binding("Opacity")
             {
                 Source = e.NewValue,
             });

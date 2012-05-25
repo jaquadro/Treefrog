@@ -51,6 +51,9 @@ namespace Treefrog.ViewModel.Layers
         {
             _textures = new ObservableDictionary<string, TextureResource>();
 
+            if (Level != null && Level.IsInitialized == false)
+                Level.Initialized += HandleLevelDocumentInitialized;
+
             if (Layer != null && Layer.Level != null && Layer.Level.Project != null) {
                 _manager = Layer.Level.Project.TilePoolManager;
                 _manager.Pools.ResourceAdded += HandleTilePoolAdded;
@@ -60,10 +63,31 @@ namespace Treefrog.ViewModel.Layers
                     _textures[pool.Name] = pool.TileSource;
                     pool.Modified += HandlePoolModified;
                     pool.NameChanged += HandlePoolNameChanged;
-                }
+                } 
             }
 
-            _currentTool = new TileDrawTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
+            LevelIntialize();
+
+            //_currentTool = new TileDrawTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
+        }
+
+        private void LevelIntialize ()
+        {
+            if (Level == null || Level.IsInitialized == false)
+                return;
+
+            Level.Initialized -= HandleLevelDocumentInitialized;
+
+            ITileToolCollection tileToolCollection = Level.LookupToolCollection<ITileToolCollection>();
+            if (tileToolCollection != null) {
+                tileToolCollection.SelectedToolChanged += HandleSelectedToolChanged;
+                SetTool(tileToolCollection.SelectedTool);
+            }
+        }
+
+        private void HandleLevelDocumentInitialized (object sender, EventArgs e)
+        {
+            LevelIntialize();
         }
 
         private void HandleTilePoolAdded (object sender, NamedResourceEventArgs<TilePool> e)
@@ -93,6 +117,14 @@ namespace Treefrog.ViewModel.Layers
         {
             _textures.Remove(e.OldName);
             _textures.Add(e.NewName, _manager.Pools[e.NewName].TileSource);
+        }
+
+        private void HandleSelectedToolChanged (object sender, EventArgs e)
+        {
+            ITileToolCollection tileToolCollection = sender as ITileToolCollection;
+            if (tileToolCollection != null) {
+                SetTool(tileToolCollection.SelectedTool);
+            }
         }
 
         protected new TileGridLayer Layer

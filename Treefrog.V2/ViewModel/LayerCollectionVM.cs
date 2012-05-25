@@ -64,7 +64,7 @@ namespace Treefrog.ViewModel
             {
                 if (_selectedLayer != value) {
                     _selectedLayer = value;
-                    OnSelectionChanged(); 
+                    OnSelectionChanged();
                 }
             }
         }
@@ -82,6 +82,8 @@ namespace Treefrog.ViewModel
                 _moveUpCommand.RaiseCanExecuteChanged();
             if (_moveDownCommand != null)
                 _moveDownCommand.RaiseCanExecuteChanged();
+
+            RaisePropertyChanged("SelectedLayer");
         }
 
         #region Commands

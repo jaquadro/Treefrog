@@ -22,6 +22,11 @@ namespace Treefrog.ViewModel.Tools
             _gridSize = gridSize;
         }
 
+        protected override void StartPointerSequenceCore (PointerEventInfo info)
+        {
+            _snapManager = new SnappingManager(GetSnappingSourceOrigin(), GetSnappingSourceBounds(), GridSize);
+        }
+
         protected override void PointerPositionCore (PointerEventInfo info)
         {
             if (_snapManager == null)
@@ -97,26 +102,41 @@ namespace Treefrog.ViewModel.Tools
             }
         }
 
+        protected SnappingManager GetSnappingManager (ObjectClass objClass)
+        {
+            return new SnappingManager(GetSnappingSourceOrigin(objClass), GetSnappingSourceBounds(objClass), GridSize);
+        }
+
         private Point GetSnappingSourceOrigin ()
         {
-            if (ActiveObjectClass == null)
+            return GetSnappingSourceOrigin(ActiveObjectClass);
+        }
+
+        protected Point GetSnappingSourceOrigin (ObjectClass objClass)
+        {
+            if (objClass == null)
                 return Point.Zero;
 
-            return ActiveObjectClass.Origin;
+            return objClass.Origin;
         }
 
         private Rectangle GetSnappingSourceBounds ()
         {
-            if (ActiveObjectClass == null)
+            return GetSnappingSourceBounds(ActiveObjectClass);
+        }
+
+        protected Rectangle GetSnappingSourceBounds (ObjectClass objClass)
+        {
+            if (objClass == null)
                 return Rectangle.Empty;
 
             switch (SnappingSource) {
                 case ObjectSnappingSource.ImageBounds:
-                    return ActiveObjectClass.ImageBounds;
+                    return objClass.ImageBounds;
                 case ObjectSnappingSource.MaskBounds:
-                    return ActiveObjectClass.MaskBounds;
+                    return objClass.MaskBounds;
                 case ObjectSnappingSource.Origin:
-                    return new Rectangle(ActiveObjectClass.Origin, Size.Zero);
+                    return new Rectangle(objClass.Origin, Size.Zero);
                 default:
                     return Rectangle.Empty;
             }

@@ -28,5 +28,7 @@ namespace Treefrog.ViewModel.Tools
         //bool RotateRightEnabled { get; }
 
         TileTool SelectedTool { get; set; }
+
+        event EventHandler SelectedToolChanged;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Treefrog.Framework.Imaging;
+using System;
 
 namespace Treefrog.ViewModel.Tools
 {
@@ -52,32 +53,98 @@ namespace Treefrog.ViewModel.Tools
 
         private int SnapXLeft (int x)
         {
-            return (int)(x / _gridX) * _gridX + (_origin.X - _bounds.Left);
+            int negAdj = (_gridX - (_origin.X - _bounds.Left) % _gridX) % _gridX;
+            int posAdj = (_origin.X - _bounds.Left) % _gridX;
+            int originSnap = (x / _gridX) * _gridX;
+
+            return ClosestValue(x, new int[] {
+                originSnap - negAdj,
+                originSnap + posAdj,
+                originSnap + _gridX - negAdj,
+                originSnap + _gridX + posAdj,
+            });
         }
 
         private int SnapXRight (int x)
         {
-            return (int)(x / _gridX + 1) * _gridX + (_origin.X - _bounds.Right);
+            int negAdj = (_origin.X - _bounds.Right) % _gridX;
+            int posAdj = (_gridX - (_origin.X - _bounds.Right) % _gridX) % _gridX;
+            int originSnap = (x / _gridX) * _gridX;
+
+            return ClosestValue(x, new int[] {
+                originSnap - negAdj,
+                originSnap + posAdj,
+                originSnap + _gridX - negAdj,
+                originSnap + _gridX + posAdj,
+            });
         }
 
         private int SnapXCenter (int x)
         {
-            return (SnapXLeft(x) + SnapXRight(x)) / 2;
+            int negAdjLeft = (_gridX - (_origin.X - _bounds.Left) % _gridX) %_gridX;
+            int posAdjRight = (_gridX - (_origin.X - _bounds.Right) % _gridX) % _gridX;
+            int originSnap = (x / _gridX) * _gridX;
+
+            return ClosestValue(x, new int[] {
+                originSnap + (posAdjRight - negAdjLeft) / 2,
+                originSnap + _gridX + (posAdjRight - negAdjLeft) / 2,
+            });
         }
 
         private int SnapYTop (int y)
         {
-            return (int)(y / _gridY) * _gridY + (_origin.Y - _bounds.Top);
+            int negAdj = (_gridY - (_origin.Y - _bounds.Top) % _gridY) % _gridY;
+            int posAdj = (_origin.Y - _bounds.Top) % _gridY;
+            int originSnap = (y / _gridY) * _gridY;
+
+            return ClosestValue(y, new int[] {
+                originSnap + negAdj,
+                originSnap + posAdj,
+                originSnap + _gridY + negAdj,
+                originSnap + _gridY + posAdj,
+            });
         }
 
         private int SnapYBottom (int y)
         {
-            return (int)(y / _gridY + 1) * _gridY + (_origin.Y - _bounds.Bottom);
+            int negAdj = (_origin.Y - _bounds.Bottom) % _gridY;
+            int posAdj = (_gridY - (_origin.Y - _bounds.Bottom) % _gridY) % _gridY;
+            int originSnap = (y / _gridY) * _gridY;
+
+            return ClosestValue(y, new int[] {
+                originSnap + negAdj,
+                originSnap + posAdj,
+                originSnap + _gridY + negAdj,
+                originSnap + _gridY + posAdj,
+            });
         }
 
         private int SnapYCenter (int y)
         {
-            return (SnapYTop(y) + SnapYBottom(y)) / 2;
+            int negAdjTop = (_gridY - (_origin.Y - _bounds.Top) % _gridY) % _gridY;
+            int posAdjBottom = (_gridY - (_origin.Y - _bounds.Bottom) % _gridY) % _gridY;
+            int originSnap = (y / _gridY) * _gridY;
+
+            return ClosestValue(y, new int[] {
+                originSnap + (posAdjBottom - negAdjTop) / 2,
+                originSnap + _gridY + (posAdjBottom - negAdjTop) / 2,
+            });
+        }
+
+        private int ClosestValue (int refVal, int[] candidates)
+        {
+            int minError = int.MaxValue;
+            int minCandidate = 0;
+
+            foreach (int candidate in candidates) {
+                int error = Math.Abs(candidate - refVal);
+                if (error < minError) {
+                    minError = error;
+                    minCandidate = candidate;
+                }
+            }
+
+            return minCandidate;
         }
     }
 }
