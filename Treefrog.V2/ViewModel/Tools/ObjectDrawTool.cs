@@ -76,7 +76,7 @@ namespace Treefrog.ViewModel.Tools
                 _previewMarkerVisible = true;
             }
 
-            Point xlat = new Point((int)info.X, (int)info.Y);
+            Point xlat = new Point((int)info.X - _activeClass.ImageBounds.Width / 2, (int)info.Y - _activeClass.ImageBounds.Height / 2);
             if (SnapManager != null)
                 xlat = SnapManager.Translate(xlat, SnappingTarget);
 
@@ -99,7 +99,7 @@ namespace Treefrog.ViewModel.Tools
             if (ActiveObjectClass == null)
                 return;
 
-            Point xlat = new Point((int)info.X, (int)info.Y);
+            Point xlat = new Point((int)info.X - _activeClass.ImageBounds.Width / 2, (int)info.Y - _activeClass.ImageBounds.Height / 2);
             if (SnapManager != null)
                 xlat = SnapManager.Translate(xlat, SnappingTarget);
 

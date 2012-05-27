@@ -98,9 +98,9 @@ namespace Treefrog.ViewModel.Tools
             int originSnap = (y / _gridY) * _gridY;
 
             return ClosestValue(y, new int[] {
-                originSnap + negAdj,
+                originSnap - negAdj,
                 originSnap + posAdj,
-                originSnap + _gridY + negAdj,
+                originSnap + _gridY - negAdj,
                 originSnap + _gridY + posAdj,
             });
         }
@@ -112,23 +112,31 @@ namespace Treefrog.ViewModel.Tools
             int originSnap = (y / _gridY) * _gridY;
 
             return ClosestValue(y, new int[] {
-                originSnap + negAdj,
+                originSnap - negAdj,
                 originSnap + posAdj,
-                originSnap + _gridY + negAdj,
+                originSnap + _gridY - negAdj,
                 originSnap + _gridY + posAdj,
             });
         }
 
         private int SnapYCenter (int y)
         {
-            int negAdjTop = (_gridY - (_origin.Y - _bounds.Top) % _gridY) % _gridY;
-            int posAdjBottom = (_gridY - (_origin.Y - _bounds.Bottom) % _gridY) % _gridY;
+            //int negAdjTop = (_gridY - (_origin.Y - _bounds.Top) % _gridY) % _gridY;
+            //int posAdjBottom = (_gridY - (_origin.Y - _bounds.Bottom) % _gridY) % _gridY;
+            int negAdjTop = (_gridY - Mod(_origin.Y - _bounds.Top, _gridY)) % _gridY;
+            int posAdjBottom = (_gridY - Mod(_origin.Y - _bounds.Bottom, _gridY)) % _gridY;
             int originSnap = (y / _gridY) * _gridY;
-
+            
             return ClosestValue(y, new int[] {
                 originSnap + (posAdjBottom - negAdjTop) / 2,
                 originSnap + _gridY + (posAdjBottom - negAdjTop) / 2,
             });
+        }
+
+        private int Mod (int x, int m)
+        {
+            if (m < 0) m = -m;
+            return (x % m + m) % m;
         }
 
         private int ClosestValue (int refVal, int[] candidates)

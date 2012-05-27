@@ -49,6 +49,11 @@ namespace Treefrog.Framework.Imaging
             get { return new Size(Width, Height); }
         }
 
+        public Point Center
+        {
+            get { return new Point(X + Width / 2, Y + Height / 2); }
+        }
+
         public Rectangle (int x, int y, int width, int height)
         {
             X = x;
