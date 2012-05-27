@@ -47,7 +47,7 @@ namespace Treefrog.ViewModel.Layers
                 Layer.ObjectAdded += HandleObjectAdded;
             }
 
-            _currentTool = new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+            SetCurrentTool(new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations));
         }
 
         private void SetupPoolService ()
@@ -64,7 +64,7 @@ namespace Treefrog.ViewModel.Layers
             if (e.PropertyName == "ActiveObjectClass" && _poolService.ActiveObjectClass != null) {
                 if (_currentTool != null)
                     _currentTool.Cancel();
-                _currentTool = new ObjectDrawTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+                SetCurrentTool(new ObjectDrawTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations));
             }
         }
 
@@ -121,6 +121,25 @@ namespace Treefrog.ViewModel.Layers
 
         private PointerTool _currentTool;
 
+        private void SetCurrentTool (PointerTool tool)
+        {
+            ObjectSelectTool objTool = _currentTool as ObjectSelectTool;
+            if (objTool != null) {
+                objTool.CanDeleteChanged -= HandleCanDeleteChanged;
+                objTool.CanSelectAllChanged -= HandleCanSelectAllChanged;
+                objTool.CanSelectNoneChanged -= HandleCanSelectNoneChanged;
+            }
+
+            _currentTool = tool;
+
+            objTool = _currentTool as ObjectSelectTool;
+            if (objTool != null) {
+                objTool.CanDeleteChanged += HandleCanDeleteChanged;
+                objTool.CanSelectAllChanged += HandleCanSelectAllChanged;
+                objTool.CanSelectNoneChanged += HandleCanSelectNoneChanged;
+            }
+        }
+
         public override void HandleStartPointerSequence (PointerEventInfo info)
         {
             SetupPoolService();
@@ -141,7 +160,7 @@ namespace Treefrog.ViewModel.Layers
                 _currentTool.EndPointerSequence(info);
 
             if (_currentTool is ObjectDrawTool && _currentTool.IsCancelled)
-                _currentTool = new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+                SetCurrentTool(new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations));
         }
 
         public override void HandlePointerPosition (PointerEventInfo info)
@@ -154,6 +173,75 @@ namespace Treefrog.ViewModel.Layers
         {
             if (_currentTool != null)
                 _currentTool.PointerLeaveField();
+        }
+
+        public override bool CanDelete
+        {
+            get
+            {
+                ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+                return (tool != null) 
+                    ? tool.CanDelete 
+                    : false;
+            }
+        }
+
+        public override void Delete ()
+        {
+            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+            if (tool != null)
+                tool.Delete();
+        }
+
+        private void HandleCanDeleteChanged (object sender, EventArgs e)
+        {
+            OnCanDeleteChanged(e);
+        }
+
+        public override bool CanSelectAll
+        {
+            get
+            {
+                ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+                return (tool != null)
+                    ? tool.CanSelectAll
+                    : false;
+            }
+        }
+
+        public override void SelectAll ()
+        {
+            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+            if (tool != null)
+                tool.SelectAll();
+        }
+
+        private void HandleCanSelectAllChanged (object sender, EventArgs e)
+        {
+            OnCanSelectAllChanged(e);
+        }
+
+        public override bool CanSelectNone
+        {
+            get
+            {
+                ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+                return (tool != null)
+                    ? tool.CanSelectNone
+                    : false;
+            }
+        }
+
+        public override void SelectNone ()
+        {
+            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+            if (tool != null)
+                tool.SelectNone();
+        }
+
+        private void HandleCanSelectNoneChanged (object sender, EventArgs e)
+        {
+            OnCanSelectNoneChanged(e);
         }
     }
 }

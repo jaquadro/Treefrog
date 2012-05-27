@@ -21,6 +21,7 @@ namespace Treefrog.ViewModel
     public class LevelDocumentVM : DocumentVM
     {
         private Level _level;
+        private LevelLayerVM _activeLayer;
 
         private ViewportVM _viewport;
         private LevelGroupLayerVM _root;
@@ -35,6 +36,7 @@ namespace Treefrog.ViewModel
         {
             _level = level;
             _commandHistory = new CommandHistory();
+            _commandHistory.HistoryChanged += HandleHistoryChanged;
 
             _viewport = new ViewportVM();
             _root = new LevelGroupLayerVM(this, _level.Layers, _viewport);
@@ -62,8 +64,26 @@ namespace Treefrog.ViewModel
         {
             switch (e.PropertyName) {
                 case "SelectedLayer":
+                    SetActiveLayer(ActiveLayer);
                     RaisePropertyChanged("ActiveLayer");
                     break;
+            }
+        }
+
+        private void SetActiveLayer (LevelLayerVM layer)
+        {
+            if (_activeLayer != null) {
+                _activeLayer.CanDeleteChanged -= HandleLayerDeleteChanged;
+                _activeLayer.CanSelectAllChanged -= HandleLayerSelectAllChanged;
+                _activeLayer.CanSelectNoneChanged -= HandleLayerSelectNoneChanged;
+            }
+
+            _activeLayer = layer;
+
+            if (_activeLayer != null) {
+                _activeLayer.CanDeleteChanged += HandleLayerDeleteChanged;
+                _activeLayer.CanSelectAllChanged += HandleLayerSelectAllChanged;
+                _activeLayer.CanSelectNoneChanged += HandleLayerSelectNoneChanged;
             }
         }
 
@@ -295,6 +315,147 @@ namespace Treefrog.ViewModel
         }
 
         #endregion
+
+        #endregion
+
+        #region IEditCommandProvider Members
+
+        public override bool CanUndo
+        {
+            get { return _commandHistory.CanUndo; }
+        }
+
+        public override bool CanRedo
+        {
+            get { return _commandHistory.CanRedo; }
+        }
+
+        public override bool CanCut
+        {
+            get
+            {
+                LevelLayerVM vm = ActiveLayer;
+                return (vm == null) ? false : vm.CanCut;
+            }
+        }
+
+        public override bool CanCopy
+        {
+            get
+            {
+                LevelLayerVM vm = ActiveLayer;
+                return (vm == null) ? false : vm.CanCopy;
+            }
+        }
+
+        public override bool CanPaste
+        {
+            get
+            {
+                LevelLayerVM vm = ActiveLayer;
+                return (vm == null) ? false : vm.CanPaste;
+            }
+        }
+
+        public override bool CanDelete
+        {
+            get
+            {
+                LevelLayerVM vm = ActiveLayer;
+                return (vm == null) ? false : vm.CanDelete;
+            }
+        }
+
+        public override bool CanSelectAll
+        {
+            get
+            {
+                LevelLayerVM vm = ActiveLayer;
+                return (vm == null) ? false : vm.CanSelectAll;
+            }
+        }
+
+        public override bool CanSelectNone
+        {
+            get
+            {
+                LevelLayerVM vm = ActiveLayer;
+                return (vm == null) ? false : vm.CanSelectNone;
+            }
+        }
+
+        public override void Undo ()
+        {
+            _commandHistory.Undo();
+        }
+
+        public override void Redo ()
+        {
+            _commandHistory.Redo();
+        }
+
+        public override void Cut ()
+        {
+            LevelLayerVM vm = ActiveLayer;
+            if (vm != null)
+                vm.Cut();
+        }
+
+        public override void Copy ()
+        {
+            LevelLayerVM vm = ActiveLayer;
+            if (vm != null)
+                vm.Copy();
+        }
+
+        public override void Paste ()
+        {
+            LevelLayerVM vm = ActiveLayer;
+            if (vm != null)
+                vm.Paste();
+        }
+
+        public override void Delete ()
+        {
+            LevelLayerVM vm = ActiveLayer;
+            if (vm != null)
+                vm.Delete();
+        }
+
+        public override void SelectAll ()
+        {
+            LevelLayerVM vm = ActiveLayer;
+            if (vm != null)
+                vm.SelectAll();
+        }
+
+        public override void SelectNone ()
+        {
+            LevelLayerVM vm = ActiveLayer;
+            if (vm != null)
+                vm.SelectNone();
+        }
+
+        private void HandleHistoryChanged (object sender, EventArgs e)
+        {
+            OnCanUndoChanged(e);
+            OnCanRedoChanged(e);
+        }
+
+        private void HandleLayerDeleteChanged (object sender, EventArgs e)
+        {
+            OnCanDeleteChanged(e);
+        }
+
+        private void HandleLayerSelectAllChanged (object sender, EventArgs e)
+        {
+            OnCanSelectAllChanged(e);
+        }
+
+        private void HandleLayerSelectNoneChanged (object sender, EventArgs e)
+        {
+            OnCanSelectNoneChanged(e);
+        }
 
         #endregion
 

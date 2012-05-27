@@ -18,30 +18,74 @@ namespace Treefrog.ViewModel.Menu
     public class StandardMenuVM : ViewModelBase
     {
         EditorVM _editor;
-        CommandHistory _history;
+        DocumentVM _document;
 
         public StandardMenuVM (EditorVM editor)
         {
             _editor = editor;
             _editor.PropertyChanged += HandleEditorPropertyChanged;
+
+            SetDocument(_editor.ActiveDocument);
         }
 
         private void HandleEditorPropertyChanged (object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName) {
-                case "CommandHistory":
-                    if (_history != null)
-                        _history.HistoryChanged -= HandleHistoryChanged;
-                    _history = _editor.CommandHistory;
-                    if (_history != null)
-                        _history.HistoryChanged += HandleHistoryChanged;
-
-                    if (_undoCommand != null)
-                        _undoCommand.RaiseCanExecuteChanged();
-                    if (_redoCommand != null)
-                        _redoCommand.RaiseCanExecuteChanged();
+                case "ActiveDocument":
+                    SetDocument(_editor.ActiveDocument);
                     break;
             }
+        }
+
+        private void SetDocument (DocumentVM document)
+        {
+            if (_document != null) {
+                _document.CanUndoChanged -= HandleDocumentCanUndoChanged;
+                _document.CanRedoChanged -= HandleDocumentCanRedoChanged;
+                _document.CanDeleteChanged -= HandleDocumentCanDeleteChanged;
+                _document.CanSelectAllChanged -= HandleDocumentCanSelectAllChanged;
+                _document.CanSelectNoneChanged -= HandleDocumentCanSelectNoneChanged;
+            }
+
+            _document = document;
+
+            if (_document != null) {
+                _document.CanUndoChanged += HandleDocumentCanUndoChanged;
+                _document.CanRedoChanged += HandleDocumentCanRedoChanged;
+                _document.CanDeleteChanged += HandleDocumentCanDeleteChanged;
+                _document.CanSelectAllChanged += HandleDocumentCanSelectAllChanged;
+                _document.CanSelectNoneChanged += HandleDocumentCanSelectNoneChanged;
+            }
+        }
+
+        private void HandleDocumentCanUndoChanged (object sender, EventArgs e)
+        {
+            if (_undoCommand != null)
+                _undoCommand.RaiseCanExecuteChanged();
+        }
+
+        private void HandleDocumentCanRedoChanged (object sender, EventArgs e)
+        {
+            if (_redoCommand != null)
+                _redoCommand.RaiseCanExecuteChanged();
+        }
+
+        private void HandleDocumentCanDeleteChanged (object sender, EventArgs e)
+        {
+            if (_deleteCommand != null)
+                _deleteCommand.RaiseCanExecuteChanged();
+        }
+
+        private void HandleDocumentCanSelectAllChanged (object sender, EventArgs e)
+        {
+            if (_selectAllCommand != null)
+                _selectAllCommand.RaiseCanExecuteChanged();
+        }
+
+        private void HandleDocumentCanSelectNoneChanged (object sender, EventArgs e)
+        {
+            if (_selectNoneCommand != null)
+                _selectNoneCommand.RaiseCanExecuteChanged();
         }
 
         private void HandleHistoryChanged (object sender, EventArgs e)
@@ -226,16 +270,17 @@ namespace Treefrog.ViewModel.Menu
 
         private bool CanUndo ()
         {
-            if (_history == null)
+            if (_document == null)
                 return false;
-            return _history.CanUndo;
+            return _document.CanUndo;
         }
 
         private void OnUndo ()
         {
-            if (_history == null)
+            if (_document == null)
                 return;
-            _history.Undo();
+            _document.Undo();
+            _undoCommand.RaiseCanExecuteChanged();
         }
 
         #endregion
@@ -256,17 +301,107 @@ namespace Treefrog.ViewModel.Menu
 
         private bool CanRedo ()
         {
-            if (_history == null)
+            if (_document == null)
                 return false;
-            return _history.CanRedo;
+            return _document.CanRedo;
         }
 
         private void OnRedo ()
         {
-            if (_history == null)
+            if (_document == null)
                 return;
-            _history.Redo();
+            _document.Redo();
             _redoCommand.RaiseCanExecuteChanged();
+        }
+
+        #endregion
+
+        #region Delete Command
+
+        private RelayCommand _deleteCommand;
+
+        public ICommand DeleteCommand
+        {
+            get
+            {
+                if (_deleteCommand == null)
+                    _deleteCommand = new RelayCommand(OnDelete, CanDelete);
+                return _deleteCommand;
+            }
+        }
+
+        private bool CanDelete ()
+        {
+            if (_document == null)
+                return false;
+            return _document.CanDelete;
+        }
+
+        private void OnDelete ()
+        {
+            if (_document == null)
+                return;
+            _document.Delete();
+        }
+
+        #endregion
+
+        #region Select All Command
+
+        private RelayCommand _selectAllCommand;
+
+        public ICommand SelectAllCommand
+        {
+            get
+            {
+                if (_selectAllCommand == null)
+                    _selectAllCommand = new RelayCommand(OnSelectAll, CanSelectAll);
+                return _selectAllCommand;
+            }
+        }
+
+        private bool CanSelectAll ()
+        {
+            if (_document == null)
+                return false;
+            return _document.CanSelectAll;
+        }
+
+        private void OnSelectAll ()
+        {
+            if (_document == null)
+                return;
+            _document.SelectAll();
+        }
+
+        #endregion
+
+        #region SelectNone Command
+
+        private RelayCommand _selectNoneCommand;
+
+        public ICommand SelectNoneCommand
+        {
+            get
+            {
+                if (_selectNoneCommand == null)
+                    _selectNoneCommand = new RelayCommand(OnSelectNone, CanSelectNone);
+                return _selectNoneCommand;
+            }
+        }
+
+        private bool CanSelectNone ()
+        {
+            if (_document == null)
+                return false;
+            return _document.CanSelectNone;
+        }
+
+        private void OnSelectNone ()
+        {
+            if (_document == null)
+                return;
+            _document.SelectNone();
         }
 
         #endregion

@@ -57,6 +57,78 @@ namespace Treefrog.ViewModel.Tools
             }
         }
 
+        #region Edit Interface
+
+        public bool CanDelete
+        {
+            get { return _selectedObjects != null && _selectedObjects.Count > 0; }
+        }
+
+        public void Delete ()
+        {
+            if (_selectedObjects != null) {
+                if (Layer != null) {
+                    foreach (SelectedObjectRecord inst in _selectedObjects) {
+                        Layer.RemoveObject(inst.Instance);
+                    }
+                }
+
+                ClearSelected();
+            }
+        }
+
+        public event EventHandler CanDeleteChanged;
+
+        protected virtual void OnCanDeleteChanged (EventArgs e)
+        {
+            if (CanDeleteChanged != null)
+                CanDeleteChanged(this, e);
+        }
+
+        public bool CanSelectAll
+        {
+            get { return true; }
+        }
+
+        public void SelectAll ()
+        {
+            if (Layer != null) {
+                foreach (ObjectInstance inst in Layer.Objects) {
+                    AddSelected(inst);
+                }
+            }
+        }
+
+        public event EventHandler CanSelectAllChanged;
+
+        protected virtual void OnCanSelectAllChanged (EventArgs e)
+        {
+            if (CanSelectAllChanged != null)
+                CanSelectAllChanged(this, e);
+        }
+
+        public bool CanSelectNone
+        {
+            get { return _selectedObjects != null && _selectedObjects.Count > 0; }
+        }
+
+        public void SelectNone ()
+        {
+            if (_selectedObjects != null) {
+                ClearSelected();
+            }
+        }
+
+        public event EventHandler CanSelectNoneChanged;
+
+        protected virtual void OnCanSelectNoneChanged (EventArgs e)
+        {
+            if (CanSelectNoneChanged != null)
+                CanSelectNoneChanged(this, e);
+        }
+
+        #endregion
+
         #region Select Object Sequence
 
         private class SelectedObjectRecord
@@ -259,6 +331,9 @@ namespace Treefrog.ViewModel.Tools
 
         private void AddSelected (ObjectInstance inst)
         {
+            if (_selectedObjects == null)
+                return;
+
             foreach (SelectedObjectRecord instRecord in _selectedObjects)
                 if (instRecord.Instance == inst)
                     return;
@@ -276,10 +351,18 @@ namespace Treefrog.ViewModel.Tools
 
             _selectedObjects.Add(record);
             _annots.Add(record.Annot);
+
+            if (_selectedObjects.Count == 1) {
+                OnCanDeleteChanged(EventArgs.Empty);
+                OnCanSelectNoneChanged(EventArgs.Empty);
+            }
         }
 
         private void RemoveSelected (ObjectInstance inst)
         {
+            if (_selectedObjects == null || _selectedObjects.Count == 0)
+                return;
+
             foreach (SelectedObjectRecord record in _selectedObjects) {
                 if (record.Instance == inst) {
                     _annots.Remove(record.Annot);
@@ -287,15 +370,26 @@ namespace Treefrog.ViewModel.Tools
                     break;
                 }
             }
+
+            if (_selectedObjects.Count == 0) {
+                OnCanDeleteChanged(EventArgs.Empty);
+                OnCanSelectNoneChanged(EventArgs.Empty);
+            }
         }
 
         private void ClearSelected ()
         {
+            if (_selectedObjects == null || _selectedObjects.Count == 0)
+                return;
+
             foreach (SelectedObjectRecord record in _selectedObjects) {
                 _annots.Remove(record.Annot);
             }
 
             _selectedObjects.Clear();
+
+            OnCanDeleteChanged(EventArgs.Empty);
+            OnCanSelectNoneChanged(EventArgs.Empty);
         }
 
         #endregion

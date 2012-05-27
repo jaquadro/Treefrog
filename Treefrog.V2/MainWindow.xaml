@@ -16,6 +16,11 @@
     <Window.InputBindings>
         <KeyBinding Modifiers="Control" Key="O" Command="{Binding Path=StandardMenu.OpenProjectCommand}"/>
         <KeyBinding Modifiers="Control" Key="S" Command="{Binding Path=StandardMenu.SaveProjectCommand}"/>
+        <KeyBinding Modifiers="Control" Key="Z" Command="{Binding Path=StandardMenu.UndoCommand}"/>
+        <KeyBinding Modifiers="Control" Key="Y" Command="{Binding Path=StandardMenu.RedoCommand}"/>
+        <KeyBinding Key="Delete" Command="{Binding Path=StandardMenu.DeleteCommand}"/>
+        <KeyBinding Modifiers="Control" Key="A" Command="{Binding Path=StandardMenu.SelectAllCommand}"/>
+        <KeyBinding Modifiers="Control+Shift" Key="A" Command="{Binding Path=StandardMenu.SelectNoneCommand}"/>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -47,7 +52,50 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="Edit"></MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Command="{Binding Path=StandardMenu.UndoCommand}" Header="Undo" InputGestureText="Ctrl+Z">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/arrow-turn-180-left.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="{Binding Path=StandardMenu.RedoCommand}" Header="Redo" InputGestureText="Ctrl+Y">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/arrow-turn.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Command="Cut" Header="Cut" InputGestureText="Ctrl+X">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/scissors.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="Copy" Header="Copy" InputGestureText="Ctrl+C">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/documents.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="Paste" Header="Paste" InputGestureText="Ctrl+V">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/clipboard-paste.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="{Binding Path=StandardMenu.DeleteCommand}" Header="Delete" InputGestureText="Del">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/cross.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Command="{Binding Path=StandardMenu.SelectAllCommand}" Header="Select All" InputGestureText="Ctrl+A">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/selection-select.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Command="{Binding Path=StandardMenu.SelectNoneCommand}" Header="Select None" InputGestureText="Ctrl+Shift+A">
+                    <MenuItem.Icon>
+                        <Image Source="/Treefrog;component/Images/16/selection.png" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
             <MenuItem Header="View"></MenuItem>
             <MenuItem Header="Help"></MenuItem>
         </Menu>
