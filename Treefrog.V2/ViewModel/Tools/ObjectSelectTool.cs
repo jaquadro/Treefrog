@@ -8,8 +8,48 @@ using Treefrog.ViewModel.Commands;
 using System.Windows.Input;
 using System;
 
+using Clipboard = System.Windows.Clipboard;
+
 namespace Treefrog.ViewModel.Tools
 {
+    [Serializable]
+    public class ObjectSelectionClipboard
+    {
+        public List<ObjectInstance> Objects;
+
+        public ObjectSelectionClipboard (List<ObjectInstance> objects)
+        {
+            Objects = new List<ObjectInstance>();
+            foreach (ObjectInstance inst in objects)
+                Objects.Add(inst);
+        }
+
+        public static bool ContainsData
+        {
+            get { return Clipboard.ContainsData(typeof(ObjectSelectionClipboard).FullName); }
+        }
+
+        public void CopyToClipboard ()
+        {
+            foreach (ObjectInstance inst in Objects)
+                inst.PreSerialize();
+
+            Clipboard.SetData(typeof(ObjectSelectionClipboard).FullName, this);
+        }
+
+        public static ObjectSelectionClipboard CopyFromClipboard (Project project)
+        {
+            ObjectSelectionClipboard clip = Clipboard.GetData(typeof(ObjectSelectionClipboard).FullName) as ObjectSelectionClipboard;
+            if (clip == null)
+                return null;
+
+            foreach (ObjectInstance inst in clip.Objects)
+                inst.PostDeserialize(project);
+
+            return clip;
+        }
+    }
+
     public class ObjectSelectTool : ObjectPointerTool
     {
         private ObservableCollection<Annotation> _annots;
@@ -125,6 +165,89 @@ namespace Treefrog.ViewModel.Tools
         {
             if (CanSelectNoneChanged != null)
                 CanSelectNoneChanged(this, e);
+        }
+
+        public bool CanCut
+        {
+            get { return _selectedObjects != null && _selectedObjects.Count > 0; }
+        }
+
+        public void Cut ()
+        {
+            if (_selectedObjects != null) {
+                List<ObjectInstance> objects = new List<ObjectInstance>();
+                foreach (SelectedObjectRecord record in _selectedObjects) {
+                    record.Instance.PreSerialize();
+                    objects.Add(record.Instance);
+                }
+
+                Clipboard.SetData(typeof(ObjectInstance).FullName, objects);
+                ClearSelected();
+
+                OnCanPasteChanged(EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler CanCutChanged;
+
+        protected virtual void OnCanCutChanged (EventArgs e)
+        {
+            if (CanCutChanged != null)
+                CanCutChanged(this, e);
+        }
+
+        public bool CanCopy
+        {
+            get { return _selectedObjects != null && _selectedObjects.Count > 0; }
+        }
+
+        public void Copy ()
+        {
+            if (_selectedObjects != null) {
+                List<ObjectInstance> objects = new List<ObjectInstance>();
+                foreach (SelectedObjectRecord record in _selectedObjects)
+                    objects.Add(record.Instance);
+
+                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(objects);
+                clip.CopyToClipboard();
+
+                OnCanPasteChanged(EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler CanCopyChanged;
+
+        protected virtual void OnCanCopyChanged (EventArgs e)
+        {
+            if (CanCopyChanged != null)
+                CanCopyChanged(this, e);
+        }
+
+        public bool CanPaste
+        {
+            get { return ObjectSelectionClipboard.ContainsData; }
+        }
+
+        public void Paste ()
+        {
+            ClearSelected();
+
+            ObjectSelectionClipboard clip = ObjectSelectionClipboard.CopyFromClipboard(Layer.Level.Project);
+            if (clip == null)
+                return;
+
+            foreach (ObjectInstance inst in clip.Objects) {
+                Layer.AddObject(inst);
+                AddSelected(inst);
+            }
+        }
+
+        public event EventHandler CanPasteChanged;
+
+        protected virtual void OnCanPasteChanged (EventArgs e)
+        {
+            if (CanPasteChanged != null)
+                CanPasteChanged(this, e);
         }
 
         #endregion

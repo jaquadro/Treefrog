@@ -10,6 +10,7 @@ using System.ComponentModel;
 using Treefrog.Framework.Imaging;
 
 using Rect = System.Windows.Rect;
+using Clipboard = System.Windows.Clipboard;
 
 namespace Treefrog.ViewModel.Layers
 {
@@ -34,7 +35,8 @@ namespace Treefrog.ViewModel.Layers
 
         private void Initialize ()
         {
-            SetupPoolService();
+            ServiceContainer.Default.ServiceSet += HandleServiceContainerSet;
+            SetPoolService();
 
             _textures = new ObservableDictionary<string, TextureResource>();
 
@@ -47,25 +49,47 @@ namespace Treefrog.ViewModel.Layers
                 Layer.ObjectAdded += HandleObjectAdded;
             }
 
-            SetCurrentTool(new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations));
+            SetCurrentTool(NewSelectTool());
         }
 
-        private void SetupPoolService ()
+        public override void Cleanup ()
         {
-            if (_poolService == null) {
-                _poolService = ServiceContainer.Default.GetService<ObjectPoolManagerService>();
-                if (_poolService != null)
-                    _poolService.PropertyChanged += HandlePoolServicePropertyChanged;
+            SetCurrentTool(null);
+            SetPoolService(null);
+            ServiceContainer.Default.ServiceSet -= HandleServiceContainerSet;
+            
+            base.Cleanup();
+        }
+
+        private void SetPoolService ()
+        {
+            SetPoolService(ServiceContainer.Default.GetService<ObjectPoolManagerService>());
+        }
+
+        private void SetPoolService (ObjectPoolManagerService service)
+        {
+            if (_poolService != null) {
+                _poolService.PropertyChanged -= HandlePoolServicePropertyChanged;
+            }
+
+            _poolService = service;
+
+            if (_poolService != null) {
+                _poolService.PropertyChanged += HandlePoolServicePropertyChanged;
+            }
+        }
+
+        private void HandleServiceContainerSet (object sender, ServiceEventArgs e)
+        {
+            if (e.ServiceType == typeof(ObjectPoolManagerService)) {
+                SetPoolService();
             }
         }
 
         private void HandlePoolServicePropertyChanged (object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "ActiveObjectClass" && _poolService.ActiveObjectClass != null) {
-                if (_currentTool != null)
-                    _currentTool.Cancel();
-                SetCurrentTool(new ObjectDrawTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations));
-            }
+            if (e.PropertyName == "ActiveObjectClass" && _poolService.ActiveObjectClass != null)
+                SetCurrentTool(NewDrawTool());
         }
 
         private void HandleObjectAdded (object sender, ObjectInstanceEventArgs e)
@@ -119,15 +143,21 @@ namespace Treefrog.ViewModel.Layers
             }
         }
 
+        #region Tool Management
+
         private PointerTool _currentTool;
 
         private void SetCurrentTool (PointerTool tool)
         {
             ObjectSelectTool objTool = _currentTool as ObjectSelectTool;
             if (objTool != null) {
+                objTool.Cancel();
+
                 objTool.CanDeleteChanged -= HandleCanDeleteChanged;
                 objTool.CanSelectAllChanged -= HandleCanSelectAllChanged;
                 objTool.CanSelectNoneChanged -= HandleCanSelectNoneChanged;
+                objTool.CanCutChanged -= HandleCanCutChanged;
+                objTool.CanCopyChanged -= HandleCanCopyChanged;
             }
 
             _currentTool = tool;
@@ -137,13 +167,27 @@ namespace Treefrog.ViewModel.Layers
                 objTool.CanDeleteChanged += HandleCanDeleteChanged;
                 objTool.CanSelectAllChanged += HandleCanSelectAllChanged;
                 objTool.CanSelectNoneChanged += HandleCanSelectNoneChanged;
+                objTool.CanCutChanged += HandleCanCutChanged;
+                objTool.CanCopyChanged += HandleCanCopyChanged;
             }
         }
 
+        private ObjectSelectTool NewSelectTool ()
+        {
+            return new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+        }
+
+        private ObjectDrawTool NewDrawTool ()
+        {
+            return new ObjectDrawTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+        }
+
+        #endregion
+
+        #region Pointer Commands
+
         public override void HandleStartPointerSequence (PointerEventInfo info)
         {
-            SetupPoolService();
-
             if (_currentTool != null)
                 _currentTool.StartPointerSequence(info);
         }
@@ -160,7 +204,7 @@ namespace Treefrog.ViewModel.Layers
                 _currentTool.EndPointerSequence(info);
 
             if (_currentTool is ObjectDrawTool && _currentTool.IsCancelled)
-                SetCurrentTool(new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations));
+                SetCurrentTool(NewSelectTool());
         }
 
         public override void HandlePointerPosition (PointerEventInfo info)
@@ -175,13 +219,99 @@ namespace Treefrog.ViewModel.Layers
                 _currentTool.PointerLeaveField();
         }
 
+        #endregion
+
+        #region Edit Commands
+
+        #region Cut
+
+        public override bool CanCut
+        {
+            get
+            {
+                ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+                return (tool != null)
+                    ? tool.CanCut
+                    : false;
+            }
+        }
+
+        public override void Cut ()
+        {
+            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+            if (tool != null) {
+                tool.Cut();
+                OnCanPasteChanged(EventArgs.Empty);
+            }
+        }
+
+        private void HandleCanCutChanged (object sender, EventArgs e)
+        {
+            OnCanCutChanged(e);
+        }
+
+        #endregion
+
+        #region Copy
+
+        public override bool CanCopy
+        {
+            get
+            {
+                ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+                return (tool != null)
+                    ? tool.CanCopy
+                    : false;
+            }
+        }
+
+        public override void Copy ()
+        {
+            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+            if (tool != null) {
+                tool.Copy();
+                OnCanPasteChanged(EventArgs.Empty);
+            }
+        }
+
+        private void HandleCanCopyChanged (object sender, EventArgs e)
+        {
+            OnCanCopyChanged(e);
+        }
+
+        #endregion
+
+        #region Paste
+
+        public override bool CanPaste
+        {
+            get
+            {
+                return Clipboard.ContainsData(typeof(ObjectSelectionClipboard).FullName);
+            }
+        }
+
+        public override void Paste ()
+        {
+            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+            if (tool == null)
+                SetCurrentTool(NewSelectTool());
+
+            if (tool != null)
+                tool.Paste();
+        }
+
+        #endregion
+
+        #region Delete
+
         public override bool CanDelete
         {
             get
             {
                 ObjectSelectTool tool = _currentTool as ObjectSelectTool;
-                return (tool != null) 
-                    ? tool.CanDelete 
+                return (tool != null)
+                    ? tool.CanDelete
                     : false;
             }
         }
@@ -197,6 +327,10 @@ namespace Treefrog.ViewModel.Layers
         {
             OnCanDeleteChanged(e);
         }
+
+        #endregion
+
+        #region Select All
 
         public override bool CanSelectAll
         {
@@ -221,6 +355,10 @@ namespace Treefrog.ViewModel.Layers
             OnCanSelectAllChanged(e);
         }
 
+        #endregion
+
+        #region Select None
+
         public override bool CanSelectNone
         {
             get
@@ -243,5 +381,9 @@ namespace Treefrog.ViewModel.Layers
         {
             OnCanSelectNoneChanged(e);
         }
+
+        #endregion
+
+        #endregion
     }
 }

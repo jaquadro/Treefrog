@@ -3,6 +3,16 @@ using System.Collections.Generic;
 
 namespace Treefrog.Framework
 {
+    public class ServiceEventArgs : EventArgs
+    {
+        public Type ServiceType { get; private set; }
+
+        public ServiceEventArgs (Type type)
+        {
+            ServiceType = type;
+        }
+    }
+
     public class ServiceContainer : IServiceProvider
     {
         private static readonly ServiceContainer _default = new ServiceContainer();
@@ -26,6 +36,7 @@ namespace Treefrog.Framework
             lock (_lock) {
                 _registry[serviceType] = service;
             }
+            OnServiceSet(new ServiceEventArgs(serviceType));
         }
 
         public void AddService<TService> (TService service)
@@ -33,6 +44,7 @@ namespace Treefrog.Framework
             lock (_lock) {
                 _registry[typeof(TService)] = service;
             }
+            OnServiceSet(new ServiceEventArgs(typeof(TService)));
         }
 
         public object GetService (Type serviceType)
@@ -52,6 +64,14 @@ namespace Treefrog.Framework
                 _registry.TryGetValue(typeof(TService), out service);
             }
             return service as TService;
+        }
+
+        public event EventHandler<ServiceEventArgs> ServiceSet;
+
+        protected virtual void OnServiceSet (ServiceEventArgs e)
+        {
+            if (ServiceSet != null)
+                ServiceSet(this, e);
         }
     }
 

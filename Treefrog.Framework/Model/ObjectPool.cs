@@ -59,6 +59,16 @@ namespace Treefrog.Framework.Model
             get { return _objects.Count; }
         }
 
+        public ObjectClass GetObject (int id)
+        {
+            foreach (ObjectClass objClass in _objects) {
+                if (objClass.Id == id)
+                    return objClass;
+            }
+
+            return null;
+        }
+
         public void AddObject (ObjectClass objClass)
         {
             int id = _manager.TakeKey();

@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Treefrog.Framework.Imaging;
+using System.Runtime.Serialization;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectInstance : IPropertyProvider, ICloneable
+    [Serializable]
+    public class ObjectInstance : IPropertyProvider, ICloneable, ISerializable
     {
+        [NonSerialized]
         private ObjectClass _class;
+
         private int _posX;
         private int _posY;
         private float _rotation;
@@ -134,5 +138,47 @@ namespace Treefrog.Framework.Model
         {
             return new ObjectInstance(this);
         }
+
+        #region Serialization
+
+        private int _classId;
+
+        public void PreSerialize ()
+        {
+            _classId = _class.Id;
+        }
+
+        public void PostDeserialize (Project project)
+        {
+            ObjectPool pool = project.ObjectPoolManager.PoolFromItemKey(_classId);
+            if (pool == null)
+                throw new Exception("Invalid ObjectClass Id");
+
+            _class = pool.GetObject(_classId);
+            if (_class == null)
+                throw new Exception("Invalid ObjectClass Id");
+        }
+
+        public ObjectInstance (SerializationInfo info, StreamingContext context)
+        {
+            _classId = info.GetInt32("ClassID");
+            _posX = info.GetInt32("PosX");
+            _posY = info.GetInt32("PosY");
+            _rotation = info.GetSingle("Rotation");
+            _scaleX = info.GetSingle("ScaleX");
+            _scaleY = info.GetSingle("ScaleY");
+        }
+
+        public void GetObjectData (SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("ClassID", _class.Id);
+            info.AddValue("PosX", _posX);
+            info.AddValue("PosY", _posY);
+            info.AddValue("Rotation", _rotation);
+            info.AddValue("ScaleX", _scaleX);
+            info.AddValue("ScaleY", _scaleY);
+        }
+
+        #endregion
     }
 }

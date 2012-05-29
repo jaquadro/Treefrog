@@ -42,6 +42,9 @@ namespace Treefrog.ViewModel.Menu
             if (_document != null) {
                 _document.CanUndoChanged -= HandleDocumentCanUndoChanged;
                 _document.CanRedoChanged -= HandleDocumentCanRedoChanged;
+                _document.CanCutChanged -= HandleDocumentCanCutChanged;
+                _document.CanCopyChanged -= HandleDocumentCanCopyChanged;
+                _document.CanPasteChanged -= HandleDocumentCanPasteChanged;
                 _document.CanDeleteChanged -= HandleDocumentCanDeleteChanged;
                 _document.CanSelectAllChanged -= HandleDocumentCanSelectAllChanged;
                 _document.CanSelectNoneChanged -= HandleDocumentCanSelectNoneChanged;
@@ -53,6 +56,9 @@ namespace Treefrog.ViewModel.Menu
                 _document.CanUndoChanged += HandleDocumentCanUndoChanged;
                 _document.CanRedoChanged += HandleDocumentCanRedoChanged;
                 _document.CanDeleteChanged += HandleDocumentCanDeleteChanged;
+                _document.CanCutChanged += HandleDocumentCanCutChanged;
+                _document.CanCopyChanged += HandleDocumentCanCopyChanged;
+                _document.CanPasteChanged += HandleDocumentCanPasteChanged;
                 _document.CanSelectAllChanged += HandleDocumentCanSelectAllChanged;
                 _document.CanSelectNoneChanged += HandleDocumentCanSelectNoneChanged;
             }
@@ -68,6 +74,24 @@ namespace Treefrog.ViewModel.Menu
         {
             if (_redoCommand != null)
                 _redoCommand.RaiseCanExecuteChanged();
+        }
+
+        private void HandleDocumentCanCutChanged (object sender, EventArgs e)
+        {
+            if (_cutCommand != null)
+                _cutCommand.RaiseCanExecuteChanged();
+        }
+
+        private void HandleDocumentCanCopyChanged (object sender, EventArgs e)
+        {
+            if (_copyCommand != null)
+                _copyCommand.RaiseCanExecuteChanged();
+        }
+
+        private void HandleDocumentCanPasteChanged (object sender, EventArgs e)
+        {
+            if (_pasteCommand != null)
+                _pasteCommand.RaiseCanExecuteChanged();
         }
 
         private void HandleDocumentCanDeleteChanged (object sender, EventArgs e)
@@ -312,6 +336,96 @@ namespace Treefrog.ViewModel.Menu
                 return;
             _document.Redo();
             _redoCommand.RaiseCanExecuteChanged();
+        }
+
+        #endregion
+
+        #region Cut Command
+
+        private RelayCommand _cutCommand;
+
+        public ICommand CutCommand
+        {
+            get
+            {
+                if (_cutCommand == null)
+                    _cutCommand = new RelayCommand(OnCut, CanCut);
+                return _cutCommand;
+            }
+        }
+
+        private bool CanCut ()
+        {
+            if (_document == null)
+                return false;
+            return _document.CanCut;
+        }
+
+        private void OnCut ()
+        {
+            if (_document == null)
+                return;
+            _document.Cut();
+        }
+
+        #endregion
+
+        #region Copy Command
+
+        private RelayCommand _copyCommand;
+
+        public ICommand CopyCommand
+        {
+            get
+            {
+                if (_copyCommand == null)
+                    _copyCommand = new RelayCommand(OnCopy, CanCopy);
+                return _copyCommand;
+            }
+        }
+
+        private bool CanCopy ()
+        {
+            if (_document == null)
+                return false;
+            return _document.CanCopy;
+        }
+
+        private void OnCopy ()
+        {
+            if (_document == null)
+                return;
+            _document.Copy();
+        }
+
+        #endregion
+
+        #region Paste Command
+
+        private RelayCommand _pasteCommand;
+
+        public ICommand PasteCommand
+        {
+            get
+            {
+                if (_pasteCommand == null)
+                    _pasteCommand = new RelayCommand(OnPaste, CanPaste);
+                return _pasteCommand;
+            }
+        }
+
+        private bool CanPaste ()
+        {
+            if (_document == null)
+                return false;
+            return _document.CanPaste;
+        }
+
+        private void OnPaste ()
+        {
+            if (_document == null)
+                return;
+            _document.Paste();
         }
 
         #endregion

@@ -73,6 +73,9 @@ namespace Treefrog.ViewModel
         private void SetActiveLayer (LevelLayerVM layer)
         {
             if (_activeLayer != null) {
+                _activeLayer.CanCutChanged -= HandleLayerCutChanged;
+                _activeLayer.CanCopyChanged -= HandleLayerCopyChanged;
+                _activeLayer.CanPasteChanged -= HandleLayerPasteChanged;
                 _activeLayer.CanDeleteChanged -= HandleLayerDeleteChanged;
                 _activeLayer.CanSelectAllChanged -= HandleLayerSelectAllChanged;
                 _activeLayer.CanSelectNoneChanged -= HandleLayerSelectNoneChanged;
@@ -81,6 +84,9 @@ namespace Treefrog.ViewModel
             _activeLayer = layer;
 
             if (_activeLayer != null) {
+                _activeLayer.CanCutChanged += HandleLayerCutChanged;
+                _activeLayer.CanCopyChanged += HandleLayerCopyChanged;
+                _activeLayer.CanPasteChanged += HandleLayerPasteChanged;
                 _activeLayer.CanDeleteChanged += HandleLayerDeleteChanged;
                 _activeLayer.CanSelectAllChanged += HandleLayerSelectAllChanged;
                 _activeLayer.CanSelectNoneChanged += HandleLayerSelectNoneChanged;
@@ -440,6 +446,21 @@ namespace Treefrog.ViewModel
         {
             OnCanUndoChanged(e);
             OnCanRedoChanged(e);
+        }
+
+        private void HandleLayerCutChanged (object sender, EventArgs e)
+        {
+            OnCanCutChanged(e);
+        }
+
+        private void HandleLayerCopyChanged (object sender, EventArgs e)
+        {
+            OnCanCopyChanged(e);
+        }
+
+        private void HandleLayerPasteChanged (object sender, EventArgs e)
+        {
+            OnCanPasteChanged(e);
         }
 
         private void HandleLayerDeleteChanged (object sender, EventArgs e)

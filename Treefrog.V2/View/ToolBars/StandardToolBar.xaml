@@ -32,15 +32,15 @@
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
     <Separator />
-    <Button>
+    <Button Command="{Binding Menu.CutCommand}">
         <Image Source="/Treefrog;component/Images/16/scissors.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
-    <Button>
+    <Button Command="{Binding Menu.CopyCommand}">
         <Image Source="/Treefrog;component/Images/16/documents.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
-    <Button>
+    <Button Command="{Binding Menu.PasteCommand}">
         <Image Source="/Treefrog;component/Images/16/clipboard-paste.png" 
                 Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
     </Button>
