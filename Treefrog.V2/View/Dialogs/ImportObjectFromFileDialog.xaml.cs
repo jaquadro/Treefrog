@@ -15,13 +15,13 @@ using Treefrog.ViewModel.Dialogs;
 namespace Treefrog.View.Dialogs
 {
     /// <summary>
-    /// Interaction logic for ImportTilePoolDialog.xaml
+    /// Interaction logic for ImportObjectFromFileDialog.xaml
     /// </summary>
-    public partial class ImportTilePoolDialog : Window
+    public partial class ImportObjectFromFileDialog : Window
     {
-        public ImportTilePoolDialog ()
+        public ImportObjectFromFileDialog ()
         {
-            InitializeComponent(); 
+            InitializeComponent();
             this.DataContextChanged += DataContextChangedHandler;
         }
 
@@ -37,25 +37,6 @@ namespace Treefrog.View.Dialogs
         private void CloseRequestedHandler (object sender, EventArgs e)
         {
             this.DialogResult = true;
-        }
-
-        private void Image_MouseDown (object sender, MouseButtonEventArgs e)
-        {
-            Image image = sender as Image;
-            if (image != null) {
-                Point coord = e.GetPosition(image);
-
-                try {
-                    BitmapSource source = image.Source as BitmapSource;
-                    CroppedBitmap bmp = new CroppedBitmap(source, new Int32Rect((int)coord.X, (int)coord.Y, 1, 1));
-
-                    byte[] pixels = new byte[4];
-                    bmp.CopyPixels(pixels, 4, 0);
-
-                    TransColor.SetCurrentValue(Rectangle.FillProperty, new SolidColorBrush(Color.FromArgb(pixels[3], pixels[2], pixels[1], pixels[0])));
-                }
-                catch (Exception) { }
-            }
         }
     }
 }

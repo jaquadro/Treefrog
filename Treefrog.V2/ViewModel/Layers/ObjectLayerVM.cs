@@ -174,7 +174,7 @@ namespace Treefrog.ViewModel.Layers
 
         private ObjectSelectTool NewSelectTool ()
         {
-            return new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations);
+            return new ObjectSelectTool(Level.CommandHistory, Layer as ObjectLayer, _gridSize, Level.Annotations, Viewport);
         }
 
         private ObjectDrawTool NewDrawTool ()

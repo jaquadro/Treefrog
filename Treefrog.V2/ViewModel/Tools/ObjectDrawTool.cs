@@ -104,7 +104,7 @@ namespace Treefrog.ViewModel.Tools
                 xlat = SnapManager.Translate(xlat, SnappingTarget);
 
             ObjectInstance inst = new ObjectInstance(ActiveObjectClass, xlat.X, xlat.Y);
-            Layer.AddObject(inst);
+            History.Execute(new ObjectAddCommand(Layer, inst));
         }
 
         #endregion

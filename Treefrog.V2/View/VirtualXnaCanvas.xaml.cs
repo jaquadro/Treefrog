@@ -101,6 +101,7 @@ namespace Treefrog.View
             if (_layer != null)
                 _layer.DataContext = e.NewValue;
             InvalidateMeasure();
+            PropagateViewportData();
         }
 
         private static void HandleIsActiveChanged (object sender, DependencyPropertyChangedEventArgs e)
@@ -313,12 +314,8 @@ namespace Treefrog.View
 
             if (constraint != Viewport.Viewport) {
                 Viewport.Viewport = constraint;
-                if (_layer != null) {
-                    _layer.ViewportWidth = 0;
-                    _layer.ViewportHeight = 0;
-                    _layer.ViewportWidth = Viewport.Viewport.Width;
-                    _layer.ViewportHeight = Viewport.Viewport.Height;
-                }
+                PropagateViewportData();
+
                 if (_scrollOwner != null)
                     _scrollOwner.InvalidateScrollInfo();
             }
@@ -327,6 +324,16 @@ namespace Treefrog.View
             SetVerticalOffset(VerticalOffset);
 
             return constraint;
+        }
+
+        private void PropagateViewportData ()
+        {
+            if (_layer != null) {
+                _layer.ViewportWidth = 0;
+                _layer.ViewportHeight = 0;
+                _layer.ViewportWidth = Viewport.Viewport.Width;
+                _layer.ViewportHeight = Viewport.Viewport.Height;
+            }
         }
 
         private void graphicsDeviceControl1_Loaded (object sender, RoutedEventArgs e)

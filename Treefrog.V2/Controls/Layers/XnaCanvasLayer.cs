@@ -13,6 +13,16 @@ namespace Treefrog.Controls.Layers
         public XnaCanvasLayer ()
         {
             ZoomFactor = 1.0;
+            this.Unloaded += HandleUnloaded;
+        }
+
+        private void HandleUnloaded (object sender, EventArgs e)
+        {
+            GraphicsDeviceControl control = this.GraphicsDeviceControl;
+            if (control != null) {
+                control.Dispose();
+                GraphicsDeviceControl = null;
+            }
         }
 
         #region Dependency Properties

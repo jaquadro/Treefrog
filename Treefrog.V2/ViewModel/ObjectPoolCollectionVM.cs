@@ -10,6 +10,11 @@ using GalaSoft.MvvmLight;
 using System.ComponentModel;
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
+using Treefrog.ViewModel.Dialogs;
+using Treefrog.Messages;
+using GalaSoft.MvvmLight.Messaging;
+using Treefrog.Aux;
+using System.Collections.Specialized;
 
 namespace Treefrog.ViewModel
 {
@@ -77,8 +82,30 @@ namespace Treefrog.ViewModel
             _objectPool = objectPool;
             _vms = new ObservableCollection<ObjectPoolItemVM>();
 
+            _objectPool.Objects.CollectionChanged += HandleObjectCollectionChanged;
+
             foreach (ObjectClass objClass in _objectPool) {
                 _vms.Add(new ObjectPoolItemVM(this, objClass));
+            }
+        }
+
+        private void HandleObjectCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    _vms.Add(new ObjectPoolItemVM(this, _objectPool.Objects[e.NewStartingIndex]));
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (ObjectClass item in e.OldItems) {
+                        foreach (ObjectPoolItemVM vm in _vms) {
+                            if (vm.Name == item.Name) {
+                                _vms.Remove(vm);
+                                break;
+                            }
+                        }
+                    }
+                    break;
             }
         }
 
@@ -251,11 +278,21 @@ namespace Treefrog.ViewModel
 
         private void HandleActiveObjectPoolPropertyChanged (object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "SelectedObjectClass")
+            if (e.PropertyName == "SelectedObjectClass") {
                 RaisePropertyChanged("ActiveObjectClass");
+
+                if (_removeObjectCommand != null)
+                    RaiseCommandChanged(_removeObjectCommand, "IsRemoveObjectEnabled");
+            }
         }
 
         #endregion
+
+        private void RaiseCommandChanged (RelayCommand command, string enabledProperty)
+        {
+            command.RaiseCanExecuteChanged();
+            RaisePropertyChanged(enabledProperty);
+        }
 
         // --- Split below into separate view-oriented VM?
 
@@ -393,6 +430,103 @@ namespace Treefrog.ViewModel
         }
 
         #endregion
+
+        #region Add Object Command
+
+        private RelayCommand _addObjectCommand;
+
+        public ICommand AddObjectCommand
+        {
+            get
+            {
+                if (_addObjectCommand == null)
+                    _addObjectCommand = new RelayCommand(OnAddObject, CanAddObject);
+                return _addObjectCommand;
+            }
+        }
+
+        public bool IsAddObjectEnabled
+        {
+            get { return CanAddObject(); }
+        }
+
+        private bool CanAddObject ()
+        {
+            return _manager != null && ActiveObjectPool != null;
+        }
+
+        private void OnAddObject ()
+        {
+            if (!CanAddObject())
+                return;
+
+            ImportObjectDialogVM vm = new ImportObjectDialogVM();
+            foreach (ObjectClass objClass in ActiveObjectPool.ObjectPool.Objects)
+                vm.ReservedNames.Add(objClass.Name);
+
+            BlockingDialogMessage message = new BlockingDialogMessage(this, vm);
+            Messenger.Default.Send(message);
+
+            if (message.DialogResult == true) {
+                TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(vm.SourceFile);
+                ObjectClass objClass = new ObjectClass(vm.ObjectName)
+                {
+                    Image = resource,
+                    MaskBounds = new Rectangle(vm.MaskLeft ?? 0, vm.MaskTop ?? 0,
+                        vm.MaskRight ?? 0 - vm.MaskLeft ?? 0, vm.MaskBottom ?? 0 - vm.MaskTop ?? 0),
+                    Origin = new Point(vm.OriginX ?? 0, vm.OriginY ?? 0),
+                };
+
+                ActiveObjectPool.ObjectPool.AddObject(objClass);
+            }
+        }
+
+        #endregion
+
+        #region Remove Object Command
+
+        private RelayCommand _removeObjectCommand;
+
+        public ICommand RemoveObjectCommand
+        {
+            get
+            {
+                if (_removeObjectCommand == null)
+                    _removeObjectCommand = new RelayCommand(OnRemoveObject, CanRemoveObject);
+                return _removeObjectCommand;
+            }
+        }
+
+        public bool IsRemoveObjectEnabled
+        {
+            get { return CanRemoveObject(); }
+        }
+
+        private bool CanRemoveObject ()
+        {
+            return _manager != null && ActiveObjectPool != null && ActiveObjectPool.SelectedObjectClass != null;
+            //return true;
+        }
+
+        private void OnRemoveObject ()
+        {
+            if (!CanRemoveObject())
+                return;
+
+            ActiveObjectPool.ObjectPool.RemoveObject(ActiveObjectPool.SelectedObjectClass.Name);
+        }
+
+        #endregion
+
+        public bool IsAddCategoryEnabled
+        {
+            get { return false; }
+        }
+
+        public bool IsRemoveCategoryEnabled
+        {
+            get { return false; }
+        }
 
         #endregion
     }

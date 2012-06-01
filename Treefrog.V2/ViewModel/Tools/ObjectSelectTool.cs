@@ -53,11 +53,13 @@ namespace Treefrog.ViewModel.Tools
     public class ObjectSelectTool : ObjectPointerTool
     {
         private ObservableCollection<Annotation> _annots;
+        private ViewportVM _viewport;
 
-        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots)
+        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ViewportVM viewport)
             : base(history, layer, gridSize)
         {
             _annots = annots;
+            _viewport = viewport;
         }
 
         protected override void DisposeManaged ()
@@ -108,9 +110,11 @@ namespace Treefrog.ViewModel.Tools
         {
             if (_selectedObjects != null) {
                 if (Layer != null) {
-                    foreach (SelectedObjectRecord inst in _selectedObjects) {
-                        Layer.RemoveObject(inst.Instance);
-                    }
+                    ObjectRemoveCommand command = new ObjectRemoveCommand(Layer, this);
+                    foreach (SelectedObjectRecord inst in _selectedObjects)
+                        command.QueueRemove(inst.Instance);
+
+                    History.Execute(command);
                 }
 
                 ClearSelected();
@@ -176,12 +180,17 @@ namespace Treefrog.ViewModel.Tools
         {
             if (_selectedObjects != null) {
                 List<ObjectInstance> objects = new List<ObjectInstance>();
-                foreach (SelectedObjectRecord record in _selectedObjects) {
-                    record.Instance.PreSerialize();
+                foreach (SelectedObjectRecord record in _selectedObjects)
                     objects.Add(record.Instance);
-                }
 
-                Clipboard.SetData(typeof(ObjectInstance).FullName, objects);
+                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(objects);
+                clip.CopyToClipboard();
+
+                ObjectRemoveCommand command = new ObjectRemoveCommand(Layer, this);
+                foreach (SelectedObjectRecord inst in _selectedObjects)
+                    command.QueueRemove(inst.Instance);
+                History.Execute(command);
+
                 ClearSelected();
 
                 OnCanPasteChanged(EventArgs.Empty);
@@ -236,10 +245,48 @@ namespace Treefrog.ViewModel.Tools
             if (clip == null)
                 return;
 
+            CenterObjectsInViewport(clip.Objects);
+
+            Command command = new ObjectAddCommand(Layer, clip.Objects, this);
+            History.Execute(command);
+
             foreach (ObjectInstance inst in clip.Objects) {
-                Layer.AddObject(inst);
+                //Layer.AddObject(inst);
                 AddSelected(inst);
             }
+        }
+
+        private void CenterObjectsInViewport (List<ObjectInstance> objects)
+        {
+            Rectangle collectionBounds = ObjectCollectionBounds(objects);
+
+            int centerViewX = (int)(_viewport.VisibleRegion.Left + (_viewport.VisibleRegion.Right - _viewport.VisibleRegion.Left) / 2);
+            int centerViewY = (int)(_viewport.VisibleRegion.Top + (_viewport.VisibleRegion.Bottom - _viewport.VisibleRegion.Top) / 2);
+
+            int diffX = centerViewX - collectionBounds.Center.X;
+            int diffY = centerViewY - collectionBounds.Center.Y;
+
+            foreach (ObjectInstance inst in objects) {
+                inst.X += diffX;
+                inst.Y += diffY;
+            }
+        }
+
+        private Rectangle ObjectCollectionBounds (List<ObjectInstance> objects)
+        {
+            int minX = Int32.MaxValue;
+            int minY = Int32.MaxValue;
+            int maxX = Int32.MinValue;
+            int maxY = Int32.MinValue;
+
+            foreach (ObjectInstance inst in objects) {
+                minX = Math.Min(minX, inst.ImageBounds.Left);
+                minY = Math.Min(minY, inst.ImageBounds.Top);
+                maxX = Math.Max(maxX, inst.ImageBounds.Right);
+                maxY = Math.Max(maxY, inst.ImageBounds.Bottom);
+            }
+
+            return new Rectangle(minX, minY, maxX - minX, maxY - minY);
         }
 
         public event EventHandler CanPasteChanged;
@@ -400,9 +447,15 @@ namespace Treefrog.ViewModel.Tools
 
         private void EndMove (PointerEventInfo info)
         {
+            ObjectMoveCommand command = new ObjectMoveCommand(this);
+
             foreach (SelectedObjectRecord record in _selectedObjects) {
-                record.InitialLocation = new Point(record.Instance.X, record.Instance.Y);
+                Point newLocation = new Point(record.Instance.X, record.Instance.Y);
+                command.QueueMove(record.Instance, record.InitialLocation, newLocation);
+                record.InitialLocation = newLocation;
             }
+
+            History.Execute(command);
         }
 
         #endregion
@@ -451,6 +504,30 @@ namespace Treefrog.ViewModel.Tools
         }
 
         #endregion
+
+        public void SelectObjects (List<ObjectInstance> objects)
+        {
+            ClearSelected();
+            AddObjectsToSelection(objects);
+        }
+
+        public void AddObjectsToSelection (List<ObjectInstance> objects)
+        {
+            if (objects == null)
+                return;
+
+            foreach (ObjectInstance inst in objects)
+                AddSelected(inst);
+        }
+
+        public void RemoveObjectsFromSelection (List<ObjectInstance> objects)
+        {
+            if (objects == null)
+                return;
+
+            foreach (ObjectInstance inst in objects)
+                RemoveSelected(inst);
+        }
 
         private void AddSelected (ObjectInstance inst)
         {

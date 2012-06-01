@@ -7,7 +7,7 @@
         Title="Import Tiles" Width="510" Height="530">
     <Window.Resources>
         <conv:StringToIntNull x:Key="convInt"/>
-        <dialog:TreefrogColorConverter x:Key="convColor"/>
+        <conv:TreefrogColorConverter x:Key="convColor"/>
         <conv:EnumBoolConverter x:Key="convEnumBool" />
     </Window.Resources>
     <Grid>

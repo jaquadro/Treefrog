@@ -73,6 +73,8 @@
     <Compile Include="Controls\Layers\XnaTileLayer.cs" />
     <Compile Include="Converters\EnumBoolConverter.cs" />
     <Compile Include="Converters\StringToIntNull.cs" />
+    <Compile Include="Converters\TextureResourceToBitmapSourceConverter.cs" />
+    <Compile Include="Converters\TreefrogColorConverter.cs" />
     <Compile Include="MessageService.cs" />
     <Compile Include="Messages\BlockingDialogMessage.cs" />
     <Compile Include="TreefrogAux.cs" />
@@ -80,8 +82,10 @@
     <Compile Include="ViewModel\Commands\Command.cs" />
     <Compile Include="ViewModel\Commands\CommandHistory.cs" />
     <Compile Include="ViewModel\Commands\EventArgs.cs" />
+    <Compile Include="ViewModel\Commands\ObjectAddCommand.cs" />
     <Compile Include="ViewModel\Commands\TileReplace2DCommand.cs" />
     <Compile Include="ViewModel\Dialogs\IDialogViewModel.cs" />
+    <Compile Include="ViewModel\Dialogs\ImportObjectDialogVM.cs" />
     <Compile Include="ViewModel\Dialogs\ImportTilePoolDialogVM.cs" />
     <Compile Include="ViewModel\Dialogs\NewLevelDialogVM.cs" />
     <Compile Include="ViewModel\DocumentVM.cs" />
@@ -125,6 +129,9 @@
     <Compile Include="ViewModel\Utility\ObservableCollectionAdapter.cs" />
     <Compile Include="ViewModel\Utility\OrderedToObservableAdapter.cs" />
     <Compile Include="ViewModel\ViewportVM.cs" />
+    <Compile Include="View\Dialogs\ImportObjectFromFileDialog.xaml.cs">
+      <DependentUpon>ImportObjectFromFileDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Dialogs\ImportTilePoolDialog.xaml.cs">
       <DependentUpon>ImportTilePoolDialog.xaml</DependentUpon>
     </Compile>
@@ -189,6 +196,10 @@
     <Compile Include="ViewModel\LayerCollectionVM.cs">
       <Generator>MSBuild:Compile</Generator>
     </Compile>
+    <Page Include="View\Dialogs\ImportObjectFromFileDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Dialogs\ImportTilePoolDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -43,6 +43,9 @@ namespace Treefrog
             else if (message.DialogVM is ImportTilePoolDialogVM) {
                 message.DialogResult = new ImportTilePoolDialog() { DataContext = message.DialogVM }.ShowDialog();
             }
+            else if (message.DialogVM is ImportObjectDialogVM) {
+                message.DialogResult = new ImportObjectFromFileDialog() { DataContext = message.DialogVM }.ShowDialog();
+            }
         }
     }
 }
