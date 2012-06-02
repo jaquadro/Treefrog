@@ -20,6 +20,7 @@ using Treefrog.Controls.Xna;
 using XColor = Microsoft.Xna.Framework.Color;
 using Treefrog.ViewModel;
 using GalaSoft.MvvmLight.Command;
+using Treefrog.Controls.XnaD3D;
 
 namespace Treefrog.View
 {
@@ -44,7 +45,8 @@ namespace Treefrog.View
         private Size _extent;
         //private Size _viewport;
 
-        private GraphicsDeviceControl _graphicsControl;
+        //private GraphicsDeviceControl _graphicsControl;
+        private XnaPanel _graphicsControl;
         private XnaCanvasLayer _layer;
 
         private static readonly Color DefaultClearColor = Color.FromRgb(128, 128, 128);
@@ -336,9 +338,20 @@ namespace Treefrog.View
             }
         }
 
-        private void graphicsDeviceControl1_Loaded (object sender, RoutedEventArgs e)
+        /*private void graphicsDeviceControl1_Loaded (object sender, RoutedEventArgs e)
         {
             GraphicsDeviceControl control = sender as GraphicsDeviceControl;
+            if (control != null) {
+                _graphicsControl = control;
+                _graphicsControl.RenderXna += GraphicsDeviceControl_RenderXna;
+
+                _layer.GraphicsDeviceControl = control;
+            }
+        }*/
+
+        private void xnaPanel1_Loaded (object sender, RoutedEventArgs e)
+        {
+            XnaPanel control = sender as XnaPanel;
             if (control != null) {
                 _graphicsControl = control;
                 _graphicsControl.RenderXna += GraphicsDeviceControl_RenderXna;
@@ -452,15 +465,46 @@ namespace Treefrog.View
 
         private void HandleHwndLButtonDown (object sender, HwndMouseEventArgs e)
         {
-            HandleButtonDown(e, PointerEventType.Primary);
+            //HandleButtonDown(e, PointerEventType.Primary);
         }
 
         private void HandleHwndRButtonDown (object sender, HwndMouseEventArgs e)
         {
-            HandleButtonDown(e, PointerEventType.Secondary);
+            //HandleButtonDown(e, PointerEventType.Secondary);
         }
 
-        private void HandleButtonDown (HwndMouseEventArgs e, PointerEventType type)
+        private PointerEventType MouseEventType (MouseButton button)
+        {
+            switch (button) {
+                case MouseButton.Left:
+                    return PointerEventType.Primary;
+                case MouseButton.Right:
+                    return PointerEventType.Secondary;
+                default:
+                    return PointerEventType.None;
+            }
+        }
+
+        protected override void OnMouseDown (MouseButtonEventArgs e)
+        {
+            PointerEventType type = MouseEventType(e.ChangedButton);
+            if (type == PointerEventType.None)
+                return;
+
+            Point position = TranslateMousePosition(e.GetPosition(this));
+            PointerEventInfo info = new PointerEventInfo(type, position.X, position.Y);
+
+            // Ignore event if a sequence is active
+            if (_sequenceOpen.Count(kv => { return kv.Value; }) == 0) {
+                _sequenceOpen[info.Type] = true;
+                if (StartPointerSequence != null)
+                    StartPointerSequence.Execute(info);
+            }
+
+            base.OnMouseLeftButtonDown(e);
+        }
+
+        /*private void HandleButtonDown (HwndMouseEventArgs e, PointerEventType type)
         {
             if (type == PointerEventType.None)
                 return;
@@ -474,7 +518,7 @@ namespace Treefrog.View
                 if (StartPointerSequence != null)
                     StartPointerSequence.Execute(info);
             }
-        }
+        }*/
 
         private void HandleHwndLButtonUp (object sender, HwndMouseEventArgs e)
         {
@@ -484,6 +528,24 @@ namespace Treefrog.View
         private void HandleHwndRButtonUp (object sender, HwndMouseEventArgs e)
         {
             HandleButtonUp(e.Position, PointerEventType.Secondary);
+        }
+
+        protected override void OnMouseUp (MouseButtonEventArgs e)
+        {
+            PointerEventType type = MouseEventType(e.ChangedButton);
+            if (type == PointerEventType.None)
+                return;
+
+            Point position = TranslateMousePosition(e.GetPosition(this));
+            PointerEventInfo info = new PointerEventInfo(type, position.X, position.Y);
+
+            if (_sequenceOpen[info.Type]) {
+                _sequenceOpen[info.Type] = false;
+                if (EndPointerSequence != null)
+                    EndPointerSequence.Execute(info);
+            }
+
+            base.OnMouseUp(e);
         }
 
         private void HandleButtonUp (Point mousePosition, PointerEventType type)
@@ -501,7 +563,25 @@ namespace Treefrog.View
             }
         }
 
-        private void HandleHwndMouseMove (object sender, HwndMouseEventArgs e)
+        protected override void OnMouseMove (MouseEventArgs e)
+        {
+            Point position = TranslateMousePosition(e.GetPosition(this));
+            PointerEventInfo info = new PointerEventInfo(PointerEventType.None, position.X, position.Y);
+
+            if (UpdatePointerSequence != null) {
+                if (_sequenceOpen[PointerEventType.Primary])
+                    UpdatePointerSequence.Execute(new PointerEventInfo(PointerEventType.Primary, position.X, position.Y));
+                if (_sequenceOpen[PointerEventType.Secondary])
+                    UpdatePointerSequence.Execute(new PointerEventInfo(PointerEventType.Secondary, position.X, position.Y));
+            }
+
+            if (PointerPosition != null)
+                PointerPosition.Execute(new PointerEventInfo(PointerEventType.None, position.X, position.Y));
+
+            base.OnMouseMove(e);
+        }
+
+        /*private void HandleHwndMouseMove (object sender, HwndMouseEventArgs e)
         {
             Point position = TranslateMousePosition(e.Position);
             PointerEventInfo info = new PointerEventInfo(PointerEventType.None, position.X, position.Y);
@@ -515,7 +595,7 @@ namespace Treefrog.View
 
             if (PointerPosition != null)
                 PointerPosition.Execute(new PointerEventInfo(PointerEventType.None, position.X, position.Y));
-        }
+        }*/
 
         private void HandleHwndMouseEnter (object sender, HwndMouseEventArgs e)
         {

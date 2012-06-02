@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Treefrog.Controls"
              xmlns:layer="clr-namespace:Treefrog.Controls.Layers"
+             xmlns:d3d="clr-namespace:Treefrog.Controls.XnaD3D"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" xmlns:my="clr-namespace:Treefrog.Controls.Xna">
     <UserControl.ContentTemplate>
@@ -17,7 +18,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <my:GraphicsDeviceControl Grid.Row="0" Grid.Column="0"
+                <!--<my:GraphicsDeviceControl Grid.Row="0" Grid.Column="0"
                                   Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                   Height="{Binding ActualHeight,RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                   HorizontalAlignment="Left" x:Name="graphicsDeviceControl1" VerticalAlignment="Top" Loaded="graphicsDeviceControl1_Loaded" 
@@ -25,7 +26,12 @@
                                           HwndRButtonDown="HandleHwndRButtonDown" HwndRButtonUp="HandleHwndRButtonUp"
                                           HwndMouseMove="HandleHwndMouseMove"
                                           HwndMouseEnter="HandleHwndMouseEnter" HwndMouseLeave="HandleHwndMouseLeave" 
-                                          IsHitTestVisible="False" />
+                                          IsHitTestVisible="False" />-->
+                <d3d:XnaPanel Grid.Row="0" Grid.Column="0"
+                              Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                              Height="{Binding ActualHeight,RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                              x:Name="xnaPanel1" Loaded="xnaPanel1_Loaded"/>
+                
             </Grid>
         </DataTemplate>
     </UserControl.ContentTemplate>

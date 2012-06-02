@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -34,6 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -71,6 +73,10 @@
     <Compile Include="Controls\Layers\GroupLayer.cs" />
     <Compile Include="Controls\Layers\RenderLayer.cs" />
     <Compile Include="Controls\Layers\XnaTileLayer.cs" />
+    <Compile Include="Controls\XnaD3D\GameReflector.cs" />
+    <Compile Include="Controls\XnaD3D\XnaPanel.xaml.cs">
+      <DependentUpon>XnaPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\EnumBoolConverter.cs" />
     <Compile Include="Converters\StringToIntNull.cs" />
     <Compile Include="Converters\TextureResourceToBitmapSourceConverter.cs" />
@@ -171,6 +177,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </None>
+    <Page Include="Controls\XnaD3D\XnaPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="LayerPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

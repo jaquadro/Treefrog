@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using Treefrog.Controls.Xna;
 using Microsoft.Xna.Framework.Graphics;
+using Treefrog.Controls.XnaD3D;
 
 namespace Treefrog.Controls.Layers
 {
@@ -18,7 +19,7 @@ namespace Treefrog.Controls.Layers
 
         private void HandleUnloaded (object sender, EventArgs e)
         {
-            GraphicsDeviceControl control = this.GraphicsDeviceControl;
+            XnaPanel control = this.GraphicsDeviceControl;
             if (control != null) {
                 control.Dispose();
                 GraphicsDeviceControl = null;
@@ -35,8 +36,8 @@ namespace Treefrog.Controls.Layers
 
         static XnaCanvasLayer ()
         {
-            GraphicsDeviceControlProperty = DependencyProperty.Register("GraphicsDeviceControl", 
-                typeof(GraphicsDeviceControl), typeof(XnaCanvasLayer));
+            GraphicsDeviceControlProperty = DependencyProperty.Register("GraphicsDeviceControl",
+                typeof(XnaPanel), typeof(XnaCanvasLayer));
             IsRenderedProperty = DependencyProperty.Register("IsRendered",
                 typeof(bool), typeof(XnaCanvasLayer), new PropertyMetadata(true));
 
@@ -104,12 +105,12 @@ namespace Treefrog.Controls.Layers
 
         #region Dependency Properties
 
-        public GraphicsDeviceControl GraphicsDeviceControl
+        public XnaPanel GraphicsDeviceControl
         {
-            get { return this.GetValue(GraphicsDeviceControlProperty) as GraphicsDeviceControl; }
+            get { return this.GetValue(GraphicsDeviceControlProperty) as XnaPanel; }
             set
             {
-                GraphicsDeviceControl control = this.GraphicsDeviceControl;
+                XnaPanel control = this.GraphicsDeviceControl;
                 if (control == value)
                     return;
 

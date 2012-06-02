@@ -14,6 +14,7 @@ using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 using TRectangle = Treefrog.Framework.Imaging.Rectangle;
 using TColor = Treefrog.Framework.Imaging.Color;
 using Treefrog.Aux;
+using Treefrog.Controls.XnaD3D;
 
 namespace Treefrog.Controls.Layers
 {
@@ -191,7 +192,7 @@ namespace Treefrog.Controls.Layers
             offset.X = Math.Ceiling(offset.X - region.X * ZoomFactor);
             offset.Y = Math.Ceiling(offset.Y - region.Y * ZoomFactor);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, effect, Matrix.CreateTranslation((float)offset.X, (float)offset.Y, 0));
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, effect, Matrix.CreateTranslation((float)offset.X, (float)offset.Y, 0));
             //spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
             return offset;
@@ -230,7 +231,7 @@ namespace Treefrog.Controls.Layers
                 spriteBatch.GraphicsDevice.SetRenderTarget(null);
 
                 BeginDrawInner(spriteBatch, null);
-                spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, LayerOpacity));
+                spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(LayerOpacity, LayerOpacity, LayerOpacity, LayerOpacity));
                 EndDrawInner(spriteBatch);
 
                 _target = null;
