@@ -17,6 +17,7 @@ using Treefrog.Messages;
 using Treefrog.ViewModel.Dialogs;
 using Treefrog.View.Dialogs;
 using Treefrog.Framework;
+using Treefrog.Controls.Hooks;
 
 namespace Treefrog
 {
@@ -33,6 +34,8 @@ namespace Treefrog
 
             ServiceContainer.Default.AddService<IOService>(new DefaultIOService());
             ServiceContainer.Default.AddService<IMessageService>(new MessageService());
+
+            MouseHook.Attach();
         }
 
         private void DialogMessageHandler (BlockingDialogMessage message)

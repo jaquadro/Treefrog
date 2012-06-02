@@ -20,6 +20,7 @@ using Treefrog.Controls.Xna;
 using XColor = Microsoft.Xna.Framework.Color;
 using Treefrog.ViewModel;
 using GalaSoft.MvvmLight.Command;
+using Treefrog.Controls.Hooks;
 
 namespace Treefrog.View
 {
@@ -75,6 +76,24 @@ namespace Treefrog.View
         {
             InitializeComponent();
             DataContextChanged += HandleDataContextChanged;
+            Loaded += HandleLoaded;
+            Unloaded += HandleUnloaded;
+        }
+
+        private void HandleLoaded (object sender, RoutedEventArgs e)
+        {
+            Window window = Window.GetWindow(this);
+            if (window != null) {
+                window.MouseUp += HandleWindowMouseUp;
+                window.MouseLeave += HandleWindowMouseLeave;
+            }
+
+            AttachGlobalMouseEvents();
+        }
+
+        private void HandleUnloaded (object sender, RoutedEventArgs e)
+        {
+            DetachGlobalMouseEvents();
         }
 
         public XnaCanvasLayer RootLayer
@@ -450,6 +469,74 @@ namespace Treefrog.View
             return position;
         }
 
+        #region Global Mouse Handling
+
+        private Point TranslateScreenMousePosition (Point screenPosition)
+        {
+            Point locationFromScreen = this.PointToScreen(new Point(0, 0));
+            Point mouseLocation = new Point(screenPosition.X - locationFromScreen.X, screenPosition.Y - locationFromScreen.Y);
+
+            return mouseLocation;
+        }
+
+        private void AttachGlobalMouseEvents ()
+        {
+            MouseHook.MouseUp += HandleGlobalMouseUp;
+        }
+
+        private void DetachGlobalMouseEvents ()
+        {
+            MouseHook.MouseDown -= HandleGlobalMouseUp;
+        }
+
+        private void HandleGlobalMouseUp (object sender, SystemMouseButtonEventArgs e)
+        {
+            if (!this.IsLoaded)
+                return;
+
+            Point mouseLocation = TranslateScreenMousePosition(e.ScreenLocation);
+
+            switch (e.ChangedButton) {
+                case MouseButton.Left:
+                    HandleButtonUp(mouseLocation, PointerEventType.Primary);
+                    break;
+                case MouseButton.Right:
+                    HandleButtonUp(mouseLocation, PointerEventType.Secondary);
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Window Mouse Handling
+
+        private void HandleWindowMouseUp (object sender, MouseEventArgs e)
+        {
+            
+        }
+
+        private void HandleWindowMouseDown (object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void HandleWindowMouseMove (object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void HandleWindowMouseEnter (object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void HandleWindowMouseLeave (object sender, MouseEventArgs e)
+        {
+            //MessageBox.Show(TranslateMousePosition(e.GetPosition(this)).ToString());
+        }
+
+        #endregion
+
         private void HandleHwndLButtonDown (object sender, HwndMouseEventArgs e)
         {
             HandleButtonDown(e, PointerEventType.Primary);
@@ -478,12 +565,12 @@ namespace Treefrog.View
 
         private void HandleHwndLButtonUp (object sender, HwndMouseEventArgs e)
         {
-            HandleButtonUp(e.Position, PointerEventType.Primary);
+            //HandleButtonUp(e.Position, PointerEventType.Primary);
         }
 
         private void HandleHwndRButtonUp (object sender, HwndMouseEventArgs e)
         {
-            HandleButtonUp(e.Position, PointerEventType.Secondary);
+            //HandleButtonUp(e.Position, PointerEventType.Secondary);
         }
 
         private void HandleButtonUp (Point mousePosition, PointerEventType type)
@@ -521,7 +608,7 @@ namespace Treefrog.View
         {
             Point position = TranslateMousePosition(e.Position);
 
-            if (EndPointerSequence != null) {
+            /*if (EndPointerSequence != null) {
                 if (_sequenceOpen[PointerEventType.Primary] && e.LeftButton == MouseButtonState.Released) {
                     _sequenceOpen[PointerEventType.Primary] = false;
                     EndPointerSequence.Execute(new PointerEventInfo(PointerEventType.Primary, position.X, position.Y));
@@ -530,7 +617,7 @@ namespace Treefrog.View
                     _sequenceOpen[PointerEventType.Secondary] = false;
                     EndPointerSequence.Execute(new PointerEventInfo(PointerEventType.Secondary, position.X, position.Y));
                 }
-            }
+            }*/
         }
 
         private void HandleHwndMouseLeave (object sender, HwndMouseEventArgs e)

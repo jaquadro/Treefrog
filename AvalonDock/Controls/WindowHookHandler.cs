@@ -75,17 +75,18 @@ namespace AvalonDock.Controls
 
         public int HookProc(int code, IntPtr wParam, IntPtr lParam)
         {
-            if (code == Win32Helper.HCBT_SETFOCUS)
-            {
-                if (FocusChanged != null)
-                    FocusChanged(this, new FocusChangeEventArgs(wParam, lParam));
+            try {
+                if (code == Win32Helper.HCBT_SETFOCUS) {
+                    if (FocusChanged != null)
+                        FocusChanged(this, new FocusChangeEventArgs(wParam, lParam));
+                }
+                else if (code == Win32Helper.HCBT_ACTIVATE) {
+                    //System.Diagnostics.Debug.WriteLine("HCBT_ACTIVATE");
+                    if (Activate != null)
+                        Activate(this, EventArgs.Empty);
+                }
             }
-            else if (code == Win32Helper.HCBT_ACTIVATE)
-            {
-                //System.Diagnostics.Debug.WriteLine("HCBT_ACTIVATE");
-                if (Activate != null)
-                    Activate(this, EventArgs.Empty);
-            }
+            catch { }
             
 
             return Win32Helper.CallNextHookEx(_windowHook, code, wParam, lParam);

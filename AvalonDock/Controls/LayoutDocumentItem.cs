@@ -32,10 +32,15 @@ namespace AvalonDock.Controls
     public class LayoutDocumentItem : LayoutItem
     {
         LayoutDocument _document;
-        internal LayoutDocumentItem(LayoutDocument document)
-            : base(document)
+        internal LayoutDocumentItem()
         {
-            _document = document;
+            
+        }
+
+        internal override void Attach(LayoutContent model)
+        {
+            _document = model as LayoutDocument;
+            base.Attach(model);
         }
 
         protected override void Close()

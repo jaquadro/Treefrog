@@ -209,6 +209,7 @@
                                 Grid.Column="2" 
                                 Focusable="False"
                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                                Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                 Command="{Binding Path=LayoutItem.AutoHideCommand, RelativeSource={RelativeSource TemplatedParent}}" >
                                 <Image Source="/AvalonDock;component/Images/PinAutoHide.png"/>
                             </Button>
@@ -217,6 +218,7 @@
                                 Grid.Column="3" 
                                 Focusable="False"
                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                                Visibility="{Binding Path=CanHide, Converter={StaticResource BoolToVisibilityConverter}}"
                                 Command="{Binding Path=LayoutItem.HideCommand, RelativeSource={RelativeSource TemplatedParent}}" >
                                 <Image Source="/AvalonDock;component/Images/PinClose.png"/>
                             </Button>
@@ -374,12 +376,14 @@
         <MenuItem Header="Auto Hide" 
                 Command="{Binding Path=AutoHideCommand}"/>
         <MenuItem Header="Close" 
-                Command="{Binding Path=CloseCommand}"/>
+                Command="{Binding Path=CloseCommand}"
+                Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
     </ContextMenu>
-
+    
     <ContextMenu x:Key="DocumentContextMenu">
         <MenuItem Header="Close" 
-                Command="{Binding Path=CloseCommand}"/>
+                  Command="{Binding Path=CloseCommand}"
+                  Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
         <MenuItem Header="Close All But This" 
                 Command="{Binding Path=CloseAllButThisCommand}"/>
         <MenuItem Header="Float" 
@@ -487,7 +491,7 @@
                                               ContentTemplateSelector="{Binding DocumentHeaderTemplateSelector, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager}, Mode=FindAncestor}}"/>
                                 <!-- Close button should be moved out to the container style -->
                                 <Button x:Name="DocumentCloseButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Grid.Column="1" Margin="5,0,0,0" Visibility="Hidden" 
-                                    Command="{Binding Path=LayoutItem.CloseCommand, RelativeSource={RelativeSource TemplatedParent}}">
+                                        Command="{Binding Path=LayoutItem.CloseCommand, RelativeSource={RelativeSource TemplatedParent}}">
                                     <Image Source="/AvalonDock;component/Images/PinClose.png"/>
                                 </Button>
                             </Grid>
@@ -500,6 +504,9 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Visibility" Value="Visible" TargetName="DocumentCloseButton"  />
                         </Trigger>
+                        <DataTrigger Binding="{Binding Path=CanClose}" Value="false">
+                            <Setter Property="Visibility" Value="Collapsed" TargetName="DocumentCloseButton"  />
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -567,13 +574,15 @@
     </Style>
 
     <Style x:Key="{x:Type avalonDockControls:LayoutDocumentFloatingWindowControl}" TargetType="{x:Type avalonDockControls:LayoutDocumentFloatingWindowControl}">
+        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
         <Setter Property="shell:WindowChrome.WindowChrome">
             <Setter.Value>
                 <shell:WindowChrome
                     ResizeBorderThickness="3"
                     CaptionHeight="16"
                     CornerRadius="3,3,3,3"
-                    GlassFrameThickness="0"/>
+                    GlassFrameThickness="0"
+                    ShowSystemMenu="False"/>
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
@@ -593,7 +602,6 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <!--<TextBlock Text="{Binding Path=Model.RootDocument.Title, RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Top" HorizontalAlignment="Left" />-->
                                     <ContentPresenter Content="{Binding Model.RootDocument, RelativeSource={RelativeSource TemplatedParent}}" 
                                               ContentTemplate="{Binding Model.Root.Manager.DocumentTitleTemplate, RelativeSource={RelativeSource TemplatedParent}}"
                                               ContentTemplateSelector="{Binding Model.Root.Manager.DocumentTitleTemplateSelector, RelativeSource={RelativeSource TemplatedParent}}"/>
@@ -623,16 +631,10 @@
                                             Focusable="False"
                                             Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                                             Command="{Binding Path=RootDocumentLayoutItem.CloseCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                            Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                             Grid.Column="3">
                                         <Image Source="/AvalonDock;component/Images/PinClose.png"/>
                                     </Button>
-                                    <!--<Button shell:WindowChrome.IsHitTestVisibleInChrome="True"
-                                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                                        Command="{x:Static shell:SystemCommands.CloseWindowCommand}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                        Grid.Column="3">
-                                        <Image Source="/AvalonDock;component/Images/PinClose.png"/>
-                                    </Button>-->
                                 </Grid>
                                 <ContentPresenter Content="{TemplateBinding Content}" Grid.Row="1"/>
                             </Grid>
@@ -651,7 +653,8 @@
                     ResizeBorderThickness="3"
                     CaptionHeight="16"
                     CornerRadius="3,3,3,3"
-                    GlassFrameThickness="0"/>
+                    GlassFrameThickness="0"
+                    ShowSystemMenu="True"/>
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
@@ -723,6 +726,7 @@
                                         Focusable="False"
                                         Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                                         Command="{Binding HideWindowCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                         Grid.Column="3">
                                         <Image Source="/AvalonDock;component/Images/PinClose.png"/><!---->
                                     </Button>

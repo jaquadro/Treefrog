@@ -327,7 +327,12 @@ namespace AvalonDock.Layout
 
         public int ChildrenCount
         {
-            get { return 5 + _floatingWindows.Count + _hiddenAnchorables.Count; }
+            get
+            {
+                return 5 +
+                    (_floatingWindows != null ? _floatingWindows.Count : 0) + 
+                    (_hiddenAnchorables != null ? _hiddenAnchorables.Count : 0); 
+            }
         }
         #endregion
 
@@ -445,7 +450,7 @@ namespace AvalonDock.Layout
                         continue;
 
                     //...if this empty panes is not referenced by anyone, than removes it from its parent container
-                    if (!this.Descendents().OfType<LayoutContent>().Any(c => c.PreviousContainer == emptyPane))
+                    if (!this.Descendents().OfType<ILayoutPreviousContainer>().Any(c => c.PreviousContainer == emptyPane))
                     {
                         var parentGroup = emptyPane.Parent as ILayoutContainer;
                         parentGroup.RemoveChild(emptyPane);

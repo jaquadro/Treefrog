@@ -101,6 +101,9 @@ namespace AvalonDock.Layout
                     break;
                 }
             }
+
+            RaisePropertyChanged("CanClose");
+            RaisePropertyChanged("CanHide");
             base.OnChildrenCollectionChanged();
         }
 
@@ -133,6 +136,14 @@ namespace AvalonDock.Layout
             get
             {
                 return Parent != null && Parent.ChildrenCount == 1 && Parent.Parent is LayoutFloatingWindow;
+            }
+        }
+
+        public bool IsHostedInFloatingWindow
+        {
+            get
+            {
+                return this.FindParent<LayoutFloatingWindow>() != null;
             }
         }
 
@@ -211,6 +222,17 @@ namespace AvalonDock.Layout
             base.ReadXml(reader);
             _autoFixSelectedContent = true;
             AutoFixSelectedContent();
+        }
+
+
+        public bool CanHide
+        {
+            get { return Children.All(a => a.CanHide); }
+        }
+
+        public bool CanClose
+        {
+            get { return Children.All(a => a.CanClose);}
         }
     }
 }

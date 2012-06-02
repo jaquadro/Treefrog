@@ -54,20 +54,20 @@ namespace AvalonDock.Layout
             }
         }
 
-        [NonSerialized, XmlIgnore]
-        bool _isVisibleFlag = false;
+        //[NonSerialized, XmlIgnore]
+        //bool _isVisibleFlag = false;
         
         public event EventHandler IsVisibleChanged;
 
         void NotifyIsVisibleChanged()
         {
-            if ((_isVisibleFlag && !IsVisible) ||
-                (!_isVisibleFlag && IsVisible))
-            {
-                _isVisibleFlag = IsVisible;
+            //if ((_isVisibleFlag && !IsVisible) ||
+            //    (!_isVisibleFlag && IsVisible))
+            //{
+                //_isVisibleFlag = IsVisible;
                 if (IsVisibleChanged != null)
                     IsVisibleChanged(this, EventArgs.Empty);
-            }
+            //}
         }
 
         [XmlIgnore]
@@ -262,6 +262,27 @@ namespace AvalonDock.Layout
             bool right = (strategy & AnchorableShowStrategy.Right) == AnchorableShowStrategy.Right;
             bool top = (strategy & AnchorableShowStrategy.Top) == AnchorableShowStrategy.Top;
             bool bottom = (strategy & AnchorableShowStrategy.Bottom) == AnchorableShowStrategy.Bottom;
+
+            if (!most)
+            { 
+                var side = AnchorSide.Left;
+                if (left)
+                    side = AnchorSide.Left;
+                if (right)
+                    side = AnchorSide.Right;
+                if (top)
+                    side = AnchorSide.Top;
+                if (bottom)
+                    side = AnchorSide.Bottom;
+
+                var anchorablePane = manager.Layout.Descendents().OfType<LayoutAnchorablePane>().FirstOrDefault(p => p.GetSide() == side);
+                if (anchorablePane != null)
+                    anchorablePane.Children.Add(this);
+                else
+                    most = true;
+            }
+
+
             if (most)
             {
                 if (manager.Layout.RootPanel == null)
@@ -319,7 +340,7 @@ namespace AvalonDock.Layout
             {
                 var parentGroup = Parent as LayoutAnchorGroup;
                 var parentSide = parentGroup.Parent as LayoutAnchorSide;
-                var previousContainer = parentGroup.PreviousContainer;
+                var previousContainer = parentGroup.PreviousContainer as LayoutAnchorablePane;
 
                 if (previousContainer == null)
                 {
@@ -435,6 +456,24 @@ namespace AvalonDock.Layout
                 }
             }
             #endregion
+        }
+
+        #endregion
+
+        #region CanHide
+
+        private bool _canHide = true;
+        public bool CanHide
+        {
+            get { return _canHide; }
+            set
+            {
+                if (_canHide != value)
+                {
+                    _canHide = value;
+                    RaisePropertyChanged("CanHide");
+                }
+            }
         }
 
         #endregion

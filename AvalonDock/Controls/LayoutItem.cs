@@ -42,16 +42,50 @@ namespace AvalonDock.Controls
         }
 
 
-        internal LayoutItem(LayoutContent model)
+        internal LayoutItem()
         {
+
+        }
+
+        internal virtual void Attach(LayoutContent model)
+        { 
             LayoutElement = model;
             Model = model.Content;
             DataContext = this;
 
             InitDefaultCommands();
-            SetupInitialPropertyValues();
+
+            LayoutElement.IsSelectedChanged+=new EventHandler(LayoutElement_IsSelectedChanged);
+            LayoutElement.IsActiveChanged+=new EventHandler(LayoutElement_IsActiveChanged);
         }
 
+        void LayoutElement_IsActiveChanged(object sender, EventArgs e)
+        {
+            if (_isActiveReentrantFlag.CanEnter)
+            {
+                using (_isActiveReentrantFlag.Enter())
+                {
+                    IsActive = LayoutElement.IsActive;
+                }
+            }
+        }
+
+        void LayoutElement_IsSelectedChanged(object sender, EventArgs e)
+        {
+            if (_isSelectedReentrantFlag.CanEnter)
+            {
+                using (_isSelectedReentrantFlag.Enter())
+                {
+                    IsSelected = LayoutElement.IsSelected;
+                }
+            }
+        }
+
+        internal virtual void Detach()
+        {
+            LayoutElement.IsSelectedChanged -= new EventHandler(LayoutElement_IsSelectedChanged);
+            LayoutElement.IsActiveChanged -= new EventHandler(LayoutElement_IsActiveChanged);
+        }
 
         public LayoutContent LayoutElement
         {
@@ -63,31 +97,6 @@ namespace AvalonDock.Controls
         {
             get;
             private set;
-        }
-
-        protected virtual void SetupInitialPropertyValues()
-        {
-            LayoutElement.IsSelectedChanged += (s, e) =>
-            {
-                if (_isSelectedReentrantFlag.CanEnter)
-                {
-                    using (_isSelectedReentrantFlag.Enter())
-                    {
-                        IsSelected = LayoutElement.IsSelected;
-                    }
-                }
-            };
-
-            LayoutElement.IsActiveChanged += (s, e) =>
-            {
-                if (_isActiveReentrantFlag.CanEnter)
-                {
-                    using (_isActiveReentrantFlag.Enter())
-                    {
-                        IsActive = LayoutElement.IsActive;
-                    }
-                }
-            };
         }
 
         ICommand _defaultCloseCommand;
@@ -379,6 +388,44 @@ namespace AvalonDock.Controls
 
         #endregion
 
+        #region CanClose
+
+        /// <summary>
+        /// CanClose Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty CanCloseProperty =
+            DependencyProperty.Register("CanClose", typeof(bool), typeof(LayoutItem),
+                new FrameworkPropertyMetadata((bool)true,
+                    new PropertyChangedCallback(OnCanCloseChanged)));
+
+        /// <summary>
+        /// Gets or sets the CanClose property.  This dependency property 
+        /// indicates if the item can be closed.
+        /// </summary>
+        public bool CanClose
+        {
+            get { return (bool)GetValue(CanCloseProperty); }
+            set { SetValue(CanCloseProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the CanClose property.
+        /// </summary>
+        private static void OnCanCloseChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayoutItem)d).OnCanCloseChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the CanClose property.
+        /// </summary>
+        protected virtual void OnCanCloseChanged(DependencyPropertyChangedEventArgs e)
+        {
+            LayoutElement.CanClose = (bool)e.NewValue;
+        }
+
+        #endregion
+
 
  
         #region CloseCommand
@@ -425,9 +472,9 @@ namespace AvalonDock.Controls
             return value;
         }
 
-        private static bool CanExecuteCloseCommand(object parameter)
+        private bool CanExecuteCloseCommand(object parameter)
         {
-            return true;
+            return LayoutElement.CanClose;
         }
 
         private void ExecuteCloseCommand(object parameter)

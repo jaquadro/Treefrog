@@ -182,6 +182,22 @@ namespace Microsoft.Windows.Shell
             set { SetValue(CornerRadiusProperty, value); }
         }
 
+        #region ShowSystemMenu
+
+        /// <summary>
+        /// Gets or sets the ShowSystemMenu property.  This dependency property 
+        /// indicates if the system menu should be shown at right click on the caption.
+        /// </summary>
+        public bool ShowSystemMenu
+        {
+            get;
+            set;
+        }
+
+        #endregion
+
+
+
         #endregion
 
         protected override Freezable CreateInstanceCore()

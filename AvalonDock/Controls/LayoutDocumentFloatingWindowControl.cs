@@ -94,7 +94,7 @@ namespace AvalonDock.Controls
                             _model.RootDocument.IsActive = true;
                     }
                     break;
-                case Win32Helper.WM_NCRBUTTONDOWN:
+                case Win32Helper.WM_NCRBUTTONUP:
                     if (wParam.ToInt32() == Win32Helper.HT_CAPTION)
                     {
                         if (OpenContextMenu())

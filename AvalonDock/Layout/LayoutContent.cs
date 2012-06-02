@@ -33,7 +33,7 @@ namespace AvalonDock.Layout
 {
     [ContentProperty("Content")]
     [Serializable]
-    public abstract class LayoutContent : LayoutElement, IXmlSerializable, ILayoutElementForFloatingWindow, IComparable<LayoutContent>
+    public abstract class LayoutContent : LayoutElement, IXmlSerializable, ILayoutElementForFloatingWindow, IComparable<LayoutContent>, ILayoutPreviousContainer
     {
         internal LayoutContent()
         { }
@@ -324,6 +324,8 @@ namespace AvalonDock.Layout
                 FloatingHeight = double.Parse(reader.Value, CultureInfo.InvariantCulture);
             if (reader.MoveToAttribute("IsMaximized"))
                 IsMaximized = bool.Parse(reader.Value);
+            if (reader.MoveToAttribute("CanClose"))
+                CanClose = bool.Parse(reader.Value);
 
             reader.Read();
         }
@@ -358,9 +360,11 @@ namespace AvalonDock.Layout
                 writer.WriteAttributeString("FloatingWidth", FloatingWidth.ToString(CultureInfo.InvariantCulture));
             if (FloatingHeight != 0.0)
                 writer.WriteAttributeString("FloatingHeight", FloatingHeight.ToString(CultureInfo.InvariantCulture));
-            
+
             if (IsMaximized)
                 writer.WriteAttributeString("IsMaximized", IsMaximized.ToString());
+            if (!CanClose)
+                writer.WriteAttributeString("CanClose", CanClose.ToString());
 
             if (_previousContainer != null)
             {
@@ -626,5 +630,26 @@ namespace AvalonDock.Layout
                 Root.CollectGarbage();
             }
         }
+
+
+        #region CanClose
+
+        private bool _canClose = true;
+        public bool CanClose
+        {
+            get { return _canClose; }
+            set
+            {
+                if (_canClose != value)
+                {
+                    _canClose = value;
+                    RaisePropertyChanged("CanClose");
+                }
+            }
+        }
+
+        #endregion
+
+
     }
 }

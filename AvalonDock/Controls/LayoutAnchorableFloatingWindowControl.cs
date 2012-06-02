@@ -36,6 +36,7 @@ using AvalonDock.Converters;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using AvalonDock.Commands;
+using Microsoft.Windows.Shell;
 
 namespace AvalonDock.Controls
 {
@@ -123,29 +124,12 @@ namespace AvalonDock.Controls
 
             SetBinding(SingleContentLayoutItemProperty, new Binding("Model.SinglePane.SelectedContent") { Source = this, Converter = new LayoutItemFromLayoutModelConverter() });
 
-            //ContextMenu = _model.Root.Manager.AnchorableContextMenu;
-            //ContextMenu.SetBinding(ContextMenu.DataContextProperty, new Binding("SingleContentLayoutItem") { Source = this });
-
-
-            //ContextMenu.DataContext = SingleContentLayoutItem;
-
             _model.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(_model_PropertyChanged);
         }
 
 
         void _model_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            //if (_model.IsSinglePane &&
-            //    _model.Root != null &&
-            //    _model.Root.Manager != null)
-            //{
-            //    ContextMenu = _model.Root.Manager.AnchorableContextMenu;
-            //    if (ContextMenu != null)
-            //        ContextMenu.DataContext = SingleContentLayoutItem;
-            //}
-            //else
-            //    ContextMenu = null;
-
             if (e.PropertyName == "RootPanel" &&
                 _model.RootPanel == null)
             {
@@ -249,7 +233,7 @@ namespace AvalonDock.Controls
 
             base.OnClosing(e);
         }
-
+        
         protected override IntPtr FilterMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             switch (msg)
@@ -261,13 +245,16 @@ namespace AvalonDock.Controls
                         handled = true;
                     }
                     break;
-                case Win32Helper.WM_NCRBUTTONDOWN:
+                case Win32Helper.WM_NCRBUTTONUP:
                     if (wParam.ToInt32() == Win32Helper.HT_CAPTION)
                     {
                         if (OpenContextMenu())
                             handled = true;
+
+                        WindowChrome.GetWindowChrome(this).ShowSystemMenu = !handled;
                     }
                     break;
+
             }
 
             return base.FilterMessage(hwnd, msg, wParam, lParam, ref handled);
@@ -283,6 +270,17 @@ namespace AvalonDock.Controls
                 ctxMenu.DataContext = SingleContentLayoutItem;
                 ctxMenu.IsOpen = true;
                 return true;
+            }
+
+            return false;
+        }
+
+        bool IsContextMenuOpen()
+        {
+            var ctxMenu = _model.Root.Manager.AnchorableContextMenu;
+            if (ctxMenu != null && SingleContentLayoutItem != null)
+            {
+                return ctxMenu.IsOpen;
             }
 
             return false;
@@ -311,6 +309,12 @@ namespace AvalonDock.Controls
             bool canExecute = false;
             foreach (var anchorable in this.Model.Descendents().OfType<LayoutAnchorable>().ToArray())
             {
+                if (!anchorable.CanHide)
+                {
+                    canExecute = false;
+                    break;
+                }
+
                 var anchorableLayoutItem = manager.GetLayoutItemFromModel(anchorable) as LayoutAnchorableItem;
                 if (anchorableLayoutItem == null ||
                     anchorableLayoutItem.HideCommand == null ||

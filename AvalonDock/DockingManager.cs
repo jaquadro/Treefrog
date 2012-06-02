@@ -1913,6 +1913,8 @@ namespace AvalonDock
         {
             foreach (var contentToClose in Layout.Descendents().OfType<LayoutContent>().Where(d => d != contentSelected && (d.Parent is LayoutDocumentPane || d.Parent is LayoutDocumentFloatingWindow)).ToArray())
             {
+                if (!contentToClose.CanClose)
+                    continue;
                 if (contentToClose is LayoutDocument)
                     _ExecuteCloseCommand(contentToClose as LayoutDocument);
                 else if (contentToClose is LayoutAnchorable)
@@ -2008,7 +2010,7 @@ namespace AvalonDock
             if (anchorablePane == null)
             {
                 //look for a pane on the right side
-                anchorablePane = layout.Descendents().OfType<LayoutAnchorablePane>().Where(pane => pane.GetSide() == AnchorSide.Right).FirstOrDefault();
+                anchorablePane = layout.Descendents().OfType<LayoutAnchorablePane>().Where(pane => !pane.IsHostedInFloatingWindow && pane.GetSide() == AnchorSide.Right).FirstOrDefault();
             }
 
             if (anchorablePane == null)
@@ -2052,7 +2054,8 @@ namespace AvalonDock
 
                     if (added)
                     {
-                        var anchorableItem = new LayoutAnchorableItem(anchorableToImport);
+                        var anchorableItem = new LayoutAnchorableItem();
+                        anchorableItem.Attach(anchorableToImport);
                         ApplyStyleToLayoutItem(anchorableItem);
                         _layoutItems.Add(anchorableItem);
                     }
@@ -2110,7 +2113,7 @@ namespace AvalonDock
                     if (anchorablePane == null)
                     {
                         //look for a pane on the right side
-                        anchorablePane = Layout.Descendents().OfType<LayoutAnchorablePane>().Where(pane => pane.GetSide() == AnchorSide.Right).FirstOrDefault();
+                        anchorablePane = Layout.Descendents().OfType<LayoutAnchorablePane>().Where(pane => !pane.IsHostedInFloatingWindow && pane.GetSide() == AnchorSide.Right).FirstOrDefault();
                     }
 
                     if (anchorablePane == null)
@@ -2147,7 +2150,8 @@ namespace AvalonDock
 
                         if (added && root != null && root.Manager == this)
                         {
-                            var anchorableItem = new LayoutAnchorableItem(anchorableToImport);
+                            var anchorableItem = new LayoutAnchorableItem();
+                            anchorableItem.Attach(anchorableToImport);
                             ApplyStyleToLayoutItem(anchorableItem);
                             _layoutItems.Add(anchorableItem);
                         }
@@ -2574,6 +2578,7 @@ namespace AvalonDock
         {
             if (Layout != null)
             {
+                _layoutItems.ForEach<LayoutItem>(i => i.Detach());
                 _layoutItems.Clear();
                 Layout.ElementAdded -= new EventHandler<LayoutElementEventArgs>(Layout_ElementAdded);
                 Layout.ElementRemoved -= new EventHandler<LayoutElementEventArgs>(Layout_ElementRemoved);
@@ -2586,12 +2591,17 @@ namespace AvalonDock
                 return;
 
             if (e.Element is LayoutContent)
-                _layoutItems.Remove(_layoutItems.First(item => item.LayoutElement == e.Element));
+            {
+                var layoutItem = _layoutItems.First(item => item.LayoutElement == e.Element);
+                layoutItem.Detach();
+                _layoutItems.Remove(layoutItem);
+            }
             else if (e.Element is ILayoutContainer)
             {
                 foreach (var content in e.Element.Descendents().OfType<LayoutContent>())
                 {
                     var itemToRemove = _layoutItems.First(item => item.LayoutElement == content);
+                    itemToRemove.Detach();
                     _layoutItems.Remove(itemToRemove);
                 }
             }
@@ -2605,14 +2615,16 @@ namespace AvalonDock
             if (e.Element is LayoutDocument)
             {
                 var document = e.Element as LayoutDocument;
-                var documentItem = new LayoutDocumentItem(document);
+                var documentItem = new LayoutDocumentItem();
+                documentItem.Attach(document);
                 ApplyStyleToLayoutItem(documentItem);
                 _layoutItems.Add(documentItem);
             }
             else if (e.Element is LayoutAnchorable)
             {
                 var anchorable = e.Element as LayoutAnchorable;
-                var anchorableItem = new LayoutAnchorableItem(anchorable);
+                var anchorableItem = new LayoutAnchorableItem();
+                anchorableItem.Attach(anchorable);
                 ApplyStyleToLayoutItem(anchorableItem);
                 _layoutItems.Add(anchorableItem);
             }
@@ -2620,13 +2632,15 @@ namespace AvalonDock
             {
                 foreach (var document in e.Element.Descendents().OfType<LayoutDocument>().ToArray())
                 {
-                    var documentItem = new LayoutDocumentItem(document);
+                    var documentItem = new LayoutDocumentItem();
+                    documentItem.Attach(document);
                     ApplyStyleToLayoutItem(documentItem);
                     _layoutItems.Add(documentItem);
                 }
                 foreach (var anchorable in e.Element.Descendents().OfType<LayoutAnchorable>().ToArray())
                 {
-                    var anchorableItem = new LayoutAnchorableItem(anchorable);
+                    var anchorableItem = new LayoutAnchorableItem();
+                    anchorableItem.Attach(anchorable);
                     ApplyStyleToLayoutItem(anchorableItem);
                     _layoutItems.Add(anchorableItem);
                 }                
@@ -2639,13 +2653,15 @@ namespace AvalonDock
             {
                 foreach (var document in Layout.Descendents().OfType<LayoutDocument>().ToArray())
                 {
-                    var documentItem = new LayoutDocumentItem(document);
+                    var documentItem = new LayoutDocumentItem();
+                    documentItem.Attach(document);
                     ApplyStyleToLayoutItem(documentItem);
                     _layoutItems.Add(documentItem);
                 }
                 foreach (var anchorable in Layout.Descendents().OfType<LayoutAnchorable>().ToArray())
                 {
-                    var anchorableItem = new LayoutAnchorableItem(anchorable);
+                    var anchorableItem = new LayoutAnchorableItem();
+                    anchorableItem.Attach(anchorable);
                     ApplyStyleToLayoutItem(anchorableItem);
                     _layoutItems.Add(anchorableItem);
                 }

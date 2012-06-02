@@ -559,7 +559,7 @@ namespace Microsoft.Windows.Shell
                     _window.ContextMenu.Placement = PlacementMode.MousePoint;
                     _window.ContextMenu.IsOpen = true;
                 }
-                else
+                else if (WindowChrome.GetWindowChrome(_window).ShowSystemMenu)
                     SystemCommands.ShowSystemMenuPhysicalCoordinates(_window, new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam)));
             }
             handled = false;

@@ -26,12 +26,13 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 using System.Windows.Markup;
+using System.Xml.Serialization;
 
 namespace AvalonDock.Layout
 {
     [ContentProperty("Children")]
     [Serializable]
-    public class LayoutAnchorGroup : LayoutGroup<LayoutAnchorable>
+    public class LayoutAnchorGroup : LayoutGroup<LayoutAnchorable>, ILayoutPreviousContainer
     {
         public LayoutAnchorGroup()
         {
@@ -45,8 +46,10 @@ namespace AvalonDock.Layout
 
         #region PreviousContainer
 
-        private LayoutAnchorablePane _previousContainer = null;
-        public LayoutAnchorablePane PreviousContainer
+        [field:NonSerialized]
+        private ILayoutContainer _previousContainer = null;
+        [XmlIgnore]
+        public ILayoutContainer PreviousContainer
         {
             get { return _previousContainer; }
             internal set

@@ -91,14 +91,15 @@ namespace AvalonDock.Layout
 
                 foreach (var childElement in parentContainer.Children)
                 {
-                    if (childElement == element)
+                    if (childElement == element ||
+                        childElement.Descendents().Contains(element))
                         return parentContainer.Orientation == System.Windows.Controls.Orientation.Horizontal ?
                             AnchorSide.Left : AnchorSide.Top;
 
                     var childElementAsContainer = childElement as ILayoutContainer;
                     if (childElementAsContainer != null &&
                         (childElementAsContainer.IsOfType<LayoutDocumentPane, LayoutDocumentPaneGroup>() ||
-                        childElementAsContainer.ContainsChildOfType<LayoutDocumentPane, LayoutAnchorablePaneGroup>()))
+                        childElementAsContainer.ContainsChildOfType<LayoutDocumentPane, LayoutDocumentPaneGroup>()))
                     {
                         return parentContainer.Orientation == System.Windows.Controls.Orientation.Horizontal ?
                            AnchorSide.Right : AnchorSide.Bottom;

@@ -156,6 +156,7 @@ namespace AvalonDock
         internal const int WM_SETFOCUS = 0x0007;
         internal const int WM_ACTIVATE = 0x0006;
         internal const int WM_NCHITTEST = 0x0084;
+        internal const int WM_INITMENUPOPUP = 0x0117;
         
         internal const int WA_INACTIVE = 0x0000;
 

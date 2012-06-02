@@ -71,6 +71,7 @@
     <Compile Include="Controls\Layers\GroupLayer.cs" />
     <Compile Include="Controls\Layers\RenderLayer.cs" />
     <Compile Include="Controls\Layers\XnaTileLayer.cs" />
+    <Compile Include="Controls\Hooks\MouseHook.cs" />
     <Compile Include="Converters\EnumBoolConverter.cs" />
     <Compile Include="Converters\StringToIntNull.cs" />
     <Compile Include="Converters\TextureResourceToBitmapSourceConverter.cs" />
