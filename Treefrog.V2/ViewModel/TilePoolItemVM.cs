@@ -44,5 +44,11 @@ namespace Treefrog.ViewModel
         {
             get { return _tile.Width; }
         }
+
+        public void RefreshImageSource ()
+        {
+            _source = _tile.Pool.GetTileTexture(_tile.Id);
+            RaisePropertyChanged("ImageSource");
+        }
     }
 }

@@ -131,6 +131,14 @@ namespace Treefrog.Framework.Model
         /// </summary>
         public event EventHandler<TileEventArgs> TileModified = (s, e) => { };
 
+        public event EventHandler TileSourceInvalidated;
+
+        protected virtual void OnTileSourceInvalidated (EventArgs e)
+        {
+            if (TileSourceInvalidated != null)
+                TileSourceInvalidated(this, e);
+        }
+
         /// <summary>
         /// Raises the <see cref="TileAdded"/> event and triggers the <see cref="Modified"/> event.
         /// </summary>
@@ -306,6 +314,17 @@ namespace Treefrog.Framework.Model
         #region Texture Management
 
         private const int _minTiles = 4 * 4;
+
+        public void ReplaceTexture (TextureResource data)
+        {
+            if (_tileSource.Width != data.Width || _tileSource.Height != data.Height)
+                throw new ArgumentException("Replacement texture has different dimensions than internal texture.");
+
+            _tileSource.Set(data, Point.Zero);
+
+            OnTileSourceInvalidated(EventArgs.Empty);
+            OnModified(EventArgs.Empty);
+        }
 
         private bool ShouldExpandTexture ()
         {

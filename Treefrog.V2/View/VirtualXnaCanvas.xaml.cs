@@ -82,17 +82,13 @@ namespace Treefrog.View
 
         private void HandleLoaded (object sender, RoutedEventArgs e)
         {
-            Window window = Window.GetWindow(this);
-            if (window != null) {
-                window.MouseUp += HandleWindowMouseUp;
-                window.MouseLeave += HandleWindowMouseLeave;
-            }
-
+            AttachWindowMouseEvents();
             AttachGlobalMouseEvents();
         }
 
         private void HandleUnloaded (object sender, RoutedEventArgs e)
         {
+            DetachWindowMouseEvents();
             DetachGlobalMouseEvents();
         }
 
@@ -457,17 +453,7 @@ namespace Treefrog.View
             }
         }
 
-        private Point TranslateMousePosition (Point position)
-        {
-            Vector offset = VirtualSurfaceOffset;
-            position.X = (position.X - offset.X) / ZoomFactor;
-            position.Y = (position.Y - offset.Y) / ZoomFactor;
-
-            position.X += Viewport.Offset.X;
-            position.Y += Viewport.Offset.Y;
-
-            return position;
-        }
+        #region Pointer Device Handling
 
         #region Global Mouse Handling
 
@@ -510,6 +496,22 @@ namespace Treefrog.View
 
         #region Window Mouse Handling
 
+        private void AttachWindowMouseEvents ()
+        {
+            Window window = Window.GetWindow(this);
+            if (window != null) {
+                window.MouseUp += HandleWindowMouseUp;
+            }
+        }
+
+        private void DetachWindowMouseEvents ()
+        {
+            Window window = Window.GetWindow(this);
+            if (window != null) {
+                window.MouseUp -= HandleWindowMouseUp;
+            }
+        }
+
         private void HandleWindowMouseUp (object sender, MouseEventArgs e)
         {
             
@@ -537,6 +539,8 @@ namespace Treefrog.View
 
         #endregion
 
+        #region Canvas Mouse Handling
+
         private void HandleHwndLButtonDown (object sender, HwndMouseEventArgs e)
         {
             HandleButtonDown(e, PointerEventType.Primary);
@@ -545,6 +549,53 @@ namespace Treefrog.View
         private void HandleHwndRButtonDown (object sender, HwndMouseEventArgs e)
         {
             HandleButtonDown(e, PointerEventType.Secondary);
+        }
+
+        private void HandleHwndLButtonUp (object sender, HwndMouseEventArgs e)
+        {
+            //HandleButtonUp(e.Position, PointerEventType.Primary);
+        }
+
+        private void HandleHwndRButtonUp (object sender, HwndMouseEventArgs e)
+        {
+            //HandleButtonUp(e.Position, PointerEventType.Secondary);
+        }
+
+        private void HandleHwndMouseMove (object sender, HwndMouseEventArgs e)
+        {
+            HandleMouseMove(e.Position);
+        }
+
+        private void HandleHwndMouseEnter (object sender, HwndMouseEventArgs e)
+        {
+            HandleMouseEnter(e.Position);
+        }
+
+        private void HandleHwndMouseLeave (object sender, HwndMouseEventArgs e)
+        {
+            HandleMouseLeave(e.Position);
+        }
+
+        #endregion
+
+        #region Mouse Handler Implementation
+
+        private Dictionary<PointerEventType, bool> _sequenceOpen = new Dictionary<PointerEventType, bool>
+        {
+            { PointerEventType.Primary, false },
+            { PointerEventType.Secondary, false },
+        };
+
+        private Point TranslateMousePosition (Point position)
+        {
+            Vector offset = VirtualSurfaceOffset;
+            position.X = (position.X - offset.X) / ZoomFactor;
+            position.Y = (position.Y - offset.Y) / ZoomFactor;
+
+            position.X += Viewport.Offset.X;
+            position.Y += Viewport.Offset.Y;
+
+            return position;
         }
 
         private void HandleButtonDown (HwndMouseEventArgs e, PointerEventType type)
@@ -563,16 +614,6 @@ namespace Treefrog.View
             }
         }
 
-        private void HandleHwndLButtonUp (object sender, HwndMouseEventArgs e)
-        {
-            //HandleButtonUp(e.Position, PointerEventType.Primary);
-        }
-
-        private void HandleHwndRButtonUp (object sender, HwndMouseEventArgs e)
-        {
-            //HandleButtonUp(e.Position, PointerEventType.Secondary);
-        }
-
         private void HandleButtonUp (Point mousePosition, PointerEventType type)
         {
             if (type == PointerEventType.None)
@@ -588,9 +629,9 @@ namespace Treefrog.View
             }
         }
 
-        private void HandleHwndMouseMove (object sender, HwndMouseEventArgs e)
+        private void HandleMouseMove (Point mousePosition)
         {
-            Point position = TranslateMousePosition(e.Position);
+            Point position = TranslateMousePosition(mousePosition);
             PointerEventInfo info = new PointerEventInfo(PointerEventType.None, position.X, position.Y);
 
             if (UpdatePointerSequence != null) {
@@ -604,9 +645,9 @@ namespace Treefrog.View
                 PointerPosition.Execute(new PointerEventInfo(PointerEventType.None, position.X, position.Y));
         }
 
-        private void HandleHwndMouseEnter (object sender, HwndMouseEventArgs e)
+        private void HandleMouseEnter (Point mousePosition)
         {
-            Point position = TranslateMousePosition(e.Position);
+            Point position = TranslateMousePosition(mousePosition);
 
             /*if (EndPointerSequence != null) {
                 if (_sequenceOpen[PointerEventType.Primary] && e.LeftButton == MouseButtonState.Released) {
@@ -620,11 +661,15 @@ namespace Treefrog.View
             }*/
         }
 
-        private void HandleHwndMouseLeave (object sender, HwndMouseEventArgs e)
+        private void HandleMouseLeave (Point mousePosition)
         {
             if (PointerLeaveField != null)
                 PointerLeaveField.Execute(null);
         }
+
+        #endregion
+
+        #region Pointer Event Interface
 
         public static readonly DependencyProperty StartPointerSequenceProperty = DependencyProperty.Register(
             "StartPointerSequence", typeof(RelayCommand<PointerEventInfo>), typeof(VirtualXnaCanvas),
@@ -676,10 +721,8 @@ namespace Treefrog.View
             set { SetValue(PointerLeaveFieldProperty, value); }
         }
 
-        private Dictionary<PointerEventType, bool> _sequenceOpen = new Dictionary<PointerEventType, bool>
-        {
-            { PointerEventType.Primary, false },
-            { PointerEventType.Secondary, false },
-        };
+        #endregion
+
+        #endregion
     }
 }

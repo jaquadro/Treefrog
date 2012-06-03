@@ -19,6 +19,7 @@ using Treefrog.Aux;
 using Treefrog.Framework.Imaging;
 using System.Drawing;
 using System.ComponentModel;
+using System.IO;
 
 namespace Treefrog.ViewModel
 {
@@ -182,6 +183,8 @@ namespace Treefrog.ViewModel
 
         #region Commands
 
+        #region Import Pool
+
         private RelayCommand _importPoolCommand;
 
         public ICommand ImportPoolCommand
@@ -257,6 +260,10 @@ namespace Treefrog.ViewModel
             }
         }
 
+        #endregion
+
+        #region Remove Pool
+
         private RelayCommand _removePoolCommand;
 
         public ICommand RemovePoolCommand
@@ -285,6 +292,122 @@ namespace Treefrog.ViewModel
                 _manager.Pools.Remove(ActiveTilePool.Name);
             }
         }
+
+        #endregion
+
+        #region Export Raw Tileset
+
+        private RelayCommand _exportRawTilesetCommand;
+
+        public ICommand ExportRawTilesetCommand
+        {
+            get
+            {
+                if (_exportRawTilesetCommand == null)
+                    _exportRawTilesetCommand = new RelayCommand(OnExportRawTileset, CanExportRawTileset);
+                return _exportRawTilesetCommand;
+            }
+        }
+
+        public bool IsExportRawTilesetEnabled
+        {
+            get { return CanExportRawTileset(); }
+        }
+
+        private bool CanExportRawTileset ()
+        {
+            return ActiveTilePool != null;
+        }
+
+        private void OnExportRawTileset ()
+        {
+            if (ActiveTilePool != null) {
+                Bitmap export = ActiveTilePool.TilePool.TileSource.CreateBitmap();
+
+                IOService service = ServiceProvider.GetService<IOService>();
+                if (service != null) {
+                    string path = service.SaveFileDialog(new SaveFileOptions()
+                    {
+                        Filter = "Portable Network Graphics (*.png)|*.png|Windows Bitmap (*.bmp)|*.bmp|All Files|*",
+                        FilterIndex = 0,
+                    });
+
+                    export.Save(path);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Import Raw Tileset
+
+        private RelayCommand _importRawTilesetCommand;
+
+        public ICommand ImportRawTilesetCommand
+        {
+            get
+            {
+                if (_importRawTilesetCommand == null)
+                    _importRawTilesetCommand = new RelayCommand(OnImportRawTileset, CanImportRawTileset);
+                return _importRawTilesetCommand;
+            }
+        }
+
+        public bool IsImportRawTilesetEnabled
+        {
+            get { return CanImportRawTileset(); }
+        }
+
+        private bool CanImportRawTileset ()
+        {
+            return ActiveTilePool != null;
+        }
+
+        private void OnImportRawTileset ()
+        {
+            if (ActiveTilePool != null) {
+                Bitmap export = ActiveTilePool.TilePool.TileSource.CreateBitmap();
+
+                IMessageService messageService = ServiceProvider.GetService<IMessageService>();
+                IOService service = ServiceProvider.GetService<IOService>();
+                if (service != null) {
+                    string path = service.OpenFileDialog(new OpenFileOptions()
+                    {
+                        Filter = "Images Files|*.bmp;*.gif;*.png|All Files|*",
+                        FilterIndex = 0,
+                    });
+
+                    try {
+                        TextureResource import = TextureResourceBitmapExt.CreateTextureResource(path);
+
+                        TextureResource original = ActiveTilePool.TilePool.TileSource;
+                        if (original.Width != import.Width || original.Height != import.Height) {
+                            if (messageService != null) {
+                                messageService.ShowMessage(new MessageInfo()
+                                {
+                                    Message = "Imported tileset dimensions are incompatible with the selected Tile Pool.",
+                                    Type = MessageType.Warning
+                                });
+                            }
+                            return;
+                        }
+
+                        ActiveTilePool.TilePool.ReplaceTexture(import);
+                    }
+                    catch {
+                        if (messageService != null) {
+                            messageService.ShowMessage(new MessageInfo()
+                            {
+                                Message = "Could not read selected image file.",
+                                Type = MessageType.Warning
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
 
         #endregion
     }

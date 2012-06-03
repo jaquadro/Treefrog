@@ -41,6 +41,40 @@
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Separator />
+                    <Menu Background="Transparent" IsTabStop="False">
+                        <MenuItem Margin="0" Padding="2" Header="{Binding}">
+                            <MenuItem.HeaderTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="8" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Width="16" Height="16" 
+                                               Source="/Treefrog;component/Images/16/gear.png" 
+                                               ToolTip="Options" />
+                                        <Grid Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Path Fill="Black" Data="M 0 0 L 3 3 L 6 0 Z" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </MenuItem.HeaderTemplate>
+                            <MenuItem Header="Import Raw Tileset..." 
+                                      Command="{Binding ImportRawTilesetCommand}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog;component/Images/16/drive-upload.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Export Raw Tileset..." 
+                                      Command="{Binding ExportRawTilesetCommand}">
+                                <MenuItem.Icon>
+                                    <Image Source="/Treefrog;component/Images/16/drive-download.png" 
+                                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+                    </Menu>
                 </ToolBar>
             </ToolBarTray>
 

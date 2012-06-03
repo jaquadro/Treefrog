@@ -34,7 +34,8 @@ namespace Treefrog.ViewModel
             }
 
             _tilePool.TileAdded += HandleTileAdded;
-            _tilePool.TileRemoved -= HandleTileRemoved;
+            _tilePool.TileRemoved += HandleTileRemoved;
+            _tilePool.TileSourceInvalidated += HandleTileSourceInvalidated;
         }
 
         private void HandleTileAdded (object sender, TileEventArgs e)
@@ -50,6 +51,14 @@ namespace Treefrog.ViewModel
                     break;
                 }
             }
+        }
+
+        private void HandleTileSourceInvalidated (object sender, EventArgs e)
+        {
+            RaisePropertyChanged("BitmapSource");
+
+            foreach (TilePoolItemVM tile in Tiles)
+                tile.RefreshImageSource();
         }
 
         public TilePool TilePool
