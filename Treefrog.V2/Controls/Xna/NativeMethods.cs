@@ -155,12 +155,12 @@ namespace Treefrog.Controls.Xna
 
         public static int LowWord(int input)
         {
-            return (int)(input & 0xffff);
+            return (int)((short)(input & 0xffff));
         }
 
         public static int HighWord(int input)
         {
-            return (int)(input >> 16);
+            return (int)((short)(input >> 16));
         }
 
         #endregion

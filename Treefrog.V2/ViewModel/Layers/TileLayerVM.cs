@@ -146,6 +146,8 @@ namespace Treefrog.ViewModel.Layers
             get { return new Rect(0, 0, Layer.TilesWide, Layer.TilesHigh); }
         }
 
+        private static HashSet<TileCoord> _emptyTileCoordHashSet = new HashSet<TileCoord>();
+
         public override IEnumerable<DrawCommand> RenderCommands
         {
             get
@@ -160,8 +162,19 @@ namespace Treefrog.ViewModel.Layers
                     (int)Math.Ceiling(tileRegion.Width),
                     (int)Math.Ceiling(tileRegion.Height));
 
+                HashSet<TileCoord> excludeSet = _emptyTileCoordHashSet;
+                TileCoord offset = new TileCoord(0, 0);
+
+                if (_currentTool is TileSelectTool) {
+                    excludeSet = (_currentTool as TileSelectTool).FloatingTiles;
+                    offset = (_currentTool as TileSelectTool).FloatingOffset;
+                }
+
                 foreach (LocatedTile tile in Layer.TilesAt(castRegion)) {
                     TileCoord scoord = tile.Tile.Pool.GetTileLocation(tile.Tile.Id);
+                    if (excludeSet.Contains(tile.Location))
+                        continue;
+
                     yield return new DrawCommand()
                     {
                         Texture = tile.Tile.Pool.Name,
@@ -173,6 +186,25 @@ namespace Treefrog.ViewModel.Layers
                             (int)(tile.Tile.Height * Viewport.ZoomFactor)),
                         BlendColor = Colors.White,
                     };
+                }
+
+                foreach (TileCoord floatCoord in excludeSet) {
+                    //TileCoord offsetCoord = new TileCoord(floatCoord.X + offset.X, floatCoord.Y + offset.Y);
+
+                    foreach (LocatedTile tile in Layer.TilesAt(floatCoord)) {
+                        TileCoord scoord = tile.Tile.Pool.GetTileLocation(tile.Tile.Id);
+                        yield return new DrawCommand()
+                        {
+                            Texture = tile.Tile.Pool.Name,
+                            SourceRect = new Rectangle(scoord.X * tile.Tile.Width, scoord.Y * tile.Tile.Height, tile.Tile.Width, tile.Tile.Height),
+                            DestRect = new Rectangle(
+                                (int)((tile.X + offset.X) * tile.Tile.Width * Viewport.ZoomFactor),
+                                (int)((tile.Y + offset.Y) * tile.Tile.Height * Viewport.ZoomFactor),
+                                (int)(tile.Tile.Width * Viewport.ZoomFactor),
+                                (int)(tile.Tile.Height * Viewport.ZoomFactor)),
+                            BlendColor = Colors.White,
+                        };
+                    }
                 }
             }
         }
@@ -228,6 +260,9 @@ namespace Treefrog.ViewModel.Layers
         public void SetTool (TileTool tool)
         {
             switch (tool) {
+                case TileTool.Select:
+                    _currentTool = new TileSelectTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
+                    break;
                 case TileTool.Draw:
                     _currentTool = new TileDrawTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
                     break;

@@ -71,6 +71,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -94,6 +95,7 @@
     </ApplicationDefinition>
     <Compile Include="Controls\Annotations\AnnotationRendererFactory.cs" />
     <Compile Include="Controls\Annotations\SelectionAnnotRenderer.cs" />
+    <None Include="Controls\Input\InputDevice.cs" />
     <Compile Include="Controls\ItemsCollection.cs" />
     <Compile Include="Controls\Layers\AnnotRenderLayer.cs" />
     <Compile Include="Controls\Layers\GridRenderLayer.cs" />
@@ -156,6 +158,7 @@
     <Compile Include="ViewModel\Tools\Selection.cs" />
     <Compile Include="ViewModel\Tools\TileFillTool.cs" />
     <Compile Include="ViewModel\Tools\TilePointerTool.cs" />
+    <Compile Include="ViewModel\Tools\TileSelectTool.cs" />
     <Compile Include="ViewModel\Utility\ObservableCollectionAdapter.cs" />
     <Compile Include="ViewModel\Utility\OrderedToObservableAdapter.cs" />
     <Compile Include="ViewModel\ViewportVM.cs" />

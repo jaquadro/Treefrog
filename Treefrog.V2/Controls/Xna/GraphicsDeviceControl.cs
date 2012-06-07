@@ -466,6 +466,17 @@ namespace Treefrog.Controls.Xna
                 NativeMethods.GetYLParam(lParam));
         }
 
+        private bool _mouseCaptured = false;
+
+        private bool CapturedMouseProc (int msg)
+        {
+            switch (msg) {
+
+            }
+
+            return true;
+        }
+
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             switch (msg)
@@ -590,11 +601,11 @@ namespace Treefrog.Controls.Xna
                             HwndMouseEnter(this, new HwndMouseEventArgs(mouseState));
 
                         // send the track mouse event so that we get the WM_MOUSELEAVE message
-                        NativeMethods.TRACKMOUSEEVENT tme = new NativeMethods.TRACKMOUSEEVENT();
+                        /*NativeMethods.TRACKMOUSEEVENT tme = new NativeMethods.TRACKMOUSEEVENT();
                         tme.cbSize = Marshal.SizeOf(typeof(NativeMethods.TRACKMOUSEEVENT));
                         tme.dwFlags = NativeMethods.TME_LEAVE;
                         tme.hWnd = hwnd;
-                        NativeMethods.TrackMouseEvent(ref tme);
+                        NativeMethods.TrackMouseEvent(ref tme);*/
                     }
 
                     // Only fire the mouse move if the position actually changed
@@ -623,9 +634,43 @@ namespace Treefrog.Controls.Xna
                     break;
             }
 
+            if (!HostCapturedMouse && mouseState.AnyButtonPressed) {
+                HostCaptureMouse();
+            }
+            else if (HostCapturedMouse && !mouseState.AnyButtonPressed) {
+                HostReleaseMouse();
+            }
+            
             return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
         }
 
+        private bool HostCapturedMouse
+        {
+            get
+            {
+                return GetCapture() == hWnd;
+            }
+        }
+
+        private void HostCaptureMouse ()
+        {
+            SetCapture(hWnd);
+        }
+
+        private void HostReleaseMouse ()
+        {
+            ReleaseCapture();
+        }
+
         #endregion
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetCapture (IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool ReleaseCapture ();
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetCapture ();
     }
 }

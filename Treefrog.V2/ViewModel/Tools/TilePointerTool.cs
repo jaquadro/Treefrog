@@ -50,7 +50,7 @@ namespace Treefrog.ViewModel.Tools
 
         protected TileCoord TileLocation (PointerEventInfo info)
         {
-            return new TileCoord((int)info.X / Layer.TileWidth, (int)info.Y / Layer.TileHeight);
+            return new TileCoord((int)Math.Floor(info.X / Layer.TileWidth), (int)Math.Floor(info.Y / Layer.TileHeight));
         }
 
         protected bool TileInRange (TileCoord location)

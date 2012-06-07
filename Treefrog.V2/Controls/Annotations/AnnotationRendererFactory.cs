@@ -12,6 +12,8 @@ namespace Treefrog.Controls.Annotations
         {
             if (annot.GetType() == typeof(SelectionAnnot))
                 return new SelectionAnnotRenderer(annot as SelectionAnnot);
+            else if (annot.GetType() == typeof(MultiTileSelectionAnnot))
+                return new MultiTileSelectionAnnotRenderer(annot as MultiTileSelectionAnnot);
 
             return null;
         }

@@ -16,11 +16,11 @@ using Treefrog.Controls.Layers;
 using System.Windows.Markup;
 using Treefrog.Controls;
 using Treefrog.Controls.Xna;
-
-using XColor = Microsoft.Xna.Framework.Color;
 using Treefrog.ViewModel;
 using GalaSoft.MvvmLight.Command;
 using Treefrog.Controls.Hooks;
+
+using XColor = Microsoft.Xna.Framework.Color;
 
 namespace Treefrog.View
 {
@@ -477,7 +477,7 @@ namespace Treefrog.View
 
         private void HandleGlobalMouseUp (object sender, SystemMouseButtonEventArgs e)
         {
-            if (!this.IsLoaded)
+            if (!this.IsLoaded || PresentationSource.FromVisual(this) == null)
                 return;
 
             Point mouseLocation = TranslateScreenMousePosition(e.ScreenLocation);
@@ -553,12 +553,12 @@ namespace Treefrog.View
 
         private void HandleHwndLButtonUp (object sender, HwndMouseEventArgs e)
         {
-            //HandleButtonUp(e.Position, PointerEventType.Primary);
+            HandleButtonUp(e.Position, PointerEventType.Primary);
         }
 
         private void HandleHwndRButtonUp (object sender, HwndMouseEventArgs e)
         {
-            //HandleButtonUp(e.Position, PointerEventType.Secondary);
+            HandleButtonUp(e.Position, PointerEventType.Secondary);
         }
 
         private void HandleHwndMouseMove (object sender, HwndMouseEventArgs e)

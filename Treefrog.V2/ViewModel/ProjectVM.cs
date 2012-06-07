@@ -30,12 +30,12 @@ namespace Treefrog.ViewModel
 
             ObjectPool objPool = _project.ObjectPoolManager.CreatePool("Default");
 
-            String path = @"E:\Workspace\Managed\Game\Roots\preview";
+            /*String path = @"E:\Workspace\Managed\Game\Roots\preview";
             foreach (string name in Directory.EnumerateFiles(path, "*.png")) {
                 TextureResource tres = TextureResourceBitmapExt.CreateTextureResource(Path.Combine(path, name));
                 ObjectClass objClass = new ObjectClass(Path.GetFileNameWithoutExtension(name), tres);
                 objPool.AddObject(objClass);
-            }
+            }*/
 
             _objectPoolCollectionVM = new ObjectPoolCollectionVM(_project.ObjectPoolManager);
 
@@ -59,7 +59,7 @@ namespace Treefrog.ViewModel
             };
             lv.Layers.Add(layer2);
 
-            layer2.AddObject(new ObjectInstance(objPool.Objects.First(), 128, 96));
+            //layer2.AddObject(new ObjectInstance(objPool.Objects.First(), 128, 96));
 
             _project.Levels.Add(lv);
 

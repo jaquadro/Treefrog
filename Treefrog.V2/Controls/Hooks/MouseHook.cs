@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Windows;
+using System.Runtime;
 
 namespace Treefrog.Controls.Hooks
 {
@@ -73,35 +74,48 @@ namespace Treefrog.Controls.Hooks
             }
         }
 
+        private struct HookMessage
+        {
+            public IntPtr Message;
+            public MSLLHOOKSTRUCT HookStruct;
+        }
+
+        private static void HandleHookMessage (HookMessage hMsg)
+        {
+            switch ((MouseMessages)hMsg.Message) {
+                case MouseMessages.WM_LBUTTONDOWN:
+                    OnLeftMouseDown(hMsg.HookStruct);
+                    break;
+                case MouseMessages.WM_RBUTTONDOWN:
+                    OnRightMouseDown(hMsg.HookStruct);
+                    break;
+                case MouseMessages.WM_MBUTTONDOWN:
+                    OnMiddleMouseDown(hMsg.HookStruct);
+                    break;
+                case MouseMessages.WM_LBUTTONUP:
+                    OnLeftMouseUp(hMsg.HookStruct);
+                    break;
+                case MouseMessages.WM_RBUTTONUP:
+                    OnRightMouseUp(hMsg.HookStruct);
+                    break;
+                case MouseMessages.WM_MBUTTONUP:
+                    OnMiddleMouseUp(hMsg.HookStruct);
+                    break;
+            }
+        }
+
         private static IntPtr HookCallback (int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0 && Enum.IsDefined(typeof(MouseMessages), (int)wParam)) {
                 MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
-                
-                switch ((MouseMessages)wParam) {
-                    case MouseMessages.WM_LBUTTONDOWN:
-                        OnLeftMouseDown(hookStruct);
-                        break;
-                    case MouseMessages.WM_RBUTTONDOWN:
-                        OnRightMouseDown(hookStruct);
-                        break;
-                    case MouseMessages.WM_MBUTTONDOWN:
-                        OnMiddleMouseDown(hookStruct);
-                        break;
-                    case MouseMessages.WM_LBUTTONUP:
-                        OnLeftMouseUp(hookStruct);
-                        break;
-                    case MouseMessages.WM_RBUTTONUP:
-                        OnRightMouseUp(hookStruct);
-                        break;
-                    case MouseMessages.WM_MBUTTONUP:
-                        OnMiddleMouseUp(hookStruct);
-                        break;
-                }
-            }
-            if (nCode >= 0 && MouseMessages.WM_LBUTTONDOWN == (MouseMessages)wParam) {
-                MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 
+                Window window = Application.Current.MainWindow;
+                if (window != null)
+                    window.Dispatcher.BeginInvoke(new Action<HookMessage>(HandleHookMessage), new HookMessage()
+                    {
+                        Message = wParam,
+                        HookStruct = hookStruct,
+                    });
             }
 
             return CallNextHookEx(_hookId, nCode, wParam, lParam);

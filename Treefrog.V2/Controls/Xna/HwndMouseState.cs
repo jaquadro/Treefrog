@@ -52,5 +52,17 @@ namespace Treefrog.Controls.Xna
         /// The previous position of the mouse.
         /// </summary>
         public Point PreviousPosition;
+
+        public bool AnyButtonPressed
+        {
+            get
+            {
+                return LeftButton == MouseButtonState.Pressed
+                    || RightButton == MouseButtonState.Pressed
+                    || MiddleButton == MouseButtonState.Pressed
+                    || X1Button == MouseButtonState.Pressed
+                    || X2Button == MouseButtonState.Pressed;
+            }
+        }
     }
 }

@@ -4,51 +4,38 @@ using Treefrog.ViewModel.Tools;
 
 namespace Treefrog.ViewModel.Commands
 {
-    public class ObjectAddCommand : ObjectLayerCommand
+    public class ObjectRemoveCommand : ObjectLayerCommand
     {
         private ObjectLayer _objectSource;
         private List<ObjectInstance> _objects;
 
-        public ObjectAddCommand (ObjectLayer source)
+        public ObjectRemoveCommand (ObjectLayer source)
         {
             _objectSource = source;
             _objects = new List<ObjectInstance>();
         }
 
-        public ObjectAddCommand (ObjectLayer source, ObjectSelectTool selectTool)
+        public ObjectRemoveCommand (ObjectLayer source, ObjectSelectTool selectTool)
             : base(selectTool)
         {
             _objectSource = source;
             _objects = new List<ObjectInstance>();
         }
 
-        public ObjectAddCommand (ObjectLayer source, ObjectInstance inst)
+        public ObjectRemoveCommand (ObjectLayer source, ObjectInstance inst)
             : this(source)
         {
             _objects.Add(inst);
         }
 
-        public ObjectAddCommand (ObjectLayer source, ObjectInstance inst, ObjectSelectTool selectTool)
-            : this(source, selectTool)
-        {
-            _objects.Add(inst);
-        }
-
-        public ObjectAddCommand (ObjectLayer source, List<ObjectInstance> objects)
+        public ObjectRemoveCommand (ObjectLayer source, List<ObjectInstance> objects)
             : this(source)
         {
             foreach (ObjectInstance inst in objects)
                 _objects.Add(inst);
         }
 
-        public ObjectAddCommand (ObjectLayer source, List<ObjectInstance> objects, ObjectSelectTool selectTool)
-            : this(source, selectTool)
-        {
-            foreach (ObjectInstance inst in objects)
-                _objects.Add(inst);
-        }
-
-        public void QueueAdd (ObjectInstance inst)
+        public void QueueRemove (ObjectInstance inst)
         {
             _objects.Add(inst);
         }
@@ -56,26 +43,26 @@ namespace Treefrog.ViewModel.Commands
         public override void Execute ()
         {
             foreach (ObjectInstance inst in _objects) {
-                _objectSource.AddObject(inst);
+                _objectSource.RemoveObject(inst);
             }
         }
 
         public override void Undo ()
         {
             foreach (ObjectInstance inst in _objects) {
-                _objectSource.RemoveObject(inst);
+                _objectSource.AddObject(inst);
             }
 
-            RemoveSelectedObjects(_objects);
+            AddSelectedObjects(_objects);
         }
 
         public override void Redo ()
         {
             foreach (ObjectInstance inst in _objects) {
-                _objectSource.AddObject(inst);
+                _objectSource.RemoveObject(inst);
             }
 
-            AddSelectedObjects(_objects);
+            RemoveSelectedObjects(_objects);
         }
     }
 }
