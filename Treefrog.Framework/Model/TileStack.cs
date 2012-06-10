@@ -108,6 +108,11 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        public static bool NullOrEmpty (TileStack stack)
+        {
+            return (stack == null || stack.Count == 0);
+        }
+
         /// <summary>
         /// Adds a new <see cref="Tile"/> to the top of the stack.
         /// </summary>

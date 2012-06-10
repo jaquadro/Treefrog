@@ -62,7 +62,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -95,7 +95,6 @@
     </ApplicationDefinition>
     <Compile Include="Controls\Annotations\AnnotationRendererFactory.cs" />
     <Compile Include="Controls\Annotations\SelectionAnnotRenderer.cs" />
-    <None Include="Controls\Input\InputDevice.cs" />
     <Compile Include="Controls\ItemsCollection.cs" />
     <Compile Include="Controls\Layers\AnnotRenderLayer.cs" />
     <Compile Include="Controls\Layers\GridRenderLayer.cs" />
@@ -113,9 +112,14 @@
     <Compile Include="ViewModel\Annotations\SelectionAnnot.cs" />
     <Compile Include="ViewModel\Commands\Command.cs" />
     <Compile Include="ViewModel\Commands\CommandHistory.cs" />
+    <Compile Include="ViewModel\Commands\CompoundCommand.cs" />
     <Compile Include="ViewModel\Commands\EventArgs.cs" />
     <Compile Include="ViewModel\Commands\ObjectAddCommand.cs" />
+    <Compile Include="ViewModel\Commands\ObjectLayerCommand.cs" />
+    <Compile Include="ViewModel\Commands\ObjectMoveCommand.cs" />
+    <Compile Include="ViewModel\Commands\ObjectRemoveCommand.cs" />
     <Compile Include="ViewModel\Commands\TileReplace2DCommand.cs" />
+    <Compile Include="ViewModel\Commands\TileSelectionCommands.cs" />
     <Compile Include="ViewModel\Dialogs\IDialogViewModel.cs" />
     <Compile Include="ViewModel\Dialogs\ImportObjectDialogVM.cs" />
     <Compile Include="ViewModel\Dialogs\ImportTilePoolDialogVM.cs" />
@@ -155,9 +159,10 @@
     <Compile Include="ViewModel\Tools\TileDrawTool.cs" />
     <Compile Include="ViewModel\Tools\IToolCollection.cs" />
     <Compile Include="ViewModel\Tools\PointerTool.cs" />
-    <Compile Include="ViewModel\Tools\Selection.cs" />
+    <None Include="ViewModel\Tools\Selection.cs" />
     <Compile Include="ViewModel\Tools\TileFillTool.cs" />
     <Compile Include="ViewModel\Tools\TilePointerTool.cs" />
+    <Compile Include="ViewModel\Tools\TileSelection.cs" />
     <Compile Include="ViewModel\Tools\TileSelectTool.cs" />
     <Compile Include="ViewModel\Utility\ObservableCollectionAdapter.cs" />
     <Compile Include="ViewModel\Utility\OrderedToObservableAdapter.cs" />

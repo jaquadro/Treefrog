@@ -11,10 +11,11 @@ using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 using Treefrog.ViewModel.Tools;
 using Treefrog.ViewModel.Menu;
 using Treefrog.Framework.Imaging;
+using Treefrog.ViewModel.Commands;
 
 namespace Treefrog.ViewModel.Layers
 {
-    public class TileLayerVM : LevelLayerVM, IDisposable
+    public class TileLayerVM : LevelLayerVM, IDisposable, ITileSelectionLayer
     {
         private TilePoolManager _manager;
         private ObservableDictionary<string, TextureResource> _textures;
@@ -85,6 +86,20 @@ namespace Treefrog.ViewModel.Layers
             }
         }
 
+        public override void Activate ()
+        {
+            if (_selection != null) {
+                Level.Annotations.Remove(_selection.SelectionAnnotation);
+                Level.Annotations.Add(_selection.SelectionAnnotation);
+            }
+        }
+
+        public override void Deactivate ()
+        {
+            if (_selection != null)
+                Level.Annotations.Remove(_selection.SelectionAnnotation);
+        }
+
         private void HandleLevelDocumentInitialized (object sender, EventArgs e)
         {
             LevelIntialize();
@@ -127,9 +142,9 @@ namespace Treefrog.ViewModel.Layers
             }
         }
 
-        protected new TileGridLayer Layer
+        protected new MultiTileGridLayer Layer
         {
-            get { return base.Layer as TileGridLayer; }
+            get { return base.Layer as MultiTileGridLayer; }
         }
 
         public override Vector GetCoordinates (double x, double y)
@@ -146,7 +161,7 @@ namespace Treefrog.ViewModel.Layers
             get { return new Rect(0, 0, Layer.TilesWide, Layer.TilesHigh); }
         }
 
-        private static HashSet<TileCoord> _emptyTileCoordHashSet = new HashSet<TileCoord>();
+        private static IDictionary<TileCoord, TileStack> _emptyTileCoordHashSet = new Dictionary<TileCoord, TileStack>();
 
         public override IEnumerable<DrawCommand> RenderCommands
         {
@@ -162,18 +177,8 @@ namespace Treefrog.ViewModel.Layers
                     (int)Math.Ceiling(tileRegion.Width),
                     (int)Math.Ceiling(tileRegion.Height));
 
-                HashSet<TileCoord> excludeSet = _emptyTileCoordHashSet;
-                TileCoord offset = new TileCoord(0, 0);
-
-                if (_currentTool is TileSelectTool) {
-                    excludeSet = (_currentTool as TileSelectTool).FloatingTiles;
-                    offset = (_currentTool as TileSelectTool).FloatingOffset;
-                }
-
                 foreach (LocatedTile tile in Layer.TilesAt(castRegion)) {
                     TileCoord scoord = tile.Tile.Pool.GetTileLocation(tile.Tile.Id);
-                    if (excludeSet.Contains(tile.Location))
-                        continue;
 
                     yield return new DrawCommand()
                     {
@@ -188,22 +193,24 @@ namespace Treefrog.ViewModel.Layers
                     };
                 }
 
-                foreach (TileCoord floatCoord in excludeSet) {
-                    //TileCoord offsetCoord = new TileCoord(floatCoord.X + offset.X, floatCoord.Y + offset.Y);
+                if (_selection != null && _selection.Floating) {
+                    foreach (KeyValuePair<TileCoord, TileStack> item in _selection.Tiles) {
+                        foreach (Tile tile in item.Value) {
+                            TileCoord scoord = tile.Pool.GetTileLocation(tile.Id);
+                            TileCoord dcoord = item.Key;
 
-                    foreach (LocatedTile tile in Layer.TilesAt(floatCoord)) {
-                        TileCoord scoord = tile.Tile.Pool.GetTileLocation(tile.Tile.Id);
-                        yield return new DrawCommand()
-                        {
-                            Texture = tile.Tile.Pool.Name,
-                            SourceRect = new Rectangle(scoord.X * tile.Tile.Width, scoord.Y * tile.Tile.Height, tile.Tile.Width, tile.Tile.Height),
-                            DestRect = new Rectangle(
-                                (int)((tile.X + offset.X) * tile.Tile.Width * Viewport.ZoomFactor),
-                                (int)((tile.Y + offset.Y) * tile.Tile.Height * Viewport.ZoomFactor),
-                                (int)(tile.Tile.Width * Viewport.ZoomFactor),
-                                (int)(tile.Tile.Height * Viewport.ZoomFactor)),
-                            BlendColor = Colors.White,
-                        };
+                            yield return new DrawCommand()
+                            {
+                                Texture = tile.Pool.Name,
+                                SourceRect = new Rectangle(scoord.X * tile.Width, scoord.Y * tile.Height, tile.Width, tile.Height),
+                                DestRect = new Rectangle(
+                                    (int)((dcoord.X + _selection.Offset.X) * tile.Width * Viewport.ZoomFactor),
+                                    (int)((dcoord.Y + _selection.Offset.Y) * tile.Height * Viewport.ZoomFactor),
+                                    (int)(tile.Width * Viewport.ZoomFactor),
+                                    (int)(tile.Height * Viewport.ZoomFactor)),
+                                BlendColor = Colors.White,
+                            };
+                        }
                     }
                 }
             }
@@ -259,9 +266,14 @@ namespace Treefrog.ViewModel.Layers
 
         public void SetTool (TileTool tool)
         {
+            if (_selection != null && tool == TileTool.Select)
+                _selection.Activate();
+            else if (_selection != null)
+                _selection.Deactivate();
+
             switch (tool) {
                 case TileTool.Select:
-                    _currentTool = new TileSelectTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
+                    _currentTool = new TileSelectTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations, this);
                     break;
                 case TileTool.Draw:
                     _currentTool = new TileDrawTool(Level.CommandHistory, Layer as MultiTileGridLayer, Level.Annotations);
@@ -307,5 +319,152 @@ namespace Treefrog.ViewModel.Layers
             if (_currentTool != null)
                 _currentTool.PointerLeaveField();
         }
+
+        #region Tile Selection
+
+        TileSelection _selection;
+
+        public void CreateTileSelection ()
+        {
+            if (_selection != null)
+                DeleteTileSelection();
+
+            _selection = new TileSelection(Layer.TileWidth, Layer.TileHeight);
+            if (!(_currentTool is TileSelectTool))
+                _selection.Deactivate();
+
+            Level.Annotations.Add(_selection.SelectionAnnotation);
+        }
+
+        public void CreateFloatingSelection ()
+        {
+            CreateTileSelection();
+
+            _selection.Float();
+        }
+
+        public void DeleteTileSelection ()
+        {
+            if (_selection != null) {
+                Level.Annotations.Remove(_selection.SelectionAnnotation);
+                _selection = null;
+            }
+        }
+
+        public void RestoreTileSelection (TileSelection selection)
+        {
+            if (_selection != null)
+                DeleteTileSelection();
+
+            _selection = new TileSelection(selection);
+            Level.Annotations.Add(_selection.SelectionAnnotation);
+        }
+
+        public void ClearTileSelection ()
+        {
+            if (_selection != null) {
+                _selection.ClearTiles();
+            }
+        }
+
+        public void SetTileSelection (IEnumerable<TileCoord> tileLocations)
+        {
+            if (_selection != null) {
+                _selection.ClearTiles();
+                _selection.AddTiles(Layer, tileLocations);
+            }
+        }
+
+        public void AddTilesToSelection (IEnumerable<TileCoord> tileLocations)
+        {
+            if (_selection != null) {
+                _selection.AddTiles(Layer, tileLocations);
+            }
+        }
+
+        public void RemoveTilesFromSelection (IEnumerable<TileCoord> tileLocations)
+        {
+            if (_selection != null) {
+                _selection.RemoveTiles(tileLocations);
+            }
+        }
+
+        public void FloatSelection ()
+        {
+            if (_selection != null && _selection.Floating == false) {
+                _selection.Float();
+            }
+        }
+
+        public TileSelection TileSelection
+        {
+            get { return _selection; }
+        }
+
+        public void DefloatSelection ()
+        {
+            if (_selection != null && _selection.Floating == true) {
+                _selection.Defloat();
+            }
+        }
+
+        public void SetSelectionOffset (TileCoord offset)
+        {
+            if (_selection != null)
+                _selection.Offset = offset;
+        }
+
+        public void MoveSelectionByOffset (TileCoord offset)
+        {
+            if (_selection != null) {
+                _selection.Offset = new TileCoord(_selection.Offset.X + offset.X, _selection.Offset.Y + offset.Y);
+            }
+        }
+
+        public bool HasSelection
+        {
+            get { return _selection != null; }
+        }
+
+        public TileCoord TileSelectionOffset
+        {
+            get { return (_selection != null) ? _selection.Offset : new TileCoord(0, 0); }
+        }
+
+        public bool TileSelectionCoverageAt (TileCoord coord)
+        {
+            if (_selection == null)
+                return false;
+
+            return _selection.CoverageAt(coord);
+        }
+
+        #endregion
+    }
+
+    public interface ITileSelectionLayer
+    {
+        bool HasSelection { get; }
+        TileCoord TileSelectionOffset { get; }
+
+        TileSelection TileSelection { get; }
+
+        void CreateTileSelection ();
+        void CreateFloatingSelection ();
+        void DeleteTileSelection ();
+        void RestoreTileSelection (TileSelection selection);
+
+        void ClearTileSelection ();
+        void SetTileSelection (IEnumerable<TileCoord> tileLocations);
+        void AddTilesToSelection (IEnumerable<TileCoord> tileLocations);
+        void RemoveTilesFromSelection (IEnumerable<TileCoord> tileLocations);
+
+        void FloatSelection ();
+        void DefloatSelection ();
+
+        void SetSelectionOffset (TileCoord offset);
+        void MoveSelectionByOffset (TileCoord offset);
+
+        bool TileSelectionCoverageAt (TileCoord coord);
     }
 }

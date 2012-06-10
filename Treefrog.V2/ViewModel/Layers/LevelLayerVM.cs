@@ -60,6 +60,12 @@ namespace Treefrog.ViewModel.Layers
         {
         }
 
+        public virtual void Activate ()
+        { }
+
+        public virtual void Deactivate ()
+        { }
+
         protected LevelDocumentVM Level
         {
             get { return _level; }

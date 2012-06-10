@@ -28,6 +28,11 @@ namespace Treefrog.ViewModel.Commands
             _commands.Add(command);
         }
 
+        public int Count
+        {
+            get { return _commands.Count; }
+        }
+
         public override void Execute ()
         {
             for (int i = 0; i < _commands.Count; i++)

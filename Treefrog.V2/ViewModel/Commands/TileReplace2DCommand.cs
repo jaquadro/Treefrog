@@ -7,7 +7,7 @@ using Treefrog.ViewModel.Tools;
 
 namespace Treefrog.ViewModel.Commands
 {
-    public class CreateFloatingSelectionCommand : Command
+    /*public class CreateFloatingSelectionCommand : Command
     {
         private MultiTileGridLayer _tileSource;
         private FloatingTileSelection _selection;
@@ -38,7 +38,7 @@ namespace Treefrog.ViewModel.Commands
                 _tileSource[kv.Location] = null;
             }
         }
-    }
+    }*/
 
     public class TileReplace2DCommand : Command
     {

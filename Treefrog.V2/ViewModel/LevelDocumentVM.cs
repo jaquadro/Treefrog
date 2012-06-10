@@ -72,6 +72,9 @@ namespace Treefrog.ViewModel
 
         private void SetActiveLayer (LevelLayerVM layer)
         {
+            if (_activeLayer == layer)
+                return;
+
             if (_activeLayer != null) {
                 _activeLayer.CanCutChanged -= HandleLayerCutChanged;
                 _activeLayer.CanCopyChanged -= HandleLayerCopyChanged;
@@ -79,6 +82,7 @@ namespace Treefrog.ViewModel
                 _activeLayer.CanDeleteChanged -= HandleLayerDeleteChanged;
                 _activeLayer.CanSelectAllChanged -= HandleLayerSelectAllChanged;
                 _activeLayer.CanSelectNoneChanged -= HandleLayerSelectNoneChanged;
+                _activeLayer.Deactivate();
             }
 
             _activeLayer = layer;
@@ -90,6 +94,7 @@ namespace Treefrog.ViewModel
                 _activeLayer.CanDeleteChanged += HandleLayerDeleteChanged;
                 _activeLayer.CanSelectAllChanged += HandleLayerSelectAllChanged;
                 _activeLayer.CanSelectNoneChanged += HandleLayerSelectNoneChanged;
+                _activeLayer.Activate();
             }
         }
 
@@ -483,7 +488,7 @@ namespace Treefrog.ViewModel
         private class TileTools : ITileToolCollection
         {
             private LevelDocumentVM _level;
-            private TileTool _selectedTool = TileTool.Draw;
+            private TileTool _selectedTool = TileTool.Select;
 
             public TileTools (LevelDocumentVM level)
             {

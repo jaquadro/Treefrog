@@ -71,6 +71,25 @@ namespace Treefrog.ViewModel.Annotations
             TileMaxExtant = new TileCoord(Int32.MinValue, Int32.MinValue);
         }
 
+        public MultiTileSelectionAnnot (MultiTileSelectionAnnot annot)
+        {
+            if (annot != null) {
+                TileMinExtant = annot.TileMinExtant;
+                TileMaxExtant = annot.TileMaxExtant;
+                TileWidth = annot.TileWidth;
+                TileHeight = annot.TileHeight;
+
+                _fill = annot._fill;
+                _outline = annot._outline;
+
+                Offset = annot.Offset;
+
+                _selectedLocations = new HashSet<TileCoord>();
+                foreach (TileCoord coord in annot._selectedLocations)
+                    _selectedLocations.Add(coord);
+            }
+        }
+
         internal HashSet<TileCoord> TileLocations
         {
             get { return _selectedLocations; }
@@ -145,10 +164,24 @@ namespace Treefrog.ViewModel.Annotations
             ExpandExtants(location);
         }
 
+        public void AddTileLocation (Rectangle region)
+        {
+            for (int y = region.Top; y < region.Bottom; y++)
+                for (int x = region.Left; x < region.Right; x++)
+                    AddTileLocation(new TileCoord(x, y));
+        }
+
         public void RemoveTileLocation (TileCoord location)
         {
             _selectedLocations.Remove(location);
             ShrinkExtants(location);
+        }
+
+        public void RemoveTileLocation (Rectangle region)
+        {
+            for (int y = region.Top; y < region.Bottom; y++)
+                for (int x = region.Left; x < region.Right; x++)
+                    RemoveTileLocation(new TileCoord(x, y));
         }
 
         private void ExpandExtants (TileCoord location)
