@@ -6,6 +6,7 @@ using Treefrog.Framework.Model;
 using Treefrog.ViewModel.Tools;
 using Treefrog.ViewModel.Layers;
 using Treefrog.Framework;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.ViewModel.Commands
 {
@@ -195,6 +196,45 @@ namespace Treefrog.ViewModel.Commands
         public override void Redo ()
         {
             _selectLayer.RemoveTilesFromSelection(_diff);
+        }
+    }
+
+    public class PasteFloatingSelectionCommand : Command
+    {
+        private ITileSelectionLayer _selectLayer;
+        private TileSelection _selection;
+        private TileCoord _centerOffset;
+
+        public PasteFloatingSelectionCommand (ITileSelectionLayer selectLayer, TileSelection selection, TileCoord centerOffset)
+        {
+            _selectLayer = selectLayer;
+            _selection = selection;
+            _centerOffset = centerOffset;
+        }
+
+        public override void Execute ()
+        {
+            _selectLayer.RestoreTileSelection(_selection);
+            _selectLayer.FloatSelection();
+
+            Rectangle bounds = _selectLayer.TileSelection.Bounds;
+            TileCoord offset = new TileCoord(_centerOffset.X - bounds.Center.X, _centerOffset.Y - bounds.Center.Y);
+            _selectLayer.SetSelectionOffset(offset);
+        }
+
+        public override void Undo ()
+        {
+            _selectLayer.DeleteTileSelection();
+        }
+
+        public override void Redo ()
+        {
+            _selectLayer.RestoreTileSelection(_selection);
+            _selectLayer.FloatSelection();
+
+            Rectangle bounds = _selectLayer.TileSelection.Bounds;
+            TileCoord offset = new TileCoord(_centerOffset.X - bounds.Center.X, _centerOffset.Y - bounds.Center.Y);
+            _selectLayer.SetSelectionOffset(offset);
         }
     }
 

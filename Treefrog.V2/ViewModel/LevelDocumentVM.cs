@@ -548,6 +548,7 @@ namespace Treefrog.ViewModel
                     if (_selectedTool != value) {
                         _selectedTool = value;
                         OnSelectedToolChanged(EventArgs.Empty);
+                        OnInvalidated(EventArgs.Empty);
                     }
                 }
             }

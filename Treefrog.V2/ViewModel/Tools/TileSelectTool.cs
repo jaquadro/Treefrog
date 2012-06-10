@@ -76,7 +76,8 @@ namespace Treefrog.ViewModel.Tools
         private void DefloatSelection ()
         {
             CompoundCommand command = new CompoundCommand();
-            command.AddCommand(new DefloatTileSelectionCommand(Layer, _selectLayer));
+            if (_selectLayer.TileSelection.Floating)
+                command.AddCommand(new DefloatTileSelectionCommand(Layer, _selectLayer));
             command.AddCommand(new DeleteTileSelectionCommand(_selectLayer));
             History.Execute(command);
         }
@@ -139,8 +140,10 @@ namespace Treefrog.ViewModel.Tools
             _initialLocation = new Point((int)info.X - Layer.TileWidth / 2, (int)info.Y - Layer.TileHeight / 2);
             _initialOffset = _selectLayer.TileSelectionOffset;
 
-            Command command = new FloatTileSelectionCommand(Layer, _selectLayer);
-            History.Execute(command);
+            if (!_selectLayer.TileSelection.Floating) {
+                Command command = new FloatTileSelectionCommand(Layer, _selectLayer);
+                History.Execute(command);
+            }
 
             _action = UpdateAction.Move;
         }

@@ -51,6 +51,16 @@ namespace Treefrog.ViewModel.Menu
             RaisePropertyChanged("EraseToolEnabled");
             RaisePropertyChanged("FillToolEnabled");
             RaisePropertyChanged("StampToolEnabled");
+
+            if (ToolCollection != null) {
+                _selectedTool = ToolCollection.SelectedTool;
+
+                RaisePropertyChanged("SelectToolSelected");
+                RaisePropertyChanged("DrawToolSelected");
+                RaisePropertyChanged("EraseToolSelected");
+                RaisePropertyChanged("FillToolSelected");
+                RaisePropertyChanged("StampToolSelected");
+            }
         }
 
         private DocumentVM ActiveDocument

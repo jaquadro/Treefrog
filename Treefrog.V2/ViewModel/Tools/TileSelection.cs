@@ -217,5 +217,18 @@ namespace Treefrog.ViewModel.Tools
                 _tileAnnot.Offset = value;
             }
         }
+
+        public Rectangle Bounds
+        {
+            get
+            {
+                return new Rectangle(
+                    _tileAnnot.TileMinExtant.X,
+                    _tileAnnot.TileMinExtant.Y,
+                    _tileAnnot.TileMaxExtant.X - _tileAnnot.TileMinExtant.X,
+                    _tileAnnot.TileMaxExtant.Y - _tileAnnot.TileMinExtant.Y
+                    );
+            }
+        }
     }
 }

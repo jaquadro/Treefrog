@@ -334,6 +334,10 @@ namespace Treefrog.ViewModel.Layers
                 _selection.Deactivate();
 
             Level.Annotations.Add(_selection.SelectionAnnotation);
+
+            OnCanCopyChanged(EventArgs.Empty);
+            OnCanCutChanged(EventArgs.Empty);
+            OnCanDeleteChanged(EventArgs.Empty);
         }
 
         public void CreateFloatingSelection ()
@@ -348,6 +352,10 @@ namespace Treefrog.ViewModel.Layers
             if (_selection != null) {
                 Level.Annotations.Remove(_selection.SelectionAnnotation);
                 _selection = null;
+
+                OnCanCopyChanged(EventArgs.Empty);
+                OnCanCutChanged(EventArgs.Empty);
+                OnCanDeleteChanged(EventArgs.Empty);
             }
         }
 
@@ -440,6 +448,189 @@ namespace Treefrog.ViewModel.Layers
         }
 
         #endregion
+
+        #region Edit Commands
+
+        #region Cut
+
+        public override bool CanCut
+        {
+            get
+            {
+                TileSelectTool tool = _currentTool as TileSelectTool;
+                if (tool != null)
+                    return _selection != null;
+                else
+                    return false;
+            }
+        }
+
+        public override void Cut ()
+        {
+            if (CanCut) {
+                TileSelectionClipboard clip = new TileSelectionClipboard(_selection.Tiles);
+                clip.CopyToClipboard();
+
+                CompoundCommand command = new CompoundCommand();
+                if (!_selection.Floating)
+                    command.AddCommand(new FloatTileSelectionCommand(Layer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
+
+                Level.CommandHistory.Execute(command);
+
+                OnCanPasteChanged(EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
+        #region Copy
+
+        public override bool CanCopy
+        {
+            get { return CanCut; }
+        }
+
+        public override void Copy ()
+        {
+            if (CanCopy) {
+                TileSelectionClipboard clip = new TileSelectionClipboard(_selection.Tiles);
+                clip.CopyToClipboard();
+
+                OnCanPasteChanged(EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
+        #region Paste
+
+        public override bool CanPaste
+        {
+            get { return TileSelectionClipboard.ContainsData; }
+        }
+
+        public override void Paste ()
+        {
+            if (CanPaste) {
+                TileSelectionClipboard clip = TileSelectionClipboard.CopyFromClipboard();
+                TileSelection selection = clip.GetAsTileSelection(Layer.Level.Project, Layer.TileWidth, Layer.TileHeight);
+                if (selection == null)
+                    return;
+
+                if (_selection != null) {
+                    CompoundCommand command = new CompoundCommand();
+                    if (_selection.Floating)
+                        command.AddCommand(new DefloatTileSelectionCommand(Layer, this));
+                    command.AddCommand(new DeleteTileSelectionCommand(this));
+
+                    Level.CommandHistory.Execute(command);
+                }
+
+                Command pasteCommand = new PasteFloatingSelectionCommand(this, selection, GetCenterTileOffset());
+                Level.CommandHistory.Execute(pasteCommand);
+
+                if (!(_currentTool is TileSelectTool)) {
+                    ITileToolCollection toolCollection = Level.LookupToolCollection<ITileToolCollection>();
+                    if (toolCollection != null)
+                        toolCollection.SelectedTool = TileTool.Select;
+                }
+
+                _selection.Activate();
+            }
+        }
+
+        private TileCoord GetCenterTileOffset ()
+        {
+            int centerViewX = (int)(Viewport.VisibleRegion.Left + (Viewport.VisibleRegion.Right - Viewport.VisibleRegion.Left) / 2);
+            int centerViewY = (int)(Viewport.VisibleRegion.Top + (Viewport.VisibleRegion.Bottom - Viewport.VisibleRegion.Top) / 2);
+
+            return new TileCoord(centerViewX / Layer.TileWidth, centerViewY / Layer.TileHeight);
+        }
+
+        #endregion
+
+        #region Delete
+
+        public override bool CanDelete
+        {
+            get { return CanCut; }
+        }
+
+        public override void Delete ()
+        {
+            if (CanDelete) {
+                CompoundCommand command = new CompoundCommand();
+                if (!_selection.Floating)
+                    command.AddCommand(new FloatTileSelectionCommand(Layer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
+
+                Level.CommandHistory.Execute(command);
+
+                OnCanPasteChanged(EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
+        #endregion
+    }
+
+    [Serializable]
+    public class TileSelectionClipboard
+    {
+        private Dictionary<TileCoord, int[]> _tiles;
+
+        public TileSelectionClipboard (IDictionary<TileCoord, TileStack> tiles)
+        {
+            _tiles = new Dictionary<TileCoord, int[]>();
+            foreach (KeyValuePair<TileCoord, TileStack> kvp in tiles) {
+                int[] stack = TileStack.NullOrEmpty(kvp.Value) ? new int[0] : new int[kvp.Value.Count];
+                for (int i = 0; i < stack.Length; i++)
+                    stack[i] = kvp.Value[i].Id;
+                _tiles.Add(kvp.Key, stack);
+            }
+        }
+
+        public static bool ContainsData
+        {
+            get { return Clipboard.ContainsData(typeof(TileSelectionClipboard).FullName); }
+        }
+
+        public void CopyToClipboard ()
+        {
+            Clipboard.SetData(typeof(TileSelectionClipboard).FullName, this);
+        }
+
+        public static TileSelectionClipboard CopyFromClipboard ()
+        {
+            TileSelectionClipboard clip = Clipboard.GetData(typeof(TileSelectionClipboard).FullName) as TileSelectionClipboard;
+            if (clip == null)
+                return null;
+
+            return clip;
+        }
+
+        public TileSelection GetAsTileSelection (Project project, int tileWidth, int tileHeight)
+        {
+            Dictionary<TileCoord, TileStack> xlat = new Dictionary<TileCoord,TileStack>();
+            foreach (KeyValuePair<TileCoord, int[]> item in _tiles) {
+                TileStack stack = new TileStack();
+
+                foreach (int tileId in item.Value) {
+                    TilePool pool = project.TilePoolManager.PoolFromTileId(tileId);
+                    Tile tile = pool.GetTile(tileId);
+                    stack.Add(tile);
+                }
+
+                xlat.Add(item.Key, stack);
+            }
+
+            TileSelection selection = new TileSelection(tileWidth, tileHeight);
+            selection.AddTiles(xlat);
+
+            return selection;
+        }
     }
 
     public interface ITileSelectionLayer
