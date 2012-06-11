@@ -124,6 +124,7 @@
     <Compile Include="ViewModel\Dialogs\ImportObjectDialogVM.cs" />
     <Compile Include="ViewModel\Dialogs\ImportTilePoolDialogVM.cs" />
     <Compile Include="ViewModel\Dialogs\NewLevelDialogVM.cs" />
+    <Compile Include="ViewModel\Dialogs\NewPropertyDialogVM.cs" />
     <Compile Include="ViewModel\DocumentVM.cs" />
     <Compile Include="ViewModel\EditorVM.cs" />
     <Compile Include="ViewModel\LayerItemVM.cs" />
@@ -175,6 +176,9 @@
     </Compile>
     <Compile Include="View\Dialogs\NewLevelDialog.xaml.cs">
       <DependentUpon>NewLevelDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Dialogs\NewPropertyDialog.xaml.cs">
+      <DependentUpon>NewPropertyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\PanelsStyleSelector.cs" />
     <Compile Include="View\Panels\ObjectPanel.xaml.cs">
@@ -243,6 +247,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Dialogs\NewLevelDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Dialogs\NewPropertyDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,0 +1,40 @@
+﻿<Window x:Class="Treefrog.View.Dialogs.NewPropertyDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Property" Height="174" Width="300" Loaded="Window_Loaded">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Grid.Row="0" Header="Property Details" Margin="6" Name="groupBox1" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <Label Grid.Row="0" Grid.Column="0" Content="Name:" ClipToBounds="True" />
+                <TextBox Grid.Row="0" Grid.Column="1" Name="_name" Text="{Binding PropertyName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Grid.Row="1" Grid.Column="0" Content="Type:" ClipToBounds="True"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding PropertyTypes}" SelectedItem="{Binding SelectedType}"/>
+            </Grid>
+        </GroupBox>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="90" />
+                <ColumnDefinition Width="90" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Content="OK" Margin="6" IsDefault="True" Command="{Binding OkayCommand}" IsEnabled="{Binding IsValid}"/>
+            <Button Grid.Column="2" Content="Cancel" Margin="6" IsCancel="True" />
+        </Grid>
+    </Grid>
+</Window>

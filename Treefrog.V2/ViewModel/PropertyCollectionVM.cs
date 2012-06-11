@@ -7,6 +7,11 @@ using System.ComponentModel;
 using GalaSoft.MvvmLight;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using GalaSoft.MvvmLight.Command;
+using System.Windows.Input;
+using Treefrog.ViewModel.Dialogs;
+using Treefrog.Messages;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace Treefrog.ViewModel
 {
@@ -215,5 +220,74 @@ namespace Treefrog.ViewModel
         {
             get { return _adapter; }
         }
+
+        #region Commands
+
+        #region Add New Property
+
+        private RelayCommand _addPropertyCommand;
+
+        public ICommand AddPropertyCommand
+        {
+            get
+            {
+                if (_addPropertyCommand == null)
+                    _addPropertyCommand = new RelayCommand(OnAddProperty, CanAddProperty);
+                return _addPropertyCommand;
+            }
+        }
+
+        public bool IsAddPropertyEnabled
+        {
+            get { return CanAddProperty(); }
+        }
+
+        private bool CanAddProperty ()
+        {
+            return ActiveProvider != null;
+        }
+
+        private void OnAddProperty ()
+        {
+            if (CanAddProperty()) {
+                if (_provider == null)
+                    return;
+
+                NewPropertyDialogVM vm = new NewPropertyDialogVM();
+                foreach (Property prop in _provider.PredefinedProperties)
+                    vm.ReservedNames.Add(prop.Name);
+                foreach (Property prop in _provider.CustomProperties)
+                    vm.ReservedNames.Add(prop.Name);
+
+                BlockingDialogMessage message = new BlockingDialogMessage(this, vm);
+                Messenger.Default.Send(message);
+
+                if (message.DialogResult == true) {
+                    Property prop = null;
+                    switch (vm.SelectedType) {
+                        case "String":
+                            prop = new StringProperty(vm.PropertyName, "");
+                            break;
+                        case "Number":
+                            prop = new NumberProperty(vm.PropertyName, 0f);
+                            break;
+                        case "Boolean Flag":
+                            prop = new BoolProperty(vm.PropertyName, false);
+                            break;
+                        default:
+                            return;
+                    }
+
+                    _provider.CustomProperties.Add(prop);
+
+                    _adapter = new PropertyProviderAdapter(_provider);
+                    RaisePropertyChanged("PropertyObject");
+                }
+            }
+        }
+
+        #endregion
+
+        #endregion
     }
 }

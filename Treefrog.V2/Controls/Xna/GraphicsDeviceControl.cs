@@ -466,17 +466,6 @@ namespace Treefrog.Controls.Xna
                 NativeMethods.GetYLParam(lParam));
         }
 
-        private bool _mouseCaptured = false;
-
-        private bool CapturedMouseProc (int msg)
-        {
-            switch (msg) {
-
-            }
-
-            return true;
-        }
-
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             switch (msg)

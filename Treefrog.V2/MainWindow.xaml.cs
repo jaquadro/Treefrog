@@ -51,6 +51,9 @@ namespace Treefrog
             else if (message.DialogVM is ImportObjectDialogVM) {
                 message.DialogResult = new ImportObjectFromFileDialog() { DataContext = message.DialogVM }.ShowDialog();
             }
+            else if (message.DialogVM is NewPropertyDialogVM) {
+                message.DialogResult = new NewPropertyDialog() { DataContext = message.DialogVM }.ShowDialog();
+            }
         }
     }
 }

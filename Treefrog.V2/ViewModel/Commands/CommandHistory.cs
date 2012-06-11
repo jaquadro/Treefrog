@@ -5,15 +5,23 @@ namespace Treefrog.ViewModel.Commands
 {
     public class CommandHistory
     {
-        private Stack<Command> _undoStack;
-        private Stack<Command> _redoStack;
+        private LinkedList<Command> _undoStack;
+        private LinkedList<Command> _redoStack;
+
+        private int _limit;
 
         public event EventHandler<CommandHistoryEventArgs> HistoryChanged;
 
         public CommandHistory ()
+            : this(100)
         {
-            _undoStack = new Stack<Command>();
-            _redoStack = new Stack<Command>();
+        }
+
+        public CommandHistory (int limit)
+        {
+            _undoStack = new LinkedList<Command>();
+            _redoStack = new LinkedList<Command>();
+            _limit = limit;
         }
 
         public bool CanRedo
@@ -37,8 +45,11 @@ namespace Treefrog.ViewModel.Commands
         {
             command.Execute();
 
-            _undoStack.Push(command);
+            _undoStack.AddLast(command);
             _redoStack.Clear();
+
+            if (_undoStack.Count > _limit)
+                _undoStack.RemoveFirst();
 
             OnHistoryChanged(new CommandHistoryEventArgs(this));
         }
@@ -49,10 +60,12 @@ namespace Treefrog.ViewModel.Commands
                 return;
             }
 
-            Command command = _undoStack.Pop();
+            Command command = _undoStack.Last.Value;
+            _undoStack.RemoveLast();
+
             command.Undo();
 
-            _redoStack.Push(command);
+            _redoStack.AddLast(command);
 
             OnHistoryChanged(new CommandHistoryEventArgs(this));
         }
@@ -63,10 +76,12 @@ namespace Treefrog.ViewModel.Commands
                 return;
             }
 
-            Command command = _redoStack.Pop();
+            Command command = _redoStack.Last.Value;
+            _redoStack.RemoveLast();
+
             command.Redo();
 
-            _undoStack.Push(command);
+            _undoStack.AddLast(command);
 
             OnHistoryChanged(new CommandHistoryEventArgs(this));
         }

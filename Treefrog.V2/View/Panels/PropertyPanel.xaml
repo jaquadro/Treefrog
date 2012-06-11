@@ -5,13 +5,45 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit">
-    <Grid>
-        <xctk:PropertyGrid HorizontalAlignment="Stretch" 
+    <UserControl.Resources>
+        <Style x:Key="ButtonImageDisabled" TargetType="Image">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.3" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Margin="-4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <ToolBarTray Grid.Row="0" IsLocked="True">
+            <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
+                <Button Command="{Binding AddPropertyCommand}" IsTabStop="False">
+                    <Image Source="/Treefrog;component/Images/16/tag--plus.png" Width="16" Height="16"
+                           Style="{StaticResource ButtonImageDisabled}"/>
+                </Button>
+                <Button Command="{Binding RemovePropertyCommand}" IsTabStop="False">
+                    <Image Source="/Treefrog;component/Images/16/tag--minus.png" Width="16" Height="16" 
+                           Style="{StaticResource ButtonImageDisabled}" />
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+
+        <xctk:PropertyGrid Grid.Row="1"
+                           HorizontalAlignment="Stretch" 
                            Name="propertyGrid1" 
                            VerticalAlignment="Stretch" 
                            ShowSearchBox="False" 
                            ShowSortOptions="False" 
                            ShowAdvancedOptions="False"
-                           SelectedObject="{Binding PropertyObject}" NameColumnWidth="90" DisplaySummary="False" />
+                           SelectedObject="{Binding PropertyObject}" 
+                           NameColumnWidth="90" 
+                           DisplaySummary="False"
+                           BorderBrush="{x:Null}"/>
     </Grid>
 </UserControl>
