@@ -23,5 +23,10 @@ namespace Treefrog.View.Panels
         {
             InitializeComponent();
         }
+
+        private void propertyGrid1_SelectedPropertyItemChanged (object sender, RoutedEventArgs e)
+        {
+            
+        }
     }
 }

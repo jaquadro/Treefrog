@@ -44,6 +44,6 @@
                            SelectedObject="{Binding PropertyObject}" 
                            NameColumnWidth="90" 
                            DisplaySummary="False"
-                           BorderBrush="{x:Null}"/>
+                           BorderBrush="{x:Null}" SelectedPropertyItemChanged="propertyGrid1_SelectedPropertyItemChanged" />
     </Grid>
 </UserControl>
