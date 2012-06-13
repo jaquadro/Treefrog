@@ -63,6 +63,15 @@ namespace Treefrog.Controls.Layers
             };
         }
 
+        protected override void DisposeManaged ()
+        {
+            foreach (XnaCanvasLayer layer in Layers) {
+                layer.Dispose();
+            }
+
+            base.DisposeManaged();
+        }
+
         public Color ClearColor
         {
             get { return (Color)this.GetValue(ClearColorProperty); }

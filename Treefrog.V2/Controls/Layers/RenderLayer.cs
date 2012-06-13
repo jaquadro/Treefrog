@@ -49,6 +49,18 @@ namespace Treefrog.Controls.Layers
                 typeof(LayerControlAlignment), typeof(RenderLayer), new PropertyMetadata(LayerControlAlignment.Center));
         }
 
+        protected override void DisposeManaged ()
+        {
+            ReleaseAllTextures();
+
+            if (_spriteBatch != null)
+                _spriteBatch.Dispose();
+            if (_target != null)
+                _target.Dispose();
+
+            base.DisposeManaged();
+        }
+
         public float LayerOpacity
         {
             get { return (float)this.GetValue(LayerOpacityProperty); }
@@ -233,6 +245,7 @@ namespace Treefrog.Controls.Layers
                 spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, LayerOpacity));
                 EndDrawInner(spriteBatch);
 
+                _target.Dispose();
                 _target = null;
             }
         }
@@ -261,8 +274,54 @@ namespace Treefrog.Controls.Layers
 
         #region Texture Management
 
+        private List<ObservableDictionary<string, TextureResource>> _textureSources = new List<ObservableDictionary<string, TextureResource>>();
+
         private Dictionary<string, TextureResource> _textures = new Dictionary<string, TextureResource>();
         private Dictionary<string, Texture2D> _xnaTextures = new Dictionary<string, Texture2D>();
+
+        private void ReleaseTexture (string key)
+        {
+            if (key == null)
+                return;
+
+            if (_xnaTextures.ContainsKey(key) && _xnaTextures[key] != null)
+                _xnaTextures[key].Dispose();
+
+            _textures.Remove(key);
+            _xnaTextures.Remove(key);
+        }
+
+        private void ReleaseAllTexturesFromSource (ObservableDictionary<string, TextureResource> source)
+        {
+            if (source == null)
+                return;
+
+            foreach (string key in source.Keys)
+                ReleaseTexture(key);
+
+            source.CollectionChanged -= HandleTextureSourceCollectionChanged;
+        }
+
+        private void ReleaseAllTextures ()
+        {
+            foreach (ObservableDictionary<string, TextureResource> source in _textureSources)
+                ReleaseAllTexturesFromSource(source);
+
+            _textureSources.Clear();
+            _textures.Clear();
+            _xnaTextures.Clear();
+        }
+
+        private void AddTexturesFromSource (ObservableDictionary<string, TextureResource> source)
+        {
+            if (source == null || _textureSources.Contains(source))
+                return;
+
+            foreach (KeyValuePair<string, TextureResource> item in source)
+                AddTexture(item.Key, item.Value);
+
+            source.CollectionChanged += HandleTextureSourceCollectionChanged;
+        }
 
         // TODO: Be smarter about managing TextureSource.  Bind to it instead?
         // If it changes underneath without a model change, we'll still stay attached to it!
@@ -270,15 +329,13 @@ namespace Treefrog.Controls.Layers
         private void RebindTextureSource (RenderLayerVM oldModel, RenderLayerVM newModel)
         {
             if (oldModel != null && oldModel.TextureSource != null) {
-                oldModel.TextureSource.CollectionChanged -= HandleTextureSourceCollectionChanged;
-                _textures.Clear();
+                ReleaseAllTexturesFromSource(oldModel.TextureSource);
+                _textureSources.Remove(oldModel.TextureSource);
             }
 
             if (newModel != null && newModel.TextureSource != null) {
-                newModel.TextureSource.CollectionChanged += HandleTextureSourceCollectionChanged;
-
-                foreach (KeyValuePair<string, TextureResource> item in newModel.TextureSource)
-                    AddTexture(item.Key, item.Value);
+                AddTexturesFromSource(newModel.TextureSource);
+                _textureSources.Add(newModel.TextureSource);
             }
         }
 
@@ -301,6 +358,9 @@ namespace Treefrog.Controls.Layers
             if (key == null || source == null)
                 return;
 
+            if (_textures.ContainsKey(key))
+                ReleaseTexture(key);
+
             TextureResource tex = source.Crop(source.Bounds);
             _textures[key] = tex;
             _xnaTextures[key] = null;
@@ -308,11 +368,7 @@ namespace Treefrog.Controls.Layers
 
         private void RemoveTexture (string key, TextureResource source)
         {
-            if (key == null || source == null)
-                return;
-
-            _textures.Remove(key);
-            _xnaTextures.Remove(key);
+            ReleaseTexture(key);
         }
 
         #endregion

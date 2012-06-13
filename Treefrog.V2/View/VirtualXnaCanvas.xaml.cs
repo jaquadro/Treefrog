@@ -90,6 +90,9 @@ namespace Treefrog.View
         {
             DetachWindowMouseEvents();
             DetachGlobalMouseEvents();
+
+            if (RootLayer != null)
+                RootLayer.Dispose();
         }
 
         public XnaCanvasLayer RootLayer

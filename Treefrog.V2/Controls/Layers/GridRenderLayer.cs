@@ -30,6 +30,13 @@ namespace Treefrog.Controls.Layers
         {
         }
 
+        protected override void DisposeManaged ()
+        {
+            DisposeTextures();
+
+            base.DisposeManaged();
+        }
+
         protected override void RenderCore (SpriteBatch spriteBatch)
         {
             //return;
@@ -140,7 +147,21 @@ namespace Treefrog.Controls.Layers
 
         protected override void OnZoomFactorChanged (DependencyPropertyChangedEventArgs e)
         {
+            DisposeTextures();
+        }
+
+        private void DisposeTextures ()
+        {
+            if (_tileGridBrush != null)
+                _tileGridBrush.Dispose();
+            if (_tileGridBrushBottom != null)
+                _tileGridBrushBottom.Dispose();
+            if (_tileGridBrushRight != null)
+                _tileGridBrushRight.Dispose();
+
             _tileGridBrush = null;
+            _tileGridBrushBottom = null;
+            _tileGridBrushRight = null;
         }
     }
 }

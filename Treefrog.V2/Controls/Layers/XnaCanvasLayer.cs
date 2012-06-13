@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.Controls.Layers
 {
-    public class XnaCanvasLayer : FrameworkElement // DependencyObject
+    public class XnaCanvasLayer : FrameworkElement, IDisposable // DependencyObject
     {
         public XnaCanvasLayer ()
         {
@@ -16,7 +16,39 @@ namespace Treefrog.Controls.Layers
             this.Unloaded += HandleUnloaded;
         }
 
+        private bool _disposed = false;
+
+        public void Dispose ()
+        {
+            if (!_disposed) {
+                DisposeManaged();
+                DisposeUnmanaged();
+
+                GC.SuppressFinalize(this);
+                _disposed = true;
+            }
+        }
+
+        ~XnaCanvasLayer ()
+        {
+            DisposeUnmanaged();
+        }
+
+        protected virtual void DisposeManaged ()
+        {
+            UnloadControl();
+        }
+
+        protected virtual void DisposeUnmanaged ()
+        {
+        }
+
         private void HandleUnloaded (object sender, EventArgs e)
+        {
+            UnloadControl();
+        }
+
+        private void UnloadControl ()
         {
             GraphicsDeviceControl control = this.GraphicsDeviceControl;
             if (control != null) {
