@@ -12,6 +12,16 @@ namespace Treefrog.Controls.Layers
 {
     public class AnnotRenderLayer : RenderLayer
     {
+        protected override void DisposeManaged ()
+        {
+            ClearAnnotationCache();
+
+            if (Annotations != null)
+                Annotations.CollectionChanged -= HandleAnnotCollectionChanged;
+
+            base.DisposeManaged();
+        }
+
         protected override void RenderCore (Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
         {
             Vector offset = BeginDraw(spriteBatch);
@@ -27,6 +37,32 @@ namespace Treefrog.Controls.Layers
 
         private Dictionary<Annotation, AnnotationRenderer> _annotCache = new Dictionary<Annotation, AnnotationRenderer>();
 
+        private void AddToAnnotationCache (Annotation key)
+        {
+            if (_annotCache.ContainsKey(key))
+                RemoveFromAnnotationCache(key);
+
+            _annotCache.Add(key, AnnotationRendererFactory.Create(key));
+        }
+
+        private void RemoveFromAnnotationCache (Annotation key)
+        {
+            AnnotationRenderer renderer;
+            if (_annotCache.TryGetValue(key, out renderer))
+                renderer.Dispose();
+
+            _annotCache.Remove(key);
+        }
+
+        private void ClearAnnotationCache ()
+        {
+            foreach (AnnotationRenderer renderer in _annotCache.Values)
+                if (renderer != null)
+                    renderer.Dispose();
+
+            _annotCache.Clear();
+        }
+
         public static readonly DependencyProperty AnnotationsProperty = DependencyProperty.Register("Annotations",
             typeof(ObservableCollection<Annotation>), typeof(AnnotRenderLayer), new PropertyMetadata(null, HandleAnnotationsChanged));
 
@@ -40,7 +76,7 @@ namespace Treefrog.Controls.Layers
         {
             AnnotRenderLayer self = sender as AnnotRenderLayer;
             if (self != null) {
-                self._annotCache.Clear();
+                self.ClearAnnotationCache();
 
                 if (e.OldValue != null) {
                     ObservableCollection<Annotation> annots = e.OldValue as ObservableCollection<Annotation>;
@@ -52,7 +88,7 @@ namespace Treefrog.Controls.Layers
                     annots.CollectionChanged += self.HandleAnnotCollectionChanged;
 
                     foreach (Annotation item in annots)
-                        self._annotCache[item] = AnnotationRendererFactory.Create(item);
+                        self.AddToAnnotationCache(item);
                 }
             }
         }
@@ -62,18 +98,18 @@ namespace Treefrog.Controls.Layers
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Add:
                     foreach (Annotation item in e.NewItems)
-                        _annotCache[item] = AnnotationRendererFactory.Create(item);
+                        AddToAnnotationCache(item);
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
                     foreach (Annotation item in e.OldItems)
-                        _annotCache.Remove(item);
+                        RemoveFromAnnotationCache(item);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    _annotCache.Clear();
+                    ClearAnnotationCache();
                     foreach (Annotation item in sender as ObservableCollection<Annotation>)
-                        _annotCache[item] = AnnotationRendererFactory.Create(item);
+                        AddToAnnotationCache(item);
                     break;
             }
         }

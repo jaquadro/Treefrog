@@ -48,19 +48,7 @@ namespace Treefrog.Controls.Layers
 
         public GroupLayer ()
         {
-            _adapter.Dependent.CollectionChanged += (s, e) =>
-            {
-                if (e.Action == NotifyCollectionChangedAction.Add) {
-                    XnaCanvasLayer layer = e.NewItems[0] as XnaCanvasLayer;
-                    AddLogicalChild(layer);
-
-                    layer.HorizontalOffset = HorizontalOffset;
-                    layer.VerticalOffset = VerticalOffset;
-                    layer.ZoomFactor = ZoomFactor;
-                    layer.ViewportWidth = ViewportWidth;
-                    layer.ViewportHeight = ViewportHeight;
-                }
-            };
+            _adapter.Dependent.CollectionChanged += DependentCollectionChanged;
         }
 
         protected override void DisposeManaged ()
@@ -69,7 +57,24 @@ namespace Treefrog.Controls.Layers
                 layer.Dispose();
             }
 
+            _adapter.Dependent.CollectionChanged -= DependentCollectionChanged;
+            _adapter.Primary = null;
+
             base.DisposeManaged();
+        }
+
+        private void DependentCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add) {
+                XnaCanvasLayer layer = e.NewItems[0] as XnaCanvasLayer;
+                AddLogicalChild(layer);
+
+                layer.HorizontalOffset = HorizontalOffset;
+                layer.VerticalOffset = VerticalOffset;
+                layer.ZoomFactor = ZoomFactor;
+                layer.ViewportWidth = ViewportWidth;
+                layer.ViewportHeight = ViewportHeight;
+            }
         }
 
         public Color ClearColor

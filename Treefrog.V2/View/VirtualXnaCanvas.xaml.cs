@@ -82,17 +82,23 @@ namespace Treefrog.View
 
         private void HandleLoaded (object sender, RoutedEventArgs e)
         {
-            AttachWindowMouseEvents();
-            AttachGlobalMouseEvents();
+            //AttachWindowMouseEvents();
+            //AttachGlobalMouseEvents();
         }
 
         private void HandleUnloaded (object sender, RoutedEventArgs e)
         {
-            DetachWindowMouseEvents();
-            DetachGlobalMouseEvents();
+            //DetachWindowMouseEvents();
+            //DetachGlobalMouseEvents();
 
             if (RootLayer != null)
                 RootLayer.Dispose();
+
+            if (_graphicsControl != null) {
+                _graphicsControl.RenderXna -= GraphicsDeviceControl_RenderXna;
+                _graphicsControl.Dispose();
+                _graphicsControl = null;
+            }
         }
 
         public XnaCanvasLayer RootLayer
@@ -458,7 +464,7 @@ namespace Treefrog.View
 
         #region Pointer Device Handling
 
-        #region Global Mouse Handling
+        /*#region Global Mouse Handling
 
         private Point TranslateScreenMousePosition (Point screenPosition)
         {
@@ -540,7 +546,7 @@ namespace Treefrog.View
             //MessageBox.Show(TranslateMousePosition(e.GetPosition(this)).ToString());
         }
 
-        #endregion
+        #endregion*/
 
         #region Canvas Mouse Handling
 

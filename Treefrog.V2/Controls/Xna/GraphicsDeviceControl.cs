@@ -176,8 +176,8 @@ namespace Treefrog.Controls.Xna
             SizeChanged += new SizeChangedEventHandler(XnaWindowHost_SizeChanged);
 
             // We must be notified of the application foreground status for our mouse input events
-            Application.Current.Activated += new EventHandler(Current_Activated);
-            Application.Current.Deactivated += new EventHandler(Current_Deactivated);
+            Application.Current.Activated += Current_Activated;
+            Application.Current.Deactivated += Current_Deactivated;
 
             // We use the CompositionTarget.Rendering event to trigger the control to draw itself
             //CompositionTarget.Rendering += CompositionTarget_Rendering;
@@ -197,6 +197,9 @@ namespace Treefrog.Controls.Xna
 
             // Unhook the Rendering event so we no longer attempt to draw
             CompositionTarget.Rendering -= CompositionTarget_Rendering;
+
+            Application.Current.Activated -= Current_Activated;
+            Application.Current.Deactivated -= Current_Deactivated;
 
             _disposed = true;
 

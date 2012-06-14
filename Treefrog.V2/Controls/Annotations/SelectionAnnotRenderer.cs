@@ -13,7 +13,7 @@ using Treefrog.Framework;
 
 namespace Treefrog.Controls.Annotations
 {
-    public abstract class AnnotationRenderer
+    public abstract class AnnotationRenderer : IDisposable
     {
         public void Render (SpriteBatch spriteBatch)
         {
@@ -21,6 +21,36 @@ namespace Treefrog.Controls.Annotations
         }
 
         public abstract void Render (SpriteBatch spriteBatch, float zoomFactor);
+
+        #region Dispose
+
+        private bool _disposed = false;
+
+        public void Dispose ()
+        {
+            if (!_disposed) {
+                DisposeManaged();
+                DisposeUnamanged();
+
+                GC.SuppressFinalize(this);
+                _disposed = true;
+            }
+        }
+
+        public bool IsDisposed
+        {
+            get { return _disposed; }
+        }
+
+        protected virtual void DisposeManaged ()
+        {
+        }
+
+        protected virtual void DisposeUnamanged ()
+        {
+        }
+
+        #endregion
     }
 
     public class SelectionAnnotRenderer : AnnotationRenderer
@@ -35,8 +65,28 @@ namespace Treefrog.Controls.Annotations
             _data = data;
         }
 
+        protected override void DisposeManaged ()
+        {
+            _data = null;
+
+            if (_fillBrush != null) {
+                _fillBrush.Dispose();
+                _fillBrush = null;
+            }
+
+            if (_outlinePen != null) {
+                _outlinePen.Dispose();
+                _outlinePen = null;
+            }
+
+            base.DisposeManaged();
+        }
+
         public override void Render (SpriteBatch spriteBatch, float zoomFactor)
         {
+            if (IsDisposed)
+                return;
+
             if (_fillBrush == null && _data.Fill != null)
                 _fillBrush = BrushFactory.Create(spriteBatch.GraphicsDevice, _data.Fill);
             if (_outlinePen == null && _data.Outline != null)
@@ -71,6 +121,27 @@ namespace Treefrog.Controls.Annotations
             _data.OutlineInvalidated += HandleOutlineInvalidated;
         }
 
+        protected override void DisposeManaged ()
+        {
+            if (_data != null) {
+                _data.FillInvalidated -= HandleFillInvalidated;
+                _data.OutlineInvalidated -= HandleOutlineInvalidated;
+                _data = null;
+            }
+
+            if (_fillBrush != null) {
+                _fillBrush.Dispose();
+                _fillBrush = null;
+            }
+
+            if (_outlinePen != null) {
+                _outlinePen.Dispose();
+                _outlinePen = null;
+            }
+
+            base.DisposeManaged();
+        }
+
         private void HandleFillInvalidated (object sender, EventArgs e)
         {
             _fillBrush = null;
@@ -83,6 +154,9 @@ namespace Treefrog.Controls.Annotations
 
         public override void Render (SpriteBatch spriteBatch, float zoomFactor)
         {
+            if (IsDisposed)
+                return;
+
             if (_fillBrush == null && _data.Fill != null)
                 _fillBrush = BrushFactory.Create(spriteBatch.GraphicsDevice, _data.Fill);
             if (_outlinePen == null && _data.Outline != null)

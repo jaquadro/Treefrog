@@ -52,7 +52,6 @@ namespace Treefrog.Controls.Layers
         {
             GraphicsDeviceControl control = this.GraphicsDeviceControl;
             if (control != null) {
-                control.Dispose();
                 GraphicsDeviceControl = null;
             }
         }
