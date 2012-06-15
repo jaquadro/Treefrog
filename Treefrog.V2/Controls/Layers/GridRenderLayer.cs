@@ -39,10 +39,11 @@ namespace Treefrog.Controls.Layers
 
         protected override void RenderCore (SpriteBatch spriteBatch)
         {
-            //return;
-
             if (_tileGridBrush == null)
                 BuildTileBrush(spriteBatch.GraphicsDevice);
+
+            if (_tileWidth * ZoomFactor < 16 || _tileHeight * ZoomFactor < 16)
+                return;
 
             Vector offset = BeginDraw(spriteBatch);
 

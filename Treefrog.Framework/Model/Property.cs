@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
@@ -492,6 +493,107 @@ namespace Treefrog.Framework.Model
         public override object Clone ()
         {
             return new BoolProperty(Name, this);
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// A concrete <see cref="Property"/> type that represents a <see cref="Color"/> value.
+    /// </summary>
+    public class ColorProperty : Property
+    {
+        private Color _value;
+
+        /// <summary>
+        /// Creates a new <see cref="NumberProperty"/> instance from a given name and value.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="value">The value of the property.</param>
+        public ColorProperty (string name, Color value)
+            : base(name)
+        {
+            _value = value;
+        }
+
+        public ColorProperty (string name, ColorProperty property)
+            : base(name, property)
+        {
+            _value = property._value;
+        }
+
+        /// <summary>
+        /// Gets or sets the value of the property.
+        /// </summary>
+        public Color Value
+        {
+            get { return _value; }
+            set
+            {
+                if (_value != value) {
+                    _value = value;
+                    OnValueChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        /// <inherit/>
+        public override void Parse (string value)
+        {
+            try {
+                Value = Color.ParseArgbHex(value);
+            }
+            catch (Exception e) {
+                throw new ArgumentException("Failed to convert value to this property's value type.", e);
+            }
+        }
+
+        /// <summary>
+        /// Returns the property's value as a <see cref="String"/>.
+        /// </summary>
+        /// <returns>A <see cref="String"/> representation of the property's value.</returns>
+        public override string ToString ()
+        {
+            return _value.ToArgbHex();
+        }
+
+        #region XML Import / Export
+
+        /// <summary>
+        /// Creates a new <see cref="NumberProperty"/> object from an XML data stream.
+        /// </summary>
+        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
+        /// <param name="name">The name to give the new <see cref="NumberProperty"/>.</param>
+        /// <returns>A <see cref="NumberProperty"/> object with the given name and XML-derived value.</returns>
+        public static ColorProperty FromXml (XmlReader reader, string name)
+        {
+            string value = reader.ReadElementContentAsString();
+            ColorProperty prop = new ColorProperty(name, Colors.Black);
+            prop.Parse(value);
+
+            return prop;
+        }
+
+        /// <summary>
+        /// Writes an XML representation of the <see cref="NumberProperty"/> instance to the given XML data stream.
+        /// </summary>
+        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
+        public override void WriteXml (XmlWriter writer)
+        {
+            writer.WriteStartElement("property");
+            writer.WriteAttributeString("name", Name);
+            writer.WriteAttributeString("type", "color");
+            writer.WriteValue(Value.ToArgbHex());
+            writer.WriteEndElement();
+        }
+
+        #endregion
+
+        #region ICloneable Members
+
+        public override object Clone ()
+        {
+            return new ColorProperty(Name, this);
         }
 
         #endregion

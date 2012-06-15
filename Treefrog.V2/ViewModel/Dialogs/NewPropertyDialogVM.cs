@@ -51,7 +51,7 @@ namespace Treefrog.ViewModel.Dialogs
         private string _selectedType = "String";
         ObservableCollection<string> _propertyTypes = new ObservableCollection<string>()
         {
-            "String", "Number", "Boolean Flag",
+            "String", "Number", "Boolean Flag", "Color",
         };
 
         public ObservableCollection<string> PropertyTypes

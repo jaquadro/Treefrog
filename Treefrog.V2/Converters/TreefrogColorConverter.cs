@@ -22,4 +22,20 @@ namespace Treefrog.Converters
             return new Treefrog.Framework.Imaging.Color(c.R, c.G, c.B, c.A);
         }
     }
+
+    [ValueConversion(typeof(Treefrog.Framework.Imaging.Color), typeof(Color))]
+    public class TreefrogColorToWpfColorConverter : IValueConverter
+    {
+        public object Convert (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Treefrog.Framework.Imaging.Color c = (Treefrog.Framework.Imaging.Color)value;
+            return Color.FromArgb(c.A, c.R, c.G, c.B);
+        }
+
+        public object ConvertBack (object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Color c = (Color)value;
+            return new Treefrog.Framework.Imaging.Color(c.R, c.G, c.B, c.A);
+        }
+    }
 }

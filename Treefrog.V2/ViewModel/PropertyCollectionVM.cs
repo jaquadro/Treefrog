@@ -12,6 +12,7 @@ using System.Windows.Input;
 using Treefrog.ViewModel.Dialogs;
 using Treefrog.Messages;
 using GalaSoft.MvvmLight.Messaging;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.ViewModel
 {
@@ -124,6 +125,8 @@ namespace Treefrog.ViewModel
                 return (property as StringProperty).Value;
             else if (property is BoolProperty)
                 return (property as BoolProperty).Value;
+            else if (property is ColorProperty)
+                return (property as ColorProperty).Value;
             else
                 return null;
         }
@@ -164,6 +167,8 @@ namespace Treefrog.ViewModel
                         (prop as StringProperty).Value = (string)value;
                     else if (prop is BoolProperty && value is bool)
                         (prop as BoolProperty).Value = (bool)value;
+                    else if (prop is ColorProperty && value is Color)
+                        (prop as ColorProperty).Value = (Color)value;
                 }
             }
 
@@ -221,6 +226,19 @@ namespace Treefrog.ViewModel
             get { return _adapter; }
         }
 
+        string _selectedProperty = null;
+        public string SelectedProperty
+        {
+            get { return _selectedProperty; }
+            set
+            {
+                if (_selectedProperty != value) {
+                    _selectedProperty = value;
+                    RaisePropertyChanged("SelectedProperty");
+                }
+            }
+        }
+
         #region Commands
 
         #region Add New Property
@@ -274,6 +292,9 @@ namespace Treefrog.ViewModel
                         case "Boolean Flag":
                             prop = new BoolProperty(vm.PropertyName, false);
                             break;
+                        case "Color":
+                            prop = new ColorProperty(vm.PropertyName, Colors.Black);
+                            break;
                         default:
                             return;
                     }
@@ -283,6 +304,45 @@ namespace Treefrog.ViewModel
                     _adapter = new PropertyProviderAdapter(_provider);
                     RaisePropertyChanged("PropertyObject");
                 }
+            }
+        }
+
+        #endregion
+
+        #region Remove Property
+
+        private RelayCommand _removePropertyCommand;
+
+        public ICommand RemovePropertyCommand
+        {
+            get
+            {
+                if (_removePropertyCommand == null)
+                    _removePropertyCommand = new RelayCommand(OnRemoveProperty, CanRemoveProperty);
+                return _removePropertyCommand;
+            }
+        }
+
+        public bool IsRemovePropertyEnabled
+        {
+            get { return CanRemoveProperty(); }
+        }
+
+        private bool CanRemoveProperty ()
+        {
+            return ActiveProvider != null && _provider != null && _provider.CustomProperties.Contains(_selectedProperty);
+        }
+
+        private void OnRemoveProperty ()
+        {
+            if (CanAddProperty()) {
+                if (_provider == null)
+                    return;
+
+                _provider.CustomProperties.Remove(_selectedProperty);
+
+                _adapter = new PropertyProviderAdapter(_provider);
+                RaisePropertyChanged("PropertyObject");
             }
         }
 

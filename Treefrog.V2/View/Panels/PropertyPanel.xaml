@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:conv="clr-namespace:Treefrog.Converters"
+             xmlns:fwImaging="clr-namespace:Treefrog.Framework.Imaging;assembly=Treefrog.Framework"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit">
     <UserControl.Resources>
@@ -13,6 +15,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <conv:TreefrogColorToWpfColorConverter x:Key="ColorConverter" />
     </UserControl.Resources>
     
     <Grid Margin="-4">
@@ -44,6 +47,16 @@
                            SelectedObject="{Binding PropertyObject}" 
                            NameColumnWidth="90" 
                            DisplaySummary="False"
-                           BorderBrush="{x:Null}" SelectedPropertyItemChanged="propertyGrid1_SelectedPropertyItemChanged" />
+                           BorderBrush="{x:Null}" SelectedPropertyItemChanged="propertyGrid1_SelectedPropertyItemChanged">
+            <xctk:PropertyGrid.EditorDefinitions>
+                <xctk:EditorDefinition TargetType="{x:Type fwImaging:Color}">
+                    <xctk:EditorDefinition.EditorTemplate>
+                        <DataTemplate>
+                            <xctk:ColorPicker SelectedColor="{Binding Value, Converter={StaticResource ResourceKey=ColorConverter}}" />
+                        </DataTemplate>
+                    </xctk:EditorDefinition.EditorTemplate>
+                </xctk:EditorDefinition>
+            </xctk:PropertyGrid.EditorDefinitions>
+        </xctk:PropertyGrid>
     </Grid>
 </UserControl>

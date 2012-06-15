@@ -26,6 +26,8 @@ namespace Treefrog.Converters
 
             BitmapSource conv = BitmapSource.Create(texCopy.Width, texCopy.Height, 96, 96,
                 PixelFormats.Bgra32, null, texCopy.RawData, texCopy.ScanlineSize);
+            conv.Freeze();
+
             return conv;
         }
 
