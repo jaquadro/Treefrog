@@ -147,6 +147,16 @@ namespace Treefrog.ViewModel.Layers
             get { return base.Layer as MultiTileGridLayer; }
         }
 
+        public override double GridTileHeight
+        {
+            get { return Layer.TileHeight; }
+        }
+
+        public override double GridTileWidth
+        {
+            get { return Layer.TileWidth; }
+        }
+
         public override Vector GetCoordinates (double x, double y)
         {
             Vector pxc = base.GetCoordinates(x, y);

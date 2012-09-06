@@ -319,6 +319,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Amphibian\Amphibian.Drawing\Amphibian.Drawing.csproj">
+      <Project>{E5A1D7A8-0CDF-4FAD-8A0D-16C2BB69DEFA}</Project>
+      <Name>Amphibian.Drawing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Amphibian\Amphibian\Amphibian.csproj">
       <Project>{E0C66FEA-3843-458D-AAF7-779EBBE6BBBB}</Project>
       <Name>Amphibian</Name>

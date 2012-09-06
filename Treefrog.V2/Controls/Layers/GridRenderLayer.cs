@@ -14,6 +14,8 @@ namespace Treefrog.Controls.Layers
     public class GridRenderLayer : RenderLayer
     {
         private const int MaxBrushSize = 256;
+        private const int DefaultTileWidth = 16;
+        private const int DefaultTileHeight = 16;
 
         private int _tileHeight = 16;
         private int _tileWidth = 16;
@@ -39,11 +41,11 @@ namespace Treefrog.Controls.Layers
 
         protected override void RenderCore (SpriteBatch spriteBatch)
         {
-            if (_tileGridBrush == null)
-                BuildTileBrush(spriteBatch.GraphicsDevice);
-
             if (_tileWidth * ZoomFactor < 16 || _tileHeight * ZoomFactor < 16)
                 return;
+
+            if (_tileGridBrush == null)
+                BuildTileBrush(spriteBatch.GraphicsDevice);
 
             Vector offset = BeginDraw(spriteBatch);
 
@@ -92,6 +94,9 @@ namespace Treefrog.Controls.Layers
 
         private int CalcBrushDimension (int tileDim, int maxDim, double zoomFactor)
         {
+            if (tileDim == 0 || zoomFactor == 0)
+                return 0;
+
             int dim = 1;
             while ((dim + 1) * tileDim * zoomFactor <= maxDim) {
                 dim++;
@@ -164,5 +169,40 @@ namespace Treefrog.Controls.Layers
             _tileGridBrushBottom = null;
             _tileGridBrushRight = null;
         }
+
+        #region Layer Properties
+
+        public static readonly DependencyProperty TileHeightProperty = DependencyProperty.Register("TileHeight",
+            typeof(int), typeof(GridRenderLayer), new PropertyMetadata(DefaultTileHeight, HandleTileSizeChanged));
+
+        public static readonly DependencyProperty TileWidthProperty = DependencyProperty.Register("TileWidth",
+            typeof(int), typeof(GridRenderLayer), new PropertyMetadata(DefaultTileWidth, HandleTileSizeChanged));
+
+        public int TileHeight
+        {
+            get { return (int)GetValue(TileHeightProperty); }
+            set { SetValue(TileHeightProperty, value); }
+        }
+
+        public int TileWidth
+        {
+            get { return (int)GetValue(TileWidthProperty); }
+            set { SetValue(TileWidthProperty, value); }
+        }
+
+        private static void HandleTileSizeChanged (DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            GridRenderLayer self = sender as GridRenderLayer;
+            if (self != null) {
+                if (e.Property == TileHeightProperty)
+                    self._tileHeight = (int)e.NewValue;
+                else if (e.Property == TileWidthProperty)
+                    self._tileWidth = (int)e.NewValue;
+
+                self.DisposeTextures();
+            }
+        }
+
+        #endregion
     }
 }

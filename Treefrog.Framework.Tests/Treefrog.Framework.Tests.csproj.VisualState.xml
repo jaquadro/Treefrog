@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
   <TopNode>[0-1000]E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\Treefrog.Framework.Tests.csproj</TopNode>
-  <SelectedNode>[0-1075]Treefrog.Framework.Tests.Model.TilePoolTests.TestExport</SelectedNode>
+  <SelectedNode>[0-1000]E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\Treefrog.Framework.Tests.csproj</SelectedNode>
   <ExcludeCategories>false</ExcludeCategories>
   <Nodes>
     <Node UniqueName="[0-1000]E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\Treefrog.Framework.Tests.csproj" Expanded="true" />
-    <Node UniqueName="[0-1091]E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\bin\x86\Debug\Treefrog.Framework.Tests.exe" Expanded="true" />
-    <Node UniqueName="[0-1092]Treefrog" Expanded="true" />
-    <Node UniqueName="[0-1093]Treefrog.Framework" Expanded="true" />
-    <Node UniqueName="[0-1094]Treefrog.Framework.Tests" Expanded="true" />
-    <Node UniqueName="[0-1095]Treefrog.Framework.Tests.Model" Expanded="true" />
-    <Node UniqueName="[0-1096]Treefrog.Framework.Tests.Model.Collections" Expanded="true" />
-    <Node UniqueName="[0-1050]Treefrog.Framework.Tests.Model.TileGridLayerTests" Expanded="true" />
-    <Node UniqueName="[0-1060]Treefrog.Framework.Tests.Model.TilePoolTests" Expanded="true" />
+    <Node UniqueName="[0-1053]E:\Workspace\Managed\Game\Treefrog\Treefrog.Framework.Tests\bin\x86\Debug\Treefrog.Framework.Tests.exe" Expanded="true" />
+    <Node UniqueName="[0-1054]Treefrog" Expanded="true" />
+    <Node UniqueName="[0-1055]Treefrog.Framework" Expanded="true" />
+    <Node UniqueName="[0-1056]Treefrog.Framework.Tests" Expanded="true" />
+    <Node UniqueName="[0-1057]Treefrog.Framework.Tests.Model" Expanded="true" />
+    <Node UniqueName="[0-1058]Treefrog.Framework.Tests.Model.Collections" Expanded="true" />
   </Nodes>
 </VisualState>

@@ -25,7 +25,7 @@
                                    PointerLeaveField="{Binding PointerLeaveFieldCommand}">
                     <layers:GroupLayer>
                         <layers:GroupLayer Model="{Binding Path=Root}" />
-                        <layers:GridRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" />
+                        <layers:GridRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" TileHeight="{Binding GridTileHeight}" TileWidth="{Binding GridTileWidth}" />
                         <layers:AnnotRenderLayer Height="{Binding LevelHeight}" Width="{Binding LevelWidth}" Annotations="{Binding Annotations}" />
                     </layers:GroupLayer>
                 </view:VirtualXnaCanvas>

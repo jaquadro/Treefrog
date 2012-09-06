@@ -27,5 +27,15 @@ namespace Treefrog.ViewModel.Layers
         public abstract double LayerWidth { get; }
 
         public abstract double LayerHeight { get; }
+
+        public virtual double GridTileWidth
+        {
+            get { return 0; }
+        }
+
+        public virtual double GridTileHeight
+        {
+            get { return 0; }
+        }
     }
 }

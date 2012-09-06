@@ -66,6 +66,8 @@ namespace Treefrog.ViewModel
                 case "SelectedLayer":
                     SetActiveLayer(ActiveLayer);
                     RaisePropertyChanged("ActiveLayer");
+                    RaisePropertyChanged("GridTileHeight");
+                    RaisePropertyChanged("GridTileWidth");
                     break;
             }
         }
@@ -163,6 +165,24 @@ namespace Treefrog.ViewModel
         public double LevelWidth
         {
             get { return _level.PixelsWide; }
+        }
+
+        public double GridTileHeight
+        {
+            get
+            {
+                LevelLayerVM layer = ActiveLayer;
+                return layer != null ? layer.GridTileHeight : 0;
+            }
+        }
+
+        public double GridTileWidth
+        {
+            get
+            {
+                LevelLayerVM layer = ActiveLayer;
+                return layer != null ? layer.GridTileWidth : 0;
+            }
         }
 
         public Color BackgroundColor

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog.Content", "Treefrog.Content\Treefrog.Content.contentproj", "{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog.Framework", "Treefrog.Framework\Treefrog.Framework.csproj", "{DFDC210B-3181-4F4D-92B9-6FCDE456697B}"
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog.Runtime", "Treefrog.Runtime\Treefrog.Runtime.csproj", "{A84CB117-B552-479F-956A-55EF1A827B1C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog.Runtime.Xbox360", "Treefrog.Runtime\Treefrog.Runtime.Xbox360.csproj", "{7BD86D91-37FD-42E2-ABE8-6658BB1FFA89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog", "Treefrog.V2\Treefrog.csproj", "{08684495-15D1-47AD-9C53-2FBE7E310584}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -181,6 +183,30 @@ Global
 		{7BD86D91-37FD-42E2-ABE8-6658BB1FFA89}.Release|x86.ActiveCfg = Release|Xbox 360
 		{7BD86D91-37FD-42E2-ABE8-6658BB1FFA89}.Release|Xbox 360.ActiveCfg = Release|Xbox 360
 		{7BD86D91-37FD-42E2-ABE8-6658BB1FFA89}.Release|Xbox 360.Build.0 = Release|Xbox 360
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Debug|x86.ActiveCfg = Debug|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Debug|x86.Build.0 = Debug|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Debug|Xbox 360.ActiveCfg = Debug|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release Win32|Any CPU.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release Win32|Mixed Platforms.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release Win32|Mixed Platforms.Build.0 = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release Win32|x86.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release Win32|x86.Build.0 = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release Win32|Xbox 360.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release.Xbox|Any CPU.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release.Xbox|Mixed Platforms.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release.Xbox|Mixed Platforms.Build.0 = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release.Xbox|x86.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release.Xbox|x86.Build.0 = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release.Xbox|Xbox 360.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|Any CPU.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|Mixed Platforms.Build.0 = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|x86.ActiveCfg = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|x86.Build.0 = Release|x86
+		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|Xbox 360.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
