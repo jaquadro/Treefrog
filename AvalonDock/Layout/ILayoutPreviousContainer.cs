@@ -5,8 +5,10 @@ using System.Text;
 
 namespace AvalonDock.Layout
 {
-    public interface ILayoutPreviousContainer
+    interface ILayoutPreviousContainer
     {
-        ILayoutContainer PreviousContainer { get; }
+        ILayoutContainer PreviousContainer { get; set; }
+
+        string PreviousContainerId { get; set; }
     }
 }

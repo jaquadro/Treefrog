@@ -157,7 +157,6 @@ namespace Treefrog.ViewModel
 
                 if (_project.Documents.Count > 0) {
                     ActiveContent = _project.Documents[0];
-                    RaisePropertyChanged("ActiveContent");
                 }
 
                 RaisePropertyChanged("Project");

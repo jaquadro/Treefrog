@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Globalization;
 
 namespace AvalonDock.Layout
 {
@@ -48,8 +49,16 @@ namespace AvalonDock.Layout
                     RaisePropertyChanging("DockWidth");
                     _dockWidth = value;
                     RaisePropertyChanged("DockWidth");
+
+                    OnDockWidthChanged();
                 }
             }
+        }
+
+
+        protected virtual void OnDockWidthChanged()
+        {
+        
         }
 
         GridLength _dockHeight = new GridLength(1.0, GridUnitType.Star);
@@ -66,8 +75,15 @@ namespace AvalonDock.Layout
                     RaisePropertyChanging("DockHeight");
                     _dockHeight = value;
                     RaisePropertyChanged("DockHeight");
+
+                    OnDockHeightChanged();
                 }
             }
+        }
+
+        protected virtual void OnDockHeightChanged()
+        { 
+            
         }
 
 
@@ -237,23 +253,23 @@ namespace AvalonDock.Layout
         public override void WriteXml(System.Xml.XmlWriter writer)
         {
             if (DockWidth.Value != 1.0 || !DockWidth.IsStar)
-                writer.WriteAttributeString("DockWidth", DockWidth.ToString());
+                writer.WriteAttributeString("DockWidth", _gridLengthConverter.ConvertToInvariantString(DockWidth));
             if (DockHeight.Value != 1.0 || !DockHeight.IsStar)
-                writer.WriteAttributeString("DockHeight", DockHeight.ToString());
+                writer.WriteAttributeString("DockHeight", _gridLengthConverter.ConvertToInvariantString(DockHeight));
 
             if (DockMinWidth != 25.0)
-                writer.WriteAttributeString("DocMinWidth", DockMinWidth.ToString());
+                writer.WriteAttributeString("DocMinWidth", DockMinWidth.ToString(CultureInfo.InvariantCulture));
             if (DockMinHeight != 25.0)
-                writer.WriteAttributeString("DockMinHeight", DockMinHeight.ToString());
+                writer.WriteAttributeString("DockMinHeight", DockMinHeight.ToString(CultureInfo.InvariantCulture));
 
             if (FloatingWidth != 0.0)
-                writer.WriteAttributeString("FloatingWidth", FloatingWidth.ToString());
+                writer.WriteAttributeString("FloatingWidth", FloatingWidth.ToString(CultureInfo.InvariantCulture));
             if (FloatingHeight != 0.0)
-                writer.WriteAttributeString("FloatingHeight", FloatingHeight.ToString());
+                writer.WriteAttributeString("FloatingHeight", FloatingHeight.ToString(CultureInfo.InvariantCulture));
             if (FloatingLeft != 0.0)
-                writer.WriteAttributeString("FloatingLeft", FloatingLeft.ToString());
+                writer.WriteAttributeString("FloatingLeft", FloatingLeft.ToString(CultureInfo.InvariantCulture));
             if (FloatingTop != 0.0)
-                writer.WriteAttributeString("FloatingTop", FloatingTop.ToString());
+                writer.WriteAttributeString("FloatingTop", FloatingTop.ToString(CultureInfo.InvariantCulture));
             
             base.WriteXml(writer);
         }
@@ -267,18 +283,18 @@ namespace AvalonDock.Layout
                 _dockHeight = (GridLength)_gridLengthConverter.ConvertFromInvariantString(reader.Value);
 
             if (reader.MoveToAttribute("DocMinWidth"))
-                _dockMinWidth = double.Parse(reader.Value);
+                _dockMinWidth = double.Parse(reader.Value, CultureInfo.InvariantCulture);
             if (reader.MoveToAttribute("DocMinHeight"))
-                _dockMinHeight = double.Parse(reader.Value);
+                _dockMinHeight = double.Parse(reader.Value, CultureInfo.InvariantCulture);
 
             if (reader.MoveToAttribute("FloatingWidth"))
-                _floatingWidth = double.Parse(reader.Value);
+                _floatingWidth = double.Parse(reader.Value, CultureInfo.InvariantCulture);
             if (reader.MoveToAttribute("FloatingHeight"))
-                _floatingHeight = double.Parse(reader.Value);
+                _floatingHeight = double.Parse(reader.Value, CultureInfo.InvariantCulture);
             if (reader.MoveToAttribute("FloatingLeft"))
-                _floatingLeft = double.Parse(reader.Value);
+                _floatingLeft = double.Parse(reader.Value, CultureInfo.InvariantCulture);
             if (reader.MoveToAttribute("FloatingTop"))
-                _floatingTop = double.Parse(reader.Value);
+                _floatingTop = double.Parse(reader.Value, CultureInfo.InvariantCulture);
 
             base.ReadXml(reader);
         }

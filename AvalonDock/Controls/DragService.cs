@@ -57,9 +57,8 @@ namespace AvalonDock.Controls
         List<IDropArea> _currentWindowAreas = new List<IDropArea>();
         IDropTarget _currentDropTarget;
 
-        public void UpdateMouseLocation(double x, double y)
+        public void UpdateMouseLocation(Point dragPosition)
         {
-            Point dragPosition = new Point(x,y);
             var floatingWindowModel = _floatingWindow.Model as LayoutFloatingWindow;
 
             var newHost = _overlayWindowHosts.FirstOrDefault(oh => oh.HitTest(dragPosition));
@@ -147,11 +146,11 @@ namespace AvalonDock.Controls
 
         }
 
-        public void Drop(double x, double y, out bool dropHandled)
+        public void Drop(Point dropLocation, out bool dropHandled)
         { 
             dropHandled = false;
 
-            UpdateMouseLocation(x,y);
+            UpdateMouseLocation(dropLocation);
 
             var floatingWindowModel = _floatingWindow.Model as LayoutFloatingWindow;
             var root = floatingWindowModel.Root;

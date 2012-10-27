@@ -339,56 +339,78 @@ namespace AvalonDock.Layout
         #region ActiveContent
 
         [field:NonSerialized]
-        private LayoutContent _activeContent = null;
-        
+        private WeakReference _activeContent = null;
+        private bool _activeContentSet = false;
+
         [XmlIgnore]
         public LayoutContent ActiveContent
         {
-            get { return _activeContent; }
+            get { return _activeContent.GetValueOrDefault<LayoutContent>(); }
             set
             {
-                if (_activeContent != value)
+                var currentValue = ActiveContent;
+                if (currentValue != value)
                 {
-                    RaisePropertyChanging("ActiveContent");
-                    if (_activeContent != null)
-                        _activeContent.IsActive = false;
-                    _activeContent = value;
-                    if (_activeContent != null)
-                        _activeContent.IsActive = true;
-                    RaisePropertyChanged("ActiveContent");
-
-                    if (_activeContent != null)
-                    {
-                        if (_activeContent.Parent is LayoutDocumentPane || _activeContent is LayoutDocument)
-                            LastFocusedDocument = _activeContent;
-                    }
-                    else
-                        LastFocusedDocument = null;
+                    InternalSetActiveContent(currentValue, value);
                 }
             }
         }
 
+        void InternalSetActiveContent(LayoutContent currentValue, LayoutContent newActiveContent)
+        {
+            RaisePropertyChanging("ActiveContent");
+            if (currentValue != null)
+                currentValue.IsActive = false;
+            _activeContent = new WeakReference(newActiveContent);
+            currentValue = ActiveContent;
+            if (currentValue != null)
+                currentValue.IsActive = true;
+            RaisePropertyChanged("ActiveContent");
+            _activeContentSet = currentValue != null;
+            if (currentValue != null)
+            {
+                if (currentValue.Parent is LayoutDocumentPane || currentValue is LayoutDocument)
+                    LastFocusedDocument = currentValue;
+            }
+            else
+                LastFocusedDocument = null;
+        }
+
+        void UpdateActiveContentProperty()
+        {
+            var activeContent = ActiveContent;
+            if (_activeContentSet && (activeContent == null || activeContent.Root != this))
+            {
+                _activeContentSet = false;
+                InternalSetActiveContent(activeContent, null);
+            }
+        }
         #endregion
 
         #region LastFocusedDocument
 
         [field: NonSerialized]
-        private LayoutContent _lastFocusedDocument = null;
+        private WeakReference _lastFocusedDocument = null;
+        [field: NonSerialized]
+        private bool _lastFocusedDocumentSet = false;
         
         [XmlIgnore]
         public LayoutContent LastFocusedDocument
         {
-            get { return _lastFocusedDocument; }
+            get { return _lastFocusedDocument.GetValueOrDefault<LayoutContent>(); }
             private set
             {
-                if (_lastFocusedDocument != value)
+                var currentValue = LastFocusedDocument;
+                if (currentValue != value)
                 {
                     RaisePropertyChanging("LastFocusedDocument");
-                    if (_lastFocusedDocument != null)
-                        _lastFocusedDocument.IsLastFocusedDocument = false;
-                    _lastFocusedDocument = value;
-                    if (_lastFocusedDocument != null)
-                        _lastFocusedDocument.IsLastFocusedDocument = true;
+                    if (currentValue != null)
+                        currentValue.IsLastFocusedDocument = false;
+                    _lastFocusedDocument = new WeakReference(value);
+                    currentValue = LastFocusedDocument;
+                    if (currentValue != null)
+                        currentValue.IsLastFocusedDocument = true;
+                    _lastFocusedDocumentSet = currentValue != null;
                     RaisePropertyChanged("LastFocusedDocument");
                 }
             }
@@ -421,6 +443,9 @@ namespace AvalonDock.Layout
 
         #region CollectGarbage
 
+        /// <summary>
+        /// Removes any empty container not directly referenced by other layout items
+        /// </summary>
         public void CollectGarbage()
         {
             bool exitFlag = true;
@@ -429,18 +454,26 @@ namespace AvalonDock.Layout
             do
             {
                 exitFlag = true;
+
+                //for each content that references via PreviousContainer a disconnected Pane set the property to null
+                foreach (var content in this.Descendents().OfType<ILayoutPreviousContainer>().Where(c => c.PreviousContainer != null && 
+                    (c.PreviousContainer.Parent == null || c.PreviousContainer.Parent.Root != this)))
+                {
+                    content.PreviousContainer = null;
+                }
+
                 //for each pane that is empty
                 foreach (var emptyPane in this.Descendents().OfType<ILayoutPane>().Where(p => p.ChildrenCount == 0))
                 {
                     //...set null any reference coming from contents not yet hosted in a floating window
                     foreach (var contentReferencingEmptyPane in this.Descendents().OfType<LayoutContent>()
-                        .Where(c => c.PreviousContainer == emptyPane && !c.IsFloating))
+                        .Where(c => ((ILayoutPreviousContainer)c).PreviousContainer == emptyPane && !c.IsFloating))
                     {
                         if (contentReferencingEmptyPane is LayoutAnchorable &&
                             !((LayoutAnchorable)contentReferencingEmptyPane).IsVisible)
                             continue;
 
-                        contentReferencingEmptyPane.PreviousContainer = null;
+                        ((ILayoutPreviousContainer)contentReferencingEmptyPane).PreviousContainer = null;
                         contentReferencingEmptyPane.PreviousContainerIndex = -1;
                     }
 
@@ -564,6 +597,38 @@ namespace AvalonDock.Layout
 
 
             #endregion
+
+            #region collapse single child layout panels
+            do
+            {
+                exitFlag = true;
+                //for each panel that has only one child
+                foreach (var panelToCollapse in this.Descendents().OfType<LayoutPanel>().Where(p => p.ChildrenCount == 1 && p.Children[0] is LayoutPanel).ToArray())
+                {
+                    var singleChild = panelToCollapse.Children[0] as LayoutPanel;
+                    panelToCollapse.Orientation = singleChild.Orientation;
+                    panelToCollapse.RemoveChild(singleChild);
+                    while (singleChild.ChildrenCount > 0)
+                    {
+                        panelToCollapse.InsertChildAt(
+                            panelToCollapse.ChildrenCount, singleChild.Children[0]);
+                    }
+
+                    exitFlag = false;
+                    break;
+                }
+
+            }
+            while (!exitFlag);
+            #endregion
+
+            #region Update ActiveContent and LastFocusedDocument properties
+            UpdateActiveContentProperty();
+            #endregion
+#if DEBUG
+            System.Diagnostics.Debug.Assert(
+                !this.Descendents().OfType<LayoutAnchorablePane>().Any(a => a.ChildrenCount == 0 && a.IsVisible));
+#endif
         }
 
         #endregion
@@ -588,6 +653,10 @@ namespace AvalonDock.Layout
 
         internal void OnLayoutElementRemoved(LayoutElement element)
         {
+            if (element.Descendents().OfType<LayoutContent>().Any(c => c == LastFocusedDocument))
+                LastFocusedDocument = null;
+            if (element.Descendents().OfType<LayoutContent>().Any(c => c == ActiveContent))
+                ActiveContent = null;
             if (ElementRemoved != null)
                 ElementRemoved(this, new LayoutElementEventArgs(element));
         }
@@ -595,5 +664,29 @@ namespace AvalonDock.Layout
         public event EventHandler<LayoutElementEventArgs> ElementRemoved;
 
         #endregion
+
+#if DEBUG
+        public override void ConsoleDump(int tab)
+        {
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("RootPanel()");
+
+            RootPanel.ConsoleDump(tab + 1);
+
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("FloatingWindows()");
+
+            foreach (LayoutFloatingWindow fw in FloatingWindows)
+                fw.ConsoleDump(tab + 1);
+
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("Hidden()");
+
+            foreach (LayoutAnchorable hidden in Hidden)
+                hidden.ConsoleDump(tab + 1);
+        }
+#endif
+    
+    
     }
 }

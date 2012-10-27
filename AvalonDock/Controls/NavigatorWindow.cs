@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using AvalonDock.Layout;
+using System.Windows.Interop;
+using System.Windows.Threading;
+using AvalonDock.Themes;
 
 namespace AvalonDock.Controls
 {
@@ -21,14 +24,92 @@ namespace AvalonDock.Controls
         {
             _manager = manager;
 
+            _internalSetSelectedDocument = true;
             SetAnchorables(_manager.Layout.Descendents().OfType<LayoutAnchorable>().Where(a => a.IsVisible).Select(d => (LayoutAnchorableItem)_manager.GetLayoutItemFromModel(d)).ToArray());
             SetDocuments(_manager.Layout.Descendents().OfType<LayoutDocument>().OrderByDescending(d => d.LastActivationTimeStamp.GetValueOrDefault()).Select(d => (LayoutDocumentItem)_manager.GetLayoutItemFromModel(d)).ToArray());
+            _internalSetSelectedDocument = false;
 
             if (Documents.Length > 1)
                 InternalSetSelectedDocument(Documents[1]);
 
             this.DataContext = this;
+
+            this.Loaded += new RoutedEventHandler(OnLoaded);
+            this.Unloaded += new RoutedEventHandler(OnUnloaded);
+
+            UpdateThemeResources();
         }
+
+
+        internal void UpdateThemeResources(Theme oldTheme = null)
+        {
+            //If hosted in WPF than let Application class to update my resources
+            if (Application.Current != null)
+                return;
+
+            if (oldTheme != null)
+            {
+                var resourceDictionaryToRemove =
+                    Resources.MergedDictionaries.FirstOrDefault(r => r.Source == oldTheme.GetResourceUri());
+                if (resourceDictionaryToRemove != null)
+                    Resources.MergedDictionaries.Remove(
+                        resourceDictionaryToRemove);
+            }
+
+            if (_manager.Theme != null)
+            {
+                Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = _manager.Theme.GetResourceUri() });
+            }
+        }
+
+
+        void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            this.Loaded -= new RoutedEventHandler(OnLoaded);
+
+            this.Focus();
+
+            //this.SetParentToMainWindowOf(_manager);
+            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        }
+
+        void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            this.Unloaded -= new RoutedEventHandler(OnUnloaded);
+
+            //_hwndSrc.RemoveHook(_hwndSrcHook);
+            //_hwndSrc.Dispose();
+            //_hwndSrc = null;
+        }
+
+        //protected virtual IntPtr FilterMessage(
+        //    IntPtr hwnd,
+        //    int msg,
+        //    IntPtr wParam,
+        //    IntPtr lParam,
+        //    ref bool handled
+        //    )
+        //{
+        //    handled = false;
+
+        //    switch (msg)
+        //    {
+        //        case Win32Helper.WM_ACTIVATE:
+        //            if (((int)wParam & 0xFFFF) == Win32Helper.WA_INACTIVE)
+        //            {
+        //                if (lParam == new WindowInteropHelper(this.Owner).Handle)
+        //                {
+        //                    Win32Helper.SetActiveWindow(_hwndSrc.Handle);
+        //                    handled = true;
+        //                }
+
+        //            }
+        //            break;
+        //    }
+
+        //    return IntPtr.Zero;
+        //}
+
 
         #region Documents
 
@@ -132,11 +213,14 @@ namespace AvalonDock.Controls
             if (_internalSetSelectedDocument)
                 return;
 
-            var selectedDocument = e.NewValue as LayoutDocumentItem;
-            if (selectedDocument != null && selectedDocument.ActivateCommand.CanExecute(null))
-                selectedDocument.ActivateCommand.Execute(null);
+            if (SelectedDocument != null &&
+                SelectedDocument.ActivateCommand.CanExecute(null))
+            {
+                System.Diagnostics.Debug.WriteLine("OnSelectedDocumentChanged()");
+                SelectedDocument.ActivateCommand.Execute(null);
+                Hide();
+            }
 
-            Hide();
         }
 
         bool _internalSetSelectedDocument = false;
@@ -183,10 +267,11 @@ namespace AvalonDock.Controls
         protected virtual void OnSelectedAnchorableChanged(DependencyPropertyChangedEventArgs e)
         {
             var selectedAnchorable = e.NewValue as LayoutAnchorableItem;
-            if (selectedAnchorable.ActivateCommand.CanExecute(null))
+            if (SelectedAnchorable != null &&
+                SelectedAnchorable.ActivateCommand.CanExecute(null))
             {
-                selectedAnchorable.ActivateCommand.Execute(null);
-                Hide();
+                SelectedAnchorable.ActivateCommand.Execute(null);
+                Close();
             }
         }
 
@@ -205,5 +290,43 @@ namespace AvalonDock.Controls
             }
 
         }
+
+        protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Tab)
+            {
+                SelectNextDocument();
+                e.Handled = true;
+            }
+
+
+            base.OnPreviewKeyDown(e);
+        }
+
+        protected override void OnPreviewKeyUp(System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key != System.Windows.Input.Key.Tab)
+            {
+                if (SelectedAnchorable != null &&
+                    SelectedAnchorable.ActivateCommand.CanExecute(null))
+                    SelectedAnchorable.ActivateCommand.Execute(null);
+
+                if (SelectedAnchorable == null &&
+                    SelectedDocument != null &&
+                    SelectedDocument.ActivateCommand.CanExecute(null))
+                    SelectedDocument.ActivateCommand.Execute(null);
+                Close();
+                e.Handled = true;
+            }       
+
+
+            base.OnPreviewKeyUp(e);
+        }
+
     }
 }

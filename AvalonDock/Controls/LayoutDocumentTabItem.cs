@@ -29,6 +29,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using AvalonDock.Layout;
 using System.Diagnostics;
+using System.Windows.Media;
 
 namespace AvalonDock.Controls
 {
@@ -81,11 +82,10 @@ namespace AvalonDock.Controls
                 SetLayoutItem(Model.Root.Manager.GetLayoutItemFromModel(Model));
             else
                 SetLayoutItem(null);
-            UpdateLogicalParent();
+            //UpdateLogicalParent();
         }
 
         #endregion
-
 
         #region LayoutItem
 
@@ -120,107 +120,115 @@ namespace AvalonDock.Controls
 
         #endregion
 
-
-        
-
-        void UpdateLogicalParent()
-        {
-            if (Model != null && Model.Content != null && Model.Content is UIElement)
-            {
-                var oldLogicalParentPaneControl = LogicalTreeHelper.GetParent(Model.Content as UIElement)
-                    as ILogicalChildrenContainer;
-                if (oldLogicalParentPaneControl != null)
-                    oldLogicalParentPaneControl.InternalRemoveLogicalChild(Model.Content);
-            }
-
-            var parentPaneControl = this.FindVisualAncestor<LayoutDocumentPaneControl>();
-            if (Model != null && 
-                parentPaneControl != null && 
-                Model.Content != null &&
-                Model.Content is UIElement)
-            {
-                ((ILogicalChildrenContainer)parentPaneControl).InternalAddLogicalChild(Model.Content);
-                BindingHelper.RebindInactiveBindings(Model.Content as UIElement);
-
-            }        
-        }
-
+        List<Rect> _otherTabsScreenArea = null;
+        List<TabItem> _otherTabs = null;
+        Rect _parentDocumentTabPanelScreenArea;
+        DocumentPaneTabPanel _parentDocumentTabPanel;
         bool _isMouseDown = false;
-        static LayoutDocumentTabItem _draggingItem = null;
+        Point _mouseDownPoint;
 
-        internal static bool IsDraggingItem()
+        void UpdateDragDetails()
         {
-            return _draggingItem != null;
+            _parentDocumentTabPanel = this.FindLogicalAncestor<DocumentPaneTabPanel>();
+            _parentDocumentTabPanelScreenArea = _parentDocumentTabPanel.GetScreenArea();
+            _otherTabs = _parentDocumentTabPanel.Children.Cast<TabItem>().Where(ch =>
+                ch.Visibility != System.Windows.Visibility.Collapsed).ToList();
+            Rect currentTabScreenArea = this.FindLogicalAncestor<TabItem>().GetScreenArea();
+            _otherTabsScreenArea = _otherTabs.Select(ti => 
+                {
+                    var screenArea = ti.GetScreenArea();
+                    return new Rect(screenArea.Left, screenArea.Top, currentTabScreenArea.Width, screenArea.Height);
+                }).ToList();
         }
-
-        internal static LayoutDocumentTabItem GetDraggingItem()
-        {
-            return _draggingItem;
-        }
-        internal static void ResetDraggingItem()
-        {
-            _draggingItem = null;
-        }
-
-
 
         protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
+            
+            Model.IsActive = true;
 
-            _isMouseDown = true;
-            _draggingItem = this;
+            if (e.ClickCount == 1)
+            {
+                _mouseDownPoint = e.GetPosition(this);
+                _isMouseDown = true;
+            }
         }
 
         protected override void OnMouseMove(System.Windows.Input.MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
-            if (e.LeftButton != MouseButtonState.Pressed)
+            if (_isMouseDown)
             {
-                _isMouseDown = false;
-                _draggingItem = null;
+                Point ptMouseMove = e.GetPosition(this);
+
+                if (Math.Abs(ptMouseMove.X - _mouseDownPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(ptMouseMove.Y - _mouseDownPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    UpdateDragDetails();
+                    CaptureMouse();
+                    _isMouseDown = false;
+                }
             }
+
+            if (IsMouseCaptured)
+            {
+                var mousePosInScreenCoord = this.PointToScreenDPI(e.GetPosition(this));
+                if (!_parentDocumentTabPanelScreenArea.Contains(mousePosInScreenCoord))
+                {
+                    ReleaseMouseCapture();
+                    var manager = Model.Root.Manager;
+                    manager.StartDraggingFloatingWindowForContent(Model);
+                }
+                else
+                {
+                    int indexOfTabItemWithMouseOver = _otherTabsScreenArea.FindIndex(r => r.Contains(mousePosInScreenCoord));
+                    if (indexOfTabItemWithMouseOver >= 0)
+                    {
+                        var targetModel = _otherTabs[indexOfTabItemWithMouseOver].Content as LayoutContent;
+                        var container = Model.Parent as ILayoutContainer;
+                        var containerPane = Model.Parent as ILayoutPane;
+                        var childrenList = container.Children.ToList();
+                        containerPane.MoveChild(childrenList.IndexOf(Model), childrenList.IndexOf(targetModel));
+                        Model.IsActive = true;
+                        _parentDocumentTabPanel.UpdateLayout();
+                        UpdateDragDetails();
+                    }
+                }
+            }
+
         }
 
         protected override void OnMouseLeftButtonUp(System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (IsMouseCaptured)
+                ReleaseMouseCapture();
             _isMouseDown = false;
 
             base.OnMouseLeftButtonUp(e);
-
-            Model.IsActive = true;
         }
 
         protected override void OnMouseLeave(System.Windows.Input.MouseEventArgs e)
         {
             base.OnMouseLeave(e);
-
-            if (_isMouseDown && e.LeftButton == MouseButtonState.Pressed)
-            {
-                _draggingItem = this;
-            }
-
             _isMouseDown = false;
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
-
-            if (_draggingItem != null &&
-                _draggingItem != this &&
-                e.LeftButton == MouseButtonState.Pressed)
-            {
-                Debug.WriteLine("Dragging item from {0} to {1}", _draggingItem, this);
-
-                var model = Model;
-                var container = model.Parent as ILayoutContainer;
-                var containerPane = model.Parent as ILayoutPane;
-                var childrenList = container.Children.ToList();
-                containerPane.MoveChild(childrenList.IndexOf(_draggingItem.Model), childrenList.IndexOf(model));
-            }
+            _isMouseDown = false;
         }
 
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                if (LayoutItem.CloseCommand.CanExecute(null))
+                    LayoutItem.CloseCommand.Execute(null);
+            }
+            
+            base.OnMouseDown(e);
+        }
     }
 }

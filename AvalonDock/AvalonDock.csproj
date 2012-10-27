@@ -32,8 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Release\AvalonDock.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -62,13 +61,17 @@
     <Compile Include="Controls\AnchorablePaneDropTarget.cs" />
     <Compile Include="Controls\AnchorablePaneTabPanel.cs" />
     <Compile Include="Controls\AnchorablePaneTitle.cs" />
+    <Compile Include="Controls\AutoHideWindowManager.cs" />
     <Compile Include="Controls\BindingHelper.cs" />
     <Compile Include="Controls\ContextMenuEx.cs" />
+    <Compile Include="Controls\FullWeakDictionary.cs" />
     <Compile Include="Controls\DocumentPaneDropAsAnchorableTarget.cs" />
     <Compile Include="Controls\DocumentPaneGroupDropTarget.cs" />
     <Compile Include="Controls\DropDownButton.cs" />
     <Compile Include="Controls\DropDownControlArea.cs" />
     <Compile Include="Controls\DropTargetBase.cs" />
+    <Compile Include="Controls\WeakDictionary.cs" />
+    <Compile Include="Controls\WindowActivateEventArgs.cs" />
     <Compile Include="Controls\WindowHookHandler.cs" />
     <Compile Include="Controls\FocusElementManager.cs" />
     <Compile Include="Controls\ILogicalChildrenContainer.cs" />
@@ -94,6 +97,8 @@
     <Compile Include="Controls\Shell\WindowChrome.cs" />
     <Compile Include="Controls\Shell\WindowChromeWorker.cs" />
     <Compile Include="Converters\ActivateCommandLayoutItemFromLayoutModelConverter.cs" />
+    <Compile Include="Converters\AutoHideCommandLayoutItemFromLayoutModelConverter.cs" />
+    <Compile Include="Converters\HideCommandLayoutItemFromLayoutModelConverter.cs" />
     <Compile Include="Converters\InverseBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\LayoutItemFromLayoutModelConverter.cs" />
     <Compile Include="Converters\NullToDoNothingConverter.cs" />
@@ -101,6 +106,7 @@
     <Compile Include="DocumentClosedEventArgs.cs" />
     <Compile Include="DocumentClosingEventArgs.cs" />
     <Compile Include="Extentions.cs" />
+    <Compile Include="LayoutEventArgs.cs" />
     <Compile Include="Layout\AnchorableShowStrategy.cs" />
     <Compile Include="Layout\AnchorSide.cs" />
     <Compile Include="Controls\DockingManagerDropTarget.cs" />
@@ -189,10 +195,50 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Properties\Resources.de.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.de.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.es.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.es.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.fr.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.fr.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.it.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.it.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.pt-BR.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.pt-BR.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.ru.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.ru.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.sv.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.sv.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.zh-Hans.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.zh-Hans.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -201,9 +247,48 @@
     </Compile>
     <Compile Include="Themes\Theme.cs" />
     <Compile Include="Win32Helper.cs" />
+    <Compile Include="WindowHelper.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.it.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.it.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.fr.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.fr.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.es.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.es.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.pt-BR.resx">
+      <SubType>Designer</SubType>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.pt-BR.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.ru.resx">
+      <SubType>Designer</SubType>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.ru.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.de.resx">
+      <SubType>Designer</SubType>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.de.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.sv.resx">
+      <SubType>Designer</SubType>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.sv.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.zh-Hans.resx">
+      <SubType>Designer</SubType>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.zh-Hans.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="AvalonDock.snk" />
     <None Include="Properties\Settings.settings">

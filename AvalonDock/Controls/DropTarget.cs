@@ -27,6 +27,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using AvalonDock.Layout;
+using System.Windows.Threading;
 
 namespace AvalonDock.Controls
 {
@@ -76,16 +77,26 @@ namespace AvalonDock.Controls
 
         public void Drop(LayoutFloatingWindow floatingWindow)
         {
+            var root = floatingWindow.Root;
+            var currentActiveContent = floatingWindow.Root.ActiveContent;
             var fwAsAnchorable = floatingWindow as LayoutAnchorableFloatingWindow;
 
             if (fwAsAnchorable != null)
+            {
                 this.Drop(fwAsAnchorable);
+            }
             else
             {
                 var fwAsDocument = floatingWindow as LayoutDocumentFloatingWindow;
                 this.Drop(fwAsDocument);
             }
 
+            Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    currentActiveContent.IsSelected = false;
+                    currentActiveContent.IsActive = false;
+                    currentActiveContent.IsActive = true;
+                }), DispatcherPriority.Background);
         }
 
         public virtual bool HitTest(Point dragPoint)

@@ -36,12 +36,18 @@ namespace AvalonDock.Controls
             :base(model, model.Orientation)
         {
             _model = model;
+
         }
 
         LayoutPanel _model;
 
-        protected override void FixChildrenDockLengths()
+        protected override void OnFixChildrenDockLengths()
         {
+            if (ActualWidth == 0.0 ||
+                ActualHeight == 0.0)
+                return;
+
+            var modelAsPositionableElement = _model as ILayoutPositionableElementWithActualSize;
             #region Setup DockWidth/Height for children
             if (_model.Orientation == Orientation.Horizontal)
             {
@@ -61,7 +67,15 @@ namespace AvalonDock.Controls
                         else if (childPositionableModel != null && childPositionableModel.DockWidth.IsStar)
                         {
                             var childPositionableModelWidthActualSize = childPositionableModel as ILayoutPositionableElementWithActualSize;
-                            childPositionableModel.DockWidth = new GridLength(Math.Max(childPositionableModelWidthActualSize.ActualWidth, childPositionableModel.DockMinWidth), GridUnitType.Pixel);
+
+                            var widthToSet = Math.Max(childPositionableModelWidthActualSize.ActualWidth, childPositionableModel.DockMinWidth);
+                            
+                            widthToSet = Math.Min(widthToSet, ActualWidth / 2.0);
+                            widthToSet = Math.Max(widthToSet, childPositionableModel.DockMinWidth);
+        
+                            childPositionableModel.DockWidth = new GridLength(
+                                widthToSet,
+                                GridUnitType.Pixel);
                         }
                     }
                 }
@@ -95,7 +109,12 @@ namespace AvalonDock.Controls
                         else if (childPositionableModel != null && childPositionableModel.DockHeight.IsStar)
                         {
                             var childPositionableModelWidthActualSize = childPositionableModel as ILayoutPositionableElementWithActualSize;
-                            childPositionableModel.DockHeight = new GridLength(Math.Max(childPositionableModelWidthActualSize.ActualHeight, childPositionableModel.DockMinHeight), GridUnitType.Pixel);
+
+                            var heightToSet = Math.Max(childPositionableModelWidthActualSize.ActualHeight, childPositionableModel.DockMinHeight);
+                            heightToSet = Math.Min(heightToSet, ActualHeight / 2.0);
+                            heightToSet = Math.Max(heightToSet, childPositionableModel.DockMinHeight);
+
+                            childPositionableModel.DockHeight = new GridLength(heightToSet, GridUnitType.Pixel);
                         }
                     }
                 }

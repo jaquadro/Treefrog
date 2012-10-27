@@ -32,7 +32,7 @@ using AvalonDock.Layout;
 
 namespace AvalonDock.Controls
 {
-    public class LayoutAnchorablePaneControl : TabControl, ILayoutControl, ILogicalChildrenContainer
+    public class LayoutAnchorablePaneControl : TabControl, ILayoutControl//, ILogicalChildrenContainer
     {
         static LayoutAnchorablePaneControl()
         {
@@ -47,6 +47,7 @@ namespace AvalonDock.Controls
             _model = model;
             
             SetBinding(ItemsSourceProperty, new Binding("Model.Children") { Source = this });
+            SetBinding(FlowDirectionProperty, new Binding("Model.Root.Manager.FlowDirection") { Source = this });
 
             this.LayoutUpdated += new EventHandler(OnLayoutUpdated);
         }
@@ -58,25 +59,11 @@ namespace AvalonDock.Controls
             modelWithAtcualSize.ActualHeight = ActualHeight;
         }
 
-        List<object> _logicalChildren = new List<object>();
-        protected override System.Collections.IEnumerator LogicalChildren
-        {
-            get
-            {
-                return _logicalChildren.GetEnumerator();
-            }
-        }
-
         LayoutAnchorablePane _model;
 
         public ILayoutElement Model
         {
             get { return _model; }
-        }
-
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-            base.OnGotFocus(e);
         }
 
         protected override void OnGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
@@ -86,22 +73,22 @@ namespace AvalonDock.Controls
             base.OnGotKeyboardFocus(e);
         }
 
-        void ILogicalChildrenContainer.InternalAddLogicalChild(object element)
+        protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (_logicalChildren.Contains(element))
-                throw new InvalidOperationException();
+            base.OnMouseLeftButtonDown(e);
 
-            _logicalChildren.Add(element);
-            AddLogicalChild(element);
+            if (!e.Handled && _model.SelectedContent != null)
+                _model.SelectedContent.IsActive = true;
         }
 
-        void ILogicalChildrenContainer.InternalRemoveLogicalChild(object element)
+        protected override void OnMouseRightButtonDown(System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (!_logicalChildren.Contains(element))
-                throw new InvalidOperationException();
+            base.OnMouseRightButtonDown(e);
 
-            _logicalChildren.Remove(element); 
-            RemoveLogicalChild(element);
+            if (!e.Handled && _model.SelectedContent != null)
+                _model.SelectedContent.IsActive = true;
+
         }
+
     }
 }

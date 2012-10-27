@@ -29,9 +29,10 @@ namespace AvalonDock.Layout.Serialization
 {
     public class LayoutSerializationCallbackEventArgs : EventArgs
     {
-        public LayoutSerializationCallbackEventArgs(LayoutContent model)
+        public LayoutSerializationCallbackEventArgs(LayoutContent model, object previousContent)
         {
             Model = model;
+            Content = previousContent;
         }
 
         public LayoutContent Model { get; private set; }

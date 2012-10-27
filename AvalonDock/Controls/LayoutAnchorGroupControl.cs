@@ -27,11 +27,18 @@ using System.Text;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using AvalonDock.Layout;
+using System.Windows;
 
 namespace AvalonDock.Controls
 {
     public class LayoutAnchorGroupControl : Control, ILayoutControl
     {
+        static LayoutAnchorGroupControl()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(LayoutAnchorGroupControl), new FrameworkPropertyMetadata(typeof(LayoutAnchorGroupControl)));
+        }
+
+
         internal LayoutAnchorGroupControl(LayoutAnchorGroup model)
         {
             _model = model;

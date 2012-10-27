@@ -53,7 +53,8 @@ namespace AvalonDock.Controls
         protected override void Drop(LayoutAnchorableFloatingWindow floatingWindow)
         {
             ILayoutAnchorablePane targetModel = _targetPane.Model as ILayoutAnchorablePane;
-            
+            LayoutAnchorable anchorableActive = floatingWindow.Descendents().OfType<LayoutAnchorable>().FirstOrDefault();
+         
             switch (Type)
             {
                 case DropTargetType.AnchorablePaneDockBottom:
@@ -83,9 +84,12 @@ namespace AvalonDock.Controls
                         }
                         else
                         {
+                            var targetModelAsPositionableElement = targetModel as ILayoutPositionableElement;
                             var newOrientedPanel = new LayoutAnchorablePaneGroup()
                             {
-                                Orientation = System.Windows.Controls.Orientation.Vertical
+                                Orientation = System.Windows.Controls.Orientation.Vertical,
+                                DockWidth = targetModelAsPositionableElement.DockWidth,
+                                DockHeight = targetModelAsPositionableElement.DockHeight,
                             };
 
                             parentModel.InsertChildAt(insertToIndex, newOrientedPanel);
@@ -123,14 +127,18 @@ namespace AvalonDock.Controls
                         }
                         else
                         {
+                            var targetModelAsPositionableElement = targetModel as ILayoutPositionableElement;
                             var newOrientedPanel = new LayoutAnchorablePaneGroup()
                             {
-                                Orientation = System.Windows.Controls.Orientation.Vertical
+                                Orientation = System.Windows.Controls.Orientation.Vertical,
+                                DockWidth = targetModelAsPositionableElement.DockWidth,
+                                DockHeight = targetModelAsPositionableElement.DockHeight,
                             };
 
                             parentModel.InsertChildAt(insertToIndex, newOrientedPanel);
-                            newOrientedPanel.Children.Add(floatingWindow.RootPanel);
+                            //the floating window must be added after the target modal as it could be raise a CollectGarbage call
                             newOrientedPanel.Children.Add(targetModel);
+                            newOrientedPanel.Children.Insert(0, floatingWindow.RootPanel);
 
                         }
                     }
@@ -163,14 +171,18 @@ namespace AvalonDock.Controls
                         }
                         else
                         {
+                            var targetModelAsPositionableElement = targetModel as ILayoutPositionableElement;
                             var newOrientedPanel = new LayoutAnchorablePaneGroup()
                             {
-                                Orientation = System.Windows.Controls.Orientation.Horizontal
+                                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                                DockWidth = targetModelAsPositionableElement.DockWidth,
+                                DockHeight = targetModelAsPositionableElement.DockHeight,
                             };
 
                             parentModel.InsertChildAt(insertToIndex, newOrientedPanel);
-                            newOrientedPanel.Children.Add(floatingWindow.RootPanel);
+                            //the floating window must be added after the target modal as it could be raise a CollectGarbage call
                             newOrientedPanel.Children.Add(targetModel);
+                            newOrientedPanel.Children.Insert(0, floatingWindow.RootPanel);
 
                         }
                     }
@@ -203,9 +215,12 @@ namespace AvalonDock.Controls
                         }
                         else
                         {
+                            var targetModelAsPositionableElement = targetModel as ILayoutPositionableElement;
                             var newOrientedPanel = new LayoutAnchorablePaneGroup()
                             {
-                                Orientation = System.Windows.Controls.Orientation.Horizontal
+                                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                                DockWidth = targetModelAsPositionableElement.DockWidth,
+                                DockHeight = targetModelAsPositionableElement.DockHeight,
                             };
 
                             parentModel.InsertChildAt(insertToIndex, newOrientedPanel);
@@ -231,12 +246,16 @@ namespace AvalonDock.Controls
                             paneModel.Children.Insert(i, anchorableToImport);
                             i++;
                         }
+
                     }
                     break;
                     #endregion
 
 
             }
+
+            anchorableActive.IsActive = true;
+
             base.Drop(floatingWindow);
         }
 

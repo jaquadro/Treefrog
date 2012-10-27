@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog.Runtime.Xbox360", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Treefrog", "Treefrog.V2\Treefrog.csproj", "{08684495-15D1-47AD-9C53-2FBE7E310584}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvalonDock", "AvalonDock\AvalonDock.csproj", "{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -207,6 +209,30 @@ Global
 		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|x86.ActiveCfg = Release|x86
 		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|x86.Build.0 = Release|x86
 		{08684495-15D1-47AD-9C53-2FBE7E310584}.Release|Xbox 360.ActiveCfg = Release|x86
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release Win32|Any CPU.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release Win32|Any CPU.Build.0 = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release Win32|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release Win32|Mixed Platforms.Build.0 = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release Win32|x86.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release Win32|Xbox 360.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release.Xbox|Any CPU.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release.Xbox|Any CPU.Build.0 = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release.Xbox|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release.Xbox|Mixed Platforms.Build.0 = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release.Xbox|x86.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release.Xbox|Xbox 360.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB81988F-E0F2-45A0-A1FD-8C37F3D35244}.Release|Xbox 360.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

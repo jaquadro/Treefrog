@@ -44,12 +44,14 @@ namespace AvalonDock.Controls
         {
             _anchorable = model as LayoutAnchorable;
             _anchorable.IsVisibleChanged += new EventHandler(_anchorable_IsVisibleChanged);
+
             base.Attach(model);
         }
 
         internal override void Detach()
         {
             _anchorable.IsVisibleChanged -= new EventHandler(_anchorable_IsVisibleChanged);
+            _anchorable = null;
             base.Detach();
         }
 
@@ -72,7 +74,7 @@ namespace AvalonDock.Controls
             base.InitDefaultCommands();
         }
 
-        protected override void ClearDefaultCommandBindings()
+        protected override void ClearDefaultBindings()
         {
             if (HideCommand == _defaultHideCommand)
                 BindingOperations.ClearBinding(this, HideCommandProperty);
@@ -81,10 +83,10 @@ namespace AvalonDock.Controls
             if (DockCommand == _defaultDockCommand)
                 BindingOperations.ClearBinding(this, DockCommandProperty);
 
-            base.ClearDefaultCommandBindings();
+            base.ClearDefaultBindings();
         }
 
-        protected override void SetDefaultCommandBindings()
+        protected override void SetDefaultBindings()
         {
             if (HideCommand == null)
                 HideCommand = _defaultHideCommand;
@@ -93,7 +95,8 @@ namespace AvalonDock.Controls
             if (DockCommand == null)
                 DockCommand = _defaultDockCommand;
 
-            base.SetDefaultCommandBindings();
+            Visibility = _anchorable.IsVisible ? Visibility.Visible : System.Windows.Visibility.Hidden;
+            base.SetDefaultBindings();
         }
 
 
@@ -144,12 +147,15 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteHideCommand(object parameter)
         {
+            if (LayoutElement == null)
+                return false;
             return _anchorable.CanHide;
         }
 
         private void ExecuteHideCommand(object parameter)
         {
-            LayoutElement.Root.Manager._ExecuteHideCommand(_anchorable);
+            if (_anchorable != null && _anchorable.Root != null && _anchorable.Root.Manager != null)
+                _anchorable.Root.Manager._ExecuteHideCommand(_anchorable);
         }
 
         #endregion
@@ -201,14 +207,19 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteAutoHideCommand(object parameter)
         {
+            if (LayoutElement == null)
+                return false;
+
             if (LayoutElement.FindParent<LayoutAnchorableFloatingWindow>() != null)
                 return false;//is floating
-            return true;
+
+            return _anchorable.CanAutoHide;
         }
 
         private void ExecuteAutoHideCommand(object parameter)
         {
-            LayoutElement.Root.Manager._ExecuteAutoHideCommand(_anchorable);
+            if (_anchorable != null && _anchorable.Root != null && _anchorable.Root.Manager != null)
+                _anchorable.Root.Manager._ExecuteAutoHideCommand(_anchorable);
         }
 
         #endregion
@@ -260,6 +271,8 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteDockCommand(object parameter)
         {
+            if (LayoutElement == null)
+                return false;
             return LayoutElement.FindParent<LayoutAnchorableFloatingWindow>() != null;
         }
 
@@ -275,14 +288,14 @@ namespace AvalonDock.Controls
 
         protected override void OnVisibilityChanged()
         {
-            if (_anchorable.Root != null)
+            if (_anchorable != null && _anchorable.Root != null)
             {
                 if (_visibilityReentrantFlag.CanEnter)
                 {
                     using (_visibilityReentrantFlag.Enter())
                     {
                         if (Visibility == System.Windows.Visibility.Hidden)
-                            _anchorable.Hide();
+                            _anchorable.Hide(false);
                         else if (Visibility == System.Windows.Visibility.Visible)
                             _anchorable.Show();
                     }
@@ -295,7 +308,7 @@ namespace AvalonDock.Controls
 
         void _anchorable_IsVisibleChanged(object sender, EventArgs e)
         {
-            if (_anchorable.Root != null)
+            if (_anchorable != null && _anchorable.Root != null)
             {
                 if (_visibilityReentrantFlag.CanEnter)
                 {
@@ -345,7 +358,8 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnCanHideChanged(DependencyPropertyChangedEventArgs e)
         {
-            _anchorable.CanHide = (bool)e.NewValue;
+            if (_anchorable != null)
+                _anchorable.CanHide = (bool)e.NewValue;
         }
 
         #endregion

@@ -54,41 +54,12 @@ namespace AvalonDock.Layout
 
         #endregion
 
-        #region LastActivationTimeStamp
-
-        private DateTime? _lastActivationTimeStamp = null;
-        public DateTime? LastActivationTimeStamp
-        {
-            get { return _lastActivationTimeStamp; }
-            set
-            {
-                if (_lastActivationTimeStamp != value)
-                {
-                    _lastActivationTimeStamp = value;
-                    RaisePropertyChanged("LastActivationTimeStamp");
-                }
-            }
-        }
-
-        #endregion
-
-        protected override void OnIsActiveChanged(bool oldValue, bool newValue)
-        {
-            if (IsActive)
-                LastActivationTimeStamp = DateTime.Now;
-
-            base.OnIsActiveChanged(oldValue, newValue);
-        }
-
-
         public override void WriteXml(System.Xml.XmlWriter writer)
         {
             base.WriteXml(writer);
 
             if (!string.IsNullOrWhiteSpace(Description))
                 writer.WriteAttributeString("Description", Description);
-            if (LastActivationTimeStamp != null)
-                writer.WriteAttributeString("LastActivationTimeStamp", LastActivationTimeStamp.Value.ToString(CultureInfo.InvariantCulture));
 
         }
 
@@ -96,11 +67,58 @@ namespace AvalonDock.Layout
         {
             if (reader.MoveToAttribute("Description"))
                 Description = reader.Value;
-            if (reader.MoveToAttribute("LastActivationTimeStamp"))
-                LastActivationTimeStamp = DateTime.Parse(reader.Value, CultureInfo.InvariantCulture);
 
             base.ReadXml(reader);
-       }
+        }
 
+
+#if DEBUG
+        public override void ConsoleDump(int tab)
+        {
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("Document()");
+        }
+#endif
+
+
+        protected override void InternalDock()
+        {
+            var root = Root as LayoutRoot;
+            LayoutDocumentPane documentPane = null;
+            if (root.LastFocusedDocument != null &&
+                root.LastFocusedDocument != this)
+            {
+                documentPane = root.LastFocusedDocument.Parent as LayoutDocumentPane;
+            }
+
+            if (documentPane == null)
+            {
+                documentPane = root.Descendents().OfType<LayoutDocumentPane>().FirstOrDefault();
+            }
+
+
+            bool added = false;
+            if (root.Manager.LayoutUpdateStrategy != null)
+            {
+                added = root.Manager.LayoutUpdateStrategy.BeforeInsertDocument(root, this, documentPane);
+            }
+
+            if (!added)
+            {
+                if (documentPane == null)
+                    throw new InvalidOperationException("Layout must contains at least one LayoutDocumentPane in order to host documents");
+
+                documentPane.Children.Add(this);
+                added = true;
+            }
+
+            if (root.Manager.LayoutUpdateStrategy != null)
+            {
+                root.Manager.LayoutUpdateStrategy.AfterInsertDocument(root, this);
+            }
+
+            
+            base.InternalDock();
+        }
     }
 }

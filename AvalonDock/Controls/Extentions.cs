@@ -120,5 +120,7 @@ namespace AvalonDock.Controls
             while (target != null && !(target is T));
             return target as T;
         }
+
+
     }
 }

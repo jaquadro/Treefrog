@@ -55,6 +55,16 @@ namespace AvalonDock.Controls
             HideWindowCommand = new RelayCommand((p) => OnExecuteHideWindowCommand(p), (p) => CanExecuteHideWindowCommand(p));
         }
 
+        internal override void UpdateThemeResources(Themes.Theme oldTheme = null)
+        {
+            if (Application.Current != null)
+                return;
+
+            base.UpdateThemeResources(oldTheme);
+
+            if (_overlayWindow != null)
+                _overlayWindow.UpdateThemeResources(oldTheme);
+        }
 
         LayoutAnchorableFloatingWindow _model;
 
@@ -140,8 +150,13 @@ namespace AvalonDock.Controls
 
         bool IOverlayWindowHost.HitTest(Point dragPoint)
         {
-            Rect detectionRect = new Rect(this.PointToScreenDPI(new Point()), this.TransformActualSizeToAncestor());
+            Rect detectionRect = new Rect(this.PointToScreenDPIWithoutFlowDirection(new Point()), this.TransformActualSizeToAncestor());
             return detectionRect.Contains(dragPoint);
+        }
+
+        DockingManager IOverlayWindowHost.Manager
+        {
+            get { return _model.Root.Manager; }
         }
 
         OverlayWindow _overlayWindow = null;
@@ -149,7 +164,7 @@ namespace AvalonDock.Controls
         {
             if (_overlayWindow == null)
                 _overlayWindow = new OverlayWindow(this);
-            Rect rectWindow = new Rect(this.PointToScreenDPI(new Point()), this.TransformActualSizeToAncestor());
+            Rect rectWindow = new Rect(this.PointToScreenDPIWithoutFlowDirection(new Point()), this.TransformActualSizeToAncestor());
             _overlayWindow.Left = rectWindow.Left;
             _overlayWindow.Top = rectWindow.Top;
             _overlayWindow.Width = rectWindow.Width;
@@ -225,7 +240,7 @@ namespace AvalonDock.Controls
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            if (CloseInitiatedByUser)
+            if (CloseInitiatedByUser && !KeepContentVisibleOnClose)
             {
                 e.Cancel = true;
                 _model.Descendents().OfType<LayoutAnchorable>().ToArray().ForEach<LayoutAnchorable>((a) => a.Hide());
@@ -251,7 +266,10 @@ namespace AvalonDock.Controls
                         if (OpenContextMenu())
                             handled = true;
 
-                        WindowChrome.GetWindowChrome(this).ShowSystemMenu = !handled;
+                        if (_model.Root.Manager.ShowSystemMenu)
+                            WindowChrome.GetWindowChrome(this).ShowSystemMenu = !handled;
+                        else
+                            WindowChrome.GetWindowChrome(this).ShowSystemMenu = false;
                     }
                     break;
 

@@ -183,7 +183,8 @@ namespace Treefrog.Controls.Xna
             //CompositionTarget.Rendering += CompositionTarget_Rendering;
             Activate();
 
-            applicationHasFocus = Application.Current.MainWindow.IsActive;
+            if (Application.Current.MainWindow != null)
+                applicationHasFocus = Application.Current.MainWindow.IsActive;
         }
 
         protected override void Dispose(bool disposing)

@@ -161,8 +161,26 @@ namespace AvalonDock.Controls
         bool _isMouseDown = false;
         protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
         {
-            _isMouseDown = true;
             base.OnMouseLeftButtonDown(e);
+
+            if (!e.Handled)
+            {
+                bool attachFloatingWindow = false;
+                var parentFloatingWindow = Model.FindParent<LayoutAnchorableFloatingWindow>();
+                if (parentFloatingWindow != null)
+                {
+                    attachFloatingWindow = parentFloatingWindow.Descendents().OfType<LayoutAnchorablePane>().Count() == 1;
+                }
+
+                if (attachFloatingWindow)
+                {
+                    //the pane is hosted inside a floating window that contains only an anchorable pane so drag the floating window itself
+                    var floatingWndControl = Model.Root.Manager.FloatingWindows.Single(fwc => fwc.Model == parentFloatingWindow);
+                    floatingWndControl.AttachDrag(false);
+                }
+                else
+                    _isMouseDown = true;//normal drag
+            }
         }
 
         protected override void OnMouseLeftButtonUp(System.Windows.Input.MouseButtonEventArgs e)

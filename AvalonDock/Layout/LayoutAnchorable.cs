@@ -27,6 +27,8 @@ using System.Text;
 using System.Windows;
 using System.Xml.Serialization;
 using System.Windows.Controls;
+using System.Globalization;
+using System.ComponentModel;
 
 namespace AvalonDock.Layout
 {
@@ -54,20 +56,12 @@ namespace AvalonDock.Layout
             }
         }
 
-        //[NonSerialized, XmlIgnore]
-        //bool _isVisibleFlag = false;
-        
         public event EventHandler IsVisibleChanged;
 
         void NotifyIsVisibleChanged()
         {
-            //if ((_isVisibleFlag && !IsVisible) ||
-            //    (!_isVisibleFlag && IsVisible))
-            //{
-                //_isVisibleFlag = IsVisible;
-                if (IsVisibleChanged != null)
-                    IsVisibleChanged(this, EventArgs.Empty);
-            //}
+            if (IsVisibleChanged != null)
+                IsVisibleChanged(this, EventArgs.Empty);
         }
 
         [XmlIgnore]
@@ -109,6 +103,7 @@ namespace AvalonDock.Layout
                 if (_autohideWidth != value)
                 {
                     RaisePropertyChanging("AutoHideWidth");
+                    value = Math.Max(value, _autohideMinWidth);
                     _autohideWidth = value;
                     RaisePropertyChanged("AutoHideWidth");
                 }
@@ -119,7 +114,7 @@ namespace AvalonDock.Layout
 
         #region AutoHideMinWidth
 
-        private double _autohideMinWidth = 25.0;
+        private double _autohideMinWidth = 100.0;
         public double AutoHideMinWidth
         {
             get { return _autohideMinWidth; }
@@ -128,6 +123,8 @@ namespace AvalonDock.Layout
                 if (_autohideMinWidth != value)
                 {
                     RaisePropertyChanging("AutoHideMinWidth");
+                    if (value < 0)
+                        throw new ArgumentException("value");
                     _autohideMinWidth = value;
                     RaisePropertyChanged("AutoHideMinWidth");
                 }
@@ -147,6 +144,7 @@ namespace AvalonDock.Layout
                 if (_autohideHeight != value)
                 {
                     RaisePropertyChanging("AutoHideHeight");
+                    value = Math.Max(value, _autohideMinHeight);
                     _autohideHeight = value;
                     RaisePropertyChanged("AutoHideHeight");
                 }
@@ -157,7 +155,7 @@ namespace AvalonDock.Layout
 
         #region AutoHideMinHeight
 
-        private double _autohideMinHeight = 0.0;
+        private double _autohideMinHeight = 100.0;
         public double AutoHideMinHeight
         {
             get { return _autohideMinHeight; }
@@ -166,6 +164,8 @@ namespace AvalonDock.Layout
                 if (_autohideMinHeight != value)
                 {
                     RaisePropertyChanging("AutoHideMinHeight");
+                    if (value < 0)
+                        throw new ArgumentException("value");
                     _autohideMinHeight = value;
                     RaisePropertyChanged("AutoHideMinHeight");
                 }
@@ -173,12 +173,12 @@ namespace AvalonDock.Layout
         }
 
         #endregion
-        
+
         /// <summary>
         /// Hide this contents
         /// </summary>
         /// <remarks>Add this content to <see cref="ILayoutRoot.Hidden"/> collection of parent root.</remarks>
-        public void Hide()
+        public void Hide(bool cancelable = true)
         {
             if (!IsVisible)
             {
@@ -186,18 +186,37 @@ namespace AvalonDock.Layout
                 IsActive = true;
                 return;
             }
+
+            if (cancelable)
+            {
+                CancelEventArgs args = new CancelEventArgs();
+                OnHiding(args);
+                if (args.Cancel)
+                    return;
+            }
+
             RaisePropertyChanging("IsHidden");
             RaisePropertyChanging("IsVisible");
-            if (Parent is ILayoutPane)
+            //if (Parent is ILayoutPane)
             {
-                PreviousContainer = Parent as ILayoutPane;
-                PreviousContainerIndex = (Parent as ILayoutContentSelector).SelectedContentIndex;
+                var parentAsGroup = Parent as ILayoutGroup;
+                PreviousContainer = parentAsGroup;
+                PreviousContainerIndex = parentAsGroup.IndexOfChild(this);
             }
             Root.Hidden.Add(this);
             RaisePropertyChanged("IsVisible");
             RaisePropertyChanged("IsHidden");
             NotifyIsVisibleChanged();
         }
+
+        public event EventHandler<CancelEventArgs> Hiding;
+
+        protected virtual void OnHiding(CancelEventArgs args)
+        {
+            if (Hiding != null)
+                Hiding(this, args);
+        }
+
 
         /// <summary>
         /// Show the content
@@ -233,16 +252,78 @@ namespace AvalonDock.Layout
                 IsActive = true;
             }
 
-            if (!added && root != null && root.Manager != null)
+            if (root != null && root.Manager != null)
             {
                 if (root.Manager.LayoutUpdateStrategy != null)
-                    root.Manager.LayoutUpdateStrategy.InsertAnchorable(root as LayoutRoot, this, PreviousContainer);
+                {
+                    root.Manager.LayoutUpdateStrategy.AfterInsertAnchorable(root as LayoutRoot, this);
+                }
             }
 
+            PreviousContainer = null;
+            PreviousContainerIndex = -1;
 
             RaisePropertyChanged("IsVisible");
             RaisePropertyChanged("IsHidden");
             NotifyIsVisibleChanged();
+        }
+
+        protected override void InternalDock()
+        {
+            var root = Root as LayoutRoot;
+            LayoutAnchorablePane anchorablePane = null;
+
+            if (root.ActiveContent != null &&
+                root.ActiveContent != this)
+            {
+                //look for active content parent pane
+                anchorablePane = root.ActiveContent.Parent as LayoutAnchorablePane;
+            }
+
+            if (anchorablePane == null)
+            {
+                //look for a pane on the right side
+                anchorablePane = root.Descendents().OfType<LayoutAnchorablePane>().Where(pane => !pane.IsHostedInFloatingWindow && pane.GetSide() == AnchorSide.Right).FirstOrDefault();
+            }
+
+            if (anchorablePane == null)
+            {
+                //look for an available pane
+                anchorablePane = root.Descendents().OfType<LayoutAnchorablePane>().FirstOrDefault();
+            }
+
+
+            bool added = false;
+            if (root.Manager.LayoutUpdateStrategy != null)
+            {
+                added = root.Manager.LayoutUpdateStrategy.BeforeInsertAnchorable(root, this, anchorablePane);
+            }
+
+            if (!added)
+            {
+                if (anchorablePane == null)
+                {
+                    var mainLayoutPanel = new LayoutPanel() { Orientation = Orientation.Horizontal };
+                    if (root.RootPanel != null)
+                    {
+                        mainLayoutPanel.Children.Add(root.RootPanel);
+                    }
+
+                    root.RootPanel = mainLayoutPanel;
+                    anchorablePane = new LayoutAnchorablePane() { DockWidth = new GridLength(200.0, GridUnitType.Pixel) };
+                    mainLayoutPanel.Children.Add(anchorablePane);
+                }
+
+                anchorablePane.Children.Add(this);
+                added = true;
+            }
+
+            if (root.Manager.LayoutUpdateStrategy != null)
+            {
+                root.Manager.LayoutUpdateStrategy.AfterInsertAnchorable(root, this);
+            }
+
+            base.InternalDock();
         }
 
         /// <summary>
@@ -340,7 +421,7 @@ namespace AvalonDock.Layout
             {
                 var parentGroup = Parent as LayoutAnchorGroup;
                 var parentSide = parentGroup.Parent as LayoutAnchorSide;
-                var previousContainer = parentGroup.PreviousContainer as LayoutAnchorablePane;
+                var previousContainer = ((ILayoutPreviousContainer)parentGroup).PreviousContainer as LayoutAnchorablePane;
 
                 if (previousContainer == null)
                 {
@@ -417,10 +498,22 @@ namespace AvalonDock.Layout
                             break;
                     }
                 }
+                else
+                { 
+                    //I'm about to remove parentGroup, redirect any content (ie hidden contents) that point to it
+                    //to previousContainer
+                    LayoutRoot root = parentGroup.Root as LayoutRoot;
+                    foreach (var cnt in root.Descendents().OfType<ILayoutPreviousContainer>().Where(c => c.PreviousContainer == parentGroup))
+                    {
+                        cnt.PreviousContainer = previousContainer;
+                    }
+                }
 
 
                 foreach (var anchorableToToggle in parentGroup.Children.ToArray())
+                {
                     previousContainer.Children.Add(anchorableToToggle);
+                }
 
                 parentSide.Children.Remove(parentGroup);
             }
@@ -431,7 +524,9 @@ namespace AvalonDock.Layout
                 var root = Root;
                 var parentPane = Parent as LayoutAnchorablePane;
 
-                var newAnchorGroup = new LayoutAnchorGroup() { PreviousContainer = parentPane };
+                var newAnchorGroup = new LayoutAnchorGroup();
+
+                ((ILayoutPreviousContainer)newAnchorGroup).PreviousContainer = parentPane;
 
                 foreach (var anchorableToImport in parentPane.Children.ToArray())
                     newAnchorGroup.Children.Add(anchorableToImport);
@@ -478,7 +573,69 @@ namespace AvalonDock.Layout
 
         #endregion
 
+        #region CanAutoHide
+
+        private bool _canAutoHide = true;
+        public bool CanAutoHide
+        {
+            get { return _canAutoHide; }
+            set
+            {
+                if (_canAutoHide != value)
+                {
+                    _canAutoHide = value;
+                    RaisePropertyChanged("CanAutoHide");
+                }
+            }
+        }
+
+        #endregion
 
 
+        public override void ReadXml(System.Xml.XmlReader reader)
+        {
+            if (reader.MoveToAttribute("CanHide"))
+                CanHide = bool.Parse(reader.Value);
+            if (reader.MoveToAttribute("CanAutoHide"))
+                CanAutoHide = bool.Parse(reader.Value);
+            if (reader.MoveToAttribute("AutoHideWidth"))
+                AutoHideWidth = double.Parse(reader.Value, CultureInfo.InvariantCulture);
+            if (reader.MoveToAttribute("AutoHideHeight"))
+                AutoHideHeight = double.Parse(reader.Value, CultureInfo.InvariantCulture);
+            if (reader.MoveToAttribute("AutoHideMinWidth"))
+                AutoHideMinWidth = double.Parse(reader.Value, CultureInfo.InvariantCulture);
+            if (reader.MoveToAttribute("AutoHideMinHeight"))
+                AutoHideMinHeight = double.Parse(reader.Value, CultureInfo.InvariantCulture);
+
+            base.ReadXml(reader);
+        }
+
+        public override void WriteXml(System.Xml.XmlWriter writer)
+        {
+            if (!CanHide)
+                writer.WriteAttributeString("CanHide", CanHide.ToString());
+            if (!CanAutoHide)
+                writer.WriteAttributeString("CanAutoHide", CanAutoHide.ToString(CultureInfo.InvariantCulture));
+            if (AutoHideWidth > 0)
+                writer.WriteAttributeString("AutoHideWidth", AutoHideWidth.ToString(CultureInfo.InvariantCulture));
+            if (AutoHideHeight > 0)
+                writer.WriteAttributeString("AutoHideHeight", AutoHideHeight.ToString(CultureInfo.InvariantCulture));
+            if (AutoHideMinWidth != 25.0)
+                writer.WriteAttributeString("AutoHideMinWidth", AutoHideMinWidth.ToString(CultureInfo.InvariantCulture));
+            if (AutoHideMinHeight != 25.0)
+                writer.WriteAttributeString("AutoHideMinHeight", AutoHideMinHeight.ToString(CultureInfo.InvariantCulture));
+
+            
+            base.WriteXml(writer);
+        }
+
+
+#if DEBUG
+        public override void ConsoleDump(int tab)
+        {
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("Anchorable()");
+        }
+#endif
     }
 }

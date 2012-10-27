@@ -31,7 +31,7 @@ namespace AvalonDock.Layout
 {
     [ContentProperty("Children")]
     [Serializable]
-    public class LayoutDocumentPane : LayoutPositionableGroup<LayoutContent>, ILayoutDocumentPane, ILayoutPositionableElement, ILayoutContentSelector
+    public class LayoutDocumentPane : LayoutPositionableGroup<LayoutContent>, ILayoutDocumentPane, ILayoutPositionableElement, ILayoutContentSelector, ILayoutPaneSerializable
     {
         public LayoutDocumentPane()
         {
@@ -80,6 +80,8 @@ namespace AvalonDock.Layout
                 }
             }
         }
+
+
         public LayoutContent SelectedContent
         {
             get { return _selectedIndex == -1 ? null : Children[_selectedIndex]; }
@@ -91,7 +93,16 @@ namespace AvalonDock.Layout
             if (SelectedContentIndex >= ChildrenCount)
                 SelectedContentIndex = Children.Count - 1;
             if (SelectedContentIndex == -1 && ChildrenCount > 0)
-                SelectedContentIndex = 0;
+            {
+                if (Root == null)//if I'm not yet connected just switch to first document
+                    SelectedContentIndex = 0;
+                else
+                {
+                    var childrenToSelect = Children.OrderByDescending(c => c.LastActivationTimeStamp.GetValueOrDefault()).First();
+                    SelectedContentIndex = Children.IndexOf(childrenToSelect);
+                    childrenToSelect.IsActive = true;
+                }
+            }
 
             base.OnChildrenCollectionChanged();
 
@@ -125,5 +136,48 @@ namespace AvalonDock.Layout
                 return listSorted;
             }
         }
+
+        string _id;
+        string ILayoutPaneSerializable.Id
+        {
+            get
+            {
+                return _id;
+            }
+            set
+            {
+                _id = value;
+            }
+        }
+
+        public override void WriteXml(System.Xml.XmlWriter writer)
+        {
+            if (_id != null)
+                writer.WriteAttributeString("Id", _id);
+
+            base.WriteXml(writer);
+        }
+
+        public override void ReadXml(System.Xml.XmlReader reader)
+        {
+            if (reader.MoveToAttribute("Id"))
+                _id = reader.Value;
+
+
+            base.ReadXml(reader);
+        }
+
+
+#if DEBUG
+        public override void ConsoleDump(int tab)
+        {
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("DocumentPane()");
+
+            foreach (LayoutElement child in Children)
+                child.ConsoleDump(tab + 1);
+        }
+#endif
+    
     }
 }

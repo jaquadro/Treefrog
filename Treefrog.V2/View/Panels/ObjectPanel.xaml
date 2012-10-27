@@ -34,20 +34,20 @@
             <ToolBarTray Grid.Row="1" IsLocked="True">
                 <ToolBar Band="1" BandIndex="1" Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
                     <Button Command="{Binding AddObjectCommand}" IsEnabled="{Binding IsAddObjectEnabled}">
-                        <Image Source="/Treefrog;component/Images/16/game--plus.png"
+                        <Image Source="/Treefrog;component/Images/16/game--plus.png" ToolTip="Add Object"
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Button Command="{Binding RemoveObjectCommand}" IsEnabled="{Binding IsRemoveObjectEnabled}">
-                        <Image Source="/Treefrog;component/Images/16/game--minus.png" 
+                        <Image Source="/Treefrog;component/Images/16/game--minus.png" ToolTip="Remove Selected Object"
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Separator />
                     <Button Command="{Binding AddCategorryCommand}" IsEnabled="{Binding IsAddCategoryEnabled}">
-                        <Image Source="/Treefrog;component/Images/16/box--plus.png"
+                        <Image Source="/Treefrog;component/Images/16/box--plus.png" ToolTip="Add Category"
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Button Command="{Binding RemoveCategoryCommand}" IsEnabled="{Binding IsRemoveCategoryEnabled}">
-                        <Image Source="/Treefrog;component/Images/16/box--minus.png" 
+                        <Image Source="/Treefrog;component/Images/16/box--minus.png" ToolTip="Remove Selected Category"
                            Style="{StaticResource ButtonImageDisabled}" Width="16" Height="16" />
                     </Button>
                     <Separator />

@@ -38,5 +38,6 @@ namespace AvalonDock.Controls
 
         IEnumerable<IDropArea> GetDropAreas(LayoutFloatingWindowControl draggingWindow);
 
+        DockingManager Manager { get; }
     }
 }

@@ -33,11 +33,20 @@ namespace AvalonDock.Converters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            //when this converter is called layout could be constructing so many properties here are potentially not valid
             var layoutModel = value as LayoutContent;
             if (layoutModel == null)
                 return null;
+            if (layoutModel.Root == null)
+                return null;
+            if (layoutModel.Root.Manager == null)
+                return null;
 
-            return layoutModel.Root.Manager.GetLayoutItemFromModel(layoutModel).ActivateCommand;
+            var layoutItemModel = layoutModel.Root.Manager.GetLayoutItemFromModel(layoutModel);
+            if (layoutItemModel == null)
+                return Binding.DoNothing;
+
+            return layoutItemModel.ActivateCommand;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

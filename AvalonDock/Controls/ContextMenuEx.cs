@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace AvalonDock.Controls
 {
@@ -32,8 +33,16 @@ namespace AvalonDock.Controls
     {
         protected override System.Windows.DependencyObject GetContainerForItemOverride()
         {
-            //return base.GetContainerForItemOverride();
             return new MenuItemEx();
         }
+
+        protected override void OnOpened(System.Windows.RoutedEventArgs e)
+        {
+            BindingOperations.GetBindingExpression(this, ItemsSourceProperty).UpdateTarget();
+
+            base.OnOpened(e);
+        }
+
+        
     }
 }

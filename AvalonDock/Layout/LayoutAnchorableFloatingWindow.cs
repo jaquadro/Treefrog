@@ -52,14 +52,14 @@ namespace AvalonDock.Layout
                     RaisePropertyChanging("RootPanel");
 
                     if (_rootPanel != null)
-                        _rootPanel.ChildrenCollectionChanged -= new EventHandler(_rootPanel_ChildrenCollectionChanged);
+                        _rootPanel.ChildrenTreeChanged -= new EventHandler<ChildrenTreeChangedEventArgs>(_rootPanel_ChildrenTreeChanged);
 
                     _rootPanel = value;
                     if (_rootPanel != null)
                         _rootPanel.Parent = this;
 
                     if (_rootPanel != null)
-                        _rootPanel.ChildrenCollectionChanged += new EventHandler(_rootPanel_ChildrenCollectionChanged);
+                        _rootPanel.ChildrenTreeChanged += new EventHandler<ChildrenTreeChangedEventArgs>(_rootPanel_ChildrenTreeChanged);
 
                     RaisePropertyChanged("RootPanel");
                     RaisePropertyChanged("IsSinglePane");
@@ -71,18 +71,18 @@ namespace AvalonDock.Layout
             }
         }
 
-        void _rootPanel_ChildrenCollectionChanged(object sender, EventArgs e)
+        void _rootPanel_ChildrenTreeChanged(object sender, ChildrenTreeChangedEventArgs e)
         {
             RaisePropertyChanged("IsSinglePane");
             RaisePropertyChanged("SinglePane");
+            
         }
 
         public bool IsSinglePane
         {
             get
             {
-                //Debug.WriteLine("IsSinglePane={0}", RootPanel != null && RootPanel.ChildrenCount == 1);
-                return RootPanel != null && RootPanel.ChildrenCount == 1;
+                return RootPanel != null && RootPanel.Descendents().OfType<ILayoutAnchorablePane>().Where(p => p.IsVisible).Count() == 1;
             }
         }
 
@@ -90,7 +90,12 @@ namespace AvalonDock.Layout
         {
             get
             {
-                return IsSinglePane ? RootPanel.Children[0] : null;
+                if (!IsSinglePane)
+                    return null;
+
+                var singlePane = RootPanel.Descendents().OfType<LayoutAnchorablePane>().Single(p => p.IsVisible);
+                singlePane.UpdateIsDirectlyHostedInFloatingWindow();
+                return singlePane;
             }
         }
 
@@ -161,11 +166,22 @@ namespace AvalonDock.Layout
                 IsVisible = RootPanel.IsVisible;
             else
                 IsVisible = false;
+
         }
 
         public override bool IsValid
         {
             get { return RootPanel != null; }
         }
+
+#if DEBUG
+        public override void ConsoleDump(int tab)
+        {
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("FloatingAnchorableWindow()");
+
+            RootPanel.ConsoleDump(tab + 1);
+        }
+#endif        
     }
 }

@@ -33,6 +33,12 @@ namespace AvalonDock.Controls
 {
     public class LayoutAnchorSideControl : Control, ILayoutControl
     {
+        static LayoutAnchorSideControl()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(LayoutAnchorSideControl), new FrameworkPropertyMetadata(typeof(LayoutAnchorSideControl)));
+        }
+
+
         internal LayoutAnchorSideControl(LayoutAnchorSide model)
         {
             if (model == null)

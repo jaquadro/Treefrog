@@ -75,18 +75,22 @@ namespace AvalonDock.Controls
 
         public int HookProc(int code, IntPtr wParam, IntPtr lParam)
         {
-            try {
-                if (code == Win32Helper.HCBT_SETFOCUS) {
-                    if (FocusChanged != null)
-                        FocusChanged(this, new FocusChangeEventArgs(wParam, lParam));
-                }
-                else if (code == Win32Helper.HCBT_ACTIVATE) {
-                    //System.Diagnostics.Debug.WriteLine("HCBT_ACTIVATE");
-                    if (Activate != null)
-                        Activate(this, EventArgs.Empty);
+            if (code == Win32Helper.HCBT_SETFOCUS)
+            {
+                if (FocusChanged != null)
+                    FocusChanged(this, new FocusChangeEventArgs(wParam, lParam));
+            }
+            else if (code == Win32Helper.HCBT_ACTIVATE)
+            {
+                if (_insideActivateEvent.CanEnter)
+                {
+                    using (_insideActivateEvent.Enter())
+                    {
+                        //if (Activate != null)
+                        //    Activate(this, new WindowActivateEventArgs(wParam));
+                    }
                 }
             }
-            catch { }
             
 
             return Win32Helper.CallNextHookEx(_windowHook, code, wParam, lParam);
@@ -94,7 +98,8 @@ namespace AvalonDock.Controls
 
         public event EventHandler<FocusChangeEventArgs> FocusChanged;
 
-        public event EventHandler Activate;
+        //public event EventHandler<WindowActivateEventArgs> Activate;
 
+        ReentrantFlag _insideActivateEvent = new ReentrantFlag();
     }
 }

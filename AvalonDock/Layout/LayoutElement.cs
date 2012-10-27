@@ -31,7 +31,7 @@ using System.Xml.Serialization;
 namespace AvalonDock.Layout
 {
     [Serializable]
-    public abstract class LayoutElement : ILayoutElement
+    public abstract class LayoutElement : DependencyObject, ILayoutElement
     {
         internal LayoutElement()
         { }
@@ -40,6 +40,8 @@ namespace AvalonDock.Layout
 
         [NonSerialized]
         private ILayoutContainer _parent = null;
+        [NonSerialized]
+        private ILayoutRoot _root = null;
         [XmlIgnore]
         public ILayoutContainer Parent
         {
@@ -49,14 +51,16 @@ namespace AvalonDock.Layout
                 if (_parent != value)
                 {
                     ILayoutContainer oldValue = _parent;
-                    ILayoutRoot oldRoot = Root;
+                    ILayoutRoot oldRoot = _root;
                     RaisePropertyChanging("Parent");
                     OnParentChanging(oldValue, value);
                     _parent = value;
                     OnParentChanged(oldValue, value);
-                    ILayoutRoot newRoot = Root;
-                    if (oldRoot != newRoot)
-                        OnRootChanged(oldRoot, newRoot);
+
+                    _root = Root;
+                    if (oldRoot != _root)
+                        OnRootChanged(oldRoot, _root);
+
                     RaisePropertyChanged("Parent");
 
                     var root = Root as LayoutRoot;
@@ -128,5 +132,13 @@ namespace AvalonDock.Layout
             }
         }
 
+
+#if DEBUG
+        public virtual void ConsoleDump(int tab)
+        {
+            System.Diagnostics.Debug.Write(new String(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine(this.ToString());
+        }
+#endif
     }
 }

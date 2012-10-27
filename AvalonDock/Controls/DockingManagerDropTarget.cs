@@ -56,9 +56,10 @@ namespace AvalonDock.Controls
                             var layoutAnchorablePaneGroup = floatingWindow.RootPanel as LayoutAnchorablePaneGroup;
                             if (layoutAnchorablePaneGroup != null &&
                                 layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Horizontal)
-                            { 
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    _manager.Layout.RootPanel.Children.Insert(i, layoutAnchorablePaneGroup.Children[i]);
+                            {
+                                var childrenToTransfer = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < childrenToTransfer.Length; i++)
+                                    _manager.Layout.RootPanel.Children.Insert(i, childrenToTransfer[i]);
                             }
                             else
                                 _manager.Layout.RootPanel.Children.Insert(0, floatingWindow.RootPanel);
@@ -91,8 +92,9 @@ namespace AvalonDock.Controls
                             if (layoutAnchorablePaneGroup != null &&
                                 layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Horizontal)
                             {
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    _manager.Layout.RootPanel.Children.Add(layoutAnchorablePaneGroup.Children[i]);
+                                var childrenToTransfer = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < childrenToTransfer.Length; i++)
+                                    _manager.Layout.RootPanel.Children.Add(childrenToTransfer[i]);
                             }
                             else
                                 _manager.Layout.RootPanel.Children.Add(floatingWindow.RootPanel);
@@ -125,8 +127,9 @@ namespace AvalonDock.Controls
                             if (layoutAnchorablePaneGroup != null &&
                                 layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Vertical)
                             {
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    _manager.Layout.RootPanel.Children.Insert(i, layoutAnchorablePaneGroup.Children[i]);
+                                var childrenToTransfer = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < childrenToTransfer.Length; i++)
+                                    _manager.Layout.RootPanel.Children.Insert(i, childrenToTransfer[i]);
                             }
                             else
                                 _manager.Layout.RootPanel.Children.Insert(0, floatingWindow.RootPanel);
@@ -159,8 +162,10 @@ namespace AvalonDock.Controls
                             if (layoutAnchorablePaneGroup != null &&
                                 layoutAnchorablePaneGroup.Orientation == System.Windows.Controls.Orientation.Vertical)
                             {
-                                for (int i = 0; i < layoutAnchorablePaneGroup.Children.Count; i++)
-                                    _manager.Layout.RootPanel.Children.Add(layoutAnchorablePaneGroup.Children[i]);
+                                var childrenToTransfer = layoutAnchorablePaneGroup.Children.ToArray();
+                                for (int i = 0; i < childrenToTransfer.Length; i++)
+                                    _manager.Layout.RootPanel.Children.Add(childrenToTransfer[i]);
+
                             }
                             else
                                 _manager.Layout.RootPanel.Children.Add(floatingWindow.RootPanel);
@@ -198,41 +203,45 @@ namespace AvalonDock.Controls
             {
                 case DropTargetType.DockingManagerDockLeft:
                     {
+                        var desideredWidth = layoutAnchorablePane.DockWidth.IsAbsolute ? layoutAnchorablePane.DockWidth.Value : layoutAnchorablePaneWithActualSize.ActualWidth;
                         var previewBoxRect = new Rect(
                             targetScreenRect.Left - overlayWindow.Left,
                             targetScreenRect.Top - overlayWindow.Top,
-                            layoutAnchorablePane.DockWidth.IsAbsolute ? layoutAnchorablePane.DockWidth.Value : layoutAnchorablePaneWithActualSize.ActualWidth,
+                            Math.Min(desideredWidth, targetScreenRect.Width / 2.0),
                             targetScreenRect.Height);
 
                         return new RectangleGeometry(previewBoxRect);
                     }
                 case DropTargetType.DockingManagerDockTop:
                     {
+                        var desideredHeight = layoutAnchorablePane.DockHeight.IsAbsolute ? layoutAnchorablePane.DockHeight.Value : layoutAnchorablePaneWithActualSize.ActualHeight;
                         var previewBoxRect = new Rect(
                             targetScreenRect.Left - overlayWindow.Left,
                             targetScreenRect.Top - overlayWindow.Top,
                             targetScreenRect.Width,
-                            layoutAnchorablePane.DockHeight.IsAbsolute ? layoutAnchorablePane.DockHeight.Value : layoutAnchorablePaneWithActualSize.ActualHeight);
+                            Math.Min(desideredHeight, targetScreenRect.Height / 2.0));
 
                         return new RectangleGeometry(previewBoxRect);
                     }
                 case DropTargetType.DockingManagerDockRight:
                     {
+                        var desideredWidth = layoutAnchorablePane.DockWidth.IsAbsolute ? layoutAnchorablePane.DockWidth.Value : layoutAnchorablePaneWithActualSize.ActualWidth;
                         var previewBoxRect = new Rect(
-                            targetScreenRect.Right - overlayWindow.Left - (layoutAnchorablePane.DockWidth.IsAbsolute ? layoutAnchorablePane.DockWidth.Value : layoutAnchorablePaneWithActualSize.ActualWidth),
+                            targetScreenRect.Right - overlayWindow.Left - Math.Min(desideredWidth, targetScreenRect.Width / 2.0),
                             targetScreenRect.Top - overlayWindow.Top,
-                            layoutAnchorablePane.DockWidth.IsAbsolute ? layoutAnchorablePane.DockWidth.Value : layoutAnchorablePaneWithActualSize.ActualWidth,
+                            Math.Min(desideredWidth, targetScreenRect.Width / 2.0),
                             targetScreenRect.Height);
 
                         return new RectangleGeometry(previewBoxRect);
                     }
                 case DropTargetType.DockingManagerDockBottom:
                     {
+                        var desideredHeight = layoutAnchorablePane.DockHeight.IsAbsolute ? layoutAnchorablePane.DockHeight.Value : layoutAnchorablePaneWithActualSize.ActualHeight;
                         var previewBoxRect = new Rect(
                             targetScreenRect.Left - overlayWindow.Left,
-                            targetScreenRect.Bottom - overlayWindow.Top - (layoutAnchorablePane.DockHeight.IsAbsolute ? layoutAnchorablePane.DockHeight.Value : layoutAnchorablePaneWithActualSize.ActualHeight),
+                            targetScreenRect.Bottom - overlayWindow.Top - Math.Min(desideredHeight, targetScreenRect.Height / 2.0),
                             targetScreenRect.Width,
-                            layoutAnchorablePane.DockHeight.IsAbsolute ? layoutAnchorablePane.DockHeight.Value : layoutAnchorablePaneWithActualSize.ActualHeight);
+                            Math.Min(desideredHeight, targetScreenRect.Height / 2.0));
 
                         return new RectangleGeometry(previewBoxRect);
                     }

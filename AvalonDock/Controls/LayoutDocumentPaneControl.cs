@@ -47,6 +47,7 @@ namespace AvalonDock.Controls
 
             _model = model;
             SetBinding(ItemsSourceProperty, new Binding("Model.Children") { Source = this });
+            SetBinding(FlowDirectionProperty, new Binding("Model.Root.Manager.FlowDirection") { Source = this });
 
             this.LayoutUpdated += new EventHandler(OnLayoutUpdated);
         }
@@ -62,11 +63,22 @@ namespace AvalonDock.Controls
         {
             base.OnGotKeyboardFocus(e);
             System.Diagnostics.Debug.WriteLine("OnGotKeyboardFocus({0}, {1})", e.Source, e.NewFocus);
-            if (!e.Handled && e.NewFocus is TabItem)
-            {
-                FocusElementManager.SetFocusOnLastElement(_model.SelectedContent);
-                e.Handled = true;
-            }
+            //if (!e.Handled && e.NewFocus is TabItem)
+            //{
+            //    FocusElementManager.SetFocusOnLastElement(_model.SelectedContent);
+            //    e.Handled = true;
+            //}
+            if (_model.SelectedContent != null)
+                _model.SelectedContent.IsActive = true;
+
+        }
+
+        protected override void OnSelectionChanged(SelectionChangedEventArgs e)
+        {
+            base.OnSelectionChanged(e);
+
+            if (_model.SelectedContent != null)
+                _model.SelectedContent.IsActive = true;
         }
 
         List<object> _logicalChildren = new List<object>();
@@ -104,6 +116,21 @@ namespace AvalonDock.Controls
             RemoveLogicalChild(element);
         }
 
+        protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
 
+            if (!e.Handled && _model.SelectedContent != null)
+                _model.SelectedContent.IsActive = true;
+        }
+
+        protected override void OnMouseRightButtonDown(System.Windows.Input.MouseButtonEventArgs e)
+        {
+            base.OnMouseRightButtonDown(e);
+
+            if (!e.Handled && _model.SelectedContent != null)
+                _model.SelectedContent.IsActive = true;
+
+        }
     }
 }

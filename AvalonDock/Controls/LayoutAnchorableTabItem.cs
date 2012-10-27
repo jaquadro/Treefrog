@@ -34,7 +34,7 @@ using System.Diagnostics;
 
 namespace AvalonDock.Controls
 {
-    public class LayoutAnchorableTabItem : TabItem
+    public class LayoutAnchorableTabItem : Control
     {
         static LayoutAnchorableTabItem()
         {
@@ -44,6 +44,8 @@ namespace AvalonDock.Controls
         public LayoutAnchorableTabItem()
         {
         }
+
+
 
         #region Model
 
@@ -82,11 +84,10 @@ namespace AvalonDock.Controls
                 SetLayoutItem(Model.Root.Manager.GetLayoutItemFromModel(Model));
             else
                 SetLayoutItem(null);
-            UpdateLogicalParent();
+            //UpdateLogicalParent();
         }
 
         #endregion
-
 
         #region LayoutItem
 
@@ -120,32 +121,6 @@ namespace AvalonDock.Controls
         }
 
         #endregion
-
-
-        void UpdateLogicalParent()
-        {
-            if (Model != null &&
-                Model.Content != null &&
-                Model.Content is UIElement)
-            {
-                var oldLogicalParentPaneControl = LogicalTreeHelper.GetParent(Model.Content as UIElement)
-                    as ILogicalChildrenContainer;
-                if (oldLogicalParentPaneControl != null)
-                    oldLogicalParentPaneControl.InternalRemoveLogicalChild(Model.Content);
-            }
-
-            var parentPaneControl = this.FindVisualAncestor<LayoutAnchorablePaneControl>();
-            if (Model != null &&
-                parentPaneControl != null &&
-                Model.Content != null &&
-                Model.Content is UIElement)
-            {
-                ((ILogicalChildrenContainer)parentPaneControl).InternalAddLogicalChild(Model.Content);
-
-                BindingHelper.RebindInactiveBindings(Model.Content as UIElement);
-            }
-        }
-
 
         bool _isMouseDown = false;
         static LayoutAnchorableTabItem _draggingItem = null;
@@ -190,8 +165,6 @@ namespace AvalonDock.Controls
             base.OnMouseLeftButtonUp(e);
 
             Model.IsActive = true;
-            //FocusElementManager.SetFocusOnLastElement(Model);
-
         }
 
         protected override void OnMouseLeave(System.Windows.Input.MouseEventArgs e)
@@ -223,12 +196,6 @@ namespace AvalonDock.Controls
                 containerPane.MoveChild(childrenList.IndexOf(_draggingItem.Model), childrenList.IndexOf(model));
             }
         }
-
-        //public override string ToString()
-        //{
-        //    return string.Format("TabItem({0})", Model.Title);
-        //    //return base.ToString();
-        //}
 
         protected override void OnPreviewGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
         {

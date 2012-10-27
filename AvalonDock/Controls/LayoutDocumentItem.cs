@@ -87,6 +87,10 @@ namespace AvalonDock.Controls
 
         #endregion
 
-
+        internal override void Detach()
+        {
+            _document = null;
+            base.Detach();
+        }
     }
 }

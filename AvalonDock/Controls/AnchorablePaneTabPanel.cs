@@ -33,7 +33,8 @@ namespace AvalonDock.Controls
     public class AnchorablePaneTabPanel : Panel
     {
         public AnchorablePaneTabPanel()
-        { 
+        {
+            FlowDirection = System.Windows.FlowDirection.LeftToRight;
         }
 
 

@@ -117,6 +117,26 @@ namespace AvalonDock
             ShowWindow = 0x0040,
         }
 
+        /// <summary>
+        ///     Special window handles
+        /// </summary>
+        internal static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        internal static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        internal static readonly IntPtr HWND_TOP = new IntPtr(0);
+        internal static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal class WINDOWPOS
+        {
+            public IntPtr hwnd;
+            public IntPtr hwndInsertAfter;
+            public int x;
+            public int y;
+            public int cx;
+            public int cy;
+            public int flags;
+        }; 
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, SetWindowPosFlags uFlags);
@@ -126,18 +146,6 @@ namespace AvalonDock
 
         [DllImport("user32.dll")]
         internal static extern IntPtr SetFocus(IntPtr hWnd);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct WINDOWPOS
-        {
-            public IntPtr hwnd;
-            public IntPtr hwndInsertAfter;
-            public int x;
-            public int y;
-            public int cx;
-            public int cy;
-            public uint flags;
-        }
 
         internal const int WM_WINDOWPOSCHANGED = 0x0047;
         internal const int WM_WINDOWPOSCHANGING = 0x0046;
@@ -157,7 +165,9 @@ namespace AvalonDock
         internal const int WM_ACTIVATE = 0x0006;
         internal const int WM_NCHITTEST = 0x0084;
         internal const int WM_INITMENUPOPUP = 0x0117;
-        
+        internal const int WM_KEYDOWN = 0x0100;
+        internal const int WM_KEYUP = 0x0101;
+
         internal const int WA_INACTIVE = 0x0000;
 
         internal const int
@@ -172,15 +182,15 @@ namespace AvalonDock
         internal const int HT_CAPTION = 0x2;
 
         [DllImportAttribute("user32.dll")]
-        internal static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        internal static extern int SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
         [DllImportAttribute("user32.dll")]
-        internal static extern int PostMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        internal static extern int PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
 
         [DllImport("user32.dll")]
         static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
         [DllImport("user32.dll")]
-        static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        internal static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
         // Hook Types  
         public enum HookType : int
@@ -315,14 +325,70 @@ namespace AvalonDock
         internal const int WM_MOUSEHWHEEL = 0x20E;
 
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetCursorPos(ref Win32Point pt);
+
         [StructLayout(LayoutKind.Sequential)]
         internal struct Win32Point
         {
             public Int32 X;
             public Int32 Y;
         };
+        internal static Point GetMousePosition()
+        {
+            Win32Point w32Mouse = new Win32Point();
+            GetCursorPos(ref w32Mouse);
+            return new Point(w32Mouse.X, w32Mouse.Y);
+        }
+
 
         [DllImport("user32.dll")]
-        internal static extern bool GetCursorPos(ref Win32Point pt);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool IsWindowVisible(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool IsWindowEnabled(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetFocus();
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
+        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
+        internal static extern IntPtr GetParent(IntPtr hWnd);
+
+        /// <summary>
+        /// Changes an attribute of the specified window. The function also sets the 32-bit (long) value at the specified offset into the extra window memory.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window and, indirectly, the class to which the window belongs..</param>
+        /// <param name="nIndex">The zero-based offset to the value to be set. Valid values are in the range zero through the number of bytes of extra window memory, minus the size of an integer. To set any other value, specify one of the following values: GWL_EXSTYLE, GWL_HINSTANCE, GWL_ID, GWL_STYLE, GWL_USERDATA, GWL_WNDPROC </param>
+        /// <param name="dwNewLong">The replacement value.</param>
+        /// <returns>If the function succeeds, the return value is the previous value of the specified 32-bit integer.
+        /// If the function fails, the return value is zero. To get extended error information, call GetLastError. </returns>
+        [DllImport("user32.dll")]
+        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        public static void SetOwner(IntPtr childHandle, IntPtr ownerHandle)
+        {
+            SetWindowLong(
+                childHandle,
+                -8, // GWL_HWNDPARENT
+                ownerHandle.ToInt32());
+        }
+
+        public static IntPtr GetOwner(IntPtr childHandle)
+        {
+            return new IntPtr(GetWindowLong(childHandle, -8));
+        }
+
     }
 }

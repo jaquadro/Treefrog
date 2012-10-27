@@ -58,5 +58,7 @@ namespace AvalonDock.Layout
             if (ChildrenTreeChanged != null)
                 ChildrenTreeChanged(this, new ChildrenTreeChangedEventArgs(change));
         }
+
+
     }
 }

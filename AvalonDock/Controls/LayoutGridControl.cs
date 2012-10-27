@@ -30,6 +30,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using AvalonDock.Layout;
 using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace AvalonDock.Controls
 {
@@ -46,7 +47,8 @@ namespace AvalonDock.Controls
 
             _model = model;
             _orientation = orientation;
-            //FlowDirection = System.Windows.FlowDirection.LeftToRight;
+
+            FlowDirection = System.Windows.FlowDirection.LeftToRight;
         }
 
         LayoutPositionableGroup<T> _model;
@@ -62,19 +64,31 @@ namespace AvalonDock.Controls
             get { return (_model as ILayoutOrientableGroup).Orientation; }
         }
 
+        bool _initialized;
+        ChildrenTreeChange? _asyncRefreshCalled;
+
+        bool AsyncRefreshCalled
+        {
+            get { return _asyncRefreshCalled != null; }
+        }
+
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
 
-            UpdateChildren();
-
             _model.ChildrenTreeChanged += (s, args) =>
                 {
-                    if (args.Change == ChildrenTreeChange.TreeChanged)
-                        FixChildrenDockLengths();
-                    else
-                        UpdateChildren();
+                    if (_asyncRefreshCalled.HasValue &&
+                        _asyncRefreshCalled.Value == args.Change)
+                        return;
+                    _asyncRefreshCalled = args.Change;
+                    Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            _asyncRefreshCalled = null;
+                            UpdateChildren();
+                        }), DispatcherPriority.Normal, null);
                 };
+
             this.LayoutUpdated += new EventHandler(OnLayoutUpdated);
         }
 
@@ -83,6 +97,12 @@ namespace AvalonDock.Controls
             var modelWithAtcualSize = _model as ILayoutPositionableElementWithActualSize;
             modelWithAtcualSize.ActualWidth = ActualWidth;
             modelWithAtcualSize.ActualHeight = ActualHeight;
+
+            if (!_initialized)
+            {
+                _initialized = true;
+                UpdateChildren();
+            }
         }
 
         void UpdateChildren()
@@ -140,22 +160,30 @@ namespace AvalonDock.Controls
 
         void OnChildModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "DockWidth" && Orientation == System.Windows.Controls.Orientation.Horizontal)
+            if (AsyncRefreshCalled)
+                return;
+
+            if (_fixingChildrenDockLengths.CanEnter && e.PropertyName == "DockWidth" && Orientation == System.Windows.Controls.Orientation.Horizontal)
             {
-                var changedElement = sender as ILayoutPositionableElement;
-                var childFromModel = InternalChildren.OfType<ILayoutControl>().First(ch => ch.Model == changedElement) as UIElement;
-                int indexOfChild = InternalChildren.IndexOf(childFromModel);
-                ColumnDefinitions[indexOfChild].Width = changedElement.DockWidth;
+                if (ColumnDefinitions.Count == InternalChildren.Count)
+                {
+                    var changedElement = sender as ILayoutPositionableElement;
+                    var childFromModel = InternalChildren.OfType<ILayoutControl>().First(ch => ch.Model == changedElement) as UIElement;
+                    int indexOfChild = InternalChildren.IndexOf(childFromModel);
+                    ColumnDefinitions[indexOfChild].Width = changedElement.DockWidth;
+                }
             }
-            else if (e.PropertyName == "DockHeight" && Orientation == System.Windows.Controls.Orientation.Vertical)
+            else if (_fixingChildrenDockLengths.CanEnter && e.PropertyName == "DockHeight" && Orientation == System.Windows.Controls.Orientation.Vertical)
             {
-                var changedElement = sender as ILayoutPositionableElement;
-                var childFromModel = InternalChildren.OfType<ILayoutControl>().First(ch => ch.Model == changedElement) as UIElement;
-                int indexOfChild = InternalChildren.IndexOf(childFromModel);
-                RowDefinitions[indexOfChild].Height = changedElement.DockHeight;
+                if (RowDefinitions.Count == InternalChildren.Count)
+                {
+                    var changedElement = sender as ILayoutPositionableElement;
+                    var childFromModel = InternalChildren.OfType<ILayoutControl>().First(ch => ch.Model == changedElement) as UIElement;
+                    int indexOfChild = InternalChildren.IndexOf(childFromModel);
+                    RowDefinitions[indexOfChild].Height = changedElement.DockHeight;
+                }
             }
-            else if (e.PropertyName == "IsVisible" ||
-                e.PropertyName == "Orientation")
+            else if (e.PropertyName == "IsVisible")
             {
                 UpdateRowColDefinitions();
             }
@@ -164,11 +192,16 @@ namespace AvalonDock.Controls
 
         void UpdateRowColDefinitions()
         {
-            var manager = _model.Root.Manager;
+            var root = _model.Root;
+            if (root == null)
+                return;
+            var manager = root.Manager;
             if (manager == null)
                 return;
 
             FixChildrenDockLengths();
+
+            //Debug.Assert(InternalChildren.Count == _model.ChildrenCount + (_model.ChildrenCount - 1));
 
             #region Setup GridRows/Cols
             RowDefinitions.Clear();
@@ -226,6 +259,9 @@ namespace AvalonDock.Controls
                     });
                     Grid.SetRow(InternalChildren[iChild], iRow);
 
+                    //if (RowDefinitions.Last().Height.Value == 0.0)
+                    //    System.Diagnostics.Debugger.Break();
+
                     //append row for splitter (if necessary)
                     if (iChild < InternalChildren.Count - 1)
                     {
@@ -247,6 +283,8 @@ namespace AvalonDock.Controls
                         {
                             Height = childModel.IsVisible && nextChildModelVisibleExist ? new GridLength(manager.GridSplitterHeight) : new GridLength(0.0, GridUnitType.Pixel)
                         });
+                        //if (RowDefinitions.Last().Height.Value == 0.0)
+                        //    System.Diagnostics.Debugger.Break();
                         Grid.SetRow(InternalChildren[iChild], iRow);
                     }
                 }
@@ -255,7 +293,14 @@ namespace AvalonDock.Controls
             #endregion
         }
 
-        protected abstract void FixChildrenDockLengths();
+        ReentrantFlag _fixingChildrenDockLengths = new ReentrantFlag();
+        protected void FixChildrenDockLengths()
+        {
+            using (_fixingChildrenDockLengths.Enter())
+                OnFixChildrenDockLengths();
+        }
+
+        protected abstract void OnFixChildrenDockLengths();
 
         #region Splitters
 
@@ -438,7 +483,7 @@ namespace AvalonDock.Controls
             var prevChildModel = (ILayoutPositionableElement)(prevChild as ILayoutControl).Model;
             var nextChildModel = (ILayoutPositionableElement)(nextChild as ILayoutControl).Model;
 
-            Point ptTopLeftScreen = prevChild.PointToScreenDPI(new Point()); 
+            Point ptTopLeftScreen = prevChild.PointToScreenDPIWithoutFlowDirection(new Point());
 
             Size actualSize;
 
@@ -460,10 +505,11 @@ namespace AvalonDock.Controls
 
                 _resizerGhost.Height = splitter.ActualHeight;
                 _resizerGhost.Width = actualSize.Width;
+                
                 ptTopLeftScreen.Offset(0.0, prevChildModel.DockMinHeight);
             }
 
-            _initialStartPoint = splitter.PointToScreenDPI(new Point()) - ptTopLeftScreen;
+            _initialStartPoint = splitter.PointToScreenDPIWithoutFlowDirection(new Point()) - ptTopLeftScreen;
 
             if (Orientation == System.Windows.Controls.Orientation.Horizontal)
             {
@@ -495,10 +541,13 @@ namespace AvalonDock.Controls
                 Left = ptTopLeftScreen.X,
                 Top = ptTopLeftScreen.Y,
                 ShowActivated = false,
-                Owner = Window.GetWindow(this),
+                //Owner = Window.GetWindow(this),
                 Content = panelHostResizer
             };
-
+            _resizerWindowHost.Loaded += (s, e) =>
+                {
+                    _resizerWindowHost.SetParentToMainWindowOf(this);
+                };
             _resizerWindowHost.Show();
         }
 

@@ -47,6 +47,8 @@ namespace AvalonDock.Controls
 
         public LayoutDocumentControl()
         {
+            //SetBinding(FlowDirectionProperty, new Binding("Model.Root.Manager.FlowDirection") { Source = this });
+
         }
 
 
@@ -83,49 +85,51 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnModelChanged(DependencyPropertyChangedEventArgs e)
         {
-            UpdateLogicalParent();
+            if (Model != null)
+                SetLayoutItem(Model.Root.Manager.GetLayoutItemFromModel(Model));
+            else
+                SetLayoutItem(null);
+        }
+        #endregion
+
+        #region LayoutItem
+
+        /// <summary>
+        /// LayoutItem Read-Only Dependency Property
+        /// </summary>
+        private static readonly DependencyPropertyKey LayoutItemPropertyKey
+            = DependencyProperty.RegisterReadOnly("LayoutItem", typeof(LayoutItem), typeof(LayoutDocumentControl),
+                new FrameworkPropertyMetadata((LayoutItem)null));
+
+        public static readonly DependencyProperty LayoutItemProperty
+            = LayoutItemPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Gets the LayoutItem property.  This dependency property 
+        /// indicates the LayoutItem attached to this tag item.
+        /// </summary>
+        public LayoutItem LayoutItem
+        {
+            get { return (LayoutItem)GetValue(LayoutItemProperty); }
         }
 
-        void UpdateLogicalParent()
+        /// <summary>
+        /// Provides a secure method for setting the LayoutItem property.  
+        /// This dependency property indicates the LayoutItem attached to this tag item.
+        /// </summary>
+        /// <param name="value">The new value for the property.</param>
+        protected void SetLayoutItem(LayoutItem value)
         {
-            var parentPaneControl = this.FindVisualAncestor<LayoutDocumentPaneControl>();
-
-            if (Model != null &&
-                Model.Content != null &&
-                Model.Content is UIElement)
-            {
-                var oldLogicalParentPaneControl = LogicalTreeHelper.GetParent(Model.Content as UIElement)
-                    as ILogicalChildrenContainer;
-                if (oldLogicalParentPaneControl == parentPaneControl)
-                    return;
-                if (oldLogicalParentPaneControl != null)
-                    oldLogicalParentPaneControl.InternalRemoveLogicalChild(Model.Content);
-            }
-
-            if (Model != null &&
-                parentPaneControl != null &&
-                Model.Content != null &&
-                Model.Content is UIElement)
-            {
-                ((ILogicalChildrenContainer)parentPaneControl).InternalAddLogicalChild(Model.Content);
-                BindingHelper.RebindInactiveBindings(Model.Content as UIElement);
-            }
+            SetValue(LayoutItemPropertyKey, value);
         }
 
         #endregion
 
-        protected override void OnGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        protected override void OnPreviewGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
-
-            Model.IsActive = true;
-
-            base.OnGotKeyboardFocus(e);
-        }
-
-        protected override void OnLostKeyboardFocus(KeyboardFocusChangedEventArgs e)
-        {
-
-            base.OnLostKeyboardFocus(e);
+            if (Model != null)
+                Model.IsActive = true;
+            base.OnPreviewGotKeyboardFocus(e);
         }
 
 

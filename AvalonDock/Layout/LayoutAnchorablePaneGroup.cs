@@ -81,6 +81,29 @@ namespace AvalonDock.Layout
                 parentPane.ComputeVisibility();
         }
 
+        protected override void OnDockWidthChanged()
+        {
+            if (DockWidth.IsAbsolute && ChildrenCount == 1)
+                ((ILayoutPositionableElement)Children[0]).DockWidth = DockWidth;
+
+            base.OnDockWidthChanged();
+        }
+
+        protected override void OnDockHeightChanged()
+        {
+            if (DockHeight.IsAbsolute && ChildrenCount == 1)
+                ((ILayoutPositionableElement)Children[0]).DockHeight = DockHeight;
+            base.OnDockHeightChanged();
+        }
+
+        protected override void OnChildrenCollectionChanged()
+        {
+            if (DockWidth.IsAbsolute && ChildrenCount == 1)
+                ((ILayoutPositionableElement)Children[0]).DockWidth = DockWidth;
+            if (DockHeight.IsAbsolute && ChildrenCount == 1)
+                ((ILayoutPositionableElement)Children[0]).DockHeight = DockHeight;
+            base.OnChildrenCollectionChanged();
+        }
 
         public override void WriteXml(System.Xml.XmlWriter writer)
         {
@@ -94,6 +117,19 @@ namespace AvalonDock.Layout
                 Orientation = (Orientation)Enum.Parse(typeof(Orientation), reader.Value, true);
             base.ReadXml(reader);
         }
+
+#if DEBUG
+        public override void ConsoleDump(int tab)
+        {
+            System.Diagnostics.Debug.Write(new string(' ', tab * 4));
+            System.Diagnostics.Debug.WriteLine("AnchorablePaneGroup({0})", Orientation);
+
+            foreach (LayoutElement child in Children)
+                child.ConsoleDump(tab + 1);
+        }
+#endif
+    
+    
     }
 
 }

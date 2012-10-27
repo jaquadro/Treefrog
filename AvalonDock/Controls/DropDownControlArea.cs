@@ -96,6 +96,8 @@ namespace AvalonDock.Controls
 
         protected override void OnPreviewMouseRightButtonUp(System.Windows.Input.MouseButtonEventArgs e)
         {
+            base.OnPreviewMouseRightButtonUp(e);
+            
             if (!e.Handled)
             {
                 if (DropDownContextMenu != null)
@@ -104,12 +106,9 @@ namespace AvalonDock.Controls
                     DropDownContextMenu.Placement = PlacementMode.MousePoint;
                     DropDownContextMenu.DataContext = DropDownContextMenuDataContext;
                     DropDownContextMenu.IsOpen = true;
-                    e.Handled = true;
+                   // e.Handled = true;
                 }
             } 
-            
-            base.OnPreviewMouseRightButtonUp(e);
-
         }
 
 

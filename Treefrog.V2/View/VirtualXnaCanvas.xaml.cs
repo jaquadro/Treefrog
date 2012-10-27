@@ -84,6 +84,7 @@ namespace Treefrog.View
         {
             //AttachWindowMouseEvents();
             //AttachGlobalMouseEvents();
+            PropagateViewportData();
         }
 
         private void HandleUnloaded (object sender, RoutedEventArgs e)
@@ -357,6 +358,8 @@ namespace Treefrog.View
                 _layer.ViewportHeight = 0;
                 _layer.ViewportWidth = Viewport.Viewport.Width;
                 _layer.ViewportHeight = Viewport.Viewport.Height;
+                _layer.HorizontalOffset = Viewport.Offset.X;
+                _layer.VerticalOffset = Viewport.Offset.Y;
             }
         }
 

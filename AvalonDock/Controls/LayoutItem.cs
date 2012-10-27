@@ -30,6 +30,7 @@ using System.Windows.Input;
 using AvalonDock.Commands;
 using System.ComponentModel;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace AvalonDock.Controls
 {
@@ -51,13 +52,17 @@ namespace AvalonDock.Controls
         { 
             LayoutElement = model;
             Model = model.Content;
-            DataContext = this;
 
             InitDefaultCommands();
 
             LayoutElement.IsSelectedChanged+=new EventHandler(LayoutElement_IsSelectedChanged);
             LayoutElement.IsActiveChanged+=new EventHandler(LayoutElement_IsActiveChanged);
+            
+            DataContext = this;
+            System.Diagnostics.Debug.WriteLine(string.Format("Attach({0})", LayoutElement.Title));
         }
+
+
 
         void LayoutElement_IsActiveChanged(object sender, EventArgs e)
         {
@@ -65,7 +70,9 @@ namespace AvalonDock.Controls
             {
                 using (_isActiveReentrantFlag.Enter())
                 {
+                    var bnd = BindingOperations.GetBinding(this, IsActiveProperty);
                     IsActive = LayoutElement.IsActive;
+                    var bnd2 = BindingOperations.GetBinding(this, IsActiveProperty);
                 }
             }
         }
@@ -83,8 +90,11 @@ namespace AvalonDock.Controls
 
         internal virtual void Detach()
         {
+            System.Diagnostics.Debug.WriteLine(string.Format("Detach({0})", LayoutElement.Title));
             LayoutElement.IsSelectedChanged -= new EventHandler(LayoutElement_IsSelectedChanged);
             LayoutElement.IsActiveChanged -= new EventHandler(LayoutElement_IsActiveChanged);
+            LayoutElement = null;
+            Model = null;
         }
 
         public LayoutContent LayoutElement
@@ -104,6 +114,10 @@ namespace AvalonDock.Controls
         ICommand _defaultDockAsDocumentCommand;
         ICommand _defaultCloseAllButThisCommand;
         ICommand _defaultActivateCommand;
+        ICommand _defaultNewVerticalTabGroupCommand;
+        ICommand _defaultNewHorizontalTabGroupCommand;
+        ICommand _defaultMoveToNextTabGroupCommand;
+        ICommand _defaultMoveToPreviousTabGroupCommand;
 
         protected virtual void InitDefaultCommands()
         {
@@ -112,10 +126,13 @@ namespace AvalonDock.Controls
             _defaultDockAsDocumentCommand = new RelayCommand((p) => ExecuteDockAsDocumentCommand(p), (p) => CanExecuteDockAsDocumentCommand(p));
             _defaultCloseAllButThisCommand = new RelayCommand((p) => ExecuteCloseAllButThisCommand(p), (p) => CanExecuteCloseAllButThisCommand(p));
             _defaultActivateCommand = new RelayCommand((p) => ExecuteActivateCommand(p), (p) => CanExecuteActivateCommand(p));
-
+            _defaultNewVerticalTabGroupCommand = new RelayCommand((p) => ExecuteNewVerticalTabGroupCommand(p), (p) => CanExecuteNewVerticalTabGroupCommand(p));
+            _defaultNewHorizontalTabGroupCommand = new RelayCommand((p) => ExecuteNewHorizontalTabGroupCommand(p), (p) => CanExecuteNewHorizontalTabGroupCommand(p));
+            _defaultMoveToNextTabGroupCommand = new RelayCommand((p) => ExecuteMoveToNextTabGroupCommand(p), (p) => CanExecuteMoveToNextTabGroupCommand(p));
+            _defaultMoveToPreviousTabGroupCommand = new RelayCommand((p) => ExecuteMoveToPreviousTabGroupCommand(p), (p) => CanExecuteMoveToPreviousTabGroupCommand(p));
         }
 
-        protected virtual void ClearDefaultCommandBindings()
+        protected virtual void ClearDefaultBindings()
         {
             if (CloseCommand == _defaultCloseCommand)
                 BindingOperations.ClearBinding(this, CloseCommandProperty);
@@ -127,9 +144,17 @@ namespace AvalonDock.Controls
                 BindingOperations.ClearBinding(this, CloseAllButThisCommandProperty);
             if (ActivateCommand == _defaultActivateCommand)
                 BindingOperations.ClearBinding(this, ActivateCommandProperty);
+            if (NewVerticalTabGroupCommand == _defaultNewVerticalTabGroupCommand)
+                BindingOperations.ClearBinding(this, NewVerticalTabGroupCommandProperty);
+            if (NewHorizontalTabGroupCommand == _defaultNewHorizontalTabGroupCommand)
+                BindingOperations.ClearBinding(this, NewHorizontalTabGroupCommandProperty);
+            if (MoveToNextTabGroupCommand == _defaultMoveToNextTabGroupCommand)
+                BindingOperations.ClearBinding(this, MoveToNextTabGroupCommandProperty);
+            if (MoveToPreviousTabGroupCommand == _defaultMoveToPreviousTabGroupCommand)
+                BindingOperations.ClearBinding(this, MoveToPreviousTabGroupCommandProperty);
         }
 
-        protected virtual void SetDefaultCommandBindings()
+        protected virtual void SetDefaultBindings()
         {
             if (CloseCommand == null)
                 CloseCommand = _defaultCloseCommand;
@@ -141,18 +166,30 @@ namespace AvalonDock.Controls
                 CloseAllButThisCommand = _defaultCloseAllButThisCommand;
             if (ActivateCommand == null)
                 ActivateCommand = _defaultActivateCommand;
+            if (NewVerticalTabGroupCommand == null)
+                NewVerticalTabGroupCommand = _defaultNewVerticalTabGroupCommand;
+            if (NewHorizontalTabGroupCommand == null)
+                NewHorizontalTabGroupCommand = _defaultNewHorizontalTabGroupCommand;
+            if (MoveToNextTabGroupCommand == null)
+                MoveToNextTabGroupCommand = _defaultMoveToNextTabGroupCommand;
+            if (MoveToPreviousTabGroupCommand == null)
+                MoveToPreviousTabGroupCommand = _defaultMoveToPreviousTabGroupCommand;
+
+
+            IsSelected = LayoutElement.IsSelected;
+            IsActive = LayoutElement.IsActive;
         }
 
 
 
-        internal void _ClearDefaultCommandBindings()
+        internal void _ClearDefaultBindings()
         {
-            ClearDefaultCommandBindings();
+            ClearDefaultBindings();
         }
 
-        internal void _SetDefaultCommandBindings()
+        internal void _SetDefaultBindings()
         {
-            SetDefaultCommandBindings();
+            SetDefaultBindings();
         }
 
         #region Title
@@ -188,7 +225,8 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnTitleChanged(DependencyPropertyChangedEventArgs e)
         {
-            LayoutElement.Title = (string)e.NewValue;
+            if (LayoutElement != null)
+                LayoutElement.Title = (string)e.NewValue;
         }
 
         #endregion
@@ -201,7 +239,8 @@ namespace AvalonDock.Controls
         
         private void OnToolTipChanged()
         {
-            LayoutElement.ToolTip = ToolTip;
+            if (LayoutElement != null)
+                LayoutElement.ToolTip = ToolTip;
         }
         #endregion
 
@@ -211,17 +250,17 @@ namespace AvalonDock.Controls
         /// IconSource Dependency Property
         /// </summary>
         public static readonly DependencyProperty IconSourceProperty =
-            DependencyProperty.Register("IconSource", typeof(Uri), typeof(LayoutItem),
-                new FrameworkPropertyMetadata((Uri)null,
+            DependencyProperty.Register("IconSource", typeof(ImageSource), typeof(LayoutItem),
+                new FrameworkPropertyMetadata((ImageSource)null,
                     new PropertyChangedCallback(OnIconSourceChanged)));
 
         /// <summary>
         /// Gets or sets the IconSource property.  This dependency property 
         /// indicates icon associated with the item.
         /// </summary>
-        public Uri IconSource
+        public ImageSource IconSource
         {
-            get { return (Uri)GetValue(IconSourceProperty); }
+            get { return (ImageSource)GetValue(IconSourceProperty); }
             set { SetValue(IconSourceProperty, value); }
         }
 
@@ -238,7 +277,8 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnIconSourceChanged(DependencyPropertyChangedEventArgs e)
         {
-            LayoutElement.IconSource = IconSource;
+            if (LayoutElement != null)
+                LayoutElement.IconSource = IconSource;
         }
 
         #endregion
@@ -252,7 +292,8 @@ namespace AvalonDock.Controls
 
         protected virtual void OnVisibilityChanged()
         {
-            if (Visibility == System.Windows.Visibility.Collapsed)
+            if (LayoutElement != null &&
+                Visibility == System.Windows.Visibility.Collapsed)
                 LayoutElement.Close();
         }
 
@@ -291,7 +332,8 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnContentIdChanged(DependencyPropertyChangedEventArgs e)
         {
-            LayoutElement.ContentId = (string)e.NewValue;
+            if (LayoutElement != null)
+                LayoutElement.ContentId = (string)e.NewValue;
         }
 
         #endregion
@@ -335,7 +377,8 @@ namespace AvalonDock.Controls
             {
                 using (_isSelectedReentrantFlag.Enter())
                 {
-                    LayoutElement.IsSelected = (bool)e.NewValue;
+                    if (LayoutElement != null)
+                        LayoutElement.IsSelected = (bool)e.NewValue;
                 }
             }
         }
@@ -381,7 +424,8 @@ namespace AvalonDock.Controls
             {
                 using (_isActiveReentrantFlag.Enter())
                 {
-                    LayoutElement.IsActive = (bool)e.NewValue;
+                    if (LayoutElement != null)
+                        LayoutElement.IsActive = (bool)e.NewValue;
                 }
             }
         }
@@ -421,13 +465,51 @@ namespace AvalonDock.Controls
         /// </summary>
         protected virtual void OnCanCloseChanged(DependencyPropertyChangedEventArgs e)
         {
-            LayoutElement.CanClose = (bool)e.NewValue;
+            if (LayoutElement != null)
+                LayoutElement.CanClose = (bool)e.NewValue;
         }
 
         #endregion
 
+        #region CanFloat
 
- 
+        /// <summary>
+        /// CanFloat Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty CanFloatProperty =
+            DependencyProperty.Register("CanFloat", typeof(bool), typeof(LayoutItem),
+                new FrameworkPropertyMetadata((bool)true,
+                    new PropertyChangedCallback(OnCanFloatChanged)));
+
+        /// <summary>
+        /// Gets or sets the CanFloat property.  This dependency property 
+        /// indicates if user can move the layout element dragging it to another position.
+        /// </summary>
+        public bool CanFloat
+        {
+            get { return (bool)GetValue(CanFloatProperty); }
+            set { SetValue(CanFloatProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the CanFloat property.
+        /// </summary>
+        private static void OnCanFloatChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayoutItem)d).OnCanFloatChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the CanFloat property.
+        /// </summary>
+        protected virtual void OnCanFloatChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (LayoutElement != null)
+                LayoutElement.CanFloat = (bool)e.NewValue;
+        }
+
+        #endregion
+
         #region CloseCommand
 
         /// <summary>
@@ -474,7 +556,11 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteCloseCommand(object parameter)
         {
-            return LayoutElement.CanClose;
+#if DEBUG
+            if (LayoutElement != null)
+                System.Diagnostics.Debug.WriteLine(string.Format("CanExecuteCloseCommand({0}) = {1}", LayoutElement.Title, LayoutElement.CanClose));
+#endif
+            return LayoutElement != null && LayoutElement.CanClose;
         }
 
         private void ExecuteCloseCommand(object parameter)
@@ -533,7 +619,7 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteFloatCommand(object anchorable)
         {
-            return LayoutElement.FindParent<LayoutFloatingWindow>() == null;
+            return LayoutElement != null && LayoutElement.CanFloat && LayoutElement.FindParent<LayoutFloatingWindow>() == null;
         }
 
         private void ExecuteFloatCommand(object parameter)
@@ -595,7 +681,7 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteDockAsDocumentCommand(object parameter)
         {
-            return LayoutElement.FindParent<LayoutDocumentPane>() == null;
+            return LayoutElement != null && LayoutElement.FindParent<LayoutDocumentPane>() == null;
         }
 
         private void ExecuteDockAsDocumentCommand(object parameter)
@@ -651,6 +737,8 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteCloseAllButThisCommand(object parameter)
         {
+            if (LayoutElement == null)
+                return false;
             var root = LayoutElement.Root;
             if (root == null)
                 return false;
@@ -712,7 +800,7 @@ namespace AvalonDock.Controls
 
         private bool CanExecuteActivateCommand(object parameter)
         {
-            return true;
+            return LayoutElement != null;
         }
 
         private void ExecuteActivateCommand(object parameter)
@@ -721,5 +809,271 @@ namespace AvalonDock.Controls
         }
 
         #endregion
+
+        #region NewVerticalTabGroupCommand
+
+        /// <summary>
+        /// NewVerticalTabGroupCommand Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty NewVerticalTabGroupCommandProperty =
+            DependencyProperty.Register("NewVerticalTabGroupCommand", typeof(ICommand), typeof(LayoutItem),
+                new FrameworkPropertyMetadata((ICommand)null,
+                    new PropertyChangedCallback(OnNewVerticalTabGroupCommandChanged)));
+
+        /// <summary>
+        /// Gets or sets the NewVerticalTabGroupCommand property.  This dependency property 
+        /// indicates the new vertical tab group command.
+        /// </summary>
+        public ICommand NewVerticalTabGroupCommand
+        {
+            get { return (ICommand)GetValue(NewVerticalTabGroupCommandProperty); }
+            set { SetValue(NewVerticalTabGroupCommandProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the NewVerticalTabGroupCommand property.
+        /// </summary>
+        private static void OnNewVerticalTabGroupCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayoutItem)d).OnNewVerticalTabGroupCommandChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the NewVerticalTabGroupCommand property.
+        /// </summary>
+        protected virtual void OnNewVerticalTabGroupCommandChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        private bool CanExecuteNewVerticalTabGroupCommand(object parameter)
+        {
+            if (LayoutElement == null)
+                return false;
+            var parentDocumentGroup = LayoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = LayoutElement.Parent as LayoutDocumentPane;
+            return ((parentDocumentGroup == null ||
+                parentDocumentGroup.ChildrenCount == 1 ||
+                parentDocumentGroup.Root.Manager.AllowMixedOrientation || 
+                parentDocumentGroup.Orientation == System.Windows.Controls.Orientation.Horizontal) &&
+                parentDocumentPane != null &&
+                parentDocumentPane.ChildrenCount > 1);
+        }
+
+        private void ExecuteNewVerticalTabGroupCommand(object parameter)
+        {
+            var layoutElement = LayoutElement;
+            var parentDocumentGroup = layoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = layoutElement.Parent as LayoutDocumentPane;
+
+            if (parentDocumentGroup == null)
+            {
+                var grandParent = parentDocumentPane.Parent as ILayoutContainer;
+                parentDocumentGroup = new LayoutDocumentPaneGroup() { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                grandParent.ReplaceChild(parentDocumentPane, parentDocumentGroup);
+                parentDocumentGroup.Children.Add(parentDocumentPane);
+            }
+            parentDocumentGroup.Orientation = System.Windows.Controls.Orientation.Horizontal; 
+            int indexOfParentPane = parentDocumentGroup.IndexOfChild(parentDocumentPane);
+            parentDocumentGroup.InsertChildAt(indexOfParentPane + 1, new LayoutDocumentPane(layoutElement));
+            layoutElement.IsActive = true;
+            layoutElement.Root.CollectGarbage();
+        }
+        #endregion
+
+        #region NewHorizontalTabGroupCommand
+
+        /// <summary>
+        /// NewHorizontalTabGroupCommand Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty NewHorizontalTabGroupCommandProperty =
+            DependencyProperty.Register("NewHorizontalTabGroupCommand", typeof(ICommand), typeof(LayoutItem),
+                new FrameworkPropertyMetadata((ICommand)null,
+                    new PropertyChangedCallback(OnNewHorizontalTabGroupCommandChanged)));
+
+        /// <summary>
+        /// Gets or sets the NewHorizontalTabGroupCommand property.  This dependency property 
+        /// indicates the new horizontal tab group command.
+        /// </summary>
+        public ICommand NewHorizontalTabGroupCommand
+        {
+            get { return (ICommand)GetValue(NewHorizontalTabGroupCommandProperty); }
+            set { SetValue(NewHorizontalTabGroupCommandProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the NewHorizontalTabGroupCommand property.
+        /// </summary>
+        private static void OnNewHorizontalTabGroupCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayoutItem)d).OnNewHorizontalTabGroupCommandChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the NewHorizontalTabGroupCommand property.
+        /// </summary>
+        protected virtual void OnNewHorizontalTabGroupCommandChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+
+        private bool CanExecuteNewHorizontalTabGroupCommand(object parameter)
+        {
+            if (LayoutElement == null)
+                return false;
+            var parentDocumentGroup = LayoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = LayoutElement.Parent as LayoutDocumentPane;
+            return ((parentDocumentGroup == null ||
+                parentDocumentGroup.ChildrenCount == 1 ||
+                parentDocumentGroup.Root.Manager.AllowMixedOrientation ||
+                parentDocumentGroup.Orientation == System.Windows.Controls.Orientation.Vertical) &&
+                parentDocumentPane != null &&
+                parentDocumentPane.ChildrenCount > 1);
+        }
+
+        private void ExecuteNewHorizontalTabGroupCommand(object parameter)
+        {
+            var layoutElement = LayoutElement;
+            var parentDocumentGroup = layoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = layoutElement.Parent as LayoutDocumentPane;
+
+            if (parentDocumentGroup == null)
+            {
+                var grandParent = parentDocumentPane.Parent as ILayoutContainer;
+                parentDocumentGroup = new LayoutDocumentPaneGroup() { Orientation = System.Windows.Controls.Orientation.Vertical };
+                grandParent.ReplaceChild(parentDocumentPane, parentDocumentGroup);
+                parentDocumentGroup.Children.Add(parentDocumentPane);
+            }
+            parentDocumentGroup.Orientation = System.Windows.Controls.Orientation.Vertical;
+            int indexOfParentPane = parentDocumentGroup.IndexOfChild(parentDocumentPane);
+            parentDocumentGroup.InsertChildAt(indexOfParentPane + 1, new LayoutDocumentPane(layoutElement));
+            layoutElement.IsActive = true;
+            layoutElement.Root.CollectGarbage();
+        }       
+        #endregion
+
+        #region MoveToNextTabGroupCommand
+
+        /// <summary>
+        /// MoveToNextTabGroupCommand Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty MoveToNextTabGroupCommandProperty =
+            DependencyProperty.Register("MoveToNextTabGroupCommand", typeof(ICommand), typeof(LayoutItem),
+                new FrameworkPropertyMetadata((ICommand)null,
+                    new PropertyChangedCallback(OnMoveToNextTabGroupCommandChanged)));
+
+        /// <summary>
+        /// Gets or sets the MoveToNextTabGroupCommand property.  This dependency property 
+        /// indicates move to next tab group command.
+        /// </summary>
+        public ICommand MoveToNextTabGroupCommand
+        {
+            get { return (ICommand)GetValue(MoveToNextTabGroupCommandProperty); }
+            set { SetValue(MoveToNextTabGroupCommandProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the MoveToNextTabGroupCommand property.
+        /// </summary>
+        private static void OnMoveToNextTabGroupCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayoutItem)d).OnMoveToNextTabGroupCommandChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the MoveToNextTabGroupCommand property.
+        /// </summary>
+        protected virtual void OnMoveToNextTabGroupCommandChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        private bool CanExecuteMoveToNextTabGroupCommand(object parameter)
+        {
+            if (LayoutElement == null)
+                return false;
+
+            var parentDocumentGroup = LayoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = LayoutElement.Parent as LayoutDocumentPane;
+            return (parentDocumentGroup != null &&
+                parentDocumentPane != null &&
+                parentDocumentGroup.ChildrenCount > 1 &&
+                parentDocumentGroup.IndexOfChild(parentDocumentPane) < parentDocumentGroup.ChildrenCount - 1 &&
+                parentDocumentGroup.Children[parentDocumentGroup.IndexOfChild(parentDocumentPane) + 1] is LayoutDocumentPane);
+        }
+
+        private void ExecuteMoveToNextTabGroupCommand(object parameter)
+        {
+            var layoutElement = LayoutElement;
+            var parentDocumentGroup = layoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = layoutElement.Parent as LayoutDocumentPane;
+            int indexOfParentPane = parentDocumentGroup.IndexOfChild(parentDocumentPane);
+            var nextDocumentPane = parentDocumentGroup.Children[indexOfParentPane + 1] as LayoutDocumentPane;
+            nextDocumentPane.InsertChildAt(0, layoutElement);
+            layoutElement.IsActive = true;
+            layoutElement.Root.CollectGarbage();
+        }
+
+        #endregion
+
+        #region MoveToPreviousTabGroupCommand
+
+        /// <summary>
+        /// MoveToPreviousTabGroupCommand Dependency Property
+        /// </summary>
+        public static readonly DependencyProperty MoveToPreviousTabGroupCommandProperty =
+            DependencyProperty.Register("MoveToPreviousTabGroupCommand", typeof(ICommand), typeof(LayoutItem),
+                new FrameworkPropertyMetadata((ICommand)null,
+                    new PropertyChangedCallback(OnMoveToPreviousTabGroupCommandChanged)));
+
+        /// <summary>
+        /// Gets or sets the MoveToPreviousTabGroupCommand property.  This dependency property 
+        /// indicates move to rpevious tab group command.
+        /// </summary>
+        public ICommand MoveToPreviousTabGroupCommand
+        {
+            get { return (ICommand)GetValue(MoveToPreviousTabGroupCommandProperty); }
+            set { SetValue(MoveToPreviousTabGroupCommandProperty, value); }
+        }
+
+        /// <summary>
+        /// Handles changes to the MoveToPreviousTabGroupCommand property.
+        /// </summary>
+        private static void OnMoveToPreviousTabGroupCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayoutItem)d).OnMoveToPreviousTabGroupCommandChanged(e);
+        }
+
+        /// <summary>
+        /// Provides derived classes an opportunity to handle changes to the MoveToPreviousTabGroupCommand property.
+        /// </summary>
+        protected virtual void OnMoveToPreviousTabGroupCommandChanged(DependencyPropertyChangedEventArgs e)
+        {
+        }
+
+        private bool CanExecuteMoveToPreviousTabGroupCommand(object parameter)
+        {
+            if (LayoutElement == null)
+                return false;
+            var parentDocumentGroup = LayoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = LayoutElement.Parent as LayoutDocumentPane;
+            return (parentDocumentGroup != null &&
+                parentDocumentPane != null &&
+                parentDocumentGroup.ChildrenCount > 1 &&
+                parentDocumentGroup.IndexOfChild(parentDocumentPane) > 0 &&
+                parentDocumentGroup.Children[parentDocumentGroup.IndexOfChild(parentDocumentPane) - 1] is LayoutDocumentPane);
+        }
+
+        private void ExecuteMoveToPreviousTabGroupCommand(object parameter)
+        {
+            var layoutElement = LayoutElement;
+            var parentDocumentGroup = layoutElement.FindParent<LayoutDocumentPaneGroup>();
+            var parentDocumentPane = layoutElement.Parent as LayoutDocumentPane;
+            int indexOfParentPane = parentDocumentGroup.IndexOfChild(parentDocumentPane);
+            var nextDocumentPane = parentDocumentGroup.Children[indexOfParentPane - 1] as LayoutDocumentPane;
+            nextDocumentPane.InsertChildAt(0, layoutElement);
+            layoutElement.IsActive = true;
+            layoutElement.Root.CollectGarbage();
+        }
+        #endregion
+       
     }
 }

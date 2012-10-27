@@ -33,6 +33,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using AvalonDock.Layout;
 using System.Diagnostics;
+using System.Windows.Documents;
+using AvalonDock.Themes;
 
 namespace AvalonDock.Controls
 {
@@ -74,8 +76,7 @@ namespace AvalonDock.Controls
                     Height = 1
                 });
 
-                _rootPresenter = new Border() { Child = Content, Focusable = true };
-                _rootPresenter.GotKeyboardFocus += new KeyboardFocusChangedEventHandler(_rootPresenter_GotKeyboardFocus);
+                _rootPresenter = new Border() { Child = new AdornerDecorator() { Child = Content }, Focusable = true };
                 _rootPresenter.SetBinding(Border.BackgroundProperty, new Binding("Background") { Source = _owner });
                 _wpfContentHost.RootVisual = _rootPresenter;
                 _wpfContentHost.SizeToContent = SizeToContent.Manual;
@@ -85,10 +86,6 @@ namespace AvalonDock.Controls
                 return new HandleRef(this, _wpfContentHost.Handle);
             }
 
-            void _rootPresenter_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-            {
-                Debug.WriteLine("_rootPresenter_GotKeyboardFocus");
-            }
 
             protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
             {
@@ -171,10 +168,37 @@ namespace AvalonDock.Controls
 
             #endregion
         }
-
+        
+        ILayoutElement _model;
+        
         protected LayoutFloatingWindowControl(ILayoutElement model)
         {
             this.Loaded += new RoutedEventHandler(OnLoaded);
+            this.Unloaded += new RoutedEventHandler(OnUnloaded);
+            _model = model;
+            UpdateThemeResources();
+        }
+
+        internal virtual void UpdateThemeResources(Theme oldTheme = null)
+        {
+            //If hosted in WPF than let Application class to update my resources
+            if (Application.Current != null)
+                return;
+            
+            if (oldTheme != null)
+            {
+                var resourceDictionaryToRemove =
+                    Resources.MergedDictionaries.FirstOrDefault(r => r.Source == oldTheme.GetResourceUri());
+                if (resourceDictionaryToRemove != null)
+                    Resources.MergedDictionaries.Remove(
+                        resourceDictionaryToRemove);
+            }
+
+            var manager = _model.Root.Manager;
+            if (manager.Theme != null)
+            {
+                Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = manager.Theme.GetResourceUri() });
+            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -184,19 +208,31 @@ namespace AvalonDock.Controls
                 var host = Content as FloatingWindowContentHost;
                 host.Dispose();
 
-                _hwndSrc.RemoveHook(_hwndSrcHook);
-                _hwndSrc.Dispose();
+                if (_hwndSrc != null)
+                {
+                    _hwndSrc.RemoveHook(_hwndSrcHook);
+                    _hwndSrc.Dispose();
+                    _hwndSrc = null;
+                }
             }
 
             base.OnClosed(e);
         }
 
         bool _attachDrag = false;
-        internal void AttachDrag()
+        internal void AttachDrag(bool onActivated = true)
         {
-            _attachDrag = true;
-            this.Activated += new EventHandler(OnActivated);
-            
+            if (onActivated)
+            {
+                _attachDrag = true;
+                this.Activated += new EventHandler(OnActivated);
+            }
+            else
+            {
+                IntPtr windowHandle = new WindowInteropHelper(this).Handle;
+                IntPtr lParam = new IntPtr(((int)Left & (int)0xFFFF) | (((int)Top) << 16));
+                Win32Helper.SendMessage(windowHandle, Win32Helper.WM_NCLBUTTONDOWN, new IntPtr(Win32Helper.HT_CAPTION), lParam);
+            }
         }
 
         HwndSource _hwndSrc;
@@ -206,11 +242,25 @@ namespace AvalonDock.Controls
         {
             this.Loaded -= new RoutedEventHandler(OnLoaded);
 
+            this.SetParentToMainWindowOf(Model.Root.Manager);
+
+
             _hwndSrc = HwndSource.FromDependencyObject(this) as HwndSource;
             _hwndSrcHook = new HwndSourceHook(FilterMessage);
-            _hwndSrc.AddHook(_hwndSrcHook);            
+            _hwndSrc.AddHook(_hwndSrcHook);
         }
 
+        void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            this.Unloaded -= new RoutedEventHandler(OnUnloaded);
+
+            if (_hwndSrc != null)
+            {
+                _hwndSrc.RemoveHook(_hwndSrcHook);
+                _hwndSrc.Dispose();
+                _hwndSrc = null;
+            }
+        }
 
         void OnActivated(object sender, EventArgs e)
         {
@@ -227,8 +277,8 @@ namespace AvalonDock.Controls
                 Top = mousePosition.Y - (windowArea.Height - clientArea.Height) / 2.0;
                 _attachDrag = false;
 
-                int lParam = ((int)mousePosition.X & (int)0xFFFF) | (((int)mousePosition.Y) << 16);
-                Win32Helper.SendMessage(windowHandle, Win32Helper.WM_NCLBUTTONDOWN, Win32Helper.HT_CAPTION, lParam);
+                IntPtr lParam = new IntPtr(((int)mousePosition.X & (int)0xFFFF) | (((int)mousePosition.Y) << 16));
+                Win32Helper.SendMessage(windowHandle, Win32Helper.WM_NCLBUTTONDOWN, new IntPtr(Win32Helper.HT_CAPTION), lParam);
             }
         }
 
@@ -243,7 +293,7 @@ namespace AvalonDock.Controls
                 new ExecutedRoutedEventHandler((s, args) => Microsoft.Windows.Shell.SystemCommands.MinimizeWindow((Window)args.Parameter))));
             CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.RestoreWindowCommand,
                 new ExecutedRoutedEventHandler((s, args) => Microsoft.Windows.Shell.SystemCommands.RestoreWindow((Window)args.Parameter))));
-
+            //Debug.Assert(this.Owner != null);
             base.OnInitialized(e);
         }
 
@@ -303,8 +353,6 @@ namespace AvalonDock.Controls
 
 
         DragService _dragService = null;
-        Vector _dragOffest;
-        Point _dragClickPoint;
 
         void UpdatePositionAndSizeOfPanes()
         {
@@ -330,66 +378,24 @@ namespace AvalonDock.Controls
 
             switch (msg)
             {
-                case Win32Helper.WM_SETFOCUS:
-                    //Debug.WriteLine("WM_SETFOCUS");
-                    break;
-                case Win32Helper.WM_KILLFOCUS:
-                    //Debug.WriteLine("WM_KILLFOCUS");
-                    break;
                 case Win32Helper.WM_ACTIVATE:
                     if (((int)wParam & 0xFFFF) == Win32Helper.WA_INACTIVE)
                     {
-                        if (lParam == new WindowInteropHelper(this.Owner).Handle)
+                        if (lParam == this.GetParentWindowHandle())
                         {
                             Win32Helper.SetActiveWindow(_hwndSrc.Handle);
                             handled = true;
                         }
-                        
                     }
                     break;
-                case Win32Helper.WM_NCRBUTTONDOWN: //Right button click on title area -> show context menu
-                    //if (e.WParam.ToInt32() == HTCAPTION)
-                    //{
-                    //    short x = (short)((e.LParam.ToInt32() & 0xFFFF));
-                    //    short y = (short)((e.LParam.ToInt32() >> 16));
-                    //    OpenContextMenu(null, new Point(x, y));
-                    //    e.Handled = true;
-                    //}
-                    break;
-                case Win32Helper.WM_NCLBUTTONDOWN: //Left button down on title -> start dragging over docking manager
-                    if (wParam.ToInt32() == Win32Helper.HT_CAPTION)
-                    {
-                        short x = (short)((lParam.ToInt32() & 0xFFFF));
-                        short y = (short)((lParam.ToInt32() >> 16));
-
-                        Point clickPoint = this.TransformToDeviceDPI(new Point(x, y));
-
-                        _dragOffest = clickPoint -
-                             this.TransformToDeviceDPI(new Point(Left, Top));
-
-                        _dragClickPoint = clickPoint;
-
-                    }
-                    break;
-
-
-
-                //case Win32Helper.WM_ENTERSIZEMOVE:
-                //    {
-                //        if (_dragService == null)
-                //            _dragService = new DragService(this);
-                //        SetIsDragging(true);
-                //        _dragService.UpdateMouseLocation(_dragClickPoint.X, _dragClickPoint.Y);
-                //    }
-                //    break;
-
                 case Win32Helper.WM_EXITSIZEMOVE:
                     UpdatePositionAndSizeOfPanes();
 
                     if (_dragService != null)
                     {
                         bool dropFlag;
-                        _dragService.Drop(Left + _dragOffest.X, Top + _dragOffest.Y, out dropFlag);
+                        var mousePosition = this.TransformToDeviceDPI(Win32Helper.GetMousePosition());
+                        _dragService.Drop(mousePosition, out dropFlag);
                         _dragService = null;
                         SetIsDragging(false);
 
@@ -400,13 +406,7 @@ namespace AvalonDock.Controls
                     break;
                 case Win32Helper.WM_MOVING:
                     {
-                        if (_dragService == null)
-                        {
-                            _dragService = new DragService(this);
-                            SetIsDragging(true);
-                        }
-                        var windowRect = (Win32Helper.RECT)Marshal.PtrToStructure(lParam, typeof(Win32Helper.RECT));
-                        _dragService.UpdateMouseLocation(windowRect.Left + _dragOffest.X, windowRect.Top + _dragOffest.Y);
+                        UpdateDragPosition();
                     }
                     break;
                 case Win32Helper.WM_LBUTTONUP: //set as handled right button click on title area (after showing context menu)
@@ -424,6 +424,18 @@ namespace AvalonDock.Controls
             return IntPtr.Zero;
         }
 
+        private void UpdateDragPosition()
+        {
+            if (_dragService == null)
+            {
+                _dragService = new DragService(this);
+                SetIsDragging(true);
+            }
+
+            var mousePosition = this.TransformToDeviceDPI(Win32Helper.GetMousePosition());
+            _dragService.UpdateMouseLocation(mousePosition);
+        }
+
         bool _internalCloseFlag = false;
 
         internal void InternalClose()
@@ -432,9 +444,16 @@ namespace AvalonDock.Controls
             Close();
         }
 
+
         protected bool CloseInitiatedByUser
         {
             get { return !_internalCloseFlag; }
+        }
+
+        internal bool KeepContentVisibleOnClose
+        {
+            get;
+            set;
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -480,6 +499,8 @@ namespace AvalonDock.Controls
         }
 
         #endregion
+
+
 
 
 

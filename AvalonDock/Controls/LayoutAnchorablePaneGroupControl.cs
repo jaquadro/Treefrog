@@ -41,7 +41,7 @@ namespace AvalonDock.Controls
 
         LayoutAnchorablePaneGroup _model;
 
-        protected override void FixChildrenDockLengths()
+        protected override void OnFixChildrenDockLengths()
         {
             #region Setup DockWidth/Height for children
             if (_model.Orientation == Orientation.Horizontal)

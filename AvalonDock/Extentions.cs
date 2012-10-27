@@ -55,5 +55,12 @@ namespace AvalonDock
 
             return -1;
         }
+
+        public static V GetValueOrDefault<V>(this WeakReference wr)
+        {
+            if (wr == null || !wr.IsAlive)
+                return default(V);
+            return (V)wr.Target;
+        }
     }
 }

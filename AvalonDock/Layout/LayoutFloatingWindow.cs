@@ -50,5 +50,9 @@ namespace AvalonDock.Layout
         public abstract int ChildrenCount { get; }
 
         public abstract bool IsValid { get; }
+
+
+
+
     }
 }
