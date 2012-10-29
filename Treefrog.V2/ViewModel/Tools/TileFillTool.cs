@@ -17,7 +17,7 @@ namespace Treefrog.ViewModel.Tools
         {
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ViewportVM viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -25,7 +25,7 @@ namespace Treefrog.ViewModel.Tools
                     break;
             }
 
-            UpdatePointerSequence(info);
+            UpdatePointerSequence(info, viewport);
         }
 
         #region Fill Sequence

@@ -24,7 +24,7 @@ namespace Treefrog.ViewModel.Tools
             HidePreviewMarker();
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ViewportVM viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -35,12 +35,12 @@ namespace Treefrog.ViewModel.Tools
                     break;
             }
 
-            UpdatePointerSequence(info);
+            UpdatePointerSequence(info, viewport);
         }
 
-        protected override void PointerPositionCore (PointerEventInfo info)
+        protected override void PointerPositionCore (PointerEventInfo info, ViewportVM viewport)
         {
-            base.PointerPositionCore(info);
+            base.PointerPositionCore(info, viewport);
             ShowPreviewMarker(info);
         }
 

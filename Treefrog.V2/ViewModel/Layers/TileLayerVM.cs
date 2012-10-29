@@ -303,25 +303,25 @@ namespace Treefrog.ViewModel.Layers
         public override void HandleStartPointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.StartPointerSequence(info);
+                _currentTool.StartPointerSequence(info, Viewport);
         }
 
         public override void HandleUpdatePointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.UpdatePointerSequence(info);
+                _currentTool.UpdatePointerSequence(info, Viewport);
         }
 
         public override void HandleEndPointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.EndPointerSequence(info);
+                _currentTool.EndPointerSequence(info, Viewport);
         }
 
         public override void HandlePointerPosition (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.PointerPosition(info);
+                _currentTool.PointerPosition(info, Viewport);
         }
 
         public override void HandlePointerLeaveField ()

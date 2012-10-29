@@ -137,7 +137,7 @@
                 <view:PanelsTemplateSelector>
                     <view:PanelsTemplateSelector.LevelDocumentTemplate>
                         <DataTemplate>
-                            <viewDocuments:LevelDocument />
+                            <viewDocuments:LevelDocument Viewport="{Binding Model.Viewport}" />
                         </DataTemplate>
                     </view:PanelsTemplateSelector.LevelDocumentTemplate>
                 </view:PanelsTemplateSelector>

@@ -22,12 +22,12 @@ namespace Treefrog.ViewModel.Tools
             _gridSize = gridSize;
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ViewportVM viewport)
         {
             _snapManager = new SnappingManager(GetSnappingSourceOrigin(), GetSnappingSourceBounds(), GridSize);
         }
 
-        protected override void PointerPositionCore (PointerEventInfo info)
+        protected override void PointerPositionCore (PointerEventInfo info, ViewportVM viewport)
         {
             if (_snapManager == null)
                 _snapManager = new SnappingManager(GetSnappingSourceOrigin(), GetSnappingSourceBounds(), GridSize);

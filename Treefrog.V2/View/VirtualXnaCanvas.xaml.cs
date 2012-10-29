@@ -21,6 +21,7 @@ using GalaSoft.MvvmLight.Command;
 using Treefrog.Controls.Hooks;
 
 using XColor = Microsoft.Xna.Framework.Color;
+using System.ComponentModel;
 
 namespace Treefrog.View
 {
@@ -91,7 +92,6 @@ namespace Treefrog.View
         {
             //DetachWindowMouseEvents();
             //DetachGlobalMouseEvents();
-
             if (RootLayer != null)
                 RootLayer.Dispose();
 
@@ -302,10 +302,10 @@ namespace Treefrog.View
             if (offset != Viewport.Offset.X) {
                 Viewport.Offset = new Vector(offset, Viewport.Offset.Y);
                 InvalidateArrange();
-
-                if (_layer != null)
-                    _layer.HorizontalOffset = Viewport.Offset.X;
             }
+
+            if (_layer != null)
+                _layer.HorizontalOffset = Viewport.Offset.X;
         }
 
         public void SetVerticalOffset (double offset)
@@ -313,11 +313,11 @@ namespace Treefrog.View
             offset = Math.Max(0, Math.Min(offset, ExtentHeight - ViewportHeight));
             if (offset != Viewport.Offset.Y) {
                 Viewport.Offset = new Vector(Viewport.Offset.X, offset);
-                InvalidateArrange();
-
-                if (_layer != null)
-                    _layer.VerticalOffset = Viewport.Offset.Y;
+                InvalidateArrange(); 
             }
+
+            if (_layer != null)
+                _layer.VerticalOffset = Viewport.Offset.Y;
         }
 
         #endregion

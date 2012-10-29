@@ -27,34 +27,34 @@ namespace Treefrog.ViewModel.Tools
             _selectLayer = selectLayer;
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ViewportVM viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
-                    StartSelectTilesSequence(info);
+                    StartSelectTilesSequence(info, viewport);
                     break;
                 case PointerEventType.Secondary:
                     DefloatSelection();
                     break;
             }
 
-            UpdatePointerSequence(info);
+            UpdatePointerSequence(info, viewport);
         }
 
-        protected override void UpdatePointerSequenceCore (PointerEventInfo info)
+        protected override void UpdatePointerSequenceCore (PointerEventInfo info, ViewportVM viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
-                    UpdateSelectTilesSequence(info);
+                    UpdateSelectTilesSequence(info, viewport);
                     break;
             }
         }
 
-        protected override void EndPointerSequenceCore (PointerEventInfo info)
+        protected override void EndPointerSequenceCore (PointerEventInfo info, ViewportVM viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
-                    EndSelectTilesSequence(info);
+                    EndSelectTilesSequence(info, viewport);
                     break;
             }
         }
@@ -82,50 +82,50 @@ namespace Treefrog.ViewModel.Tools
             History.Execute(command);
         }
 
-        private void StartSelectTilesSequence (PointerEventInfo info)
+        private void StartSelectTilesSequence (PointerEventInfo info, ViewportVM viewport)
         {
             bool controlKey = Keyboard.Modifiers.HasFlag(ModifierKeys.Control);
             bool shiftKey = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
 
             if (shiftKey) {
-                StartDragAdd(info);
+                StartDragAdd(info, viewport);
                 return;
             }
             
             if (controlKey) {
-                StartDragRemove(info);
+                StartDragRemove(info, viewport);
                 return;
             }
 
             TileCoord location = TileLocation(info);
             if (!_selectLayer.TileSelectionCoverageAt(location)) {
-                StartDragNew(info);
+                StartDragNew(info, viewport);
             }
             else {
-                StartMove(info);
+                StartMove(info, viewport);
             }
         }
 
-        private void UpdateSelectTilesSequence (PointerEventInfo info)
+        private void UpdateSelectTilesSequence (PointerEventInfo info, ViewportVM viewport)
         {
             switch (_action) {
                 case UpdateAction.Move:
-                    UpdateMove(info);
+                    UpdateMove(info, viewport);
                     break;
                 case UpdateAction.Box:
-                    UpdateDrag(info);
+                    UpdateDrag(info, viewport);
                     break;
             }
         }
 
-        private void EndSelectTilesSequence (PointerEventInfo info)
+        private void EndSelectTilesSequence (PointerEventInfo info, ViewportVM viewport)
         {
             switch (_action) {
                 case UpdateAction.Move:
-                    EndMove(info);
+                    EndMove(info, viewport);
                     break;
                 case UpdateAction.Box:
-                    EndDrag(info);
+                    EndDrag(info, viewport);
                     break;
             }
         }
@@ -135,7 +135,7 @@ namespace Treefrog.ViewModel.Tools
 
         #region Move Actions
 
-        private void StartMove (PointerEventInfo info)
+        private void StartMove (PointerEventInfo info, ViewportVM viewport)
         {
             _initialLocation = new Point((int)info.X - Layer.TileWidth / 2, (int)info.Y - Layer.TileHeight / 2);
             _initialOffset = _selectLayer.TileSelectionOffset;
@@ -146,9 +146,11 @@ namespace Treefrog.ViewModel.Tools
             }
 
             _action = UpdateAction.Move;
+
+            StartAutoScroll(info, viewport);
         }
 
-        private void UpdateMove (PointerEventInfo info)
+        private void UpdateMove (PointerEventInfo info, ViewportVM viewport)
         {
             int diffx = (int)info.X - _initialLocation.X;
             int diffy = (int)info.Y - _initialLocation.Y;
@@ -160,14 +162,18 @@ namespace Treefrog.ViewModel.Tools
             int tileDiffY = _initialOffset.Y + (int)Math.Floor((double)diffy / Layer.TileHeight);
 
             _selectLayer.SetSelectionOffset(new TileCoord(tileDiffX, tileDiffY));
+
+            UpdateAutoScroll(info, viewport);
         }
 
-        private void EndMove (PointerEventInfo info)
+        private void EndMove (PointerEventInfo info, ViewportVM viewport)
         {
             Command command = new MoveTileSelectionCommand(_selectLayer, _initialOffset, _selectLayer.TileSelectionOffset);
             History.Execute(command);
 
             _action = UpdateAction.None;
+
+            EndAutoScroll(info, viewport);
         }
 
         #endregion
@@ -196,25 +202,25 @@ namespace Treefrog.ViewModel.Tools
             command.AddCommand(new CreateTileSelectionCommand(_selectLayer));
         }
 
-        private void StartDragNew (PointerEventInfo info)
+        private void StartDragNew (PointerEventInfo info, ViewportVM viewport)
         {
-            StartDrag(info, MergeAction.New);
+            StartDrag(info, viewport, MergeAction.New);
         }
 
-        private void StartDragAdd (PointerEventInfo info)
+        private void StartDragAdd (PointerEventInfo info, ViewportVM viewport)
         {
-            StartDrag(info, MergeAction.Add);
+            StartDrag(info, viewport, MergeAction.Add);
         }
 
-        private void StartDragRemove (PointerEventInfo info)
+        private void StartDragRemove (PointerEventInfo info, ViewportVM viewport)
         {
             if (!_selectLayer.HasSelection)
                 return;
 
-            StartDrag(info, MergeAction.Remove);
+            StartDrag(info, viewport, MergeAction.Remove);
         }
 
-        private void StartDrag (PointerEventInfo info, MergeAction action)
+        private void StartDrag (PointerEventInfo info, ViewportVM viewport, MergeAction action)
         {
             TileCoord location = TileLocation(info);
 
@@ -230,9 +236,11 @@ namespace Treefrog.ViewModel.Tools
             _annots.Add(_selectionAnnot);
             _action = UpdateAction.Box;
             _mergeAction = action;
+
+            StartAutoScroll(info, viewport);
         }
 
-        private void UpdateDrag (PointerEventInfo info)
+        private void UpdateDrag (PointerEventInfo info, ViewportVM viewport)
         {
             TileCoord location = TileLocation(info);
 
@@ -241,9 +249,11 @@ namespace Treefrog.ViewModel.Tools
 
             _selectionAnnot.Start = new Point(selection.Left * Layer.TileWidth, selection.Top * Layer.TileHeight);
             _selectionAnnot.End = new Point(selection.Right * Layer.TileWidth, selection.Bottom * Layer.TileHeight);
+
+            UpdateAutoScroll(info, viewport);
         }
 
-        private void EndDrag (PointerEventInfo info)
+        private void EndDrag (PointerEventInfo info, ViewportVM viewport)
         {
             Rectangle selection = ClampSelection(_band.Selection);
 
@@ -271,6 +281,8 @@ namespace Treefrog.ViewModel.Tools
 
             _annots.Remove(_selectionAnnot);
             _action = UpdateAction.None;
+
+            EndAutoScroll(info, viewport);
         }
 
         private IEnumerable<TileCoord> TileCoordsFromRegion (Rectangle region)

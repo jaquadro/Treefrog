@@ -11,8 +11,8 @@
     <Grid>
         <ScrollViewer Height="{Binding ActualHeight,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" 
                       Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
-                      HorizontalAlignment="Left" Name="scrollViewer1" VerticalAlignment="Top"  
-                      HorizontalScrollBarVisibility="Visible" CanContentScroll="True" >
+                      HorizontalAlignment="Left" Name="scrollViewer1" VerticalAlignment="Top"
+                      HorizontalScrollBarVisibility="Visible" CanContentScroll="True">
                 <view:VirtualXnaCanvas ClearColor="{Binding Path=BackgroundColor}" 
                                    Viewport="{Binding Path=Viewport}" 
                                    ZoomFactor="{Binding Path=ZoomLevel}"

@@ -16,7 +16,13 @@ namespace Treefrog.ViewModel
         public Vector Offset
         {
             get { return _offset; }
-            set { _offset = value; }
+            set 
+            {
+                if (_offset != value) {
+                    _offset = value;
+                    RaisePropertyChanged("Offset");
+                }            
+            }
         }
 
         public Size Viewport

@@ -187,6 +187,9 @@
     <Compile Include="View\Panels\ObjectPanel.xaml.cs">
       <DependentUpon>ObjectPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\Panels\ProjectPanel.xaml.cs">
+      <DependentUpon>ProjectPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Panels\PropertyPanel.xaml.cs">
       <DependentUpon>PropertyPanel.xaml</DependentUpon>
     </Compile>
@@ -258,6 +261,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Panels\ObjectPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Panels\ProjectPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
