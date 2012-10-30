@@ -59,6 +59,18 @@ namespace Treefrog.ViewModel.Tools
             }
         }
 
+        protected override void AutoScrollTick (PointerEventInfo info, ViewportVM viewport)
+        {
+            switch (_action) {
+                case UpdateAction.Box:
+                    UpdateDragCommon(info, viewport);
+                    break;
+                case UpdateAction.Move:
+                    UpdateMoveCommon(info, viewport);
+                    break;
+            }
+        }
+
         private enum UpdateAction
         {
             None,
@@ -152,6 +164,12 @@ namespace Treefrog.ViewModel.Tools
 
         private void UpdateMove (PointerEventInfo info, ViewportVM viewport)
         {
+            UpdateMoveCommon(info, viewport);
+            UpdateAutoScroll(info, viewport);
+        }
+
+        private void UpdateMoveCommon (PointerEventInfo info, ViewportVM viewport)
+        {
             int diffx = (int)info.X - _initialLocation.X;
             int diffy = (int)info.Y - _initialLocation.Y;
 
@@ -162,8 +180,6 @@ namespace Treefrog.ViewModel.Tools
             int tileDiffY = _initialOffset.Y + (int)Math.Floor((double)diffy / Layer.TileHeight);
 
             _selectLayer.SetSelectionOffset(new TileCoord(tileDiffX, tileDiffY));
-
-            UpdateAutoScroll(info, viewport);
         }
 
         private void EndMove (PointerEventInfo info, ViewportVM viewport)
@@ -242,6 +258,12 @@ namespace Treefrog.ViewModel.Tools
 
         private void UpdateDrag (PointerEventInfo info, ViewportVM viewport)
         {
+            UpdateDragCommon(info, viewport);
+            UpdateAutoScroll(info, viewport);
+        }
+
+        private void UpdateDragCommon (PointerEventInfo info, ViewportVM viewport)
+        {
             TileCoord location = TileLocation(info);
 
             _band.End = new Point(location.X, location.Y);
@@ -249,8 +271,6 @@ namespace Treefrog.ViewModel.Tools
 
             _selectionAnnot.Start = new Point(selection.Left * Layer.TileWidth, selection.Top * Layer.TileHeight);
             _selectionAnnot.End = new Point(selection.Right * Layer.TileWidth, selection.Bottom * Layer.TileHeight);
-
-            UpdateAutoScroll(info, viewport);
         }
 
         private void EndDrag (PointerEventInfo info, ViewportVM viewport)

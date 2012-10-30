@@ -35,7 +35,7 @@ namespace Treefrog.ViewModel.Tools
                     StartErasePathSequence(info);
                     break;
                 case PointerEventType.Secondary:
-                    StartEraseAreaSequence(info);
+                    StartEraseAreaSequence(info, viewport);
                     break;
             }
 
@@ -49,7 +49,7 @@ namespace Treefrog.ViewModel.Tools
                     UpdateErasePathSequence(info);
                     break;
                 case PointerEventType.Secondary:
-                    UpdateEraseAreaSequence(info);
+                    UpdateEraseAreaSequence(info, viewport);
                     break;
             }
         }
@@ -61,7 +61,7 @@ namespace Treefrog.ViewModel.Tools
                     EndErasePathSequence(info);
                     break;
                 case PointerEventType.Secondary:
-                    EndEraseAreaSequence(info);
+                    EndEraseAreaSequence(info, viewport);
                     break;
             }
         }
@@ -80,6 +80,11 @@ namespace Treefrog.ViewModel.Tools
         protected override void PointerLeaveFieldCore ()
         {
             HidePreviewMarker();
+        }
+
+        protected override void AutoScrollTick (PointerEventInfo info, ViewportVM viewport)
+        {
+            UpdateEraseAreaSequenceCommon(info, viewport);
         }
 
         #region Preview Marker
@@ -147,7 +152,7 @@ namespace Treefrog.ViewModel.Tools
         private RubberBand _band;
         private SelectionAnnot _selection;
 
-        private void StartEraseAreaSequence (PointerEventInfo info)
+        private void StartEraseAreaSequence (PointerEventInfo info, ViewportVM viewport)
         {
             HidePreviewMarker();
 
@@ -165,9 +170,17 @@ namespace Treefrog.ViewModel.Tools
 
             _annots.Add(_selection);
             _inAreaSequence = true;
+
+            StartAutoScroll(info, viewport);
         }
 
-        private void UpdateEraseAreaSequence (PointerEventInfo info)
+        private void UpdateEraseAreaSequence (PointerEventInfo info, ViewportVM viewport)
+        {
+            UpdateEraseAreaSequenceCommon(info, viewport);
+            UpdateAutoScroll(info, viewport);
+        }
+
+        private void UpdateEraseAreaSequenceCommon (PointerEventInfo info, ViewportVM viewport)
         {
             TileCoord location = TileLocation(info);
 
@@ -181,7 +194,7 @@ namespace Treefrog.ViewModel.Tools
             _selection.End = new Point(selection.Right * Layer.TileWidth, selection.Bottom * Layer.TileHeight);
         }
 
-        private void EndEraseAreaSequence (PointerEventInfo info)
+        private void EndEraseAreaSequence (PointerEventInfo info, ViewportVM viewport)
         {
             Rectangle selection = _band.Selection;
 
@@ -197,6 +210,8 @@ namespace Treefrog.ViewModel.Tools
 
             _annots.Remove(_selection);
             _inAreaSequence = false;
+
+            EndAutoScroll(info, viewport);
         }
 
         #endregion

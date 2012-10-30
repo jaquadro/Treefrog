@@ -71,7 +71,7 @@ namespace Treefrog.ViewModel.Tools
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
-                    StartSelectObjectSequence(info);
+                    StartSelectObjectSequence(info, viewport);
                     break;
                 case PointerEventType.Secondary:
                     ClearSelected();
@@ -85,7 +85,7 @@ namespace Treefrog.ViewModel.Tools
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
-                    UpdateSelectObjectSequence(info);
+                    UpdateSelectObjectSequence(info, viewport);
                     break;
             }
         }
@@ -94,7 +94,19 @@ namespace Treefrog.ViewModel.Tools
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
-                    EndSelectObjectSequence(info);
+                    EndSelectObjectSequence(info, viewport);
+                    break;
+            }
+        }
+
+        protected override void AutoScrollTick (PointerEventInfo info, ViewportVM viewport)
+        {
+            switch (_action) {
+                case UpdateAction.Box:
+                    UpdateDragCommon(info, viewport);
+                    break;
+                case UpdateAction.Move:
+                    UpdateMoveCommon(info, viewport);
                     break;
             }
         }
@@ -322,16 +334,16 @@ namespace Treefrog.ViewModel.Tools
         private SnappingManager _selectSnapManager;
         private UpdateAction _action;
 
-        private void StartSelectObjectSequence (PointerEventInfo info)
+        private void StartSelectObjectSequence (PointerEventInfo info, ViewportVM viewport)
         {
             ObjectInstance hitObject = TopObject(CoarseHitTest((int)info.X, (int)info.Y));
             bool controlKey = Keyboard.Modifiers.HasFlag(ModifierKeys.Control);
 
             if (hitObject == null) {
                 if (controlKey)
-                    StartDragAdd(info);
+                    StartDragAdd(info, viewport);
                 else
-                    StartDrag(info);
+                    StartDrag(info, viewport);
                 return;
             }
 
@@ -342,51 +354,51 @@ namespace Treefrog.ViewModel.Tools
 
             if (alreadySelected) {
                 if (controlKey)
-                    StartClickRemove(info, hitObject);
+                    StartClickRemove(info, viewport, hitObject);
                 else
-                    StartClickMove(info, hitObject);
+                    StartClickMove(info, viewport, hitObject);
             }
             else {
                 if (controlKey)
-                    StartClickAdd(info, hitObject);
+                    StartClickAdd(info, viewport, hitObject);
                 else
-                    StartClickNew(info, hitObject);
+                    StartClickNew(info, viewport, hitObject);
             }
         }
 
-        private void UpdateSelectObjectSequence (PointerEventInfo info)
+        private void UpdateSelectObjectSequence (PointerEventInfo info, ViewportVM viewport)
         {
             switch (_action) {
                 case UpdateAction.Move:
-                    UpdateMove(info);
+                    UpdateMove(info, viewport);
                     break;
                 case UpdateAction.Box:
-                    UpdateDrag(info);
+                    UpdateDrag(info, viewport);
                     break;
             }
         }
 
-        private void EndSelectObjectSequence (PointerEventInfo info)
+        private void EndSelectObjectSequence (PointerEventInfo info, ViewportVM viewport)
         {
             switch (_action) {
                 case UpdateAction.Move:
-                    EndMove(info);
+                    EndMove(info, viewport);
                     break;
                 case UpdateAction.Box:
-                    EndDrag(info);
+                    EndDrag(info, viewport);
                     break;
             }
         }
 
         #region Move Actions
 
-        private void StartClickNew (PointerEventInfo info, ObjectInstance obj)
+        private void StartClickNew (PointerEventInfo info, ViewportVM viewport, ObjectInstance obj)
         {
             ClearSelected();
-            StartClickAdd(info, obj);
+            StartClickAdd(info, viewport, obj);
         }
 
-        private void StartClickAdd (PointerEventInfo info, ObjectInstance obj)
+        private void StartClickAdd (PointerEventInfo info, ViewportVM viewport, ObjectInstance obj)
         {
             if (obj == null)
                 return;
@@ -398,9 +410,11 @@ namespace Treefrog.ViewModel.Tools
 
             _initialSnapLocation = new Point(obj.X, obj.Y);
             _action = UpdateAction.Move;
+
+            StartAutoScroll(info, viewport);
         }
 
-        private void StartClickRemove (PointerEventInfo info, ObjectInstance obj)
+        private void StartClickRemove (PointerEventInfo info, ViewportVM viewport, ObjectInstance obj)
         {
             if (obj == null)
                 return;
@@ -408,9 +422,11 @@ namespace Treefrog.ViewModel.Tools
             RemoveSelected(obj);
 
             _action = UpdateAction.None;
+
+            StartAutoScroll(info, viewport);
         }
 
-        private void StartClickMove (PointerEventInfo info, ObjectInstance obj)
+        private void StartClickMove (PointerEventInfo info, ViewportVM viewport, ObjectInstance obj)
         {
             if (obj == null)
                 return;
@@ -420,9 +436,17 @@ namespace Treefrog.ViewModel.Tools
 
             _initialSnapLocation = new Point(obj.X, obj.Y);
             _action = UpdateAction.Move;
+
+            StartAutoScroll(info, viewport);
         }
 
-        private void UpdateMove (PointerEventInfo info)
+        private void UpdateMove (PointerEventInfo info, ViewportVM viewport)
+        {
+            UpdateMoveCommon(info, viewport);
+            UpdateAutoScroll(info, viewport);
+        }
+
+        private void UpdateMoveCommon (PointerEventInfo info, ViewportVM viewport)
         {
             int diffx = (int)info.X - _initialLocation.X;
             int diffy = (int)info.Y - _initialLocation.Y;
@@ -445,7 +469,7 @@ namespace Treefrog.ViewModel.Tools
             }
         }
 
-        private void EndMove (PointerEventInfo info)
+        private void EndMove (PointerEventInfo info, ViewportVM viewport)
         {
             ObjectMoveCommand command = new ObjectMoveCommand(this);
 
@@ -456,6 +480,8 @@ namespace Treefrog.ViewModel.Tools
             }
 
             History.Execute(command);
+
+            EndAutoScroll(info, viewport);
         }
 
         #endregion
@@ -465,13 +491,13 @@ namespace Treefrog.ViewModel.Tools
         RubberBand _band;
         SelectionAnnot _selection;
 
-        private void StartDrag (PointerEventInfo info)
+        private void StartDrag (PointerEventInfo info, ViewportVM viewport)
         {
             ClearSelected();
-            StartDragAdd(info);
+            StartDragAdd(info, viewport);
         }
 
-        private void StartDragAdd (PointerEventInfo info)
+        private void StartDragAdd (PointerEventInfo info, ViewportVM viewport)
         {
             _band = new RubberBand(new Point((int)info.X, (int)info.Y));
             _selection = new SelectionAnnot(new Point((int)info.X, (int)info.Y))
@@ -483,9 +509,17 @@ namespace Treefrog.ViewModel.Tools
             _annots.Add(_selection);
 
             _action = UpdateAction.Box;
+
+            StartAutoScroll(info, viewport);
         }
 
-        private void UpdateDrag (PointerEventInfo info)
+        private void UpdateDrag (PointerEventInfo info, ViewportVM viewport)
+        {
+            UpdateDragCommon(info, viewport);
+            UpdateAutoScroll(info, viewport);
+        }
+
+        private void UpdateDragCommon (PointerEventInfo info, ViewportVM viewport)
         {
             _band.End = new Point((int)info.X, (int)info.Y);
             Rectangle selection = _band.Selection;
@@ -494,13 +528,15 @@ namespace Treefrog.ViewModel.Tools
             _selection.End = new Point(selection.Right, selection.Bottom);
         }
 
-        private void EndDrag (PointerEventInfo info)
+        private void EndDrag (PointerEventInfo info, ViewportVM viewport)
         {
             _annots.Remove(_selection);
 
             foreach (ObjectInstance inst in ObjectsInArea(_band.Selection)) {
                 AddSelected(inst);
             }
+
+            EndAutoScroll(info, viewport);
         }
 
         #endregion

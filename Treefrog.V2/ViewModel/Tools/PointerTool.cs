@@ -141,8 +141,23 @@ namespace Treefrog.ViewModel.Tools
 
         private void ScrollTick (object sender, EventArgs e)
         {
-            if (_scrollViewport != null)
+            if (_scrollViewport != null) {
+                if (_scrollViewport.Offset.X + _xRate < 0)
+                    _xRate = Math.Max(0, _scrollViewport.Offset.X + _xRate);
+                if (_scrollViewport.Offset.Y + _yRate < 0)
+                    _yRate = Math.Max(0, _scrollViewport.Offset.Y + _yRate);
+
                 _scrollViewport.Offset = new Vector(_scrollViewport.Offset.X + _xRate, _scrollViewport.Offset.Y + _yRate);
+
+                _prevX = _prevX + _xRate;
+                _prevY = _prevY + _yRate;
+                PointerEventInfo info = new PointerEventInfo(PointerEventType.None, _prevX, _prevY);
+                AutoScrollTick(info, _scrollViewport);
+            }
+        }
+
+        protected virtual void AutoScrollTick (PointerEventInfo info, ViewportVM viewport)
+        {
         }
 
         public bool IsCancelled
