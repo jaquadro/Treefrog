@@ -39,6 +39,8 @@ namespace Treefrog.ViewModel
             _commandHistory.HistoryChanged += HandleHistoryChanged;
 
             _viewport = new ViewportVM();
+            _viewport.Limit = new Size(_level.PixelsWide, _level.PixelsHigh);
+
             _root = new LevelGroupLayerVM(this, _level.Layers, _viewport);
 
             _layerCollection = new LayerCollectionVM(_level.Layers, _root, _level);

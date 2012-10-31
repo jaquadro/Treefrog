@@ -147,6 +147,11 @@ namespace Treefrog.ViewModel.Tools
                 if (_scrollViewport.Offset.Y + _yRate < 0)
                     _yRate = Math.Max(0, _scrollViewport.Offset.Y + _yRate);
 
+                if (_scrollViewport.VisibleRegion.Right + _xRate >= _scrollViewport.Limit.Width)
+                    _xRate = Math.Min(_scrollViewport.Limit.Width - _scrollViewport.VisibleRegion.Right, _xRate);
+                if (_scrollViewport.VisibleRegion.Bottom + _yRate >= _scrollViewport.Limit.Height)
+                    _yRate = Math.Min(_scrollViewport.Limit.Height - _scrollViewport.VisibleRegion.Bottom, _yRate);
+
                 _scrollViewport.Offset = new Vector(_scrollViewport.Offset.X + _xRate, _scrollViewport.Offset.Y + _yRate);
 
                 _prevX = _prevX + _xRate;
