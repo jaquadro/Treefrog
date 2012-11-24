@@ -66,6 +66,22 @@ namespace Treefrog.Framework
             return service as TService;
         }
 
+        public void RemoveService (Type serviceType)
+        {
+            lock (_lock) {
+                _registry.Remove(serviceType);
+            }
+            OnServiceSet(new ServiceEventArgs(serviceType));
+        }
+
+        public void RemoveService<TService> ()
+        {
+            lock (_lock) {
+                _registry.Remove(typeof(TService));
+            }
+            OnServiceSet(new ServiceEventArgs(typeof(TService)));
+        }
+
         public event EventHandler<ServiceEventArgs> ServiceSet;
 
         protected virtual void OnServiceSet (ServiceEventArgs e)

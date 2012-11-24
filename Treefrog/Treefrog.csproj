@@ -85,6 +85,9 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Amphibian.Drawing">
+      <HintPath>..\..\Amphibian\Amphibian.Drawing\bin\x86\Debug\Amphibian.Drawing.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
@@ -138,22 +141,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Commands\CommandHistory.cs" />
     <Compile Include="Presentation\Commands\EventArgs.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
     <Compile Include="Presentation\Tools\Selection.cs" />
     <Compile Include="Presentation\Tools\SelectTool.cs" />
-    <Compile Include="View\Controls\Composite\InfoStatus.cs" />
-    <Compile Include="View\Controls\Composite\Menu.cs" />
-    <Compile Include="View\Controls\WinEx\ColorButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="View\Controls\WinEx\LayerListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="View\Controls\WinEx\TabControlEx.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Presentation\ContentInfoPresenter.cs" />
     <Compile Include="Presentation\EditorPresenter.cs" />
     <Compile Include="Presentation\ILayerListPresenter.cs" />
@@ -163,93 +156,104 @@
     <Compile Include="Presentation\LevelToolsPresenter.cs" />
     <Compile Include="Presentation\PresentationInterface.cs" />
     <Compile Include="Presentation\Commands\Command.cs" />
-    <Compile Include="View\Controls\WinEx\EditableListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ContentBuilder.cs" />
-    <Compile Include="View\Forms\NewLevel.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="View\Forms\NewLevel.Designer.cs">
-      <DependentUpon>NewLevel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="View\LevelPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="View\LevelPanel.Designer.cs">
-      <DependentUpon>LevelPanel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="View\PropertyPane.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <None Include="View\Controls\AmphibianGameControl.cs">
-      <SubType>Component</SubType>
-    </None>
     <Compile Include="Presentation\Tools\RubberBand.cs" />
-    <Compile Include="View\Forms\ImportTilePool.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="View\Forms\ImportTilePool.Designer.cs">
-      <DependentUpon>ImportTilePool.cs</DependentUpon>
-    </Compile>
     <Compile Include="Presentation\Layers\BaseControlLayer.cs" />
     <Compile Include="Presentation\Layers\ControlEventArgs.cs" />
     <Compile Include="Presentation\Layers\ControlLayerFactory.cs" />
-    <Compile Include="View\Controls\LayerControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Presentation\Layers\MultiTileControlLayer.cs" />
     <Compile Include="Presentation\Layers\TileControlLayer.cs" />
     <Compile Include="Presentation\Layers\TileSetControlLayer.cs" />
     <Compile Include="Model\TileSetLayer.cs" />
-    <Compile Include="View\Controls\Composite\StandardToolbar.cs" />
-    <Compile Include="View\Controls\Composite\TileToolbar.cs" />
     <Compile Include="Presentation\Tools\DrawTool.cs" />
     <Compile Include="Presentation\Tools\EraseTool.cs" />
     <Compile Include="Presentation\Tools\FillTool.cs" />
     <Compile Include="Presentation\Tools\MouseTool.cs" />
-    <Compile Include="View\EventArgs.cs" />
-    <Compile Include="View\LayerPane.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="View\LayerPane.Designer.cs">
-      <DependentUpon>LayerPane.cs</DependentUpon>
-    </Compile>
-    <Compile Include="View\Forms\Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="View\Forms\Form1.designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="View\Controls\GameControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="View\Controls\GraphicsDeviceControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="GraphicsDeviceService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <None Include="app.config" />
-    <Compile Include="View\TilePoolPane.cs">
+    <None Include="Windows\Controls\AmphibianGameControl.cs" />
+    <Compile Include="Windows\Controls\Composite\InfoStatus.cs" />
+    <Compile Include="Windows\Controls\Composite\Menu.cs" />
+    <Compile Include="Windows\Controls\Composite\StandardToolbar.cs" />
+    <Compile Include="Windows\Controls\Composite\TileToolbar.cs" />
+    <Compile Include="Windows\Controls\GameControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Controls\GraphicsDeviceControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <None Include="Windows\Controls\GraphicsDeviceControlGL.cs">
+      <SubType>Component</SubType>
+    </None>
+    <Compile Include="Windows\Controls\LayerControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Controls\ViewportControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="View\TilePoolPane.Designer.cs">
-      <DependentUpon>TilePoolPane.cs</DependentUpon>
-    </Compile>
-    <Compile Include="View\Controls\ViewportControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="View\Controls\ViewportControl.Designer.cs">
+    <Compile Include="Windows\Controls\ViewportControl.Designer.cs">
       <DependentUpon>ViewportControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Controls\WinEx\ColorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Controls\WinEx\EditableListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Controls\WinEx\LayerListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Controls\WinEx\TabControlEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\EventArgs.cs" />
+    <Compile Include="Windows\Forms\ImportTilePool.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\ImportTilePool.Designer.cs">
+      <DependentUpon>ImportTilePool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\NewLevel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NewLevel.Designer.cs">
+      <DependentUpon>NewLevel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\GraphicsDeviceService.cs" />
+    <None Include="Windows\GraphicsDeviceServiceGL.cs" />
+    <Compile Include="Windows\Panels\EventArgs.cs" />
+    <Compile Include="Windows\Panels\LayerPane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\LayerPane.Designer.cs">
+      <DependentUpon>LayerPane.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Panels\LevelPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\LevelPanel.Designer.cs">
+      <DependentUpon>LevelPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Panels\PropertyPane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\TilePoolPane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\TilePoolPane.Designer.cs">
+      <DependentUpon>TilePoolPane.cs</DependentUpon>
+    </Compile>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
-    <EmbeddedResource Include="View\Forms\NewLevel.resx">
-      <DependentUpon>NewLevel.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Icons\16\arrow-090.png" />
     <EmbeddedResource Include="Icons\16\arrow-270.png" />
     <EmbeddedResource Include="Icons\16\layer--minus.png" />
@@ -277,9 +281,6 @@
     <EmbeddedResource Include="Icons\16\compile.png" />
     <EmbeddedResource Include="Icons\16\tags.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
-    <EmbeddedResource Include="View\Forms\ImportTilePool.resx">
-      <DependentUpon>ImportTilePool.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />
     <EmbeddedResource Include="Icons\layer-rotate-left16.png" />
@@ -289,12 +290,6 @@
     <EmbeddedResource Include="Icons\paint-brush16.png" />
     <EmbeddedResource Include="Icons\paint-can16.png" />
     <EmbeddedResource Include="Icons\stamp16.png" />
-    <EmbeddedResource Include="View\LayerPane.resx">
-      <DependentUpon>LayerPane.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="View\LevelPanel.resx">
-      <DependentUpon>LevelPanel.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Icons\color-swatch16.png" />
     <EmbeddedResource Include="Icons\map16.png" />
     <EmbeddedResource Include="Icons\table16.png" />
@@ -318,25 +313,32 @@
     <EmbeddedResource Include="Icons\minus16.png" />
     <EmbeddedResource Include="Icons\pencil16.png" />
     <EmbeddedResource Include="Icons\plus16.png" />
-    <EmbeddedResource Include="View\PropertyPane.resx">
+    <EmbeddedResource Include="Windows\Controls\ViewportControl.resx">
+      <DependentUpon>ViewportControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\ImportTilePool.resx">
+      <DependentUpon>ImportTilePool.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\NewLevel.resx">
+      <DependentUpon>NewLevel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Panels\LayerPane.resx">
+      <DependentUpon>LayerPane.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Panels\LevelPanel.resx">
+      <DependentUpon>LevelPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Panels\PropertyPane.resx">
       <DependentUpon>PropertyPane.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\TilePoolPane.resx">
+    <EmbeddedResource Include="Windows\Panels\TilePoolPane.resx">
       <DependentUpon>TilePoolPane.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="View\Controls\ViewportControl.resx">
-      <DependentUpon>ViewportControl.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Amphibian\Amphibian\Amphibian.csproj">
-      <Project>{E0C66FEA-3843-458D-AAF7-779EBBE6BBBB}</Project>
-      <Name>Amphibian</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Roots\Sandbox\Sandbox.csproj">
-      <Project>{027BAD06-CADD-4D54-AAAE-B60AF35C3428}</Project>
-      <Name>Sandbox</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Treefrog.Content\Treefrog.Content.contentproj">
       <Project>{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}</Project>
       <Name>Treefrog.Content %28Content%29</Name>
@@ -373,11 +375,6 @@
       <ProductName>Microsoft XNA Framework Redistributable 4.0</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="View\Forms\Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
