@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
 using System.Xml;
 using Treefrog.Framework.Model.Collections;
 
@@ -14,6 +11,7 @@ namespace Treefrog.Framework.Model
 
         private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible" };
 
+        private Level _level;
         private string _name;
 
         private float _opacity;
@@ -53,6 +51,12 @@ namespace Treefrog.Framework.Model
 
         #region Properties
 
+        public Level Level
+        {
+            get { return _level; }
+            set { _level = value; }
+        }
+
         public bool IsVisible
         {
             get { return _visible; }
@@ -72,7 +76,7 @@ namespace Treefrog.Framework.Model
             get { return _opacity; }
             set
             {
-                float opac = MathHelper.Clamp(value, 0f, 1f);
+                float opac = Math.Min(1f, Math.Max(0f, value));
                 if (_opacity != opac) {
                     _opacity = opac;
 
@@ -131,7 +135,7 @@ namespace Treefrog.Framework.Model
         private void OpacityPropertyChangedHandler (object sender, EventArgs e)
         {
             NumberProperty property = sender as NumberProperty;
-            _opacity = MathHelper.Clamp(property.Value, 0f, 1f);
+            _opacity = Math.Min(1f, Math.Max(0f, property.Value));
 
             OnOpacityChanged(e);
             OnModified(e);
@@ -182,7 +186,7 @@ namespace Treefrog.Framework.Model
         /// </summary>
         /// <param name="pixelsWide">The requested minimum width of the layer in pixels.</param>
         /// <param name="pixelsHigh">The request minimum height of the layer in pixels.</param>
-        /// <remarks>If an implementing layer's <see cref="IsResizable"/> property returns to, then it is required to honor
+        /// <remarks>If an implementing layer's <see cref="IsResizable"/> property returns true, then it is required to honor
         /// the new size request.  Due to differences in layer resolution, an implementing layer may not be able to exactly
         /// match the requested pixel size.  However, an implementing layer is required to never pick a size smaller than the
         /// request.</remarks>
@@ -284,7 +288,7 @@ namespace Treefrog.Framework.Model
 
         #region XML Import / Export
 
-        public static Layer FromXml (XmlReader reader, IServiceProvider services, Level level)
+        public static Layer FromXml (XmlReader reader, Level level)
         {
             Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
                 "name", "type",
@@ -293,12 +297,21 @@ namespace Treefrog.Framework.Model
             Layer layer = null;
             switch (attribs["type"]) {
                 case "tilemulti":
-                    layer = new MultiTileGridLayer(attribs["name"], level.TileWidth, level.TileHeight, level.TilesWide, level.TilesHigh);
+                    layer = new MultiTileGridLayer(attribs["name"], level.TileWidth, level.TileHeight, level.TilesWide, level.TilesHigh)
+                    {
+                        Level = level,
+                    };
+                    break;
+                case "object":
+                    layer = new ObjectLayer(attribs["name"], level.PixelsWide, level.PixelsHigh)
+                    {
+                        Level = level,
+                    };
                     break;
             }
 
             if (attribs.ContainsKey("opacity")) {
-                layer._opacity = MathHelper.Clamp(Convert.ToSingle(attribs["opacity"]), 0f, 1f);
+                layer._opacity = Math.Min(1f, Math.Max(0f, Convert.ToSingle(attribs["opacity"])));
             }
 
             if (attribs.ContainsKey("visible")) {
@@ -311,7 +324,7 @@ namespace Treefrog.Framework.Model
                         AddPropertyFromXml(xmlr, layer);
                         return true;
                     default:
-                        return layer.ReadXmlElement(xmlr, s, services);
+                        return layer.ReadXmlElement(xmlr, s);
                 }
             });
 
@@ -320,7 +333,7 @@ namespace Treefrog.Framework.Model
 
         public abstract void WriteXml(XmlWriter writer);
 
-        protected virtual bool ReadXmlElement (XmlReader reader, string name, IServiceProvider services)
+        protected virtual bool ReadXmlElement (XmlReader reader, string name)
         {
             return true;
         }
@@ -346,7 +359,7 @@ namespace Treefrog.Framework.Model
         public string Name
         {
             get { return _name; }
-            private set
+            set
             {
                 if (_name != value) {
                     NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);

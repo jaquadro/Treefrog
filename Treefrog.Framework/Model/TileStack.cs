@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace Treefrog.Framework.Model
 {
@@ -107,6 +108,11 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        public static bool NullOrEmpty (TileStack stack)
+        {
+            return (stack == null || stack.Count == 0);
+        }
+
         /// <summary>
         /// Adds a new <see cref="Tile"/> to the top of the stack.
         /// </summary>
@@ -144,21 +150,66 @@ namespace Treefrog.Framework.Model
         #region IEnumerable<Tile> Members
 
         /// <inherit/>
-        public IEnumerator<Tile> GetEnumerator ()
+        public TileStackEnumerator GetEnumerator ()
         {
-            foreach (Tile t in _tiles) {
-                yield return t;
-            }
+            return new TileStackEnumerator(_tiles);
+        }
+
+        IEnumerator<Tile> IEnumerable<Tile>.GetEnumerator ()
+        {
+            return new TileStackEnumerator(_tiles);
         }
 
         #endregion
 
+        public struct TileStackEnumerator : IEnumerator<Tile>
+        {
+            List<Tile> _tiles;
+            int _index;
+
+            public TileStackEnumerator (List<Tile> tiles)
+            {
+                _tiles = tiles;
+                _index = -1;
+            }
+
+            public Tile Current
+            {
+                get { return _tiles[_index]; }
+            }
+
+            public void Dispose ()
+            {
+                return;
+            }
+
+            object System.Collections.IEnumerator.Current
+            {
+                get { return _tiles[_index]; }
+            }
+
+            public bool MoveNext ()
+            {
+                if (_index >= _tiles.Count - 1)
+                    return false;
+
+                _index++;
+                return true;
+            }
+
+            public void Reset ()
+            {
+                _index = -1;
+            }
+        }
+
+
         #region IEnumerable Members
 
         /// <inherit/>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        IEnumerator IEnumerable.GetEnumerator ()
         {
-            return GetEnumerator();
+            return new TileStackEnumerator(_tiles);
         }
 
         #endregion

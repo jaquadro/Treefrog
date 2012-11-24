@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using System.Security.Cryptography;
+using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
@@ -61,7 +59,7 @@ namespace Treefrog.Framework.Model
             OnModified(e);
         }
 
-        public virtual void Update (byte[] textureData)
+        public virtual void Update (TextureResource textureData)
         {
             foreach (DependentTile tile in _dependents) {
                 tile.UpdateFromBase(textureData);
@@ -69,12 +67,12 @@ namespace Treefrog.Framework.Model
             OnTextureModified(EventArgs.Empty);
         }
 
-        public virtual void Draw (SpriteBatch spritebatch, Rectangle dest)
+        /*public virtual void Draw (SpriteBatch spritebatch, Rectangle dest)
         {
             Draw(spritebatch, dest, Color.White);
         }
 
-        public abstract void Draw (SpriteBatch spritebatch, Rectangle dest, Color color);
+        public abstract void Draw (SpriteBatch spritebatch, Rectangle dest, Color color);*/
 
         #region Events
 
@@ -190,16 +188,16 @@ namespace Treefrog.Framework.Model
             : base(id, pool)
         { }
 
-        public override void Update (byte[] textureData)
+        public override void Update (TextureResource textureData)
         {
-            _pool.SetTileTextureData(Id, textureData);
+            _pool.SetTileTexture(Id, textureData);
             base.Update(textureData);
         }
 
-        public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
+        /*public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
         {
             _pool.DrawTile(spritebatch, Id, dest, color);
-        }
+        }*/
     }
 
     public class DependentTile : Tile
@@ -214,20 +212,20 @@ namespace Treefrog.Framework.Model
             _transform = xform;
         }
 
-        public override void Update (byte[] textureData)
+        public override void Update (TextureResource textureData)
         {
             _base.Update(_transform.InverseTransform(textureData, _pool.TileWidth, _pool.TileHeight));
         }
 
-        public virtual void UpdateFromBase (byte[] textureData)
+        public virtual void UpdateFromBase (TextureResource textureData)
         {
-            byte[] xform = _transform.Transform(textureData, _pool.TileWidth, _pool.TileHeight);
-            _pool.SetTileTextureData(Id, xform);
+            TextureResource xform = _transform.Transform(textureData, _pool.TileWidth, _pool.TileHeight);
+            _pool.SetTileTexture(Id, xform);
         }
 
-        public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
+        /*public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
         {
             _pool.DrawTile(spritebatch, Id, dest, color);
-        }
+        }*/
     }
 }

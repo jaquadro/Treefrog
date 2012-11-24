@@ -65,18 +65,13 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -86,23 +81,38 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GraphicsDeviceService.cs" />
+    <Compile Include="Imaging\Color.cs" />
+    <Compile Include="Imaging\Colors.cs" />
+    <Compile Include="Imaging\Drawing\Brush.cs" />
+    <Compile Include="Imaging\Point.cs" />
+    <Compile Include="Imaging\Rectangle.cs" />
+    <Compile Include="Imaging\Size.cs" />
+    <Compile Include="Imaging\TextureResource.cs" />
+    <Compile Include="KeyedObservableCollection.cs" />
     <Compile Include="Model\Collections\EventArgs.cs" />
     <Compile Include="Model\Collections\PredefinedPropertyCollection.cs" />
     <Compile Include="Model\Layer.cs" />
     <Compile Include="Model\Level.cs" />
     <Compile Include="Model\MultiTileGridLayer.cs" />
+    <Compile Include="Model\ObjectClass.cs" />
+    <Compile Include="Model\ObjectInstance.cs" />
+    <Compile Include="Model\ObjectLayer.cs" />
+    <Compile Include="Model\ObjectPool.cs" />
+    <Compile Include="Model\ObjectPoolManager.cs" />
+    <Compile Include="Model\PoolManager.cs" />
     <Compile Include="Model\Project.cs" />
     <Compile Include="Model\Property.cs" />
     <Compile Include="Model\Support\LocatedTile.cs" />
     <Compile Include="Model\Support\LocatedTileStack.cs" />
     <Compile Include="Model\TilePool.cs" />
-    <Compile Include="Model\TileRegistry.cs" />
+    <Compile Include="Model\TilePoolManager.cs" />
+    <None Include="Model\TileRegistry.cs" />
     <Compile Include="Model\TileStack.cs" />
     <Compile Include="Model\Tile.cs" />
     <Compile Include="Model\TileLayer.cs" />
     <Compile Include="NamedResourceEventArgs.cs" />
     <Compile Include="Model\Collections\PropertyCollection.cs" />
+    <Compile Include="ObservableDictionary.cs" />
     <Compile Include="ServiceContainer.cs" />
     <Compile Include="TileCoord.cs" />
     <Compile Include="Model\TileGridLayer.cs" />

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Treefrog.Framework
 {
+    [Serializable]
     public struct TileCoord : IEquatable<TileCoord>
     {
         private readonly int _x;

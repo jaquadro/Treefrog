@@ -20,6 +20,12 @@ namespace Treefrog.Framework.Model
 
         #region Constructors
 
+        public TileRegistry ()
+        {
+            _pools = new Dictionary<string, TilePool>();
+            _tileIndex = new Dictionary<int, TilePool>();
+        }
+
         public TileRegistry (GraphicsDevice device)
         {
             _device = device;
@@ -37,6 +43,22 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        public void Initialize (GraphicsDevice device)
+        {
+            if (_device != null)
+                throw new InvalidOperationException("GraphicsDevice already set");
+
+            _device = device;
+            OnGrpahicsDeviceInitialized(EventArgs.Empty);
+        }
+
+        public event EventHandler GraphicsDeviceInitialized = (s, e) => { };
+
+        protected virtual void OnGrpahicsDeviceInitialized (EventArgs e)
+        {
+            GraphicsDeviceInitialized(this, e);
+        }
 
         public TilePool PoolFromTileId (int id)
         {
