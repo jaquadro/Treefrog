@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework.Model;
 using Treefrog.Framework.Model.Support;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
+using TFImaging = Treefrog.Framework.Imaging;
+using Treefrog.Framework;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -90,9 +92,13 @@ namespace Treefrog.Presentation.Layers
 
         #endregion
 
-        protected override void DrawTiles (SpriteBatch spriteBatch, Rectangle tileRegion)
+        protected override void DrawTiles (SpriteBatch spriteBatch, TFImaging.Rectangle tileRegion)
         {
             base.DrawTiles(spriteBatch, tileRegion);
+
+            TilePoolTextureService textureService = Control.Services.GetService<TilePoolTextureService>();
+            if (textureService == null)
+                return;
 
             RenderTarget2D target = null;
             if (_layer.Opacity < 1f) {
@@ -112,7 +118,13 @@ namespace Treefrog.Presentation.Layers
                     locTile.Y * (int)(_layer.TileHeight * Control.Zoom),
                     (int)(_layer.TileWidth * Control.Zoom),
                     (int)(_layer.TileHeight * Control.Zoom));
-                locTile.Tile.Draw(spriteBatch, dest);
+                //locTile.Tile.Pool(spriteBatch, dest);
+
+                Tile tile = locTile.Tile;
+                Texture2D poolTexture = textureService.GetTexture(locTile.Tile.Pool.Name);
+                TileCoord tileLoc = locTile.Tile.Pool.GetTileLocation(locTile.Tile.Id);
+                Rectangle srcRect = new Rectangle(tileLoc.X * tile.Width, tileLoc.Y * tile.Height, tile.Width, tile.Height);
+                spriteBatch.Draw(poolTexture, dest, srcRect, Color.White);
             }
 
             EndDraw(spriteBatch);
@@ -126,7 +138,7 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
-        protected override Func<int, int, bool> TileInRegionPredicate (Rectangle tileRegion)
+        protected override Func<int, int, bool> TileInRegionPredicate (TFImaging.Rectangle tileRegion)
         {
             return (int x, int y) =>
             {

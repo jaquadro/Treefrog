@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Treefrog.Presentation;
 
-namespace Treefrog.View.Controls.Composite
+namespace Treefrog.Windows.Controls.Composite
 {
     class StandardToolbar
     {
@@ -206,7 +206,7 @@ namespace Treefrog.View.Controls.Composite
 
         private void ButtonCompileClickHandler (object sender, EventArgs e)
         {
-            string path = Path.Combine(Environment.CurrentDirectory, "pcaves.tlp");
+            /*string path = Path.Combine(Environment.CurrentDirectory, "pcaves.tlp");
             string contentPath = Path.Combine(Environment.CurrentDirectory, "Content");
 
             ContentBuilder builder = new ContentBuilder();
@@ -222,7 +222,7 @@ namespace Treefrog.View.Controls.Composite
                 foreach (string filename in Directory.EnumerateFiles(builder.OutputDirectory)) {
                     File.Copy(filename, Path.Combine(contentPath, Path.GetFileName(filename)), true);
                 }
-            }
+            }*/
         }
 
         private void SyncStandardToolsActionsHandler (object sender, EventArgs e)

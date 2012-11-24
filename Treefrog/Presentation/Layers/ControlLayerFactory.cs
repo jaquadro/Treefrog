@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Model;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
 
 namespace Treefrog.Presentation.Layers
 {

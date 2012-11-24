@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Treefrog.Framework.Model;
-using Treefrog.View.Forms;
+using Treefrog.Windows.Forms;
 using Treefrog.Framework;
 
 namespace Treefrog.Presentation
@@ -22,10 +22,13 @@ namespace Treefrog.Presentation
         bool CanRemoveSelectedTilePool { get; }
         bool CanShowSelectedTilePoolProperties { get; }
 
+        TilePoolManager TilePoolManager { get; }
+
         IEnumerable<TilePool> TilePoolList { get; }
         TilePool SelectedTilePool { get; }
         Tile SelectedTile { get; }                      // Send to ITilePoolPresenter
 
+        event EventHandler SyncTilePoolManager;
         event EventHandler SyncTilePoolActions;
         event EventHandler SyncTilePoolList;
         event EventHandler SyncTilePoolControl;         // Send to ITilePoolPresenter
@@ -73,6 +76,7 @@ namespace Treefrog.Presentation
 
             SelectTilePool();
 
+            OnSyncTilePoolManager(EventArgs.Empty);
             OnSyncTilePoolActions(EventArgs.Empty);
             OnSyncTilePoolList(EventArgs.Empty);
             OnSyncTilePoolControl(EventArgs.Empty);
@@ -93,6 +97,11 @@ namespace Treefrog.Presentation
         public bool CanShowSelectedTilePoolProperties
         {
             get { return SelectedTilePool != null; }
+        }
+
+        public TilePoolManager TilePoolManager
+        {
+            get { return _editor.Project.TilePoolManager; }
         }
 
         public IEnumerable<TilePool> TilePoolList
@@ -125,6 +134,8 @@ namespace Treefrog.Presentation
 
         #region Events
 
+        public event EventHandler SyncTilePoolManager;
+
         public event EventHandler SyncTilePoolActions;
 
         public event EventHandler SyncTilePoolList;
@@ -138,6 +149,13 @@ namespace Treefrog.Presentation
         #endregion
 
         #region Event Dispatchers
+
+        protected virtual void OnSyncTilePoolManager (EventArgs e)
+        {
+            if (SyncTilePoolManager != null) {
+                SyncTilePoolManager(this, e);
+            }
+        }
 
         protected virtual void OnSyncTilePoolActions (EventArgs e)
         {

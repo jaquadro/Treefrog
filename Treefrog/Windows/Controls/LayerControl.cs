@@ -9,8 +9,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Amphibian.Drawing;
 using Treefrog.Framework;
 using Treefrog.Presentation.Layers;
+using Treefrog.Framework.Model;
+using Treefrog.Aux;
 
-namespace Treefrog.View.Controls
+namespace Treefrog.Windows.Controls
 {
     public enum LayerCondition
     {
@@ -44,8 +46,10 @@ namespace Treefrog.View.Controls
         private IServiceContainer _services;
         private ContentManager _content;
 
-        private Effect _effect;
-        private EffectParameter _effectTransColor;
+        //private Effect _effect;
+        //private EffectParameter _effectTransColor;
+
+        private Dictionary<TilePool, Texture2D> _poolTextureMap = new Dictionary<TilePool, Texture2D>();
 
         private bool _initialized;
 
@@ -60,7 +64,7 @@ namespace Treefrog.View.Controls
 
         // Drawing
 
-        private Color _backColor = Color.Gray;
+        private Color _backColor = Color.LightGray;
 
         private LayerControlAlignment _alignment = LayerControlAlignment.Center;
 
@@ -87,17 +91,17 @@ namespace Treefrog.View.Controls
         // Ordered Events
 
         #endregion
-
+        
         #region Events
 
         public event EventHandler<DrawLayerEventArgs> DrawLayerContent;
         public event EventHandler<DrawLayerEventArgs> DrawLayerGrid;
         public event EventHandler<DrawLayerEventArgs> DrawExtra;
-        public event EventHandler VirtualSizeChanged;
+        
         public event EventHandler ZoomChanged;
 
         #endregion
-
+        
         #region Constructors
 
         public LayerControl ()
@@ -116,7 +120,7 @@ namespace Treefrog.View.Controls
         }
 
         #endregion
-
+        
         #region Properties
 
         /// <summary>
@@ -232,13 +236,6 @@ namespace Treefrog.View.Controls
         public int VirtualHeight
         {
             get { return _vHeight; }
-            /*set
-            {
-                if (value >= 0) {
-                    _vHeight = value;
-                    OnVirtualSizeChanged(EventArgs.Empty);
-                }
-            }*/
         }
 
         /// <summary>
@@ -247,13 +244,6 @@ namespace Treefrog.View.Controls
         public int VirtualWidth
         {
             get { return _vWidth; }
-            /*set
-            {
-                if (value >= 0) {
-                    _vWidth = value;
-                    OnVirtualSizeChanged(EventArgs.Empty);
-                }
-            }*/
         }
 
         /// <summary>
@@ -270,27 +260,7 @@ namespace Treefrog.View.Controls
             }
         }
 
-        /// <summary>
-        /// Gets the current zoom factor applied to the virtual surface.
-        /// </summary>
-        [DefaultValue(1.0f)]
-        [Description("The zoom factor applied to the contents of the control")]
-        public float Zoom
-        {
-            get { return _zoom; }
-            set
-            {
-                if (_zoom != value) {
-                    _zoom = value;
-                    if (Initialized) {
-                        OnVirtualSizeChanged(EventArgs.Empty);
-                        CheckScrollValue();
-                    }
-
-                    OnZoomChanged(EventArgs.Empty);
-                }
-            }
-        }
+        
 
         public IEnumerable<BaseControlLayer> ControlLayers
         {
@@ -407,7 +377,7 @@ namespace Treefrog.View.Controls
         }
 
         #endregion
-
+        
         #region Event Handlers
 
         private void ControlInitializedHandler (object sender, EventArgs e)
@@ -417,11 +387,11 @@ namespace Treefrog.View.Controls
 
         private void LayerVirtualSizeChangedHandler (object sender, EventArgs e)
         {
-            CalculateVirtualSize();
+            //CalculateVirtualSize();
         }
 
         #endregion
-
+        
         internal void AddLayer (BaseControlLayer layer)
         {
             _layers.Add(layer);
@@ -484,11 +454,11 @@ namespace Treefrog.View.Controls
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _content = new ContentManager(_services);
-            _content.RootDirectory = "Content";
+            _content.RootDirectory = "EditorContent";
 
-            _effect = _content.Load<Effect>("TransColor");
-            _effectTransColor = _effect.Parameters["transColor"];
-            _effectTransColor.SetValue(Color.White.ToVector4());
+            //_effect = _content.Load<Effect>("TransColor");
+            //_effectTransColor = _effect.Parameters["transColor"];
+            //_effectTransColor.SetValue(Color.White.ToVector4());
 
             Application.Idle += delegate { Invalidate(); };
         }
@@ -514,14 +484,16 @@ namespace Treefrog.View.Controls
             }
             OnDrawExtra(e);
         }
-
+        
         #endregion
-
+        
         #region Scrolling
 
         #region IScrollableControl Members
 
         public event ScrollEventHandler Scroll;
+
+        public event EventHandler VirtualSizeChanged;
 
         public event EventHandler ScrollPropertyChanged;
 
@@ -593,8 +565,30 @@ namespace Treefrog.View.Controls
             Invalidate();
         }
 
-        #endregion
+        /// <summary>
+        /// Gets the current zoom factor applied to the virtual surface.
+        /// </summary>
+        [DefaultValue(1.0f)]
+        [Description("The zoom factor applied to the contents of the control")]
+        public float Zoom
+        {
+            get { return _zoom; }
+            set
+            {
+                if (_zoom != value) {
+                    _zoom = value;
+                    if (Initialized) {
+                        OnVirtualSizeChanged(EventArgs.Empty);
+                        CheckScrollValue();
+                    }
 
+                    OnZoomChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        #endregion
+        
         #region Scroll Extensions
 
         public void SetScrollSmallChange (ScrollOrientation orientation, int value)
@@ -788,9 +782,9 @@ namespace Treefrog.View.Controls
             _scrollH = Math.Min(_scrollH, maxH);
             _scrollV = Math.Min(_scrollV, maxV);
         }
-
+        
         #endregion
-
+        
         public BaseControlLayer FindLayer (string name)
         {
             foreach (BaseControlLayer layer in _layers) {
@@ -805,6 +799,94 @@ namespace Treefrog.View.Controls
         public Brush CreateSolidColorBrush (Color color)
         {
             return new SolidColorBrush(_spriteBatch.GraphicsDevice, color);
+        }
+
+    }
+
+    public class TilePoolTextureService : IDisposable
+    {
+        IGraphicsDeviceService _deviceService;
+        TilePoolManager _manager;
+        Dictionary<string, Texture2D> _poolTextureMap = new Dictionary<string, Texture2D>();
+
+        public TilePoolTextureService (TilePoolManager manager, IGraphicsDeviceService deviceService)
+        {
+            _manager = manager;
+            _deviceService = deviceService;
+
+            _manager.Pools.ResourceAdded += TilePoolAdded;
+            _manager.Pools.ResourceModified += TilePoolModified;
+            _manager.Pools.ResourceRemapped += TilePoolRemapped;
+            _manager.Pools.ResourceRemoved += TilePoolRemoved;
+
+            Initialize();
+        }
+
+        public void Dispose ()
+        {
+            if (_poolTextureMap != null) {
+                foreach (Texture2D tex in _poolTextureMap.Values)
+                    tex.Dispose();
+            }
+
+            if (_manager != null) {
+                _manager.Pools.ResourceAdded -= TilePoolAdded;
+                _manager.Pools.ResourceModified -= TilePoolModified;
+                _manager.Pools.ResourceRemapped -= TilePoolRemapped;
+                _manager.Pools.ResourceRemoved -= TilePoolRemoved;
+            }
+
+            _poolTextureMap = null;
+            _manager = null;
+        }
+
+        public Texture2D GetTexture (string poolName)
+        {
+            Texture2D tex;
+            if (_poolTextureMap.TryGetValue(poolName, out tex))
+                return tex;
+            else
+                return null;
+        }
+
+        private void Initialize ()
+        {
+            foreach (TilePool pool in _manager.Pools) {
+                Texture2D tex = pool.TileSource.CreateTexture(_deviceService.GraphicsDevice);
+                _poolTextureMap.Add(pool.Name, tex);
+            }
+        }
+
+        private void TilePoolAdded (object sender, NamedResourceEventArgs<TilePool> e)
+        {
+            TilePool pool = e.Resource;
+
+            Texture2D tex = pool.TileSource.CreateTexture(_deviceService.GraphicsDevice);
+            _poolTextureMap.Add(pool.Name, tex);
+        }
+
+        private void TilePoolRemoved (object sender, NamedResourceEventArgs<TilePool> e)
+        {
+            if (_poolTextureMap.ContainsKey(e.Resource.Name))
+                _poolTextureMap[e.Resource.Name].Dispose();
+
+            _poolTextureMap.Remove(e.Resource.Name);
+        }
+
+        private void TilePoolRemapped (object sender, NamedResourceRemappedEventArgs<TilePool> e)
+        {
+            Texture2D tex = _poolTextureMap[e.OldName];
+            _poolTextureMap.Remove(e.OldName);
+            _poolTextureMap.Add(e.NewName, tex);
+        }
+
+        private void TilePoolModified (object sender, NamedResourceEventArgs<TilePool> e)
+        {
+            if (_poolTextureMap.ContainsKey(e.Resource.Name))
+                _poolTextureMap[e.Resource.Name].Dispose();
+
+            Texture2D tex = e.Resource.TileSource.CreateTexture(_deviceService.GraphicsDevice);
+            _poolTextureMap[e.Resource.Name] = tex;
         }
     }
 }

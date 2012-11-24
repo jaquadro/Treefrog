@@ -5,7 +5,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace Treefrog.View.Controls
+namespace Treefrog.Windows.Controls
 {
     public interface IScrollableControl
     {

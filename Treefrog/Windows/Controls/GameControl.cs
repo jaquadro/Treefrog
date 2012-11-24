@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 
-namespace Treefrog.View.Controls
+namespace Treefrog.Windows.Controls
 {
     public abstract class GameControl : GraphicsDeviceControl
     {

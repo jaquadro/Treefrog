@@ -1,5 +1,5 @@
-﻿using Treefrog.View.Controls.WinEx;
-namespace Treefrog.View.Forms
+﻿using Treefrog.Windows.Controls.WinEx;
+namespace Treefrog.Windows.Forms
 {
     partial class ImportTilePool
     {

@@ -15,6 +15,8 @@ namespace Treefrog.Windows.Controls
     {
         #region Fields
 
+        private OpenTK.GLControl _tkControl;
+
         private bool _designMode;
 
         Form _mainForm;
@@ -62,9 +64,15 @@ namespace Treefrog.Windows.Controls
         protected GraphicsDeviceControl ()
         {
             _designMode = DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
+
+            _tkControl = new OpenTK.GLControl();
+            _tkControl.Dock = DockStyle.Fill;
+            _tkControl.Load += _tkControl_Load;
+
+            Controls.Add(_tkControl);
         }
 
-        protected override void OnCreateControl ()
+        private void _tkControl_Load (object sender, EventArgs e)
         {
             if (!DesignMode) {
                 _deviceService = GraphicsDeviceService.AddRef(Handle, ClientSize.Width, ClientSize.Height);
@@ -81,6 +89,11 @@ namespace Treefrog.Windows.Controls
                     ControlInitialized(this, EventArgs.Empty);
                 }
             }
+        }
+
+        protected override void OnCreateControl ()
+        {
+            
 
             base.OnCreateControl();
         }
@@ -126,11 +139,11 @@ namespace Treefrog.Windows.Controls
                 return Text + "\n\n" + GetType();
             }
 
-            string deviceResetError = HandleDeviceReset();
+            /*string deviceResetError = HandleDeviceReset();
 
             if (!string.IsNullOrEmpty(deviceResetError)) {
                 return deviceResetError;
-            }
+            }*/
 
             Viewport viewport = new Viewport();
 
@@ -152,7 +165,9 @@ namespace Treefrog.Windows.Controls
         {
             try {
                 Rectangle srcRect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
-                GraphicsDevice.Present(srcRect, null, Handle);
+                //GraphicsDevice.Clear(XnaColor.Azure);
+                //GraphicsDevice.Present(srcRect, null, Handle);
+                _tkControl.SwapBuffers();
             }
             catch {
             }

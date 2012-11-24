@@ -3,9 +3,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
-using Treefrog.View.Controls.WinEx;
+using Treefrog.Windows.Controls.WinEx;
 
-namespace Treefrog.View
+namespace Treefrog.Windows
 {
     public class PropertyPane : UserControl
     {

@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Treefrog.View.Controls.WinEx
+namespace Treefrog.Windows.Controls.WinEx
 {
     public class SubItemEventArgs : EventArgs
     {

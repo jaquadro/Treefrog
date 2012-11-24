@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
 
-namespace Treefrog.View.Forms
+namespace Treefrog.Windows.Forms
 {
     public partial class NewLevel : Form
     {

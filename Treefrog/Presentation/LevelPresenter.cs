@@ -4,7 +4,7 @@ using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Tools;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
 using Treefrog.Framework;
 
 namespace Treefrog.Presentation
@@ -65,6 +65,7 @@ namespace Treefrog.Presentation
 
             _layerControl = new LayerControl();
             _layerControl.MouseLeave += LayerControlMouseLeaveHandler;
+            _layerControl.ControlInitialized += LayerControlInitialized;
 
             _history = new CommandHistory();
             _history.HistoryChanged += HistoryChangedHandler;
@@ -87,6 +88,11 @@ namespace Treefrog.Presentation
             InitializeLayerListPresenter();
         }
 
+        private void LayerControlInitialized (object sender, EventArgs e)
+        {
+            TilePoolTextureService poolService = new TilePoolTextureService(_editor.Project.TilePoolManager, _layerControl.GraphicsDeviceService);
+            _layerControl.Services.AddService<TilePoolTextureService>(poolService);
+        }
 
         #region ILevelPResenter Members
 

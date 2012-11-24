@@ -1,6 +1,6 @@
-﻿using Treefrog.View.Controls;
+﻿using Treefrog.Windows.Controls;
 
-namespace Treefrog.View
+namespace Treefrog.Windows
 {
     partial class TilePoolPane
     {

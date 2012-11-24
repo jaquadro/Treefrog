@@ -1,4 +1,4 @@
-﻿namespace Treefrog.View.Controls
+﻿namespace Treefrog.Windows.Controls
 {
     partial class ViewportControl
     {

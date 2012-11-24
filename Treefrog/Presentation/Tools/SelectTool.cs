@@ -264,7 +264,7 @@ namespace Treefrog.Presentation.Tools
                     _level.LayerControl.CanAutoScroll = false;
 
                     if (!SelectionModifier()) {
-                        _selection = new TileSelection(layer.TileWidth, layer.TileHeight);
+                        _selection = new TileSelection(_level, layer.TileWidth, layer.TileHeight);
                     }
 
                     TileCoord start = new TileCoord(_rubberBand.Bounds.X, _rubberBand.Bounds.Y);
@@ -414,7 +414,7 @@ namespace Treefrog.Presentation.Tools
                 CancelSelection(); 
             }
 
-            _selection = new TileSelection(layer.TileWidth, layer.TileHeight);
+            _selection = new TileSelection(_level, layer.TileWidth, layer.TileHeight);
             _selection.AddTiles(new TileCoord(0, 0), new TileCoord(layer.TilesWide - 1, layer.TilesHigh - 1), layer);
         }
 

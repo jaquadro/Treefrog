@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Layers;
 
-namespace Treefrog.View
+namespace Treefrog.Windows
 {
     public partial class LevelPanel : UserControl
     {

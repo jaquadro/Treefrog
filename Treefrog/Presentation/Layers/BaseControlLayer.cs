@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

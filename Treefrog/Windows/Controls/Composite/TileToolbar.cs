@@ -4,7 +4,7 @@ using System.Reflection;
 using Treefrog.Presentation;
 using System.Drawing;
 
-namespace Treefrog.View.Controls.Composite
+namespace Treefrog.Windows.Controls.Composite
 {
     class TileToolbar
     {

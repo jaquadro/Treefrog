@@ -6,6 +6,8 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Layers;
 using System.Windows.Forms;
 using Amphibian.Drawing;
+using Treefrog.Windows.Controls;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.Presentation.Tools
 {
@@ -257,6 +259,10 @@ namespace Treefrog.Presentation.Tools
                     return;
                 }
 
+                TilePoolTextureService textureService = _level.LayerControl.Services.GetService<TilePoolTextureService>();
+                if (textureService == null)
+                    return;
+
                 Rectangle rect = new Rectangle(
                     (int)(_mouseCoord.X * layer.TileWidth * _level.LayerControl.Zoom),
                     (int)(_mouseCoord.Y * layer.TileHeight * _level.LayerControl.Zoom),
@@ -264,7 +270,16 @@ namespace Treefrog.Presentation.Tools
                     (int)(layer.TileHeight * _level.LayerControl.Zoom)
                     );
 
-                _pool.SelectedTile.Draw(e.SpriteBatch, rect, new Color(1f, 1f, 1f, 0.5f));
+                Tile tile = _pool.SelectedTile;
+                Texture2D poolTexture = textureService.GetTexture(tile.Pool.Name);
+                if (poolTexture == null)
+                    return;
+
+                TileCoord tileLoc = tile.Pool.GetTileLocation(tile.Id);
+                Rectangle srcRect = new Rectangle(tileLoc.X * tile.Width, tileLoc.Y * tile.Height, tile.Width, tile.Height);
+                e.SpriteBatch.Draw(poolTexture, rect, srcRect, new Color(1f, 1f, 1f, 0.5f));
+
+                //_pool.SelectedTile.Draw(e.SpriteBatch, rect, new Color(1f, 1f, 1f, 0.5f));
             }
         }
     }

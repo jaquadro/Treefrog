@@ -59,7 +59,9 @@ namespace Treefrog.Presentation
                 _provider = value;
                 _selectedProperty = null;
 
-                _provider.PropertyProviderNameChanged += PropertyProvider_PropertyProviderNameChanged;
+                if (value != null) {
+                    _provider.PropertyProviderNameChanged += PropertyProvider_PropertyProviderNameChanged;
+                }
 
                 RefreshPropertyList();
             }

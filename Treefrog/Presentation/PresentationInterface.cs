@@ -262,11 +262,12 @@ namespace Treefrog.Presentation
 
         public void ActionOpenProject (string path)
         {
-            Form form = new Form();
-            GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
+            //Form form = new Form();
+            //GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
 
             using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read)) {
-                Project project = Project.Open(fs, gds.GraphicsDevice);
+                //Project project = Project.Open(fs, gds.GraphicsDevice);
+                Project project = Project.Open(fs);
                 _editor.Open(project);
             }
         }

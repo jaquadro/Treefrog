@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Amphibian.Drawing;
 using Treefrog.Presentation.Layers;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
 
 namespace Treefrog.Presentation.Tools
 {

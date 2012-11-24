@@ -1,4 +1,4 @@
-﻿namespace Treefrog.View.Forms
+﻿namespace Treefrog.Windows.Forms
 {
     partial class NewLevel
     {

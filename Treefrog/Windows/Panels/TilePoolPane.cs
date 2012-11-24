@@ -7,9 +7,9 @@ using Amphibian.Drawing;
 using Treefrog.Model;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Layers;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
 
-namespace Treefrog.View
+namespace Treefrog.Windows
 {
     using XColor = Microsoft.Xna.Framework.Color;
     using XRectangle = Microsoft.Xna.Framework.Rectangle;
@@ -79,19 +79,26 @@ namespace Treefrog.View
             }
 
             if (_controller != null) {
+                _controller.SyncTilePoolManager -= SyncTilePoolManagerHandler;
                 _controller.SyncTilePoolActions -= SyncTilePoolActionsHandler;
                 _controller.SyncTilePoolList -= SyncTilePoolListHandler;
                 _controller.SyncTilePoolControl -= SyncTilePoolControlHandler;
+
+                _tileControl.Services.RemoveService<TilePoolTextureService>();
             }
 
             _controller = controller;
 
             if (_controller != null) {
+                _controller.SyncTilePoolManager += SyncTilePoolManagerHandler;
                 _controller.SyncTilePoolActions += SyncTilePoolActionsHandler;
                 _controller.SyncTilePoolList += SyncTilePoolListHandler;
                 _controller.SyncTilePoolControl += SyncTilePoolControlHandler;
 
                 _controller.RefreshTilePoolList();
+
+                TilePoolTextureService poolService = new TilePoolTextureService(_controller.TilePoolManager, _tileControl.GraphicsDeviceService);
+                _tileControl.Services.AddService<TilePoolTextureService>(poolService);
             }
             else {
                 ResetComponent();
@@ -142,6 +149,20 @@ namespace Treefrog.View
         {
             if (_controller != null) {
                 _controller.ActionSelectTile(e.Tile);
+            }
+        }
+
+        private void SyncTilePoolManagerHandler (object sender, EventArgs e)
+        {
+            if (_controller != null) {
+                TilePoolTextureService poolService = _tileControl.Services.GetService<TilePoolTextureService>();
+                if (poolService != null) {
+                    poolService.Dispose();
+                    _tileControl.Services.RemoveService<TilePoolTextureService>();
+                }
+
+                poolService = new TilePoolTextureService(_controller.TilePoolManager, _tileControl.GraphicsDeviceService);
+                _tileControl.Services.AddService<TilePoolTextureService>(poolService);
             }
         }
 

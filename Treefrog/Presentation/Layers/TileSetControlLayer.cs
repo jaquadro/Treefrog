@@ -4,7 +4,8 @@ using Treefrog.Framework.Model;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Model;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
+using TFImaging = Treefrog.Framework.Imaging;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -147,9 +148,13 @@ namespace Treefrog.Presentation.Layers
             throw new InvalidOperationException("Can't convert tileset coordinate to index if width not synced");
         }
 
-        protected override void DrawTiles (SpriteBatch spriteBatch, Rectangle tileRegion)
+        protected override void DrawTiles (SpriteBatch spriteBatch, TFImaging.Rectangle tileRegion)
         {
             base.DrawTiles(spriteBatch, tileRegion);
+
+            TilePoolTextureService textureService = Control.Services.GetService<TilePoolTextureService>();
+            if (textureService == null)
+                return;
 
             int tilesWide = Control.Width / _layer.TileWidth;
 
@@ -166,7 +171,15 @@ namespace Treefrog.Presentation.Layers
                     pointY * (int)(_layer.TileHeight * Control.Zoom),
                     (int)(_layer.TileWidth * Control.Zoom),
                     (int)(_layer.TileHeight * Control.Zoom));
-                tile.Draw(spriteBatch, dest);
+                //tile.Draw(spriteBatch, dest);
+
+                Texture2D poolTexture = textureService.GetTexture(tile.Pool.Name);
+                if (poolTexture == null)
+                    continue;
+
+                TileCoord tileLoc = tile.Pool.GetTileLocation(tile.Id);
+                Rectangle srcRect = new Rectangle(tileLoc.X * tile.Width, tileLoc.Y * tile.Height, tile.Width, tile.Height);
+                spriteBatch.Draw(poolTexture, dest, srcRect, Color.White);
 
                 if (++pointX >= tilesWide) {
                     pointX = 0;
@@ -188,7 +201,7 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
-        protected override Func<int, int, bool> TileInRegionPredicate (Rectangle tileRegion)
+        protected override Func<int, int, bool> TileInRegionPredicate (TFImaging.Rectangle tileRegion)
         {
             int tilesWide = Control.Width / _layer.TileWidth;
             int subW = (Control.Width % _layer.TileWidth) > 0 ? 1 : 0;

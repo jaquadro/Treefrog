@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Treefrog.Presentation;
 
-namespace Treefrog.View.Controls.Composite
+namespace Treefrog.Windows.Controls.Composite
 {
     public class StandardMenu
     {

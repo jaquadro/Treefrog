@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
-using Treefrog.View.Forms;
+using Treefrog.Windows.Forms;
 
 namespace Treefrog.Presentation
 {
@@ -286,11 +286,11 @@ namespace Treefrog.Presentation
 
         private Project EmptyProject ()
         {
-            Form form = new Form();
-            GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
+            //Form form = new Form();
+            //GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
 
             Project project = new Project();
-            project.Initialize(gds.GraphicsDevice);
+            //project.Initialize(gds.GraphicsDevice);
 
             return project;
         }

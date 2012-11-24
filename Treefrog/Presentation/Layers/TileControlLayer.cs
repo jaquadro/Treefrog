@@ -4,7 +4,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
+using TFImaging = Treefrog.Framework.Imaging;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -252,7 +253,7 @@ namespace Treefrog.Presentation.Layers
             int zoomTileWidth = (int)(_layer.TileWidth * Control.Zoom);
             int zoomTileHeight = (int)(_layer.TileHeight * Control.Zoom);
 
-            Rectangle tileRegion = new Rectangle(
+            TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
                 region.X / _layer.TileWidth,
                 region.Y / _layer.TileHeight,
                 (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
@@ -279,7 +280,7 @@ namespace Treefrog.Presentation.Layers
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
             spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
-            Rectangle tileRegion = new Rectangle(
+            TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
                 region.X / _layer.TileWidth,
                 region.Y / _layer.TileHeight,
                 (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
@@ -314,14 +315,14 @@ namespace Treefrog.Presentation.Layers
             spriteBatch.End();
         }
 
-        protected virtual void DrawTiles (SpriteBatch spriteBatch, Rectangle tileRegion) { }
+        protected virtual void DrawTiles (SpriteBatch spriteBatch, TFImaging.Rectangle tileRegion) { }
 
         protected virtual Tile GetTile (TileCoord coord) 
         { 
             return null; 
         }
 
-        protected abstract Func<int, int, bool> TileInRegionPredicate (Rectangle tileRegion);
+        protected abstract Func<int, int, bool> TileInRegionPredicate (TFImaging.Rectangle tileRegion);
 
         private void BuildTileBrush ()
         {

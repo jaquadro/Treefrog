@@ -6,11 +6,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework.Model;
 using Treefrog.Model;
 using Treefrog.Presentation.Layers;
-using Treefrog.View.Controls;
+using Treefrog.Windows.Controls;
 
-namespace Treefrog.View.Forms
+namespace Treefrog.Windows.Forms
 {
     using XnaColor = Microsoft.Xna.Framework.Color;
+    using Treefrog.Framework.Imaging;
+    using Treefrog.Aux;
     
 
     public partial class ImportTilePool : Form
@@ -20,7 +22,8 @@ namespace Treefrog.View.Forms
         LayerControl _layerControl;
         TileSetControlLayer _tileLayer;
 
-        TileRegistry _localRegistry;
+        //TileRegistry _localRegistry;
+        TilePoolManager _localManager;
         Stream _fileStream;
 
         int _width;
@@ -47,7 +50,8 @@ namespace Treefrog.View.Forms
             _previewPanel.Controls.Add(_layerControl);
 
             GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
-            _localRegistry = new TileRegistry(gds.GraphicsDevice);
+            //_localRegistry = new TileRegistry(gds.GraphicsDevice);
+            _localManager = new TilePoolManager();
 
             _message.Text = "";
 
@@ -90,11 +94,11 @@ namespace Treefrog.View.Forms
 
         private void _buttonOK_Click (object sender, EventArgs e)
         {
-            TilePool pool = LoadFile(_project.Registry);
+            TilePool pool = LoadFile(_project.TilePoolManager);
             if (pool != null) {
                 if (_checkboxTransColor.Checked) {
-                    Color c = _buttonTransColor.Color;
-                    pool.ApplyTransparentColor(new XnaColor(c.R / 255f, c.G / 255f, c.B / 255f));
+                    System.Drawing.Color c = _buttonTransColor.Color;
+                    //pool.ApplyTransparentColor(new XnaColor(c.R / 255f, c.G / 255f, c.B / 255f));
                 }
                 _project.TilePools.Add(pool);
             }
@@ -111,20 +115,20 @@ namespace Treefrog.View.Forms
 
         private TilePool LoadFile ()
         {
-            return LoadFile(_localRegistry);
+            return LoadFile(_localManager);
         }
 
         private void FileInfo ()
         {
-            Texture2D source = Texture2D.FromStream(_localRegistry.GraphicsDevice, _fileStream);
+            TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(_fileStream);
 
-            _width = source.Width;
-            _height = source.Height;
+            _width = resource.Width;
+            _height = resource.Height;
 
             _fileStream.Position = 0;
         }
 
-        private TilePool LoadFile (TileRegistry registry)
+        private TilePool LoadFile (TilePoolManager manager)
         {
             if (_fileStream == null) {
                 return null;
@@ -136,12 +140,35 @@ namespace Treefrog.View.Forms
 
             _tileLayer.Layer = null;
 
-            _localRegistry.Reset();
+            _localManager.Reset();
 
-            TilePool preview = TilePool.Import(_textName.Text, registry, _fileStream, 
+            TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(_fileStream);
+            /*if (_useTransColor) {
+                resource.Apply(c =>
+                {
+                    if (c.Equals(_transColor))
+                        return Colors.Transparent;
+                    else
+                        return c;
+                });
+            }*/
+
+            TilePool.TileImportOptions options = new TilePool.TileImportOptions()
+            {
+                TileHeight = (int)_numTileHeight.Value,
+                TileWidth = (int)_numTileWidth.Value,
+                SpaceX = (int)_numXSpacing.Value,
+                SpaceY = (int)_numYSpacing.Value,
+                MarginX = (int)_numXMargin.Value,
+                MarginY = (int)_numYSpacing.Value,
+                ImportPolicty = TileImportPolicy.SetUnique,
+            };
+
+            TilePool preview = manager.ImportTilePool(_textName.Text, resource, options);
+            /*TilePool preview = TilePool.Import(_textName.Text, manager, _fileStream, 
                 (int)_numTileWidth.Value, (int)_numTileHeight.Value, 
                 (int)_numXSpacing.Value, (int)_numYSpacing.Value,
-                (int)_numXMargin.Value, (int)_numYMargin.Value);
+                (int)_numXMargin.Value, (int)_numYMargin.Value);*/
             //TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
             _tileLayer.Layer = new TileSetLayer("Preview", preview);
@@ -179,7 +206,7 @@ namespace Treefrog.View.Forms
         {
             XnaColor color = _tileLayer.Control.GetPixel(e.X, e.Y);
 
-            _buttonTransColor.Color = Color.FromArgb(255, color.R, color.G, color.B);
+            _buttonTransColor.Color = System.Drawing.Color.FromArgb(255, color.R, color.G, color.B);
             _tileLayer.TransparentColor = color;
         }
 

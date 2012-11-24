@@ -6,6 +6,11 @@ using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Framework.Model.Support;
 using Amphibian.Drawing;
+using Treefrog.Windows.Controls;
+//using Treefrog.Framework.Imaging;
+
+//using GraphicsDevice = Microsoft.Xna.Framework.Graphics.GraphicsDevice;
+//using SpriteBatch = Microsoft.Xna.Framework.Graphics.SpriteBatch;
 
 namespace Treefrog.Presentation.Tools
 {
@@ -21,9 +26,12 @@ namespace Treefrog.Presentation.Tools
 
         private Brush _selectBrush;
 
-        public TileSelection (int tileWidth, int tileHeight)
+        private LevelPresenter _level;
+
+        public TileSelection (LevelPresenter level, int tileWidth, int tileHeight)
         {
             _tiles = new Dictionary<TileCoord, TileStack>();
+            _level = level;
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
         }
@@ -109,6 +117,10 @@ namespace Treefrog.Presentation.Tools
 
         public void DrawTiles (SpriteBatch spriteBatch, float zoom)
         {
+            TilePoolTextureService textureService = _level.LayerControl.Services.GetService<TilePoolTextureService>();
+            if (textureService == null)
+                return;
+
             foreach (KeyValuePair<TileCoord, TileStack> kv in _tiles) {
                 if (kv.Value == null)
                     continue;
@@ -120,7 +132,15 @@ namespace Treefrog.Presentation.Tools
                             (int)(_tileWidth * zoom),
                             (int)(_tileHeight * zoom)
                             );
-                        tile.Draw(spriteBatch, rect);
+                        //tile.Draw(spriteBatch, rect);
+
+                        Texture2D poolTexture = textureService.GetTexture(tile.Pool.Name);
+                        if (poolTexture == null)
+                            return;
+
+                        TileCoord tileLoc = tile.Pool.GetTileLocation(tile.Id);
+                        Rectangle srcRect = new Rectangle(tileLoc.X * tile.Width, tileLoc.Y * tile.Height, tile.Width, tile.Height);
+                        spriteBatch.Draw(poolTexture, rect, srcRect, new Color(1f, 1f, 1f, 0.5f));
                     }
                 }
             }
@@ -133,7 +153,7 @@ namespace Treefrog.Presentation.Tools
 
         public FloatingTileSelection CreateFloatingSelection ()
         {
-            FloatingTileSelection fs = new FloatingTileSelection(_tileWidth, _tileHeight);
+            FloatingTileSelection fs = new FloatingTileSelection(_level, _tileWidth, _tileHeight);
             foreach (LocatedTileStack t in this) {
                 fs.AddTiles(t.Location, t.Stack);
             }
@@ -178,8 +198,8 @@ namespace Treefrog.Presentation.Tools
         private TileCoord _dragOrigin;
         private TileCoord _dragDiff;
 
-        internal FloatingTileSelection (int tileWidth, int tileHeight)
-            : base(tileWidth, tileHeight)
+        internal FloatingTileSelection (LevelPresenter level, int tileWidth, int tileHeight)
+            : base(level, tileWidth, tileHeight)
         {
         }
 

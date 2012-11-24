@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace Treefrog.Windows
 {
@@ -80,7 +81,10 @@ namespace Treefrog.Windows
             _parameters.IsFullScreen = false;
             _parameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
 
-            _device = new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile.Reach, _parameters);
+            //OpenTKGameWindow tkWindow = new OpenTKGameWindow();
+            //tkWindow.ChangeClientBounds(new Rectangle(0, 0, Math.Max(width, 1), Math.Max(height, 1)));
+
+            _device = new GraphicsDevice(); //GraphicsAdapter.DefaultAdapter, GraphicsProfile.Reach, _parameters);
 
             if (DeviceCreated != null) {
                 DeviceCreated(this, EventArgs.Empty);

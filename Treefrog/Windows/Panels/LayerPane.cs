@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
 
-namespace Treefrog.View
+namespace Treefrog.Windows
 {
     public partial class LayerPane : UserControl
     {
@@ -156,8 +156,7 @@ namespace Treefrog.View
                 Stack<ListViewItem> items = new Stack<ListViewItem>();
 
                 foreach (Layer layer in _controller.LayerList) {
-                    ListViewItem layerItem = new ListViewItem(layer.Name, 0)
-                    {
+                    ListViewItem layerItem = new ListViewItem(layer.Name, 0) {
                         Name = layer.Name,
                         Checked = true,
                     };

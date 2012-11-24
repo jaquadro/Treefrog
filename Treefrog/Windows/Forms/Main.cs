@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Windows.Forms;
 using Treefrog.Presentation;
-using Treefrog.View.Controls.Composite;
+using Treefrog.Windows.Controls.Composite;
 
-namespace Treefrog.View.Forms
+namespace Treefrog.Windows.Forms
 {
-    public partial class Form1 : Form
+    public partial class Main : Form
     {
         private StandardMenu _menu;
         private StandardToolbar _standardToolbar;
@@ -14,7 +14,7 @@ namespace Treefrog.View.Forms
 
         private EditorPresenter _editor;
 
-        public Form1 ()
+        public Main ()
         {
             InitializeComponent();
 
