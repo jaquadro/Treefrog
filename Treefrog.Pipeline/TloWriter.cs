@@ -7,18 +7,24 @@ using Treefrog.Pipeline.Content;
 namespace Treefrog.Pipeline
 {
     [ContentTypeWriter]
-    public class TlpWriter : ContentTypeWriter<LevelIndexContent>
+    public class TloWriter : ContentTypeWriter<ObjectRegistryContent>
     {
-        protected override void Write (ContentWriter output, LevelIndexContent value)
+        protected override void Write (ContentWriter output, ObjectRegistryContent value)
         {
-            output.Write(value.Levels.Count);
+            output.Write(value.Version);
 
-            foreach (LevelIndexEntry level in value.Levels) {
-                output.Write(level.Id);
-                output.Write(level.Name);
-                output.Write(level.Asset);
+            ObjectPool pool = value.ObjectPool;
 
-                WritePropertyBlock(output, level.Properties);
+            output.Write((short)value.Id);
+
+            WritePropertyBlock(output, pool.CustomProperties);
+
+            output.Write((short)pool.Count);
+            foreach (ObjectClass objClass in pool.Objects) {
+                output.Write((short)objClass.Id);
+                output.Write(objClass.Name);
+
+                //WritePropertyBlock(output, objClass.CustomProperties);
             }
         }
 
@@ -38,12 +44,12 @@ namespace Treefrog.Pipeline
 
         public override string GetRuntimeReader (TargetPlatform targetPlatform)
         {
-            return "Treefrog.Runtime.LevelIndexReader, Treefrog.Runtime";
+            return "Treefrog.Runtime.ObjectPoolReader, Treefrog.Runtime";
         }
 
         public override string GetRuntimeType (TargetPlatform targetPlatform)
         {
-            return "Treefrog.Runtime.LevelIndex, Treefrog.Runtime";
+            return "Treefrog.Runtime.ObjectPool, Treefrog.Runtime";
         }
     }
 }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Content.Pipeline;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using Treefrog.Pipeline.Content;
 using System.IO;
+using Microsoft.Xna.Framework.Content.Pipeline;
+using Treefrog.Pipeline.Content;
 
 namespace Treefrog.Pipeline
 {
@@ -24,6 +21,10 @@ namespace Treefrog.Pipeline
         [Description("A semicolon-delimited list of Tileset assets used by this level.")]
         public string TilesetAssets { get; set; }
 
+        [DisplayName("Object Pool Assets")]
+        [Description("A semicolon-delimited list of Object Pool assets used by this level.")]
+        public string ObjectPoolAssets { get; set; }
+
         public override LevelContent Process (LevelContent input, ContentProcessorContext context)
         {
             if (!Directory.Exists("build")) {
@@ -31,9 +32,11 @@ namespace Treefrog.Pipeline
             }
 
             string assets = TilesetAssets ?? string.Empty;
+            string objectPoolAssets = ObjectPoolAssets ?? string.Empty;
 
             input.Level = input.Project.Levels[LevelKey];
             input.TilesetAssets = new List<string>(assets.Split(new char[] { ';' }));
+            input.ObjectPoolAssets = new List<string>(objectPoolAssets.Split(new char[] { ';' }));
 
             return input;
         }

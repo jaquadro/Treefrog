@@ -59,14 +59,19 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Content\LevelContent.cs" />
     <Compile Include="Content\LevelIndexContent.cs" />
+    <Compile Include="Content\ObjectRegistryContent.cs" />
     <Compile Include="Content\TileRegistryContent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TloImporter.cs" />
+    <Compile Include="TloProcessor.cs" />
+    <Compile Include="TloWriter.cs" />
     <Compile Include="TlpImporter.cs" />
     <Compile Include="TlpProcessor.cs" />
     <Compile Include="TlpWriter.cs" />
