@@ -57,13 +57,15 @@ namespace Treefrog.Windows.Forms
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this._tabTilePools = new System.Windows.Forms.TabPage();
+            this.tilePoolPane1 = new Treefrog.Windows.TilePoolPane();
+            this._tabObjects = new System.Windows.Forms.TabPage();
+            this.objectPanel1 = new Treefrog.Windows.Panels.ObjectPanel();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this._tabLayers = new System.Windows.Forms.TabPage();
+            this.layerPane1 = new Treefrog.Windows.LayerPane();
             this._tabProperties = new System.Windows.Forms.TabPage();
-            this.tilePoolPane1 = new TilePoolPane();
-            this.layerPane1 = new LayerPane();
-            this.propertyPane1 = new PropertyPane();
-            this.tabControlEx1 = new TabControlEx();
+            this.propertyPane1 = new Treefrog.Windows.PropertyPane();
+            this.tabControlEx1 = new Treefrog.Windows.Controls.WinEx.TabControlEx();
             this.menuBar.SuspendLayout();
             this.statusBar.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
@@ -78,6 +80,7 @@ namespace Treefrog.Windows.Forms
             this.splitContainer2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this._tabTilePools.SuspendLayout();
+            this._tabObjects.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this._tabLayers.SuspendLayout();
             this._tabProperties.SuspendLayout();
@@ -338,6 +341,7 @@ namespace Treefrog.Windows.Forms
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this._tabTilePools);
+            this.tabControl1.Controls.Add(this._tabObjects);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
@@ -358,6 +362,35 @@ namespace Treefrog.Windows.Forms
             this._tabTilePools.TabIndex = 0;
             this._tabTilePools.Text = "Tile Pools";
             this._tabTilePools.UseVisualStyleBackColor = true;
+            // 
+            // tilePoolPane1
+            // 
+            this.tilePoolPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
+            this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.tilePoolPane1.Name = "tilePoolPane1";
+            this.tilePoolPane1.Size = new System.Drawing.Size(281, 267);
+            this.tilePoolPane1.TabIndex = 0;
+            this.tilePoolPane1.TabStop = false;
+            // 
+            // _tabObjects
+            // 
+            this._tabObjects.Controls.Add(this.objectPanel1);
+            this._tabObjects.Location = new System.Drawing.Point(4, 22);
+            this._tabObjects.Name = "_tabObjects";
+            this._tabObjects.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
+            this._tabObjects.Size = new System.Drawing.Size(283, 268);
+            this._tabObjects.TabIndex = 1;
+            this._tabObjects.Text = "Objects";
+            this._tabObjects.UseVisualStyleBackColor = true;
+            // 
+            // objectPanel1
+            // 
+            this.objectPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.objectPanel1.Location = new System.Drawing.Point(0, 0);
+            this.objectPanel1.Name = "objectPanel1";
+            this.objectPanel1.Size = new System.Drawing.Size(281, 267);
+            this.objectPanel1.TabIndex = 0;
             // 
             // tabControl2
             // 
@@ -384,6 +417,16 @@ namespace Treefrog.Windows.Forms
             this._tabLayers.Text = "Layers";
             this._tabLayers.UseVisualStyleBackColor = true;
             // 
+            // layerPane1
+            // 
+            this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layerPane1.Location = new System.Drawing.Point(0, 0);
+            this.layerPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.layerPane1.Name = "layerPane1";
+            this.layerPane1.Size = new System.Drawing.Size(281, 278);
+            this.layerPane1.TabIndex = 0;
+            this.layerPane1.TabStop = false;
+            // 
             // _tabProperties
             // 
             this._tabProperties.Controls.Add(this.propertyPane1);
@@ -395,26 +438,6 @@ namespace Treefrog.Windows.Forms
             this._tabProperties.TabIndex = 1;
             this._tabProperties.Text = "Properties";
             this._tabProperties.UseVisualStyleBackColor = true;
-            // 
-            // tilePoolPane1
-            // 
-            this.tilePoolPane1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
-            this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
-            this.tilePoolPane1.Name = "tilePoolPane1";
-            this.tilePoolPane1.Size = new System.Drawing.Size(281, 267);
-            this.tilePoolPane1.TabIndex = 0;
-            this.tilePoolPane1.TabStop = false;
-            // 
-            // layerPane1
-            // 
-            this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layerPane1.Location = new System.Drawing.Point(0, 0);
-            this.layerPane1.Margin = new System.Windows.Forms.Padding(0);
-            this.layerPane1.Name = "layerPane1";
-            this.layerPane1.Size = new System.Drawing.Size(281, 278);
-            this.layerPane1.TabIndex = 0;
-            this.layerPane1.TabStop = false;
             // 
             // propertyPane1
             // 
@@ -437,7 +460,7 @@ namespace Treefrog.Windows.Forms
             this.tabControlEx1.TabIndex = 0;
             this.tabControlEx1.TabStop = false;
             // 
-            // Form1
+            // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -445,7 +468,7 @@ namespace Treefrog.Windows.Forms
             this.Controls.Add(this.toolStripContainer1);
             this.Controls.Add(this.statusBar);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "Form1";
+            this.Name = "Main";
             this.Text = "Form1";
             this.menuBar.ResumeLayout(false);
             this.menuBar.PerformLayout();
@@ -464,6 +487,7 @@ namespace Treefrog.Windows.Forms
             this.splitContainer2.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this._tabTilePools.ResumeLayout(false);
+            this._tabObjects.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this._tabLayers.ResumeLayout(false);
             this._tabProperties.ResumeLayout(false);
@@ -508,6 +532,8 @@ namespace Treefrog.Windows.Forms
         private LayerPane layerPane1;
         private System.Windows.Forms.TabPage _tabProperties;
         private PropertyPane propertyPane1;
+        private System.Windows.Forms.TabPage _tabObjects;
+        private Panels.ObjectPanel objectPanel1;
     }
 }
 

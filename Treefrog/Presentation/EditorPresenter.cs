@@ -34,6 +34,7 @@ namespace Treefrog.Presentation
         bool CanShowLayerPanel { get; }
         bool CanShowPropertyPanel { get; }
         bool CanShowTilePoolPanel { get; }
+        bool CanShowObjectPoolPanel { get; }
 
         bool Modified { get; }
 
@@ -59,6 +60,7 @@ namespace Treefrog.Presentation
         private EditorPresenter _editor;
 
         private TilePoolListPresenter _tilePoolList;
+        private ObjectPoolCollectionPresenter _objectPoolCollection;
         private PropertyListPresenter _propertyList;
 
         private LevelToolsPresenter _levelTools;
@@ -76,6 +78,7 @@ namespace Treefrog.Presentation
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
 
             _tilePoolList = new TilePoolListPresenter(_editor);
+            _objectPoolCollection = new ObjectPoolCollectionPresenter(_editor);
             _propertyList = new PropertyListPresenter();
         }
 
@@ -118,12 +121,15 @@ namespace Treefrog.Presentation
         {
             get { return _tilePoolList; }
         }
+
+        public IObjectPoolCollectionPresenter ObjectPoolCollection
+        {
+            get { return _objectPoolCollection; }
+        }
     }
 
     public class EditorPresenter : IEditorPresenter
     {
-        
-
         private Project _project;
 
         private Dictionary<string, LevelPresenter> _levels;
@@ -332,6 +338,11 @@ namespace Treefrog.Presentation
         }
 
         public bool CanShowTilePoolPanel
+        {
+            get { return true; }
+        }
+
+        public bool CanShowObjectPoolPanel
         {
             get { return true; }
         }

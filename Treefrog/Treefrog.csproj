@@ -145,6 +145,7 @@
     <Compile Include="Presentation\Commands\CommandHistory.cs" />
     <Compile Include="Presentation\Commands\EventArgs.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
+    <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\Tools\Selection.cs" />
     <Compile Include="Presentation\Tools\SelectTool.cs" />
     <Compile Include="Presentation\ContentInfoPresenter.cs" />
@@ -240,6 +241,18 @@
     <Compile Include="Windows\Panels\LevelPanel.Designer.cs">
       <DependentUpon>LevelPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Panels\ObjectPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\ObjectPanel.Designer.cs">
+      <DependentUpon>ObjectPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Panels\ProjectPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\ProjectPanel.Designer.cs">
+      <DependentUpon>ProjectPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Panels\PropertyPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -280,6 +293,8 @@
     <EmbeddedResource Include="Icons\16\disk.png" />
     <EmbeddedResource Include="Icons\16\compile.png" />
     <EmbeddedResource Include="Icons\16\tags.png" />
+    <EmbeddedResource Include="Icons\16\game--minus.png" />
+    <EmbeddedResource Include="Icons\16\game--plus.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />
@@ -330,6 +345,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\LevelPanel.resx">
       <DependentUpon>LevelPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Panels\ObjectPanel.resx">
+      <DependentUpon>ObjectPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Panels\ProjectPanel.resx">
+      <DependentUpon>ProjectPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\PropertyPane.resx">
       <DependentUpon>PropertyPane.cs</DependentUpon>

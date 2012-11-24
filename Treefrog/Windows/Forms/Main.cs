@@ -77,6 +77,9 @@ namespace Treefrog.Windows.Forms
             if (_editor.CanShowTilePoolPanel)
                 tilePoolPane1.BindController(_editor.Presentation.TilePoolList);
 
+            if (_editor.CanShowObjectPoolPanel)
+                objectPanel1.BindController(_editor.Presentation.ObjectPoolCollection);
+
             if (_editor.CanShowPropertyPanel)
                 propertyPane1.BindController(_editor.Presentation.PropertyList);
 
