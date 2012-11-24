@@ -10,7 +10,8 @@ namespace Treefrog.Runtime
 {
     public class Level
     {
-        TileRegistry _registry;
+        private TileRegistry _tileRegistry;
+        private ObjectRegistry _objectRegistry;
         private List<Layer> _layers;
 
         /// <summary>
@@ -53,19 +54,15 @@ namespace Treefrog.Runtime
             }
         }
 
-        public IEnumerable<Layer> Layers
+        public List<Layer> Layers
         {
-            get
-            {
-                foreach (Layer layer in _layers) {
-                    yield return layer;
-                }
-            }
+            get { return _layers; }
         }
 
         internal Level ()
         {
-            _registry = new TileRegistry();
+            _tileRegistry = new TileRegistry();
+            _objectRegistry = new ObjectRegistry();
             _layers = new List<Layer>();
         }
 
@@ -89,7 +86,15 @@ namespace Treefrog.Runtime
                 string asset = reader.ReadString();
                 Tileset tileset = reader.ContentManager.Load<Tileset>(asset);
 
-                _registry.Add(tileset);
+                _tileRegistry.Add(tileset);
+            }
+
+            int objectPoolCount = reader.ReadInt32();
+            for (int i = 0; i < objectPoolCount; i++) {
+                string asset = reader.ReadString();
+                ObjectPool pool = reader.ContentManager.Load<ObjectPool>(asset);
+
+                _objectRegistry.Add(pool);
             }
 
             int layerCount = reader.ReadInt16();
@@ -98,7 +103,10 @@ namespace Treefrog.Runtime
 
                 switch (type) {
                     case "TILE":
-                        _layers.Add(new TileLayer(reader, _registry));
+                        _layers.Add(new TileLayer(reader, _tileRegistry));
+                        break;
+                    case "OBJE":
+                        _layers.Add(new ObjectLayer(reader, _objectRegistry));
                         break;
                 }
             }

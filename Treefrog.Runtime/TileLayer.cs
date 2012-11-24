@@ -10,8 +10,8 @@ namespace Treefrog.Runtime
 {
     public class TileLayer : Layer
     {
-        private TileGrid _tiles;
         private TileRegistry _registry;
+        private TileGrid _tiles;
 
         public int TileHeight { get; private set; }
 
