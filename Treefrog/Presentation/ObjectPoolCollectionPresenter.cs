@@ -55,7 +55,7 @@ namespace Treefrog.Presentation
 
         void ActionImportObject ();                             // Send to IObjectPoolPresenter
         void ActionRemoveSelectedObject ();                     // Send to IObjectPoolPresenter
-        void ActionSelectObject (ObjectClass objectClass);      // Send to IObjectPoolPresenter
+        void ActionSelectObject (string objectClass);      // Send to IObjectPoolPresenter
 
         void RefreshObjectPoolCollection ();
     }
@@ -281,15 +281,24 @@ namespace Treefrog.Presentation
             OnSyncObjectPoolControl(EventArgs.Empty);
         }
 
-        public void ActionSelectObject (ObjectClass objectClass)
+        public void ActionSelectObject (string objectClass)
         {
-            if (SelectedObjectPool != null) {
-                _selectedObjects[_selectedPool] = objectClass;
+            if (objectClass == null) {
+                if (_selectedPool != null)
+                    _selectedObjects.Remove(_selectedPool);
 
                 OnSyncObjectPoolControl(EventArgs.Empty);
                 OnObjectSelectionChanged(EventArgs.Empty);
 
-                _editor.Presentation.PropertyList.Provider = objectClass;
+                _editor.Presentation.PropertyList.Provider = null;
+            }
+            else if (SelectedObjectPool != null && SelectedObjectPool.Objects.Contains(objectClass)) {
+                _selectedObjects[_selectedPool] = SelectedObjectPool.Objects[objectClass];
+
+                OnSyncObjectPoolControl(EventArgs.Empty);
+                OnObjectSelectionChanged(EventArgs.Empty);
+
+                _editor.Presentation.PropertyList.Provider = SelectedObjectPool.Objects[objectClass];
             }
         }
 
