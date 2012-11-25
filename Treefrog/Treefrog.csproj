@@ -145,6 +145,7 @@
     <Compile Include="Presentation\Commands\CommandHistory.cs" />
     <Compile Include="Presentation\Commands\EventArgs.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
+    <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\Tools\Selection.cs" />
     <Compile Include="Presentation\Tools\SelectTool.cs" />

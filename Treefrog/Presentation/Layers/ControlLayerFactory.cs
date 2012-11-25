@@ -75,6 +75,7 @@ namespace Treefrog.Presentation.Layers
             _registry[typeof(TileGridLayer)] = typeof(TileControlLayer);
             _registry[typeof(MultiTileGridLayer)] = typeof(MultiTileControlLayer);
             _registry[typeof(TileSetLayer)] = typeof(TileSetControlLayer);
+            _registry[typeof(ObjectLayer)] = typeof(ObjectControlLayer);
         }
     }
 

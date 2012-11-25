@@ -11,6 +11,7 @@ using Treefrog.Framework;
 using Treefrog.Presentation.Layers;
 using Treefrog.Framework.Model;
 using Treefrog.Aux;
+using System.Collections.Specialized;
 
 namespace Treefrog.Windows.Controls
 {
@@ -801,6 +802,160 @@ namespace Treefrog.Windows.Controls
             return new SolidColorBrush(_spriteBatch.GraphicsDevice, color);
         }
 
+    }
+
+    public class ObjectTextureService : IDisposable
+    {
+        IGraphicsDeviceService _deviceService;
+        ObjectPoolManager _manager;
+        Dictionary<int, Texture2D> _objTextureMap = new Dictionary<int, Texture2D>();
+
+        public ObjectTextureService (ObjectPoolManager manager, IGraphicsDeviceService deviceService)
+        {
+            _manager = manager;
+            _deviceService = deviceService;
+
+            Initialize();
+        }
+
+        public void Dispose ()
+        {
+            if (_objTextureMap != null) {
+                foreach (Texture2D tex in _objTextureMap.Values)
+                    tex.Dispose();
+            }
+
+            if (_manager != null) {
+                foreach (ObjectPool pool in _manager.Pools)
+                    pool.Objects.CollectionChanged -= ObjectCollectionChanged;
+
+                _manager.Pools.CollectionChanged -= ObjectPoolCollectionChanged;
+            }
+
+            _objTextureMap = null;
+            _manager = null;
+        }
+
+        public Texture2D GetTexture (int objClassId)
+        {
+            Texture2D tex;
+            if (_objTextureMap.TryGetValue(objClassId, out tex))
+                return tex;
+            else
+                return null;
+        }
+
+        private void Initialize ()
+        {
+            foreach (ObjectPool pool in _manager.Pools) {
+                ObjectPoolAdded(pool);
+            }
+
+            _manager.Pools.CollectionChanged += ObjectPoolCollectionChanged;
+        }
+
+        private void ObjectPoolCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (ObjectPool pool in e.NewItems)
+                        ObjectPoolAdded(pool);
+                    break;
+
+                case NotifyCollectionChangedAction.Replace:
+                    foreach (ObjectPool pool in e.OldItems)
+                        ObjectPoolRemoved(pool);
+                    foreach (ObjectPool pool in e.NewItems)
+                        ObjectPoolAdded(pool);
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (ObjectPool pool in e.OldItems)
+                        ObjectPoolRemoved(pool);
+                    break;
+            }
+        }
+
+        private void ObjectPoolAdded (ObjectPool pool)
+        {
+            if (pool == null)
+                return;
+
+            foreach (ObjectClass objClass in pool) {
+                if (_objTextureMap.ContainsKey(objClass.Id))
+                    _objTextureMap[objClass.Id].Dispose();
+
+                Texture2D tex = objClass.Image.CreateTexture(_deviceService.GraphicsDevice);
+                _objTextureMap[objClass.Id] = tex;
+            }
+
+            pool.Objects.CollectionChanged += ObjectCollectionChanged;
+        }
+
+        private void ObjectPoolRemoved (ObjectPool pool)
+        {
+            if (pool == null)
+                return;
+
+            foreach (ObjectClass objClass in pool) {
+                if (_objTextureMap.ContainsKey(objClass.Id))
+                    _objTextureMap[objClass.Id].Dispose();
+
+                _objTextureMap.Remove(objClass.Id);
+            }
+
+            pool.Objects.CollectionChanged -= ObjectCollectionChanged;
+        }
+
+        private void ObjectCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (ObjectClass objClass in e.NewItems)
+                        ObjectAdded(objClass);
+                    break;
+
+                case NotifyCollectionChangedAction.Replace:
+                    foreach (ObjectClass objClass in e.OldItems)
+                        ObjectRemoved(objClass);
+                    foreach (ObjectClass objClass in e.NewItems)
+                        ObjectAdded(objClass);
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (ObjectClass objClass in e.OldItems)
+                        ObjectRemoved(objClass);
+                    break;
+            }
+        }
+
+        private void ObjectAdded (ObjectClass objClass)
+        {
+            if (_objTextureMap.ContainsKey(objClass.Id))
+                _objTextureMap[objClass.Id].Dispose();
+
+            Texture2D tex = objClass.Image.CreateTexture(_deviceService.GraphicsDevice);
+            _objTextureMap[objClass.Id] = tex;
+        }
+
+        private void ObjectRemoved (ObjectClass objClass)
+        {
+            if (_objTextureMap.ContainsKey(objClass.Id))
+                _objTextureMap[objClass.Id].Dispose();
+
+            _objTextureMap.Remove(objClass.Id);
+        }
+
+        /*private void ObjectModified (object sender, NamedResourceEventArgs<ObjectClass> e)
+        {
+            ObjectClass objClass = e.Resource;
+
+            if (_objTextureMap.ContainsKey(objClass.Id))
+                _objTextureMap[objClass.Id].Dispose();
+
+            Texture2D tex = objClass.Image.CreateTexture(_deviceService.GraphicsDevice);
+            _objTextureMap[objClass.Id] = tex;
+        }*/
     }
 
     public class TilePoolTextureService : IDisposable

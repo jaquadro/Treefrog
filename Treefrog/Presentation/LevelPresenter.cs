@@ -92,6 +92,9 @@ namespace Treefrog.Presentation
         {
             TilePoolTextureService poolService = new TilePoolTextureService(_editor.Project.TilePoolManager, _layerControl.GraphicsDeviceService);
             _layerControl.Services.AddService<TilePoolTextureService>(poolService);
+
+            ObjectTextureService objPoolService = new ObjectTextureService(_editor.Project.ObjectPoolManager, _layerControl.GraphicsDeviceService);
+            _layerControl.Services.AddService<ObjectTextureService>(objPoolService);
         }
 
         #region ILevelPResenter Members
@@ -149,7 +152,12 @@ namespace Treefrog.Presentation
             _controlLayers = new Dictionary<string, BaseControlLayer>();
 
             foreach (Layer layer in _level.Layers) {
-                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                //MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                Type controlType = ControlLayerFactory.Lookup(layer.GetType());
+                if (controlType == null)
+                    continue;
+
+                BaseControlLayer clayer = Activator.CreateInstance(controlType, _layerControl, layer) as BaseControlLayer;
                 clayer.ShouldDrawContent = LayerCondition.Always;
                 clayer.ShouldDrawGrid = LayerCondition.Selected;
                 clayer.ShouldRespondToInput = LayerCondition.Selected;
