@@ -92,6 +92,8 @@ namespace Treefrog.Presentation.Layers
 
         #endregion
 
+        private RenderTarget2D _target;
+
         protected override void DrawTiles (SpriteBatch spriteBatch, TFImaging.Rectangle tileRegion)
         {
             base.DrawTiles(spriteBatch, tileRegion);
@@ -100,13 +102,18 @@ namespace Treefrog.Presentation.Layers
             if (textureService == null)
                 return;
 
-            RenderTarget2D target = null;
+            //RenderTarget2D target = null;
             if (_layer.Opacity < 1f) {
-                target = new RenderTarget2D(spriteBatch.GraphicsDevice, 
-                    spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height, 
-                    false, SurfaceFormat.Color, DepthFormat.None);
+                if (_target == null
+                    || _target.GraphicsDevice != spriteBatch.GraphicsDevice
+                    || _target.Width != spriteBatch.GraphicsDevice.Viewport.Width
+                    || _target.Height != spriteBatch.GraphicsDevice.Viewport.Height) {
+                    _target = new RenderTarget2D(spriteBatch.GraphicsDevice,
+                        spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height,
+                        false, SurfaceFormat.Color, DepthFormat.None);
+                }
 
-                spriteBatch.GraphicsDevice.SetRenderTarget(target);
+                spriteBatch.GraphicsDevice.SetRenderTarget(_target);
                 spriteBatch.GraphicsDevice.Clear(Color.Transparent);
             }
 
@@ -133,8 +140,10 @@ namespace Treefrog.Presentation.Layers
                 spriteBatch.GraphicsDevice.SetRenderTarget(null);
 
                 BeginDraw(spriteBatch);
-                spriteBatch.Draw(target, new Vector2(-offset.X, -offset.Y), new Color(1f, 1f, 1f, _layer.Opacity));
+                spriteBatch.Draw(_target, new Vector2(-offset.X, -offset.Y), new Color(1f, 1f, 1f, _layer.Opacity));
                 EndDraw(spriteBatch);
+
+                //target.Dispose();
             }
         }
 

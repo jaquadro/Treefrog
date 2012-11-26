@@ -8,10 +8,13 @@ using Microsoft.Xna.Framework;
 using Treefrog.Windows.Controls;
 
 using TFImaging = Treefrog.Framework.Imaging;
+using Treefrog.Presentation.Tools;
+using Treefrog.Presentation.Commands;
+using System.Windows.Forms;
 
 namespace Treefrog.Presentation.Layers
 {
-    public class ObjectControlLayer : BaseControlLayer
+    public class ObjectControlLayer : BaseControlLayer, IPointerToolResponder, ICommandSubscriber
     {
         private ObjectLayer _layer;
 
@@ -38,6 +41,7 @@ namespace Treefrog.Presentation.Layers
         public ObjectControlLayer (LayerControl control)
             : base(control)
         {
+            InitializeCommandManager();
         }
 
         public ObjectControlLayer (LayerControl control, ObjectLayer layer)
@@ -45,6 +49,92 @@ namespace Treefrog.Presentation.Layers
         {
             Layer = layer;
         }
+
+        #region Command Handling
+
+        private class LocalCommandManager : CommandManager
+        {
+            private ObjectControlLayer _master;
+
+            public LocalCommandManager (ObjectControlLayer master)
+            {
+                _master = master;
+            }
+
+            public override bool CanHandle (CommandKey key)
+            {
+                switch (key) {
+                    case CommandKey.Cut:
+                    case CommandKey.Copy:
+                    case CommandKey.Paste:
+                    case CommandKey.Delete:
+                    case CommandKey.SelectAll:
+                    case CommandKey.SelectNone:
+                        return true;
+                }
+
+                return base.CanHandle(key);
+            }
+
+            public override bool CanPerform (CommandKey key)
+            {
+                if (base.CanHandle(key))
+                    return base.CanPerform(key);
+
+                ICommandSubscriber tool = _master._currentTool as ICommandSubscriber;
+                if (tool != null && tool.CommandManager != null)
+                    return tool.CommandManager.CanPerform(key);
+
+                return false;
+            }
+
+            public override void Perform (CommandKey key)
+            {
+                if (base.CanHandle(key)) {
+                    base.Perform(key);
+                    return;
+                }
+
+                ICommandSubscriber tool = _master._currentTool as ICommandSubscriber;
+                if (tool != null && tool.CommandManager != null)
+                    tool.CommandManager.Perform(key);
+            }
+        }
+
+        private CommandManager _commandManager;
+
+        private void InitializeCommandManager ()
+        {
+            _commandManager = new LocalCommandManager(this);
+
+            _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
+        }
+
+        public CommandManager CommandManager
+        {
+            get { return _commandManager; }
+        }
+
+        private bool CommandCanPaste ()
+        {
+            return ObjectSelectionClipboard.ContainsData;
+        }
+
+        private void CommandPaste ()
+        {
+            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+            if (tool == null)
+                SetCurrentTool(NewSelectTool());
+
+            tool.CommandManager.Perform(CommandKey.Paste);
+        }
+
+        private void HandleToolCommandInvalidate (object sender, CommandSubscriberEventArgs e)
+        {
+            _commandManager.Invalidate(e.CommandKey);
+        }
+
+        #endregion
 
         public new ObjectLayer Layer
         {
@@ -64,8 +154,7 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
-            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
 
             return offset;
         }
@@ -118,5 +207,177 @@ namespace Treefrog.Presentation.Layers
 
             EndDraw(spriteBatch);
         }
+
+        #region Tool Management
+
+        private ILevelPresenter _levelController;
+        private IObjectPoolCollectionPresenter _objectController;
+        private PointerTool _currentTool;
+
+        private void SetCurrentTool (PointerTool tool)
+        {
+            ObjectSelectTool objTool = _currentTool as ObjectSelectTool;
+            if (objTool != null) {
+                objTool.Cancel();
+
+                if (objTool.CommandManager != null)
+                    objTool.CommandManager.CommandInvalidated -= HandleToolCommandInvalidate;
+
+                /*objTool.CanDeleteChanged -= HandleCanDeleteChanged;
+                objTool.CanSelectAllChanged -= HandleCanSelectAllChanged;
+                objTool.CanSelectNoneChanged -= HandleCanSelectNoneChanged;
+                objTool.CanCutChanged -= HandleCanCutChanged;
+                objTool.CanCopyChanged -= HandleCanCopyChanged;*/
+            }
+
+            _currentTool = tool;
+
+            objTool = _currentTool as ObjectSelectTool;
+            if (objTool != null && objTool.CommandManager != null) {
+                objTool.CommandManager.CommandInvalidated += HandleToolCommandInvalidate;
+
+                /*objTool.CanDeleteChanged += HandleCanDeleteChanged;
+                objTool.CanSelectAllChanged += HandleCanSelectAllChanged;
+                objTool.CanSelectNoneChanged += HandleCanSelectNoneChanged;
+                objTool.CanCutChanged += HandleCanCutChanged;
+                objTool.CanCopyChanged += HandleCanCopyChanged;*/
+            }
+        }
+
+        private ObjectSelectTool NewSelectTool ()
+        {
+            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
+            ObjectSelectTool tool = new ObjectSelectTool(_levelController.History, Layer, gridSize, _levelController.Annotations, new LayerControlViewport(Control));
+            tool.BindObjectSourceController(_objectController);
+
+            return tool;
+        }
+
+        private ObjectDrawTool NewDrawTool ()
+        {
+            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
+            ObjectDrawTool tool = new ObjectDrawTool(_levelController.History, Layer, gridSize, _levelController.Annotations);
+            tool.BindObjectSourceController(_objectController);
+
+            return tool;
+        }
+
+        #endregion
+
+        public void BindLevelController (ILevelPresenter levelController)
+        {
+            _levelController = levelController;
+            SetCurrentTool(NewSelectTool());
+        }
+
+        public void BindObjectController (IObjectPoolCollectionPresenter objectController)
+        {
+            if (_objectController != null) {
+                _objectController.ObjectSelectionChanged -= HandleSelectedObjectChanged;
+            }
+
+            _objectController = objectController;
+
+            if (_objectController != null) {
+                _objectController.ObjectSelectionChanged += HandleSelectedObjectChanged;
+            }
+        }
+
+        private void HandleSelectedObjectChanged (object sender, EventArgs e)
+        {
+            if (_objectController != null && _objectController.SelectedObject != null) {
+                SetCurrentTool(NewDrawTool());
+            }
+        }
+
+        #region Pointer Commands
+
+        public void HandleStartPointerSequence (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.StartPointerSequence(info, new LayerControlViewport(Control));
+        }
+
+        public void HandleUpdatePointerSequence (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.UpdatePointerSequence(info, new LayerControlViewport(Control));
+        }
+
+        public void HandleEndPointerSequence (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.EndPointerSequence(info, new LayerControlViewport(Control));
+
+            if (_currentTool is ObjectDrawTool && _currentTool.IsCancelled)
+                SetCurrentTool(NewSelectTool());
+        }
+
+        public void HandlePointerPosition (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.PointerPosition(info, new LayerControlViewport(Control));
+        }
+
+        public void HandlePointerLeaveField ()
+        {
+            if (_currentTool != null)
+                _currentTool.PointerLeaveField();
+        }
+
+        #endregion
+
+        public override IEditToolResponder EditToolResponder
+        {
+            get { return _currentTool as IEditToolResponder; }
+        }
+
+        public override IPointerToolResponder PointerToolResponder
+        {
+            get { return this; }
+        }
+    }
+
+    public interface IPointerToolResponder
+    {
+        void BindLevelController (ILevelPresenter controller);
+
+        void HandleStartPointerSequence (PointerEventInfo info);
+        void HandleEndPointerSequence (PointerEventInfo info);
+        void HandleUpdatePointerSequence (PointerEventInfo info);
+        void HandlePointerPosition (PointerEventInfo info);
+        void HandlePointerLeaveField ();
+    }
+
+    public interface IEditToolResponder
+    {
+        bool CanCut { get; }
+        bool CanCopy { get; }
+        bool CanPaste { get; }
+        bool CanDelete { get; }
+
+        bool CanSelectAll { get; }
+        bool CanSelectNone { get; }
+
+        void Cut ();
+        void Copy ();
+        void Paste ();
+        void Delete ();
+
+        void SelectAll ();
+        void SelectNone ();
+
+        event EventHandler CanCutChanged;
+        event EventHandler CanCopyChanged;
+        event EventHandler CanPasteChanged;
+        event EventHandler CanDeleteChanged;
+
+        event EventHandler CanSelectAllChanged;
+        event EventHandler CanSelectNoneChanged;
+    }
+
+    public interface IEditCommandResponder
+    {
+        void BindLevelController (ILevelPresenter controller);
     }
 }

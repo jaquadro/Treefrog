@@ -57,8 +57,8 @@ namespace Treefrog.Framework.Imaging.Drawing
             TextureResource image = new TextureResource(width, height);
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
-                    if (pattern[x, y])
-                        image[x, y] = color;
+                    if (pattern[y, x])
+                        image[y, x] = color;
 
             return image;
         }

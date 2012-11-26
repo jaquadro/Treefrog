@@ -12,6 +12,7 @@ using Treefrog.Presentation.Layers;
 using Treefrog.Framework.Model;
 using Treefrog.Aux;
 using System.Collections.Specialized;
+using Treefrog.Presentation;
 
 namespace Treefrog.Windows.Controls
 {
@@ -40,6 +41,7 @@ namespace Treefrog.Windows.Controls
         #region Fields
 
         private OrderedResourceCollection<BaseControlLayer> _layers;
+        private AnnotationLayer _annotLayer;
 
         // Graphics and Service
 
@@ -271,6 +273,12 @@ namespace Treefrog.Windows.Controls
             }
         }
 
+        public AnnotationLayer AnnotationLayer
+        {
+            get { return _annotLayer; }
+            set { _annotLayer = value; }
+        }
+
         // Scrolling
 
         /// <summary>
@@ -484,6 +492,9 @@ namespace Treefrog.Windows.Controls
                 layer.DrawExtra(_spriteBatch);
             }
             OnDrawExtra(e);
+
+            if (_annotLayer != null)
+                _annotLayer.DrawContent(_spriteBatch);
         }
         
         #endregion
@@ -802,6 +813,51 @@ namespace Treefrog.Windows.Controls
             return new SolidColorBrush(_spriteBatch.GraphicsDevice, color);
         }
 
+    }
+
+    public class LayerControlViewport : IViewport
+    {
+        private LayerControl _control;
+
+        public LayerControlViewport (LayerControl control)
+        {
+            _control = control;
+        }
+
+        public System.Drawing.Point Offset
+        {
+            get
+            {
+                return new System.Drawing.Point(
+                    _control.GetScrollValue(ScrollOrientation.HorizontalScroll),
+                    _control.GetScrollValue(ScrollOrientation.VerticalScroll)
+                    );
+            }
+        }
+
+        public System.Drawing.Size Viewport
+        {
+            get { return new System.Drawing.Size(_control.Width, _control.Height); }
+        }
+
+        public System.Drawing.Size Limit
+        {
+            get { return new System.Drawing.Size(_control.VirtualWidth, _control.VirtualHeight); }
+        }
+
+        public float ZoomFactor
+        {
+            get { return _control.Zoom; }
+        }
+
+        public System.Drawing.Rectangle VisibleRegion
+        {
+            get
+            {
+                Rectangle vis = _control.VisibleRegion;
+                return new System.Drawing.Rectangle(vis.X, vis.Y, vis.Width, vis.Height);
+            }
+        }
     }
 
     public class ObjectTextureService : IDisposable

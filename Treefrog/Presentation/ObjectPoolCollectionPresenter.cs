@@ -298,7 +298,7 @@ namespace Treefrog.Presentation
                 OnSyncObjectPoolControl(EventArgs.Empty);
                 OnObjectSelectionChanged(EventArgs.Empty);
 
-                _editor.Presentation.PropertyList.Provider = SelectedObjectPool.Objects[objectClass];
+                //_editor.Presentation.PropertyList.Provider = SelectedObjectPool.Objects[objectClass];
             }
         }
 

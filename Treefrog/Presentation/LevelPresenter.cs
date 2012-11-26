@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
@@ -6,6 +7,10 @@ using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Tools;
 using Treefrog.Windows.Controls;
 using Treefrog.Framework;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Collections.ObjectModel;
+using Treefrog.Presentation.Annotations;
 
 namespace Treefrog.Presentation
 {
@@ -25,18 +30,21 @@ namespace Treefrog.Presentation
 
     }
 
-    public interface ILevelPresenter
+    public interface ILevelPresenter : ICommandSubscriber
     {
         IContentInfoPresenter InfoPresenter { get; }
 
         LayerControl LayerControl { get; }
 
         CommandHistory History { get; }
+        ObservableCollection<Annotation> Annotations { get; }
 
         TileSelection Selection { get; }
         TileSelection Clipboard { get; }
 
         event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
+
+        IEditToolResponder EditToolResponder { get; }
     }
 
     public partial class LevelPresenter : ILevelPresenter
@@ -55,6 +63,7 @@ namespace Treefrog.Presentation
         private LevelInfoPresenter _info;
 
         private CommandHistory _history;
+        private ObservableCollection<Annotation> _annotations = new ObservableCollection<Annotation>();
 
         public LevelPresenter (EditorPresenter editor, Level level)
         {
@@ -66,6 +75,14 @@ namespace Treefrog.Presentation
             _layerControl = new LayerControl();
             _layerControl.MouseLeave += LayerControlMouseLeaveHandler;
             _layerControl.ControlInitialized += LayerControlInitialized;
+
+            _layerControl.MouseDown += LayerControl_MouseDown;
+            _layerControl.MouseUp += LayerControl_MouseUp;
+            _layerControl.MouseMove += LayerControl_MouseMove;
+            _layerControl.MouseLeave += LayerControl_MouseLeave;
+
+            _layerControl.AnnotationLayer = new AnnotationLayer(_layerControl);
+            _layerControl.AnnotationLayer.Annotations = _annotations;
 
             _history = new CommandHistory();
             _history.HistoryChanged += HistoryChangedHandler;
@@ -85,6 +102,7 @@ namespace Treefrog.Presentation
             _fillTool.BindLevelToolsController(_editor.Presentation.LevelTools);
             _fillTool.BindTileSourceController(_editor.Presentation.TilePoolList);
 
+            InitializeCommandManager();
             InitializeLayerListPresenter();
         }
 
@@ -114,6 +132,11 @@ namespace Treefrog.Presentation
             get { return _history; }
         }
 
+        public ObservableCollection<Annotation> Annotations
+        {
+            get { return _annotations; }
+        }
+
         public TileSelection Selection
         {
             get { return _editor.Presentation.LevelTools.ActiveTileTool == TileToolMode.Select ? _selectTool.Selection : null; }
@@ -131,6 +154,106 @@ namespace Treefrog.Presentation
             if (SyncCurrentLayer != null) {
                 SyncCurrentLayer(this, e);
             }
+        }
+
+        #endregion
+
+        #region Command Handling
+
+        private class LocalCommandManager : CommandManager
+        {
+            private LevelPresenter _master;
+
+            public LocalCommandManager (LevelPresenter master)
+            {
+                _master = master;
+            }
+
+            public override bool CanHandle (CommandKey key)
+            {
+                switch (key) {
+                    case CommandKey.Cut:
+                    case CommandKey.Copy:
+                    case CommandKey.Paste:
+                    case CommandKey.Delete:
+                    case CommandKey.SelectAll:
+                    case CommandKey.SelectNone:
+                        return true;
+                }
+
+                return base.CanHandle(key);
+            }
+
+            public override bool CanPerform (CommandKey key)
+            {
+                if (base.CanHandle(key))
+                    return base.CanPerform(key);
+
+                ICommandSubscriber layer = _master.SelectedControlLayer as ICommandSubscriber;
+                if (layer != null && layer.CommandManager != null)
+                    return layer.CommandManager.CanPerform(key);
+
+                return false;
+            }
+
+            public override void Perform (CommandKey key)
+            {
+                if (base.CanHandle(key)) {
+                    base.Perform(key);
+                    return;
+                }
+
+                ICommandSubscriber layer = _master.SelectedControlLayer as ICommandSubscriber;
+                if (layer != null && layer.CommandManager != null)
+                    layer.CommandManager.Perform(key);
+            }
+
+            protected override void OnCommandInvalidated (CommandSubscriberEventArgs e)
+            {
+                base.OnCommandInvalidated(e);
+
+                _master._editor.Presentation.DocumentTools.RefreshDocumentTools();
+            }
+        }
+
+        private CommandManager _commandManager;
+
+        private void InitializeCommandManager ()
+        {
+            _commandManager = new LocalCommandManager(this);
+
+            _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
+            _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
+        }
+
+        public CommandManager CommandManager
+        {
+            get { return _commandManager; }
+        }
+
+        private void HandleLayerCommandInvalidated (object sender, CommandSubscriberEventArgs e)
+        {
+            _commandManager.Invalidate(e.CommandKey);
+        }
+
+        private bool CommandCanUndo ()
+        {
+            return History.CanUndo;
+        }
+
+        private void CommandUndo ()
+        {
+            History.Undo();
+        }
+
+        private bool CommandCanRedo ()
+        {
+            return History.CanRedo;
+        }
+
+        private void CommandRedo ()
+        {
+            History.Redo();
         }
 
         #endregion
@@ -161,6 +284,18 @@ namespace Treefrog.Presentation
                 clayer.ShouldDrawContent = LayerCondition.Always;
                 clayer.ShouldDrawGrid = LayerCondition.Selected;
                 clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+                IPointerToolResponder pointerLayer = clayer as IPointerToolResponder;
+                if (pointerLayer != null)
+                    pointerLayer.BindLevelController(this);
+
+                ObjectControlLayer objLayer = clayer as ObjectControlLayer;
+                if (objLayer != null)
+                    objLayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
+
+                ICommandSubscriber comLayer = clayer as ICommandSubscriber;
+                if (comLayer != null)
+                    comLayer.CommandManager.CommandInvalidated += HandleLayerCommandInvalidated;
 
                 _controlLayers[layer.Name] = clayer;
 
@@ -241,6 +376,16 @@ namespace Treefrog.Presentation
             }
         }
 
+        public IEditToolResponder EditToolResponder
+        {
+            get
+            {
+                return (SelectedControlLayer != null)
+                    ? SelectedControlLayer.EditToolResponder
+                    : null;
+            }
+        }
+
         #endregion
 
         #region Events
@@ -279,6 +424,101 @@ namespace Treefrog.Presentation
         }
 
         #endregion
+
+        private Dictionary<PointerEventType, bool> _sequenceOpen = new Dictionary<PointerEventType, bool>
+        {
+            { PointerEventType.Primary, false },
+            { PointerEventType.Secondary, false },
+        };
+
+        private PointerEventType GetPointerType (MouseButtons button)
+        {
+            switch (button) {
+                case MouseButtons.Left:
+                    return PointerEventType.Primary;
+                case MouseButtons.Right:
+                    return PointerEventType.Secondary;
+                default:
+                    return PointerEventType.None;
+            }
+        }
+
+        private Point TranslateMousePosition (Point position)
+        {
+            Microsoft.Xna.Framework.Vector2 offset = LayerControl.VirtualSurfaceOffset;
+            position.X = (int)((position.X - offset.X) / LayerControl.Zoom);
+            position.Y = (int)((position.Y - offset.Y) / LayerControl.Zoom);
+
+            position.X += LayerControl.GetScrollValue(ScrollOrientation.HorizontalScroll);
+            position.Y += LayerControl.GetScrollValue(ScrollOrientation.VerticalScroll);
+
+            return position;
+        }
+
+        void LayerControl_MouseDown (object sender, MouseEventArgs e)
+        {
+            PointerEventType type = GetPointerType(e.Button);
+            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
+            if (pointerLayer == null || type == PointerEventType.None)
+                return;
+
+            Point position = TranslateMousePosition(e.Location);
+            PointerEventInfo info = new PointerEventInfo(type, position.X, position.Y);
+
+            // Ignore event if a sequence is active
+            if (_sequenceOpen.Count(kv => { return kv.Value; }) == 0) {
+                _sequenceOpen[info.Type] = true;
+                pointerLayer.HandleStartPointerSequence(info);
+            }
+        }
+
+        void LayerControl_MouseUp (object sender, MouseEventArgs e)
+        {
+            PointerEventType type = GetPointerType(e.Button);
+            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
+            if (pointerLayer == null || type == PointerEventType.None)
+                return;
+
+            Point position = TranslateMousePosition(e.Location);
+            PointerEventInfo info = new PointerEventInfo(type, position.X, position.Y);
+
+            if (_sequenceOpen[info.Type]) {
+                _sequenceOpen[info.Type] = false;
+                pointerLayer.HandleEndPointerSequence(info);
+            }
+        }
+
+        void LayerControl_MouseMove (object sender, MouseEventArgs e)
+        {
+            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
+            if (pointerLayer == null)
+                return;
+
+            Point position = TranslateMousePosition(e.Location);
+
+            if (_sequenceOpen[PointerEventType.Primary])
+                pointerLayer.HandleUpdatePointerSequence(new PointerEventInfo(PointerEventType.Primary, position.X, position.Y));
+            if (_sequenceOpen[PointerEventType.Secondary])
+                pointerLayer.HandleUpdatePointerSequence(new PointerEventInfo(PointerEventType.Secondary, position.X, position.Y));
+
+            pointerLayer.HandlePointerPosition(new PointerEventInfo(PointerEventType.None, position.X, position.Y));
+        }
+
+        void LayerControl_MouseLeave (object sender, EventArgs e)
+        {
+            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
+            if (pointerLayer == null)
+                return;
+
+            pointerLayer.HandlePointerLeaveField();
+        }
+
+        void LayerControl_MouseClick (object sender, MouseEventArgs e)
+        {
+            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
+            if (pointerLayer != null)
+                pointerLayer.HandlePointerPosition(new PointerEventInfo(GetPointerType(e.Button), e.X, e.Y));
+        }
 
         private void Layer_NameChanged (object sender, NameChangedEventArgs e) 
         {

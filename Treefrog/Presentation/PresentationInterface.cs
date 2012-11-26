@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Presentation
 {
@@ -65,95 +66,147 @@ namespace Treefrog.Presentation
 
         #region IDocumentToolsPresenter Members
 
+        private bool CanPerformCommand (CommandKey key)
+        {
+            if (_editor.CurrentLevel == null || _editor.CurrentLevel.CommandManager == null)
+                return false;
+
+            return _editor.CurrentLevel.CommandManager.CanPerform(key);
+        }
+
+        private void PerformCommand (CommandKey key)
+        {
+            if (_editor.CurrentLevel == null || _editor.CurrentLevel.CommandManager == null)
+                return;
+
+            _editor.CurrentLevel.CommandManager.Perform(key);
+        }
+
         public bool CanCut
         {
-            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
+            get { return CanPerformCommand(CommandKey.Cut); }
+            //return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
         }
 
         public bool CanCopy
         {
-            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
+            get { return CanPerformCommand(CommandKey.Copy); }
+            //get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
         }
 
         public bool CanPaste
         {
-            get { return _editor.CurrentLevel != null && _editor.CurrentLevel.Clipboard != null; }
+            get { return CanPerformCommand(CommandKey.Paste); }
+            //get { return _editor.CurrentLevel != null && _editor.CurrentLevel.Clipboard != null; }
         }
 
         public bool CanDelete
         {
-            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
+            get { return CanPerformCommand(CommandKey.Delete); }
+            //get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
         }
 
         public bool CanSelectAll
         {
-            get { return _editor.CurrentLevel != null; }
+            get { return CanPerformCommand(CommandKey.SelectAll); }
+            //get { return _editor.CurrentLevel != null; }
         }
 
         public bool CanUnselectAll
         {
-            get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
+            get { return CanPerformCommand(CommandKey.SelectNone); }
+            //get { return _editor.CurrentLevel != null ? (_editor.CurrentLevel.Selection != null) : false; }
         }
 
         public bool CanUndo
         {
-            get { return _editor.CurrentLevel != null ? _editor.CurrentLevel.History.CanUndo : false; }
+            get { return CanPerformCommand(CommandKey.Undo); }
+            //get { return _editor.CurrentLevel != null ? _editor.CurrentLevel.History.CanUndo : false; }
         }
 
         public bool CanRedo
         {
-            get { return _editor.CurrentLevel != null ? _editor.CurrentLevel.History.CanRedo : false; }
+            get { return CanPerformCommand(CommandKey.Redo); }
+            //get { return _editor.CurrentLevel != null ? _editor.CurrentLevel.History.CanRedo : false; }
         }
 
         public void ActionCut ()
         {
-            OnCutRaised(EventArgs.Empty);
+            if (CanCut)
+                PerformCommand(CommandKey.Cut);
+            else
+                OnCutRaised(EventArgs.Empty);
         }
 
         public void ActionCopy ()
         {
-            OnCopyRaised(EventArgs.Empty);
+            if (CanCopy)
+                PerformCommand(CommandKey.Copy);
+            else
+                OnCopyRaised(EventArgs.Empty);
         }
 
         public void ActionPaste ()
         {
-            if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
-                _editor.Presentation.LevelTools.ActionToggleSelect();
+            if (CanPaste)
+                PerformCommand(CommandKey.Paste);
+            else {
+                if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
+                    _editor.Presentation.LevelTools.ActionToggleSelect();
+                }
+                OnPasteRaised(EventArgs.Empty);
             }
-            OnPasteRaised(EventArgs.Empty);
         }
 
         public void ActionDelete ()
         {
-            OnDeleteRaised(EventArgs.Empty);
+            if (CanDelete)
+                PerformCommand(CommandKey.Delete);
+            else
+                OnDeleteRaised(EventArgs.Empty);
         }
 
         public void ActionSelectAll ()
         {
-            if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
-                _editor.Presentation.LevelTools.ActionToggleSelect();
+            if (CanSelectAll)
+                PerformCommand(CommandKey.SelectAll);
+            else {
+                if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
+                    _editor.Presentation.LevelTools.ActionToggleSelect();
+                }
+                OnSelectAllRaised(EventArgs.Empty);
             }
-            OnSelectAllRaised(EventArgs.Empty);
         }
 
         public void ActionUnselectAll ()
         {
-            OnUnselectAllRaised(EventArgs.Empty);
+            if (CanUnselectAll)
+                PerformCommand(CommandKey.SelectNone);
+            else
+                OnUnselectAllRaised(EventArgs.Empty);
         }
 
         public void ActionUndo ()
         {
-            if (_editor.CurrentLevel != null) {
-                _editor.CurrentLevel.History.Undo();
-                OnSyncDocumentToolsActions(EventArgs.Empty);
+            if (CanUndo)
+                PerformCommand(CommandKey.Undo);
+            else {
+                if (_editor.CurrentLevel != null) {
+                    _editor.CurrentLevel.History.Undo();
+                    OnSyncDocumentToolsActions(EventArgs.Empty);
+                }
             }
         }
 
         public void ActionRedo ()
         {
-            if (_editor.CurrentLevel != null) {
-                _editor.CurrentLevel.History.Redo();
-                OnSyncDocumentToolsActions(EventArgs.Empty);
+            if (CanRedo)
+                PerformCommand(CommandKey.Redo);
+            else {
+                if (_editor.CurrentLevel != null) {
+                    _editor.CurrentLevel.History.Redo();
+                    OnSyncDocumentToolsActions(EventArgs.Empty);
+                }
             }
         }
 

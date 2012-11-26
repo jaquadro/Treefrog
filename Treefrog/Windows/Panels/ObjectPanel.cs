@@ -75,7 +75,7 @@ namespace Treefrog.Windows.Panels
                 if (!e.IsSelected)
                     _controller.ActionSelectObject(null);
                 else
-                    _controller.ActionSelectObject(e.Item.Name);
+                    _controller.ActionSelectObject(e.Item.Text);
             }
         }
 

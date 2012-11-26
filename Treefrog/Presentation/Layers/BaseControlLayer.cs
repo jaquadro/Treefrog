@@ -5,6 +5,7 @@ using Treefrog.Framework.Model;
 using Treefrog.Windows.Controls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Treefrog.Presentation.Tools;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -128,6 +129,25 @@ namespace Treefrog.Presentation.Layers
             Initiailize();
         }
 
+        /*#region Pointer Handlers
+
+        public virtual void HandleStartPointerSequence (PointerEventInfo info)
+        { }
+
+        public virtual void HandleEndPointerSequence (PointerEventInfo info)
+        { }
+
+        public virtual void HandleUpdatePointerSequence (PointerEventInfo info)
+        { }
+
+        public virtual void HandlePointerPosition (PointerEventInfo info)
+        { }
+
+        public virtual void HandlePointerLeaveField ()
+        { }
+
+        #endregion*/
+
         #endregion
 
         public void DrawContent (SpriteBatch spriteBatch)
@@ -242,5 +262,15 @@ namespace Treefrog.Presentation.Layers
         }
 
         #endregion
+
+        public virtual IEditToolResponder EditToolResponder
+        {
+            get { return null; }
+        }
+
+        public virtual IPointerToolResponder PointerToolResponder
+        {
+            get { return null; }
+        }
     }
 }
