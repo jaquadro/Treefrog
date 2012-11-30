@@ -6,10 +6,14 @@ using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Windows.Controls;
 using TFImaging = Treefrog.Framework.Imaging;
+using Treefrog.Presentation.Tools;
+using Treefrog.Prseentation.Tools;
+using Treefrog.Presentation.Commands;
+using System.Collections.Generic;
 
 namespace Treefrog.Presentation.Layers
 {
-    public abstract class TileControlLayer : BaseControlLayer
+    public abstract class TileControlLayer : BaseControlLayer, IPointerToolResponder, ITileSelectionLayer, ICommandSubscriber
     {
         #region Fields
 
@@ -53,6 +57,8 @@ namespace Treefrog.Presentation.Layers
             Control.MouseUp += ControlMouseUpHandler;
             Control.MouseDown += ControlMouseDownHandler;
             Control.MouseMove += ControlMouseMoveHandler;
+
+            InitializeCommandManager();
         }
 
         public TileControlLayer (LayerControl control, TileLayer layer)
@@ -62,6 +68,17 @@ namespace Treefrog.Presentation.Layers
         }
 
         #endregion
+
+        public void BindLevelController (ILevelPresenter levelController)
+        {
+            _levelController = levelController;
+            _commandManager.Perform(CommandKey.TileToolSelect);
+        }
+
+        public void BindObjectController (ITilePoolListPresenter tilePoolController)
+        {
+            _tilePoolController = tilePoolController;
+        }
 
         #region Properties
 
@@ -373,6 +390,452 @@ namespace Treefrog.Presentation.Layers
             int ty = (int)Math.Floor(((float)mouse.Y - offset.Y) / (_layer.TileHeight * Control.Zoom));
 
             return new TileCoord(tx, ty);
+        }
+
+
+
+        private ILevelPresenter _levelController;
+        private ITilePoolListPresenter _tilePoolController;
+        private PointerTool _currentTool;
+        private TileSelection _selection;
+
+        //private ITileSelectionLayer _selectionController;
+
+        // TODO: MultiTileGridLayer stuff should move into appropriate class
+        public void SetTool (TileTool tool)
+        {
+            if (_levelController == null)
+                return;
+
+            if (_selection != null && tool == TileTool.Select)
+                _selection.Activate();
+            else if (_selection != null)
+                _selection.Deactivate();
+
+            switch (tool) {
+                case TileTool.Select:
+                    _currentTool = new TileSelectTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations, this);
+                    break;
+                case TileTool.Draw:
+                    TileDrawTool drawTool = new TileDrawTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
+                    drawTool.BindObjectSourceController(_tilePoolController);
+                    _currentTool = drawTool;
+                    break;
+                case TileTool.Erase:
+                    _currentTool = new TileEraseTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
+                    break;
+                case TileTool.Fill:
+                    _currentTool = new TileFillTool(_levelController.History, Layer as MultiTileGridLayer);
+                    break;
+                default:
+                    _currentTool = null;
+                    break;
+            }
+        }
+
+        #region Pointer Commands
+
+        public void HandleStartPointerSequence (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.StartPointerSequence(info, new LayerControlViewport(Control));
+        }
+
+        public void HandleUpdatePointerSequence (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.UpdatePointerSequence(info, new LayerControlViewport(Control));
+        }
+
+        public void HandleEndPointerSequence (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.EndPointerSequence(info, new LayerControlViewport(Control));
+        }
+
+        public void HandlePointerPosition (PointerEventInfo info)
+        {
+            if (_currentTool != null)
+                _currentTool.PointerPosition(info, new LayerControlViewport(Control));
+        }
+
+        public void HandlePointerLeaveField ()
+        {
+            if (_currentTool != null)
+                _currentTool.PointerLeaveField();
+        }
+
+        #endregion
+
+        #region Tile Selection
+
+        public void CreateTileSelection ()
+        {
+            if (_selection != null)
+                DeleteTileSelection();
+
+            _selection = new TileSelection(Layer.TileWidth, Layer.TileHeight);
+            if (!(_currentTool is TileSelectTool))
+                _selection.Deactivate();
+
+            _levelController.Annotations.Add(_selection.SelectionAnnotation);
+
+            CommandManager.Invalidate(CommandKey.Cut);
+            CommandManager.Invalidate(CommandKey.Copy);
+            CommandManager.Invalidate(CommandKey.Delete);
+        }
+
+        public void CreateFloatingSelection ()
+        {
+            CreateTileSelection();
+
+            _selection.Float();
+        }
+
+        public void DeleteTileSelection ()
+        {
+            if (_selection != null) {
+                _levelController.Annotations.Remove(_selection.SelectionAnnotation);
+                _selection = null;
+
+                CommandManager.Invalidate(CommandKey.Cut);
+                CommandManager.Invalidate(CommandKey.Copy);
+                CommandManager.Invalidate(CommandKey.Delete);
+            }
+        }
+
+        public void RestoreTileSelection (TileSelection selection)
+        {
+            if (_selection != null)
+                DeleteTileSelection();
+
+            _selection = new TileSelection(selection);
+            _levelController.Annotations.Add(_selection.SelectionAnnotation);
+        }
+
+        public void ClearTileSelection ()
+        {
+            if (_selection != null) {
+                _selection.ClearTiles();
+            }
+        }
+
+        public void SetTileSelection (IEnumerable<TileCoord> tileLocations)
+        {
+            if (_selection != null) {
+                _selection.ClearTiles();
+                _selection.AddTiles(Layer as MultiTileGridLayer, tileLocations);
+            }
+        }
+
+        public void AddTilesToSelection (IEnumerable<TileCoord> tileLocations)
+        {
+            if (_selection != null) {
+                _selection.AddTiles(Layer as MultiTileGridLayer, tileLocations);
+            }
+        }
+
+        public void RemoveTilesFromSelection (IEnumerable<TileCoord> tileLocations)
+        {
+            if (_selection != null) {
+                _selection.RemoveTiles(tileLocations);
+            }
+        }
+
+        public void FloatSelection ()
+        {
+            if (_selection != null && _selection.Floating == false) {
+                _selection.Float();
+            }
+        }
+
+        public TileSelection TileSelection
+        {
+            get { return _selection; }
+        }
+
+        public void DefloatSelection ()
+        {
+            if (_selection != null && _selection.Floating == true) {
+                _selection.Defloat();
+            }
+        }
+
+        public void SetSelectionOffset (TileCoord offset)
+        {
+            if (_selection != null)
+                _selection.Offset = offset;
+        }
+
+        public void MoveSelectionByOffset (TileCoord offset)
+        {
+            if (_selection != null) {
+                _selection.Offset = new TileCoord(_selection.Offset.X + offset.X, _selection.Offset.Y + offset.Y);
+            }
+        }
+
+        public bool HasSelection
+        {
+            get { return _selection != null; }
+        }
+
+        public TileCoord TileSelectionOffset
+        {
+            get { return (_selection != null) ? _selection.Offset : new TileCoord(0, 0); }
+        }
+
+        public bool TileSelectionCoverageAt (TileCoord coord)
+        {
+            if (_selection == null)
+                return false;
+
+            return _selection.CoverageAt(coord);
+        }
+
+        #endregion
+
+        #region Command Handling
+
+        private CommandManager _commandManager;
+
+        private void InitializeCommandManager ()
+        {
+            _commandManager = new CommandManager();
+
+            _commandManager.Register(CommandKey.Cut, CommandCanCut, CommandCut);
+            _commandManager.Register(CommandKey.Copy, CommandCanCopy, CommandCopy);
+            _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
+            _commandManager.Register(CommandKey.Delete, CommandCanDelete, CommandDelete);
+
+            _commandManager.RegisterToggleGroup(CommandToggleGroup.TileTool, CommandGroupCheckTileTool, CommandGroupPerformTileTool);
+            _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolSelect);
+            _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolDraw);
+            _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolErase);
+            _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolFill);
+            _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolStamp);
+        }
+
+        public CommandManager CommandManager
+        {
+            get { return _commandManager; }
+        }
+
+        private IEnumerable<ICommandSubscriber> CommandForwarder ()
+        {
+            ICommandSubscriber tool = _currentTool as ICommandSubscriber;
+            if (tool != null)
+                yield return tool;
+        }
+
+        #region Cut
+
+        private bool CommandCanCut ()
+        {
+            TileSelectTool tool = _currentTool as TileSelectTool;
+            if (tool != null)
+                return _selection != null;
+            else
+                return false;
+        }
+
+        private void CommandCut ()
+        {
+            if (CommandCanCut()) {
+                TileSelectionClipboard clip = new TileSelectionClipboard(_selection.Tiles);
+                clip.CopyToClipboard();
+
+                CompoundCommand command = new CompoundCommand();
+                if (!_selection.Floating)
+                    command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
+
+                _levelController.History.Execute(command);
+
+                CommandManager.Invalidate(CommandKey.Paste);
+            }
+        }
+
+        #endregion
+
+        #region Copy
+
+        private bool CommandCanCopy ()
+        {
+            return CommandCanCut();
+        }
+
+        private void CommandCopy ()
+        {
+            if (CommandCanCopy()) {
+                TileSelectionClipboard clip = new TileSelectionClipboard(_selection.Tiles);
+                clip.CopyToClipboard();
+
+                CommandManager.Invalidate(CommandKey.Paste);
+            }
+        }
+
+        #endregion
+
+        #region Paste
+
+        private bool CommandCanPaste ()
+        {
+            return TileSelectionClipboard.ContainsData;
+        }
+
+        private void CommandPaste ()
+        {
+            if (CommandCanPaste()) {
+                TileSelectionClipboard clip = TileSelectionClipboard.CopyFromClipboard();
+                TileSelection selection = clip.GetAsTileSelection(Layer.Level.Project, Layer.TileWidth, Layer.TileHeight);
+                if (selection == null)
+                    return;
+
+                if (_selection != null) {
+                    CompoundCommand command = new CompoundCommand();
+                    if (_selection.Floating)
+                        command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                    command.AddCommand(new DeleteTileSelectionCommand(this));
+
+                    _levelController.History.Execute(command);
+                }
+
+                Command pasteCommand = new PasteFloatingSelectionCommand(this, selection, GetCenterTileOffset());
+                _levelController.History.Execute(pasteCommand);
+
+                if (!(_currentTool is TileSelectTool)) {
+                    CommandManager.Perform(CommandKey.TileToolSelect);
+                    //ITileToolCollection toolCollection = Level.LookupToolCollection<ITileToolCollection>();
+                    //if (toolCollection != null)
+                    //    toolCollection.SelectedTool = TileTool.Select;
+                }
+
+                _selection.Activate();
+            }
+        }
+
+        private TileCoord GetCenterTileOffset ()
+        {
+            Rectangle region = _levelController.LayerControl.VisibleRegion;
+            int centerViewX = (int)(region.Left + (region.Right - region.Left) / 2);
+            int centerViewY = (int)(region.Top + (region.Bottom - region.Top) / 2);
+
+            return new TileCoord(centerViewX / Layer.TileWidth, centerViewY / Layer.TileHeight);
+        }
+
+        #endregion
+
+        #region Delete
+
+        private bool CommandCanDelete ()
+        {
+            return CommandCanCut();
+        }
+
+        private void CommandDelete ()
+        {
+            if (CommandCanDelete()) {
+                CompoundCommand command = new CompoundCommand();
+                if (!_selection.Floating)
+                    command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
+
+                _levelController.History.Execute(command);
+
+                CommandManager.Invalidate(CommandKey.Paste);
+            }
+        }
+
+        #endregion
+
+        private bool CommandGroupCheckTileTool ()
+        {
+            return true;
+        }
+
+        private void CommandGroupPerformTileTool ()
+        {
+            switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
+                case CommandKey.TileToolSelect:
+                    SetTool(TileTool.Select);
+                    break;
+                case CommandKey.TileToolDraw:
+                    SetTool(TileTool.Draw);
+                    break;
+                case CommandKey.TileToolErase:
+                    SetTool(TileTool.Erase);
+                    break;
+                case CommandKey.TileToolFill:
+                    SetTool(TileTool.Fill);
+                    break;
+                case CommandKey.TileToolStamp:
+                    SetTool(TileTool.Stamp);
+                    break;
+            }
+        }
+
+        #endregion
+
+        public override IPointerToolResponder PointerToolResponder
+        {
+            get { return this; }
+        }
+    }
+
+    [Serializable]
+    public class TileSelectionClipboard
+    {
+        private Dictionary<TileCoord, int[]> _tiles;
+
+        public TileSelectionClipboard (IDictionary<TileCoord, TileStack> tiles)
+        {
+            _tiles = new Dictionary<TileCoord, int[]>();
+            foreach (KeyValuePair<TileCoord, TileStack> kvp in tiles) {
+                int[] stack = TileStack.NullOrEmpty(kvp.Value) ? new int[0] : new int[kvp.Value.Count];
+                for (int i = 0; i < stack.Length; i++)
+                    stack[i] = kvp.Value[i].Id;
+                _tiles.Add(kvp.Key, stack);
+            }
+        }
+
+        public static bool ContainsData
+        {
+            get { return Clipboard.ContainsData(typeof(TileSelectionClipboard).FullName); }
+        }
+
+        public void CopyToClipboard ()
+        {
+            Clipboard.SetData(typeof(TileSelectionClipboard).FullName, this);
+        }
+
+        public static TileSelectionClipboard CopyFromClipboard ()
+        {
+            TileSelectionClipboard clip = Clipboard.GetData(typeof(TileSelectionClipboard).FullName) as TileSelectionClipboard;
+            if (clip == null)
+                return null;
+
+            return clip;
+        }
+
+        public TileSelection GetAsTileSelection (Project project, int tileWidth, int tileHeight)
+        {
+            Dictionary<TileCoord, TileStack> xlat = new Dictionary<TileCoord, TileStack>();
+            foreach (KeyValuePair<TileCoord, int[]> item in _tiles) {
+                TileStack stack = new TileStack();
+
+                foreach (int tileId in item.Value) {
+                    TilePool pool = project.TilePoolManager.PoolFromTileId(tileId);
+                    Tile tile = pool.GetTile(tileId);
+                    stack.Add(tile);
+                }
+
+                xlat.Add(item.Key, stack);
+            }
+
+            TileSelection selection = new TileSelection(tileWidth, tileHeight);
+            selection.AddTiles(xlat);
+
+            return selection;
         }
     }
 }

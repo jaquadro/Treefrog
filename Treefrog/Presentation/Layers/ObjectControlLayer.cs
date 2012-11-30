@@ -52,60 +52,12 @@ namespace Treefrog.Presentation.Layers
 
         #region Command Handling
 
-        private class LocalCommandManager : CommandManager
-        {
-            private ObjectControlLayer _master;
-
-            public LocalCommandManager (ObjectControlLayer master)
-            {
-                _master = master;
-            }
-
-            public override bool CanHandle (CommandKey key)
-            {
-                switch (key) {
-                    case CommandKey.Cut:
-                    case CommandKey.Copy:
-                    case CommandKey.Paste:
-                    case CommandKey.Delete:
-                    case CommandKey.SelectAll:
-                    case CommandKey.SelectNone:
-                        return true;
-                }
-
-                return base.CanHandle(key);
-            }
-
-            public override bool CanPerform (CommandKey key)
-            {
-                if (base.CanHandle(key))
-                    return base.CanPerform(key);
-
-                ICommandSubscriber tool = _master._currentTool as ICommandSubscriber;
-                if (tool != null && tool.CommandManager != null)
-                    return tool.CommandManager.CanPerform(key);
-
-                return false;
-            }
-
-            public override void Perform (CommandKey key)
-            {
-                if (base.CanHandle(key)) {
-                    base.Perform(key);
-                    return;
-                }
-
-                ICommandSubscriber tool = _master._currentTool as ICommandSubscriber;
-                if (tool != null && tool.CommandManager != null)
-                    tool.CommandManager.Perform(key);
-            }
-        }
-
-        private CommandManager _commandManager;
+        private ForwardingCommandManager _commandManager;
 
         private void InitializeCommandManager ()
         {
-            _commandManager = new LocalCommandManager(this);
+            _commandManager = new ForwardingCommandManager();
+            _commandManager.ForwardingEnumerator = CommandForwarder;
 
             _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
         }
@@ -113,6 +65,13 @@ namespace Treefrog.Presentation.Layers
         public CommandManager CommandManager
         {
             get { return _commandManager; }
+        }
+
+        private IEnumerable<ICommandSubscriber> CommandForwarder ()
+        {
+            ICommandSubscriber tool = _currentTool as ICommandSubscriber;
+            if (tool != null)
+                yield return tool;
         }
 
         private bool CommandCanPaste ()
@@ -222,12 +181,6 @@ namespace Treefrog.Presentation.Layers
 
                 if (objTool.CommandManager != null)
                     objTool.CommandManager.CommandInvalidated -= HandleToolCommandInvalidate;
-
-                /*objTool.CanDeleteChanged -= HandleCanDeleteChanged;
-                objTool.CanSelectAllChanged -= HandleCanSelectAllChanged;
-                objTool.CanSelectNoneChanged -= HandleCanSelectNoneChanged;
-                objTool.CanCutChanged -= HandleCanCutChanged;
-                objTool.CanCopyChanged -= HandleCanCopyChanged;*/
             }
 
             _currentTool = tool;
@@ -235,12 +188,6 @@ namespace Treefrog.Presentation.Layers
             objTool = _currentTool as ObjectSelectTool;
             if (objTool != null && objTool.CommandManager != null) {
                 objTool.CommandManager.CommandInvalidated += HandleToolCommandInvalidate;
-
-                /*objTool.CanDeleteChanged += HandleCanDeleteChanged;
-                objTool.CanSelectAllChanged += HandleCanSelectAllChanged;
-                objTool.CanSelectNoneChanged += HandleCanSelectNoneChanged;
-                objTool.CanCutChanged += HandleCanCutChanged;
-                objTool.CanCopyChanged += HandleCanCopyChanged;*/
             }
         }
 

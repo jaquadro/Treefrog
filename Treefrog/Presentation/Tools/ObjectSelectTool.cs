@@ -70,7 +70,6 @@ namespace Treefrog.Presentation.Tools
         //private static Pen SelectedAnnotOutline = new Pen(new StippleBrush(StipplePattern2px, new Color(96, 0, 255, 255)));
 
         private ObservableCollection<Annotation> _annots;
-        //private ViewportVM _viewport;
         private IViewport _viewport;
 
         public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, IViewport viewport)

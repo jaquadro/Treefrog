@@ -14,7 +14,7 @@ using Treefrog.Windows.Controls;
 
 namespace Treefrog.Presentation.Tools
 {
-    public class TileSelection : IEnumerable<LocatedTileStack>
+    public class TileSelectionOld : IEnumerable<LocatedTileStack>
     {
         private static Color _defaultBrushColor = new Color(.3f, .7f, 1.0f, .5f);
 
@@ -28,7 +28,7 @@ namespace Treefrog.Presentation.Tools
 
         private LevelPresenter _level;
 
-        public TileSelection (LevelPresenter level, int tileWidth, int tileHeight)
+        public TileSelectionOld (LevelPresenter level, int tileWidth, int tileHeight)
         {
             _tiles = new Dictionary<TileCoord, TileStack>();
             _level = level;
@@ -151,9 +151,9 @@ namespace Treefrog.Presentation.Tools
             return _tiles.ContainsKey(new TileCoord(coord.X - Origin.X, coord.Y - Origin.Y));
         }
 
-        public FloatingTileSelection CreateFloatingSelection ()
+        public FloatingTileSelectionOld CreateFloatingSelection ()
         {
-            FloatingTileSelection fs = new FloatingTileSelection(_level, _tileWidth, _tileHeight);
+            FloatingTileSelectionOld fs = new FloatingTileSelectionOld(_level, _tileWidth, _tileHeight);
             foreach (LocatedTileStack t in this) {
                 fs.AddTiles(t.Location, t.Stack);
             }
@@ -191,14 +191,14 @@ namespace Treefrog.Presentation.Tools
         #endregion
     }
 
-    public class FloatingTileSelection : TileSelection
+    public class FloatingTileSelectionOld : TileSelectionOld
     {
         private static Color _defaultBrushColor = new Color(.5f, .3f, 1.0f, .5f);
 
         private TileCoord _dragOrigin;
         private TileCoord _dragDiff;
 
-        internal FloatingTileSelection (LevelPresenter level, int tileWidth, int tileHeight)
+        internal FloatingTileSelectionOld (LevelPresenter level, int tileWidth, int tileHeight)
             : base(level, tileWidth, tileHeight)
         {
         }

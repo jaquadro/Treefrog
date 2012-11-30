@@ -35,10 +35,10 @@ namespace Treefrog.Presentation.Tools
         private Brush _selectBrush;
         private TileCoord _mouseCoord;
 
-        private TileSelection _selection;
-        private FloatingTileSelection _floating;
+        private TileSelectionOld _selection;
+        private FloatingTileSelectionOld _floating;
 
-        private TileSelection _clipboard;
+        private TileSelectionOld _clipboard;
 
         public SelectTool (LevelPresenter level)
         {
@@ -99,12 +99,12 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        public TileSelection Selection
+        public TileSelectionOld Selection
         {
             get { return _selection ?? _floating ?? null; }
         }
 
-        public TileSelection Clipboard
+        public TileSelectionOld Clipboard
         {
             get { return _clipboard; }
         }
@@ -264,7 +264,7 @@ namespace Treefrog.Presentation.Tools
                     _level.LayerControl.CanAutoScroll = false;
 
                     if (!SelectionModifier()) {
-                        _selection = new TileSelection(_level, layer.TileWidth, layer.TileHeight);
+                        _selection = new TileSelectionOld(_level, layer.TileWidth, layer.TileHeight);
                     }
 
                     TileCoord start = new TileCoord(_rubberBand.Bounds.X, _rubberBand.Bounds.Y);
@@ -414,7 +414,7 @@ namespace Treefrog.Presentation.Tools
                 CancelSelection(); 
             }
 
-            _selection = new TileSelection(_level, layer.TileWidth, layer.TileHeight);
+            _selection = new TileSelectionOld(_level, layer.TileWidth, layer.TileHeight);
             _selection.AddTiles(new TileCoord(0, 0), new TileCoord(layer.TilesWide - 1, layer.TilesHigh - 1), layer);
         }
 

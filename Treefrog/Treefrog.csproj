@@ -152,10 +152,13 @@
     <Compile Include="Presentation\Commands\ObjectMoveCommand.cs" />
     <Compile Include="Presentation\Commands\ObjectRemoveCommand.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
+    <Compile Include="Presentation\Commands\TileSelectionCommands.cs" />
     <Compile Include="Presentation\IViewport.cs" />
     <Compile Include="Presentation\Layers\AnnotationLayer.cs" />
     <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
+    <Compile Include="Presentation\Tools\ITileToolCollection.cs" />
+    <Compile Include="Presentation\Tools\IToolCollection.cs" />
     <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />
     <Compile Include="Presentation\Tools\ObjectPointerTool.cs" />
     <Compile Include="Presentation\Tools\ObjectSelectTool.cs" />
@@ -186,6 +189,12 @@
     <Compile Include="Presentation\Tools\FillTool.cs" />
     <Compile Include="Presentation\Tools\MouseTool.cs" />
     <Compile Include="Presentation\Tools\SnappingManager.cs" />
+    <Compile Include="Presentation\Tools\TileDrawTool.cs" />
+    <Compile Include="Presentation\Tools\TileEraseTool.cs" />
+    <Compile Include="Presentation\Tools\TileFillTool.cs" />
+    <Compile Include="Presentation\Tools\TilePointerTool.cs" />
+    <Compile Include="Presentation\Tools\TileSelection.cs" />
+    <Compile Include="Presentation\Tools\TileSelectTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <None Include="Windows\Controls\AmphibianGameControl.cs" />

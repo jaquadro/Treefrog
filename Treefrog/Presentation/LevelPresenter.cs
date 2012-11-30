@@ -39,8 +39,8 @@ namespace Treefrog.Presentation
         CommandHistory History { get; }
         ObservableCollection<Annotation> Annotations { get; }
 
-        TileSelection Selection { get; }
-        TileSelection Clipboard { get; }
+        //TileSelectionOld Selection { get; }
+        //TileSelectionOld Clipboard { get; }
 
         event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
 
@@ -55,10 +55,10 @@ namespace Treefrog.Presentation
 
         private LayerControl _layerControl;
 
-        private SelectTool _selectTool;
-        private DrawTool _drawTool;
-        private EraseTool _eraseTool;
-        private FillTool _fillTool;
+        //private SelectTool _selectTool;
+        //private DrawTool _drawTool;
+        //private EraseTool _eraseTool;
+        //private FillTool _fillTool;
 
         private LevelInfoPresenter _info;
 
@@ -87,20 +87,20 @@ namespace Treefrog.Presentation
             _history = new CommandHistory();
             _history.HistoryChanged += HistoryChangedHandler;
 
-            _selectTool = new SelectTool(this);
-            _selectTool.BindLevelToolsController(_editor.Presentation.LevelTools);
-            _selectTool.BindDocumentToolsController(_editor.Presentation.DocumentTools);
+            //_selectTool = new SelectTool(this);
+            //_selectTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+            //_selectTool.BindDocumentToolsController(_editor.Presentation.DocumentTools);
 
-            _drawTool = new DrawTool(this);
-            _drawTool.BindLevelToolsController(_editor.Presentation.LevelTools);
-            _drawTool.BindTileSourceController(_editor.Presentation.TilePoolList);
+            //_drawTool = new DrawTool(this);
+            //_drawTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+            //_drawTool.BindTileSourceController(_editor.Presentation.TilePoolList);
 
-            _eraseTool = new EraseTool(this);
-            _eraseTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+            //_eraseTool = new EraseTool(this);
+            //_eraseTool.BindLevelToolsController(_editor.Presentation.LevelTools);
 
-            _fillTool = new FillTool(this);
-            _fillTool.BindLevelToolsController(_editor.Presentation.LevelTools);
-            _fillTool.BindTileSourceController(_editor.Presentation.TilePoolList);
+            //_fillTool = new FillTool(this);
+            //_fillTool.BindLevelToolsController(_editor.Presentation.LevelTools);
+            //_fillTool.BindTileSourceController(_editor.Presentation.TilePoolList);
 
             InitializeCommandManager();
             InitializeLayerListPresenter();
@@ -137,15 +137,15 @@ namespace Treefrog.Presentation
             get { return _annotations; }
         }
 
-        public TileSelection Selection
+        /*public TileSelectionOld Selection
         {
             get { return _editor.Presentation.LevelTools.ActiveTileTool == TileToolMode.Select ? _selectTool.Selection : null; }
         }
 
-        public TileSelection Clipboard
+        public TileSelectionOld Clipboard
         {
             get { return _selectTool.Clipboard; }
-        }
+        }*/
 
         public event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
 
@@ -160,67 +160,13 @@ namespace Treefrog.Presentation
 
         #region Command Handling
 
-        private class LocalCommandManager : CommandManager
-        {
-            private LevelPresenter _master;
-
-            public LocalCommandManager (LevelPresenter master)
-            {
-                _master = master;
-            }
-
-            public override bool CanHandle (CommandKey key)
-            {
-                switch (key) {
-                    case CommandKey.Cut:
-                    case CommandKey.Copy:
-                    case CommandKey.Paste:
-                    case CommandKey.Delete:
-                    case CommandKey.SelectAll:
-                    case CommandKey.SelectNone:
-                        return true;
-                }
-
-                return base.CanHandle(key);
-            }
-
-            public override bool CanPerform (CommandKey key)
-            {
-                if (base.CanHandle(key))
-                    return base.CanPerform(key);
-
-                ICommandSubscriber layer = _master.SelectedControlLayer as ICommandSubscriber;
-                if (layer != null && layer.CommandManager != null)
-                    return layer.CommandManager.CanPerform(key);
-
-                return false;
-            }
-
-            public override void Perform (CommandKey key)
-            {
-                if (base.CanHandle(key)) {
-                    base.Perform(key);
-                    return;
-                }
-
-                ICommandSubscriber layer = _master.SelectedControlLayer as ICommandSubscriber;
-                if (layer != null && layer.CommandManager != null)
-                    layer.CommandManager.Perform(key);
-            }
-
-            protected override void OnCommandInvalidated (CommandSubscriberEventArgs e)
-            {
-                base.OnCommandInvalidated(e);
-
-                _master._editor.Presentation.DocumentTools.RefreshDocumentTools();
-            }
-        }
-
-        private CommandManager _commandManager;
+        private ForwardingCommandManager _commandManager;
 
         private void InitializeCommandManager ()
         {
-            _commandManager = new LocalCommandManager(this);
+            _commandManager = new ForwardingCommandManager();
+            _commandManager.ForwardingEnumerator = CommandForwarder;
+            _commandManager.CommandInvalidated += HandleCommandInvalidated;
 
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
             _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
@@ -229,6 +175,18 @@ namespace Treefrog.Presentation
         public CommandManager CommandManager
         {
             get { return _commandManager; }
+        }
+
+        private IEnumerable<ICommandSubscriber> CommandForwarder ()
+        {
+            ICommandSubscriber layer = SelectedControlLayer as ICommandSubscriber;
+            if (layer != null)
+                yield return layer;
+        }
+
+        private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
+        {
+            _editor.Presentation.DocumentTools.RefreshDocumentTools();
         }
 
         private void HandleLayerCommandInvalidated (object sender, CommandSubscriberEventArgs e)
@@ -292,6 +250,10 @@ namespace Treefrog.Presentation
                 ObjectControlLayer objLayer = clayer as ObjectControlLayer;
                 if (objLayer != null)
                     objLayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
+
+                TileControlLayer tileLayer = clayer as TileControlLayer;
+                if (tileLayer != null)
+                    tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
 
                 ICommandSubscriber comLayer = clayer as ICommandSubscriber;
                 if (comLayer != null)

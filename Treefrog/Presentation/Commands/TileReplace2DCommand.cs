@@ -10,9 +10,9 @@ namespace Treefrog.Presentation.Commands
     public class CreateFloatingSelectionCommand : Command
     {
         private MultiTileGridLayer _tileSource;
-        private FloatingTileSelection _selection;
+        private FloatingTileSelectionOld _selection;
 
-        public CreateFloatingSelectionCommand (MultiTileGridLayer source, FloatingTileSelection selection)
+        public CreateFloatingSelectionCommand (MultiTileGridLayer source, FloatingTileSelectionOld selection)
         {
             _tileSource = source;
             _selection = selection;
