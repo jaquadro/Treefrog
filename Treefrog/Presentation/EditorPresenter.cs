@@ -225,6 +225,8 @@ namespace Treefrog.Presentation
                 }
             }
 
+            _project.ObjectPoolManager.CreatePool("Default");
+
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
             info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 

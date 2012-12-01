@@ -172,7 +172,6 @@
     <Compile Include="Presentation\IPropertyListPresenter.cs" />
     <Compile Include="Presentation\TilePoolListPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter.cs" />
-    <None Include="Presentation\LevelToolsPresenter.cs" />
     <Compile Include="Presentation\PresentationInterface.cs" />
     <Compile Include="Presentation\Commands\Command.cs" />
     <Compile Include="ContentBuilder.cs" />
@@ -323,6 +322,8 @@
     <EmbeddedResource Include="Icons\16\tags.png" />
     <EmbeddedResource Include="Icons\16\game--minus.png" />
     <EmbeddedResource Include="Icons\16\game--plus.png" />
+    <EmbeddedResource Include="Icons\16\arrow-skip-090.png" />
+    <EmbeddedResource Include="Icons\16\arrow-skip-270.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />

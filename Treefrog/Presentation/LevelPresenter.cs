@@ -169,6 +169,15 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
             _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
+
+            _commandManager.Register(CommandKey.NewTileLayer, CommandCanAddTileLayer, CommandAddTileLayer);
+            _commandManager.Register(CommandKey.NewObjectLayer, CommandCanAddObjectLayer, CommandAddObjectLayer);
+            _commandManager.Register(CommandKey.LayerClone, CommandCanCloneLayer, CommandCloneLayer);
+            _commandManager.Register(CommandKey.LayerDelete, CommandCanDeleteLayer, CommandDeleteLayer);
+            _commandManager.Register(CommandKey.LayerMoveTop, CommandCanMoveLayerTop, CommandMoveLayerTop);
+            _commandManager.Register(CommandKey.LayerMoveUp, CommandCanMoveLayerUp, CommandMoveLayerUp);
+            _commandManager.Register(CommandKey.LayerMoveDown, CommandCanMoveLayerDown, CommandMoveLayerDown);
+            _commandManager.Register(CommandKey.LayerMoveBottom, CommandCanMoveLayerBottom, CommandMoveLayerBottom);
         }
 
         public CommandManager CommandManager
@@ -269,6 +278,138 @@ namespace Treefrog.Presentation
             if (layer != null) {
                 layer.NameChanged -= Layer_NameChanged;
             }
+        }
+
+        private bool CommandCanAddTileLayer ()
+        {
+            return true;
+        }
+
+        private void CommandAddTileLayer ()
+        {
+            ActionAddLayer();
+        }
+
+        private bool CommandCanAddObjectLayer ()
+        {
+            return true;
+        }
+
+        private void CommandAddObjectLayer ()
+        {
+            string name = FindDefaultLayerName("Object Layer");
+
+            ObjectLayer layer = new ObjectLayer(name, _level.TileWidth * _level.TilesWide, _level.TileHeight * _level.TilesHigh);
+
+            BindLayerEvents(layer);
+
+            _level.Layers.Add(layer);
+
+            ObjectControlLayer clayer = new ObjectControlLayer(_layerControl, layer);
+            clayer.ShouldDrawContent = LayerCondition.Always;
+            clayer.ShouldDrawGrid = LayerCondition.Selected;
+            clayer.ShouldRespondToInput = LayerCondition.Selected;
+            clayer.BindLevelController(this);
+            clayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
+
+            _controlLayers[name] = clayer;
+
+            SelectLayer(name);
+
+            OnSyncLayerActions(EventArgs.Empty);
+            OnSyncLayerList(EventArgs.Empty);
+            OnSyncLayerSelection(EventArgs.Empty);
+        }
+
+        private bool CommandCanCloneLayer ()
+        {
+            return SelectedLayer != null;
+        }
+
+        private void CommandCloneLayer ()
+        {
+            ActionCloneSelectedLayer();
+        }
+
+        private bool CommandCanDeleteLayer ()
+        {
+            return SelectedLayer != null;
+        }
+
+        private void CommandDeleteLayer ()
+        {
+            ActionRemoveSelectedLayer();
+        }
+
+        private bool CommandCanMoveLayerTop ()
+        {
+            return CommandCanMoveLayerUp();
+        }
+
+        private void CommandMoveLayerTop ()
+        {
+            if (CommandCanMoveLayerTop()) {
+                int index = _level.Layers.IndexOf(_selectedLayer);
+                int count = _level.Layers.Count - 1;
+
+                _level.Layers.ChangeIndexRelative(_selectedLayer, count - index);
+                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], count - index);
+
+                InvalidateLayerViewCommands();
+            }
+
+            OnSyncLayerActions(EventArgs.Empty);
+            OnSyncLayerList(EventArgs.Empty);
+        }
+
+        private bool CommandCanMoveLayerUp ()
+        {
+            return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) < _level.Layers.Count - 1);
+        }
+
+        private void CommandMoveLayerUp ()
+        {
+            ActionMoveSelectedLayerUp();
+            InvalidateLayerViewCommands();
+        }
+
+        private bool CommandCanMoveLayerDown ()
+        {
+            return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) > 0);
+        }
+
+        private void CommandMoveLayerDown ()
+        {
+            ActionMoveSelectedLayerDown();
+            InvalidateLayerViewCommands();
+        }
+
+        private bool CommandCanMoveLayerBottom ()
+        {
+            return CommandCanMoveLayerDown();
+        }
+
+        private void CommandMoveLayerBottom ()
+        {
+            if (CommandCanMoveLayerBottom()) {
+                int index = _level.Layers.IndexOf(_selectedLayer);
+
+                _level.Layers.ChangeIndexRelative(_selectedLayer, 0 - index);
+                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], 0 - index);
+
+                InvalidateLayerViewCommands();
+            }
+
+            OnSyncLayerActions(EventArgs.Empty);
+            OnSyncLayerList(EventArgs.Empty);
+        }
+
+        private void InvalidateLayerViewCommands ()
+        {
+            CommandManager.Invalidate(CommandKey.LayerMoveTop);
+            CommandManager.Invalidate(CommandKey.LayerMoveUp);
+            CommandManager.Invalidate(CommandKey.LayerMoveDown);
+            CommandManager.Invalidate(CommandKey.LayerMoveBottom);
         }
 
         #region Properties
@@ -491,7 +632,7 @@ namespace Treefrog.Presentation
 
         public void ActionAddLayer ()
         {
-            string name = FindDefaultLayerName();
+            string name = FindDefaultLayerName("Tile Layer");
 
             MultiTileGridLayer layer = new MultiTileGridLayer(name, _level.TileWidth, _level.TileHeight, _level.TilesWide, _level.TilesHigh);
 
@@ -693,7 +834,7 @@ namespace Treefrog.Presentation
             OnSyncLayerList(EventArgs.Empty);
         }
 
-        private string FindDefaultLayerName ()
+        private string FindDefaultLayerName (string baseName)
         {
             List<string> names = new List<string>();
             foreach (Layer layer in _level.Layers) {
@@ -702,7 +843,7 @@ namespace Treefrog.Presentation
 
             int i = 0;
             while (true) {
-                string name = "Tile Layer " + ++i;
+                string name = baseName + " " + ++i;
                 if (names.Contains(name)) {
                     continue;
                 }

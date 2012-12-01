@@ -26,6 +26,9 @@ namespace Treefrog.Windows.Forms
         TilePoolManager _localManager;
         Stream _fileStream;
 
+        private bool _useTransColor;
+        private Color _transColor;
+
         int _width;
         int _height;
 
@@ -40,7 +43,9 @@ namespace Treefrog.Windows.Forms
             _layerControl = new LayerControl();
             _layerControl.Dock = DockStyle.Fill;
             _layerControl.WidthSynced = true;
+            _layerControl.HeightSynced = true;
             _layerControl.Alignment = LayerControlAlignment.UpperLeft;
+            _layerControl.ControlInitialized += LayerControlInitializedHandler;
 
             _tileLayer = new TileSetControlLayer(_layerControl);
             _tileLayer.ShouldDrawContent = LayerCondition.Always;
@@ -58,6 +63,14 @@ namespace Treefrog.Windows.Forms
             _buttonTransColor.Click += ButtonTransColorClickHandler;
             _checkboxTransColor.Click += CheckboxTransColorClickHandler;
             _layerControl.MouseDown += PreviewControlClickHandler;
+        }
+
+        private void LayerControlInitializedHandler (object sender, EventArgs e)
+        {
+            TilePoolTextureService poolService = new TilePoolTextureService(_localManager, _layerControl.GraphicsDeviceService);
+            _layerControl.Services.AddService<TilePoolTextureService>(poolService);
+
+            _layerControl.ControlInitialized -= LayerControlInitializedHandler;
         }
 
         private void _buttonBrowse_Click (object sender, EventArgs e)
@@ -128,6 +141,9 @@ namespace Treefrog.Windows.Forms
             _fileStream.Position = 0;
         }
 
+        private TilePool _previewPool;
+        private TextureResource _originalResource;
+
         private TilePool LoadFile (TilePoolManager manager)
         {
             if (_fileStream == null) {
@@ -143,16 +159,6 @@ namespace Treefrog.Windows.Forms
             _localManager.Reset();
 
             TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(_fileStream);
-            /*if (_useTransColor) {
-                resource.Apply(c =>
-                {
-                    if (c.Equals(_transColor))
-                        return Colors.Transparent;
-                    else
-                        return c;
-                });
-            }*/
-
             TilePool.TileImportOptions options = new TilePool.TileImportOptions()
             {
                 TileHeight = (int)_numTileHeight.Value,
@@ -160,27 +166,65 @@ namespace Treefrog.Windows.Forms
                 SpaceX = (int)_numXSpacing.Value,
                 SpaceY = (int)_numYSpacing.Value,
                 MarginX = (int)_numXMargin.Value,
-                MarginY = (int)_numYSpacing.Value,
+                MarginY = (int)_numYMargin.Value,
                 ImportPolicty = TileImportPolicy.SetUnique,
             };
 
-            TilePool preview = manager.ImportTilePool(_textName.Text, resource, options);
+            _previewPool = _localManager.ImportTilePool(_textName.Text, resource, options);
             /*TilePool preview = TilePool.Import(_textName.Text, manager, _fileStream, 
                 (int)_numTileWidth.Value, (int)_numTileHeight.Value, 
                 (int)_numXSpacing.Value, (int)_numYSpacing.Value,
                 (int)_numXMargin.Value, (int)_numYMargin.Value);*/
             //TileSet1D previewSet = TileSet1D.CreatePoolSet("Preview", preview);
 
-            _tileLayer.Layer = new TileSetLayer("Preview", preview);
+            _originalResource = _previewPool.TileSource.Crop(_previewPool.TileSource.Bounds);
+
+            if (_useTransColor)
+                SetTransparentColor();
+
+            _tileLayer.Layer = new TileSetLayer("Preview", _previewPool);
+            _tileLayer.ShouldDrawContent = LayerCondition.Always;
             _tileLayer.ShouldDrawGrid = LayerCondition.Always;
 
             // Update stats
 
             _countTilesHigh.Text = ((_height + (int)_numYSpacing.Value) / ((int)_numTileHeight.Value + (int)_numYSpacing.Value + (int)_numYMargin.Value)).ToString();
             _countTilesWide.Text = ((_width + (int)_numXSpacing.Value) / ((int)_numTileWidth.Value + (int)_numXSpacing.Value + (int)_numXMargin.Value)).ToString();
-            _countUniqueTiles.Text = preview.Count.ToString();
+            _countUniqueTiles.Text = _previewPool.Count.ToString();
 
-            return preview;
+            return _previewPool;
+        }
+
+        private void SetTransparentColor ()
+        {
+            if (_previewPool != null) {
+                SetTransparentColor(_previewPool.TileSource);
+                _previewPool.ReplaceTexture(_previewPool.TileSource);
+            }
+        }
+
+        private void SetTransparentColor (TextureResource resource)
+        {
+            ClearTransparentColor(resource);
+            resource.Apply(c => {
+                if (c.Equals(_transColor))
+                    return Colors.Transparent;
+                else
+                    return c;
+            });
+        }
+
+        private void ClearTransparentColor ()
+        {
+            if (_previewPool != null) {
+                ClearTransparentColor(_previewPool.TileSource);
+                _previewPool.ReplaceTexture(_previewPool.TileSource);
+            }
+        }
+
+        private void ClearTransparentColor (TextureResource resource)
+        {
+            resource.Set(_originalResource, Point.Zero);
         }
 
         private void ButtonTransColorClickHandler (object sender, EventArgs e)
@@ -194,12 +238,19 @@ namespace Treefrog.Windows.Forms
             DialogResult result = cd.ShowDialog(this);
 
             _buttonTransColor.Color = cd.Color;
-            _tileLayer.TransparentColor = new XnaColor(cd.Color.R / 255f, cd.Color.G / 255f, cd.Color.B / 255f);
+            _transColor = new Color(cd.Color.R, cd.Color.G, cd.Color.B);
+
+            if (_useTransColor)
+                SetTransparentColor();
         }
 
         private void CheckboxTransColorClickHandler (object sender, EventArgs e)
         {
-            _tileLayer.UseTransparentColor = _checkboxTransColor.Checked;
+            _useTransColor = _checkboxTransColor.Checked;
+            if (_useTransColor)
+                SetTransparentColor();
+            else
+                ClearTransparentColor();
         }
 
         private void PreviewControlClickHandler (object sender, MouseEventArgs e)
@@ -207,7 +258,10 @@ namespace Treefrog.Windows.Forms
             XnaColor color = _tileLayer.Control.GetPixel(e.X, e.Y);
 
             _buttonTransColor.Color = System.Drawing.Color.FromArgb(255, color.R, color.G, color.B);
-            _tileLayer.TransparentColor = color;
+            _transColor = new Color(color.R, color.G, color.B);
+
+            if (_useTransColor)
+                SetTransparentColor();
         }
 
         private void _numTileHeight_ValueChanged (object sender, EventArgs e)

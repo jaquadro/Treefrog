@@ -396,7 +396,7 @@ namespace Treefrog.Windows.Controls
 
         private void LayerVirtualSizeChangedHandler (object sender, EventArgs e)
         {
-            //CalculateVirtualSize();
+            CalculateVirtualSize();
         }
 
         #endregion

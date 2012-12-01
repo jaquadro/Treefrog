@@ -248,6 +248,7 @@ namespace Treefrog.Windows
 
         private void InitializeComponent ()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PropertyPane));
             System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Predefined Properties", System.Windows.Forms.HorizontalAlignment.Left);
             System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Custom Properties", System.Windows.Forms.HorizontalAlignment.Left);
             System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
@@ -258,17 +259,16 @@ namespace Treefrog.Windows
             "",
             "Collision",
             "true"}, -1);
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PropertyPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-            this._propertyList = new EditableListView();
-            this._colLabel = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._colValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this._buttonAddProp = new System.Windows.Forms.ToolStripButton();
             this._buttonRemoveProp = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
+            this._propertyList = new Treefrog.Windows.Controls.WinEx.EditableListView();
+            this._colLabel = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this._colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this._colValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -294,52 +294,6 @@ namespace Treefrog.Windows
             // toolStripContainer1.TopToolStripPanel
             // 
             this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
-            // 
-            // _propertyList
-            // 
-            this._propertyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this._colLabel,
-            this._colName,
-            this._colValue});
-            this._propertyList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._propertyList.DoubleClickActivation = true;
-            this._propertyList.FullRowSelect = true;
-            listViewGroup1.Header = "Predefined Properties";
-            listViewGroup1.Name = "_groupPredef";
-            listViewGroup2.Header = "Custom Properties";
-            listViewGroup2.Name = "_groupCustom";
-            this._propertyList.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup1,
-            listViewGroup2});
-            this._propertyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            listViewItem1.Group = listViewGroup1;
-            listViewItem2.Group = listViewGroup2;
-            this._propertyList.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2});
-            this._propertyList.Location = new System.Drawing.Point(0, 0);
-            this._propertyList.Margin = new System.Windows.Forms.Padding(0);
-            this._propertyList.Name = "_propertyList";
-            this._propertyList.Size = new System.Drawing.Size(239, 264);
-            this._propertyList.TabIndex = 0;
-            this._propertyList.UseCompatibleStateImageBehavior = false;
-            this._propertyList.View = System.Windows.Forms.View.Details;
-            this._propertyList.MultiSelect = false;
-            // 
-            // _colLabel
-            // 
-            this._colLabel.Text = "";
-            this._colLabel.Width = 0;
-            // 
-            // _colName
-            // 
-            this._colName.Text = "Name";
-            this._colName.Width = 100;
-            // 
-            // _colValue
-            // 
-            this._colValue.Text = "Value";
-            this._colValue.Width = 135;
             // 
             // toolStrip1
             // 
@@ -381,15 +335,56 @@ namespace Treefrog.Windows
             // 
             // toolStripTextBox1
             // 
-            this.toolStripTextBox1.BorderStyle = BorderStyle.None;
-            this.toolStripTextBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.TextBox.BorderStyle = BorderStyle.FixedSingle;
-            this.toolStripTextBox1.TextBox.AutoSize = false;
-            this.toolStripTextBox1.TextBox.Height = 22;
             this.toolStripTextBox1.AutoSize = false;
-            this.toolStripTextBox1.Height = 22;
-            this.toolStripTextBox1.Width = 150;
+            this.toolStripTextBox1.Name = "toolStripTextBox1";
+            this.toolStripTextBox1.ReadOnly = true;
+            this.toolStripTextBox1.Size = new System.Drawing.Size(150, 22);
+            // 
+            // _propertyList
+            // 
+            this._propertyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this._colLabel,
+            this._colName,
+            this._colValue});
+            this._propertyList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._propertyList.DoubleClickActivation = true;
+            this._propertyList.FullRowSelect = true;
+            listViewGroup1.Header = "Predefined Properties";
+            listViewGroup1.Name = "_groupPredef";
+            listViewGroup2.Header = "Custom Properties";
+            listViewGroup2.Name = "_groupCustom";
+            this._propertyList.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
+            listViewGroup1,
+            listViewGroup2});
+            this._propertyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            listViewItem1.Group = listViewGroup1;
+            listViewItem2.Group = listViewGroup2;
+            this._propertyList.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem1,
+            listViewItem2});
+            this._propertyList.Location = new System.Drawing.Point(0, 0);
+            this._propertyList.Margin = new System.Windows.Forms.Padding(0);
+            this._propertyList.MultiSelect = false;
+            this._propertyList.Name = "_propertyList";
+            this._propertyList.Size = new System.Drawing.Size(239, 264);
+            this._propertyList.TabIndex = 0;
+            this._propertyList.UseCompatibleStateImageBehavior = false;
+            this._propertyList.View = System.Windows.Forms.View.Details;
+            // 
+            // _colLabel
+            // 
+            this._colLabel.Text = "";
+            this._colLabel.Width = 0;
+            // 
+            // _colName
+            // 
+            this._colName.Text = "Name";
+            this._colName.Width = 100;
+            // 
+            // _colValue
+            // 
+            this._colValue.Text = "Value";
+            this._colValue.Width = 135;
             // 
             // PropertyPane
             // 

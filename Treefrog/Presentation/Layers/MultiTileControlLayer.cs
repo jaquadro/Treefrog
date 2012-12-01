@@ -25,7 +25,7 @@ namespace Treefrog.Presentation.Layers
         }
 
         public MultiTileControlLayer (LayerControl control, MultiTileGridLayer layer)
-            : this(control)
+            : base(control, layer)
         {
             Layer = layer;
         }

@@ -92,6 +92,20 @@ namespace Treefrog.Windows.Controls.Composite
             _levelStrip = CreateMenuItem("&Levels");
 
             _layerStrip = CreateMenuItem("La&yers");
+            _layersNewTile = CreateMenuItem("New &Tile Layer", "Treefrog.Icons._16.grid.png");
+            _layersNewObject = CreateMenuItem("New &Object Layer", "Treefrog.Icons._16.game.png");
+            _layersClone = CreateMenuItem("&Clone", "Treefrog.Icons._16.layers.png");
+            _layersDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.layer--minus.png");
+            _layersProperties = CreateMenuItem("&Properties", "Treefrog.Icons._16.tags.png");
+            _layersArrange = CreateMenuItem("&Arrange");
+            _layersArrangeMoveTop = CreateMenuItem("Bring to &Top", "Treefrog.Icons._16.arrow-skip-090.png");
+            _layersArrangeMoveUp = CreateMenuItem("Move &Up", "Treefrog.Icons._16.arrow-090.png");
+            _layersArrangeMoveDown = CreateMenuItem("Move &Down", "Treefrog.Icons._16.arrow-270.png");
+            _layersArrangeMoveBottom = CreateMenuItem("Send to &Bottom", "Treefrog.Icons._16.arrow-skip-270.png");
+            _layersView = CreateMenuItem("&View");
+            _layersViewShowCurrentOnly = CreateMenuItem("Show &Current Layer Only");
+            _layersViewShowAll = CreateMenuItem("&All");
+            _layersViewShowNone = CreateMenuItem("&None");
 
             _tileStrip = CreateMenuItem("&Tiles");
 
@@ -110,6 +124,20 @@ namespace Treefrog.Windows.Controls.Composite
                 _editSelectAll, _editSelectNone,
             });
 
+            _layerStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _layersNewTile, _layersNewObject, new ToolStripSeparator(),
+                _layersClone, _layersDelete, _layersProperties, new ToolStripSeparator(),
+                _layersArrange, _layersView,
+            });
+
+            _layersArrange.DropDownItems.AddRange(new ToolStripItem[] {
+                _layersArrangeMoveTop, _layersArrangeMoveUp, _layersArrangeMoveDown, _layersArrangeMoveBottom,
+            });
+
+            _layersView.DropDownItems.AddRange(new ToolStripItem[] {
+                _layersViewShowCurrentOnly, _layersViewShowAll, _layersViewShowNone,
+            });
+
             _menuStrip.Items.AddRange(new ToolStripItem[] {
                 _fileStrip, _editStrip, _viewStrip, _projectStrip, _levelStrip, _layerStrip,
                 _tileStrip, _objectStrip, _helpStrip,
@@ -124,6 +152,19 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.Delete, _editDelete },
                 { CommandKey.SelectAll, _editSelectAll },
                 { CommandKey.SelectNone, _editSelectNone },
+
+                { CommandKey.NewTileLayer, _layersNewTile },
+                { CommandKey.NewObjectLayer, _layersNewObject },
+                { CommandKey.LayerClone, _layersClone },
+                { CommandKey.LayerDelete, _layersDelete },
+                { CommandKey.LayerProperties, _layersProperties },
+                { CommandKey.LayerMoveTop, _layersArrangeMoveTop },
+                { CommandKey.LayerMoveUp, _layersArrangeMoveUp },
+                { CommandKey.LayerMoveDown, _layersArrangeMoveDown },
+                { CommandKey.LayerMoveBottom, _layersArrangeMoveBottom },
+                { CommandKey.LayerShowCurrentOnly, _layersViewShowCurrentOnly },
+                { CommandKey.LayerShowAll, _layersViewShowAll },
+                { CommandKey.LayerShowNone, _layersViewShowNone },
             };
 
             foreach (ToolStripMenuItem item in _commandMap.Values)

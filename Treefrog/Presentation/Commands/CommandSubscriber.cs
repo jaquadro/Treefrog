@@ -8,6 +8,7 @@ namespace Treefrog.Presentation.Commands
     public enum CommandKey
     {
         Unknown,
+
         Undo,
         Redo,
         Cut,
@@ -22,6 +23,19 @@ namespace Treefrog.Presentation.Commands
         TileToolErase,
         TileToolFill,
         TileToolStamp,
+
+        NewTileLayer,
+        NewObjectLayer,
+        LayerClone,
+        LayerDelete,
+        LayerProperties,
+        LayerMoveTop,
+        LayerMoveUp,
+        LayerMoveDown,
+        LayerMoveBottom,
+        LayerShowCurrentOnly,
+        LayerShowAll,
+        LayerShowNone,
     }
 
     public enum CommandToggleGroup

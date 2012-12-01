@@ -161,6 +161,9 @@ namespace Treefrog.Windows
                         Checked = true,
                     };
 
+                    if (layer is ObjectLayer)
+                        layerItem.ImageIndex = 1;
+
                     if (layer == _controller.SelectedLayer) {
                         layerItem.Selected = true;
                     }

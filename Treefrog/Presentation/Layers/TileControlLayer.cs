@@ -65,6 +65,7 @@ namespace Treefrog.Presentation.Layers
             : this(control)
         {
             Layer = layer;
+            OnVirutalSizeChanged(EventArgs.Empty);
         }
 
         #endregion
@@ -105,40 +106,6 @@ namespace Treefrog.Presentation.Layers
 
                 if (Control.Initialized) {
                     BuildTileBrush();
-                }
-            }
-        }
-
-        public Color TransparentColor
-        {
-            get { return _transColor; }
-            set
-            {
-                _transColor = value;
-
-                if (Control.Initialized && _useTransColor) {
-                    _effectTransColor.SetValue(_transColor.ToVector4());
-                }
-            }
-        }
-
-        public bool UseTransparentColor
-        {
-            get { return _useTransColor; }
-            set 
-            {
-                if (_useTransColor != value) {
-                    _useTransColor = value;
-
-                    if (Control.Initialized && _useTransColor) {
-                        _effectTrans = Control.ContentManager.Load<Effect>("TransColor");
-                        _effectTransColor = _effectTrans.Parameters["transColor"];
-                        _effectTransColor.SetValue(_transColor.ToVector4());
-                    }
-                    else {
-                        _effectTrans = null;
-                        _effectTransColor = null;
-                    }
                 }
             }
         }

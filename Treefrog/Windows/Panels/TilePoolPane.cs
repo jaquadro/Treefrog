@@ -97,12 +97,25 @@ namespace Treefrog.Windows
 
                 _controller.RefreshTilePoolList();
 
-                TilePoolTextureService poolService = new TilePoolTextureService(_controller.TilePoolManager, _tileControl.GraphicsDeviceService);
-                _tileControl.Services.AddService<TilePoolTextureService>(poolService);
+                if (_tileControl.Initialized) {
+                    TilePoolTextureService poolService = new TilePoolTextureService(_controller.TilePoolManager, _tileControl.GraphicsDeviceService);
+                    _tileControl.Services.AddService<TilePoolTextureService>(poolService);
+                }
+                else {
+                    _tileControl.ControlInitialized += TileControlInitializedHandler;
+                }
             }
             else {
                 ResetComponent();
             }
+        }
+
+        private void TileControlInitializedHandler (object sender, EventArgs e)
+        {
+            _tileControl.ControlInitialized -= TileControlInitializedHandler;
+
+            TilePoolTextureService poolService = new TilePoolTextureService(_controller.TilePoolManager, _tileControl.GraphicsDeviceService);
+            _tileControl.Services.AddService<TilePoolTextureService>(poolService);
         }
 
         #region Event Dispatchers
