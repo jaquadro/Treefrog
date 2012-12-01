@@ -3,6 +3,9 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using Treefrog.Presentation;
+using Treefrog.Presentation.Commands;
+using System.Collections.Generic;
+using Treefrog.Utility;
 
 namespace Treefrog.Windows.Controls.Composite
 {
@@ -12,11 +15,19 @@ namespace Treefrog.Windows.Controls.Composite
 
         private IEditorPresenter _controller;
 
+        private CommandManager _commandManager;
+        private Mapper<CommandKey, ToolStripMenuItem> _commandMap = new Mapper<CommandKey, ToolStripMenuItem>();
+
         private MenuStrip _menuStrip;
 
         private ToolStripMenuItem _fileStrip;
         private ToolStripMenuItem _editStrip;
         private ToolStripMenuItem _viewStrip;
+        private ToolStripMenuItem _projectStrip;
+        private ToolStripMenuItem _levelStrip;
+        private ToolStripMenuItem _layerStrip;
+        private ToolStripMenuItem _tileStrip;
+        private ToolStripMenuItem _objectStrip;
         private ToolStripMenuItem _helpStrip;
 
         private ToolStripMenuItem _fileNew;
@@ -33,6 +44,24 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripMenuItem _editDelete;
         private ToolStripMenuItem _editSelectAll;
         private ToolStripMenuItem _editSelectNone;
+
+        private ToolStripMenuItem _levelsNew;
+
+        private ToolStripMenuItem _layersNewTile;
+        private ToolStripMenuItem _layersNewObject;
+        private ToolStripMenuItem _layersClone;
+        private ToolStripMenuItem _layersDelete;
+        private ToolStripMenuItem _layersProperties;
+        private ToolStripMenuItem _layersArrange;
+        private ToolStripMenuItem _layersArrangeMoveTop;
+        private ToolStripMenuItem _layersArrangeMoveUp;
+        private ToolStripMenuItem _layersArrangeMoveDown;
+        private ToolStripMenuItem _layersArrangeMoveBottom;
+        private ToolStripMenuItem _layersView;
+        private ToolStripMenuItem _layersViewShowCurrentOnly;
+        private ToolStripMenuItem _layersViewShowAll;
+        private ToolStripMenuItem _layersViewShowNone;
+        private ToolStripMenuItem _layersExportRaster;
 
         public StandardMenu () {
             _assembly = System.Reflection.Assembly.GetExecutingAssembly();
@@ -58,6 +87,16 @@ namespace Treefrog.Windows.Controls.Composite
 
             _viewStrip = CreateMenuItem("&View");
 
+            _projectStrip = CreateMenuItem("&Project");
+
+            _levelStrip = CreateMenuItem("&Levels");
+
+            _layerStrip = CreateMenuItem("La&yers");
+
+            _tileStrip = CreateMenuItem("&Tiles");
+
+            _objectStrip = CreateMenuItem("&Objects");
+
             _helpStrip = CreateMenuItem("&Help");
 
             _fileStrip.DropDownItems.AddRange(new ToolStripItem[] {
@@ -72,8 +111,23 @@ namespace Treefrog.Windows.Controls.Composite
             });
 
             _menuStrip.Items.AddRange(new ToolStripItem[] {
-                _fileStrip, _editStrip, _viewStrip, _helpStrip,
+                _fileStrip, _editStrip, _viewStrip, _projectStrip, _levelStrip, _layerStrip,
+                _tileStrip, _objectStrip, _helpStrip,
             });
+
+            _commandMap = new Mapper<CommandKey, ToolStripMenuItem>() {
+                { CommandKey.Undo, _editUndo },
+                { CommandKey.Redo, _editRedo },
+                { CommandKey.Cut, _editCut },
+                { CommandKey.Copy, _editCopy },
+                { CommandKey.Paste, _editPaste },
+                { CommandKey.Delete, _editDelete },
+                { CommandKey.SelectAll, _editSelectAll },
+                { CommandKey.SelectNone, _editSelectNone },
+            };
+
+            foreach (ToolStripMenuItem item in _commandMap.Values)
+                item.Click += BoundMenuItemClickHandler;
 
             ResetStandardComponent();
             ResetDocumentComponent();
@@ -83,14 +137,30 @@ namespace Treefrog.Windows.Controls.Composite
             _fileOpen.Click += MenuOpenClickHandler;
             _fileSave.Click += MenuSaveClickHandler;
 
-            _editUndo.Click += MenuUndoClickHandler;
+            /*_editUndo.Click += MenuUndoClickHandler;
             _editRedo.Click += MenuRedoClickHandler;
             _editCut.Click += MenuCut_Click;
             _editCopy.Click += MenuCopy_Click;
             _editPaste.Click += MenuPaste_Click;
             _editDelete.Click += MenuDelete_Click;
             _editSelectAll.Click += MenuSelectAll_Click;
-            _editSelectNone.Click += MenuSelectNone_Click;
+            _editSelectNone.Click += MenuSelectNone_Click;*/
+        }
+
+        public void BindCommandManager (CommandManager commandManager)
+        {
+            if (_commandManager != null) {
+                _commandManager.CommandInvalidated -= HandleCommandInvalidated;
+                _commandManager.ManagerInvalidated -= HandleManagerInvalidated;
+            }
+
+            _commandManager = commandManager;
+            if (_commandManager != null) {
+                _commandManager.CommandInvalidated += HandleCommandInvalidated;
+                _commandManager.ManagerInvalidated += HandleManagerInvalidated;
+            }
+
+            ResetComponent();
         }
 
         public void BindController (IEditorPresenter controller)
@@ -130,6 +200,47 @@ namespace Treefrog.Windows.Controls.Composite
             }
         }
 
+        private bool CanPerformCommand (CommandKey key)
+        {
+            return _commandManager != null && _commandManager.CanPerform(key);
+        }
+
+        private void PerformCommand (CommandKey key)
+        {
+            if (_commandManager.CanPerform(key))
+                _commandManager.Perform(key);
+        }
+
+        private bool IsCommandSelected (CommandKey key)
+        {
+            return _commandManager != null && _commandManager.IsSelected(key);
+        }
+
+        private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
+        {
+            Invalidate(e.CommandKey);
+        }
+
+        private void HandleManagerInvalidated (object sender, EventArgs e)
+        {
+            ResetComponent();
+        }
+
+        private void Invalidate (CommandKey key)
+        {
+            if (_commandMap.ContainsKey(key)) {
+                ToolStripMenuItem item = _commandMap[key];
+                item.Enabled = CanPerformCommand(key);
+                item.Checked = IsCommandSelected(key);
+            }
+        }
+
+        private void ResetComponent ()
+        {
+            foreach (CommandKey key in _commandMap.Keys)
+                Invalidate(key);
+        }
+
         private void ResetStandardComponent ()
         {
 
@@ -150,6 +261,13 @@ namespace Treefrog.Windows.Controls.Composite
         public MenuStrip Strip
         {
             get { return _menuStrip; }
+        }
+
+        private void BoundMenuItemClickHandler (object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            if (_commandManager != null && _commandMap.ContainsValue(item))
+                _commandManager.Perform(_commandMap[item]);
         }
 
         private void MenuOpenClickHandler (object sender, EventArgs e)
@@ -248,7 +366,7 @@ namespace Treefrog.Windows.Controls.Composite
             if (_controller == null)
                 return;
 
-            IDocumentToolsPresenter docTools = _controller.Presentation.DocumentTools;
+            /*IDocumentToolsPresenter docTools = _controller.Presentation.DocumentTools;
             if (docTools != null) {
                 _editCut.Enabled = docTools.CanCut;
                 _editCopy.Enabled = docTools.CanCopy;
@@ -258,7 +376,7 @@ namespace Treefrog.Windows.Controls.Composite
                 _editSelectNone.Enabled = docTools.CanUnselectAll;
                 _editUndo.Enabled = docTools.CanUndo;
                 _editRedo.Enabled = docTools.CanRedo;
-            }
+            }*/
         }
 
         private ToolStripMenuItem CreateMenuItem (string text)

@@ -165,7 +165,6 @@ namespace Treefrog.Presentation
         private void InitializeCommandManager ()
         {
             _commandManager = new ForwardingCommandManager();
-            _commandManager.ForwardingEnumerator = CommandForwarder;
             _commandManager.CommandInvalidated += HandleCommandInvalidated;
 
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
@@ -187,11 +186,6 @@ namespace Treefrog.Presentation
         private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
         {
             _editor.Presentation.DocumentTools.RefreshDocumentTools();
-        }
-
-        private void HandleLayerCommandInvalidated (object sender, CommandSubscriberEventArgs e)
-        {
-            _commandManager.Invalidate(e.CommandKey);
         }
 
         private bool CommandCanUndo ()
@@ -254,10 +248,6 @@ namespace Treefrog.Presentation
                 TileControlLayer tileLayer = clayer as TileControlLayer;
                 if (tileLayer != null)
                     tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
-
-                ICommandSubscriber comLayer = clayer as ICommandSubscriber;
-                if (comLayer != null)
-                    comLayer.CommandManager.CommandInvalidated += HandleLayerCommandInvalidated;
 
                 _controlLayers[layer.Name] = clayer;
 
@@ -382,7 +372,7 @@ namespace Treefrog.Presentation
                 SyncLayerSelection(this, e);
             }
 
-            _editor.Presentation.LevelTools.RefreshLevelTools();
+            //_editor.Presentation.LevelTools.RefreshLevelTools();
         }
 
         #endregion
@@ -642,6 +632,11 @@ namespace Treefrog.Presentation
                 if (tileLayer != null) {
                     tileLayer.MouseTileMove -= LayerMouseMoveHandler;
                 }
+
+                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
+                if (comLayer != null) {
+                    _commandManager.RemoveCommandSubscriber(comLayer);
+                }
             }
 
             _selectedLayer = null;
@@ -660,6 +655,11 @@ namespace Treefrog.Presentation
                 TileControlLayer tileLayer = _selectedLayerRef as TileControlLayer;
                 if (tileLayer != null) {
                     tileLayer.MouseTileMove += LayerMouseMoveHandler;
+                }
+
+                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
+                if (comLayer != null) {
+                    _commandManager.AddCommandSubscriber(comLayer);
                 }
 
                 if (!_level.Layers.Contains(layer)) {
@@ -682,7 +682,9 @@ namespace Treefrog.Presentation
 
         private void HistoryChangedHandler (object sender, EventArgs e)
         {
-            _editor.Presentation.DocumentTools.RefreshDocumentTools();
+            //_editor.Presentation.DocumentTools.RefreshDocumentTools();
+            CommandManager.Invalidate(CommandKey.Undo);
+            CommandManager.Invalidate(CommandKey.Redo);
         }
 
         public void RefreshLayerList ()

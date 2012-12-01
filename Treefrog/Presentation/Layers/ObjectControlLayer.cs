@@ -57,7 +57,6 @@ namespace Treefrog.Presentation.Layers
         private void InitializeCommandManager ()
         {
             _commandManager = new ForwardingCommandManager();
-            _commandManager.ForwardingEnumerator = CommandForwarder;
 
             _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
         }
@@ -86,11 +85,6 @@ namespace Treefrog.Presentation.Layers
                 SetCurrentTool(NewSelectTool());
 
             tool.CommandManager.Perform(CommandKey.Paste);
-        }
-
-        private void HandleToolCommandInvalidate (object sender, CommandSubscriberEventArgs e)
-        {
-            _commandManager.Invalidate(e.CommandKey);
         }
 
         #endregion
@@ -179,15 +173,14 @@ namespace Treefrog.Presentation.Layers
             if (objTool != null) {
                 objTool.Cancel();
 
-                if (objTool.CommandManager != null)
-                    objTool.CommandManager.CommandInvalidated -= HandleToolCommandInvalidate;
+                _commandManager.RemoveCommandSubscriber(objTool);
             }
 
             _currentTool = tool;
 
             objTool = _currentTool as ObjectSelectTool;
             if (objTool != null && objTool.CommandManager != null) {
-                objTool.CommandManager.CommandInvalidated += HandleToolCommandInvalidate;
+                _commandManager.AddCommandSubscriber(objTool);
             }
         }
 

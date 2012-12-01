@@ -3,6 +3,8 @@ using System.Windows.Forms;
 using System.Reflection;
 using Treefrog.Presentation;
 using System.Drawing;
+using Treefrog.Presentation.Commands;
+using System.Collections.Generic;
 
 namespace Treefrog.Windows.Controls.Composite
 {
@@ -23,7 +25,9 @@ namespace Treefrog.Windows.Controls.Composite
 
         private Assembly _assembly;
 
-        private ILevelToolsPresenter _controller;
+        private CommandManager _commandManager;
+
+        private Dictionary<CommandKey, ToolStripButton> _commandButtonMap;
 
         public TileToolbar ()
         {
@@ -48,86 +52,83 @@ namespace Treefrog.Windows.Controls.Composite
                 _tbFlipH, _tbFlipV, _tbRotateLeft, _tbRotateRight
             });
 
-            ResetComponent();
-
             _tbSelect.Click += SelectButtonClickHandler;
             _tbDraw.Click += DrawButtonClickHandler;
             _tbErase.Click += EraseButtonClickHandler;
             _tbFill.Click += FillButtonClickHandler;
             _tbStamp.Click += StampButtonClickHandler;
 
-            //ToolMode = TileToolMode.Draw;
+            _commandButtonMap = new Dictionary<CommandKey, ToolStripButton>() {
+                { CommandKey.TileToolSelect, _tbSelect },
+                { CommandKey.TileToolDraw, _tbDraw },
+                { CommandKey.TileToolErase, _tbErase },
+                { CommandKey.TileToolFill, _tbFill },
+                { CommandKey.TileToolStamp, _tbStamp },
+            };
+
+            ResetComponent();
         }
 
-        public void BindController (ILevelToolsPresenter controller)
+        public void BindCommandManager (CommandManager commandManager)
         {
-            if (_controller == controller) {
-                return;
+            if (_commandManager != null) {
+                _commandManager.CommandInvalidated -= HandleCommandInvalidated;
+                _commandManager.ManagerInvalidated -= HandleManagerInvalidated;
             }
 
-            if (_controller != null) {
-                _controller.SyncLevelToolsActions -= SyncLevelToolsActionsHandler;
+            _commandManager = commandManager;
+            if (_commandManager != null) {
+                _commandManager.CommandInvalidated += HandleCommandInvalidated;
+                _commandManager.ManagerInvalidated += HandleManagerInvalidated;
             }
 
-            _controller = controller;
+            ResetComponent();
+        }
 
-            if (_controller != null) {
-                _controller.SyncLevelToolsActions += SyncLevelToolsActionsHandler;
+        private bool CanPerformCommand (CommandKey key)
+        {
+            return _commandManager != null && _commandManager.CanPerform(key);
+        }
 
-                _controller.RefreshLevelTools();
-            }
-            else {
-                ResetComponent();
+        private void PerformCommand (CommandKey key)
+        {
+            if (_commandManager.CanPerform(key))
+                _commandManager.Perform(key);
+        }
+
+        private bool IsCommandSelected (CommandKey key)
+        {
+            return _commandManager != null && _commandManager.IsSelected(key);
+        }
+
+        private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
+        {
+            Invalidate(e.CommandKey);
+        }
+
+        private void HandleManagerInvalidated (object sender, EventArgs e)
+        {
+            ResetComponent();
+        }
+
+        private void Invalidate (CommandKey key)
+        {
+            ToolStripButton button;
+            if (_commandButtonMap.TryGetValue(key, out button)) {
+                button.Enabled = CanPerformCommand(key);
+                button.Checked = IsCommandSelected(key);
             }
         }
 
         private void ResetComponent ()
         {
-            _tbSelect.Enabled = false;
-            _tbDraw.Enabled = false;
-            _tbErase.Enabled = false;
-            _tbFill.Enabled = false;
-            _tbStamp.Enabled = false;
+            foreach (CommandKey key in _commandButtonMap.Keys)
+                Invalidate(key);
 
             _tbFlipH.Enabled = false;
             _tbFlipV.Enabled = false;
             _tbRotateLeft.Enabled = false;
             _tbRotateRight.Enabled = false;
-        }
-
-        private void SyncLevelToolsActionsHandler (object sender, EventArgs e)
-        {
-            if (_controller != null) {
-                _tbSelect.Enabled = _controller.CanSelect;
-                _tbDraw.Enabled = _controller.CanDraw;
-                _tbErase.Enabled = _controller.CanErase;
-                _tbFill.Enabled = _controller.CanFill;
-                _tbStamp.Enabled = _controller.CanStamp;
-
-                _tbSelect.Checked = false;
-                _tbDraw.Checked = false;
-                _tbErase.Checked = false;
-                _tbStamp.Checked = false;
-                _tbFill.Checked = false;
-
-                switch (_controller.ActiveTileTool) {
-                    case TileToolMode.Select:
-                        _tbSelect.Checked = true;
-                        break;
-                    case TileToolMode.Draw:
-                        _tbDraw.Checked = true;
-                        break;
-                    case TileToolMode.Erase:
-                        _tbErase.Checked = true;
-                        break;
-                    case TileToolMode.Fill:
-                        _tbFill.Checked = true;
-                        break;
-                    case TileToolMode.Stamp:
-                        _tbStamp.Checked = true;
-                        break;
-                }
-            }
         }
 
         public ToolStrip Strip
@@ -137,32 +138,27 @@ namespace Treefrog.Windows.Controls.Composite
 
         private void SelectButtonClickHandler (object sender, EventArgs e)
         {
-            if (_controller != null)
-                _controller.ActionToggleSelect();
+            PerformCommand(CommandKey.TileToolSelect);
         }
 
         private void DrawButtonClickHandler (object sender, EventArgs e)
         {
-            if (_controller != null)
-                _controller.ActionToggleDraw();
+            PerformCommand(CommandKey.TileToolDraw);
         }
 
         private void EraseButtonClickHandler (object sender, EventArgs e)
         {
-            if (_controller != null)
-                _controller.ActionToggleErase();
+            PerformCommand(CommandKey.TileToolErase);
         }
 
         private void FillButtonClickHandler (object sender, EventArgs e)
         {
-            if (_controller != null)
-                _controller.ActionToggleFill();
+            PerformCommand(CommandKey.TileToolFill);
         }
 
         private void StampButtonClickHandler (object sender, EventArgs e)
         {
-            if (_controller != null)
-                _controller.ActionToggleStamp();
+            PerformCommand(CommandKey.TileToolStamp);
         }
 
         private ToolStripButton CreateButton (string text, string resource)

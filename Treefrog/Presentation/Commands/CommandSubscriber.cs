@@ -79,10 +79,18 @@ namespace Treefrog.Presentation.Commands
         private Dictionary<CommandToggleGroup, CommandGroup> _toggleGroups = new Dictionary<CommandToggleGroup, CommandGroup>();
 
         public event EventHandler<CommandSubscriberEventArgs> CommandInvalidated;
+        public event EventHandler ManagerInvalidated;
 
         protected virtual void OnCommandInvalidated (CommandSubscriberEventArgs e)
         {
             var ev = CommandInvalidated;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnManagerInvalidated (EventArgs e)
+        {
+            var ev = ManagerInvalidated;
             if (ev != null)
                 ev(this, e);
         }
@@ -134,6 +142,11 @@ namespace Treefrog.Presentation.Commands
         public void Invalidate (CommandKey key)
         {
             OnCommandInvalidated(new CommandSubscriberEventArgs(key));
+        }
+
+        public void InvalidateManager ()
+        {
+            OnManagerInvalidated(EventArgs.Empty);
         }
 
         public void InvalidateGroup (CommandToggleGroup group)
@@ -249,22 +262,54 @@ namespace Treefrog.Presentation.Commands
 
     public class ForwardingCommandManager : CommandManager
     {
-        public Func<IEnumerable<ICommandSubscriber>> ForwardingEnumerator { get; set; }
+        private List<ICommandSubscriber> _forwardManagers = new List<ICommandSubscriber>();
+
+        public void AddCommandSubscriber (ICommandSubscriber manager)
+        {
+            if (manager == null)
+                return;
+
+            if (!_forwardManagers.Contains(manager)) {
+                manager.CommandManager.CommandInvalidated += HandleCommandInvalidated;
+                manager.CommandManager.ManagerInvalidated += HandleManagerInvalidated;
+
+                _forwardManagers.Add(manager);
+                InvalidateManager();
+            }
+        }
+
+        public void RemoveCommandSubscriber (ICommandSubscriber manager)
+        {
+            if (_forwardManagers.Remove(manager)) {
+                manager.CommandManager.CommandInvalidated -= HandleCommandInvalidated;
+                manager.CommandManager.ManagerInvalidated -= HandleManagerInvalidated;
+
+                InvalidateManager();
+            }
+        }
 
         public bool IsMulticast { get; set; }
+
+        private void HandleManagerInvalidated (object sender, EventArgs e)
+        {
+            InvalidateManager();
+        }
+
+        private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
+        {
+            Invalidate(e.CommandKey);
+        }
 
         public override bool CanHandle (CommandKey key)
         {
             if (base.CanHandle(key))
                 return true;
 
-            if (ForwardingEnumerator != null) {
-                foreach (ICommandSubscriber subscriber in ForwardingEnumerator()) {
-                    if (subscriber == null || subscriber.CommandManager == null)
-                        continue;
-                    if (subscriber.CommandManager.CanHandle(key))
-                        return true;
-                }
+            foreach (ICommandSubscriber subscriber in _forwardManagers) {
+                if (subscriber == null || subscriber.CommandManager == null)
+                    continue;
+                if (subscriber.CommandManager.CanHandle(key))
+                    return true;
             }
 
             return false;
@@ -275,13 +320,11 @@ namespace Treefrog.Presentation.Commands
             if (base.CanHandle(key))
                 return base.CanPerform(key);
 
-            if (ForwardingEnumerator != null) {
-                foreach (ICommandSubscriber subscriber in ForwardingEnumerator()) {
-                    if (subscriber == null || subscriber.CommandManager == null)
-                        continue;
-                    if (subscriber.CommandManager.CanPerform(key))
-                        return true;
-                }
+            foreach (ICommandSubscriber subscriber in _forwardManagers) {
+                if (subscriber == null || subscriber.CommandManager == null)
+                    continue;
+                if (subscriber.CommandManager.CanPerform(key))
+                    return true;
             }
 
             return false;
@@ -294,17 +337,15 @@ namespace Treefrog.Presentation.Commands
                 return;
             }
 
-            if (ForwardingEnumerator != null) {
-                foreach (ICommandSubscriber subscriber in ForwardingEnumerator()) {
-                    if (subscriber == null || subscriber.CommandManager == null)
-                        continue;
-                    if (!subscriber.CommandManager.CanPerform(key))
-                        continue;
+            foreach (ICommandSubscriber subscriber in _forwardManagers) {
+                if (subscriber == null || subscriber.CommandManager == null)
+                    continue;
+                if (!subscriber.CommandManager.CanPerform(key))
+                    continue;
 
-                    subscriber.CommandManager.Perform(key);
-                    if (!IsMulticast)
-                        break;
-                }
+                subscriber.CommandManager.Perform(key);
+                if (!IsMulticast)
+                    break;
             }
         }
 
@@ -313,14 +354,12 @@ namespace Treefrog.Presentation.Commands
             if (base.CanHandleGroup(group))
                 return base.SelectedCommand(group);
 
-            if (ForwardingEnumerator != null) {
-                foreach (ICommandSubscriber subscriber in ForwardingEnumerator()) {
-                    if (subscriber == null || subscriber.CommandManager == null)
-                        continue;
-                    CommandKey selected = subscriber.CommandManager.SelectedCommand(group);
-                    if (selected != CommandKey.Unknown)
-                        return selected;
-                }
+            foreach (ICommandSubscriber subscriber in _forwardManagers) {
+                if (subscriber == null || subscriber.CommandManager == null)
+                    continue;
+                CommandKey selected = subscriber.CommandManager.SelectedCommand(group);
+                if (selected != CommandKey.Unknown)
+                    return selected;
             }
 
             return CommandKey.Unknown;
@@ -331,13 +370,11 @@ namespace Treefrog.Presentation.Commands
             if (base.CanHandle(key))
                 return base.IsSelected(key);
 
-            if (ForwardingEnumerator != null) {
-                foreach (ICommandSubscriber subscriber in ForwardingEnumerator()) {
-                    if (subscriber == null || subscriber.CommandManager == null)
-                        continue;
-                    if (subscriber.CommandManager.IsSelected(key))
-                        return true;
-                }
+            foreach (ICommandSubscriber subscriber in _forwardManagers) {
+                if (subscriber == null || subscriber.CommandManager == null)
+                    continue;
+                if (subscriber.CommandManager.IsSelected(key))
+                    return true;
             }
 
             return false;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
 using Treefrog.Windows.Forms;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Presentation
 {
@@ -63,7 +64,6 @@ namespace Treefrog.Presentation
         private ObjectPoolCollectionPresenter _objectPoolCollection;
         private PropertyListPresenter _propertyList;
 
-        private LevelToolsPresenter _levelTools;
         private StandardToolsPresenter _stdTools;
         private DocumentToolsPresenter _docTools;
         private ContentInfoArbitrationPresenter _contentInfo;
@@ -72,7 +72,6 @@ namespace Treefrog.Presentation
         {
             _editor = editor;
 
-            _levelTools = new LevelToolsPresenter(_editor);
             _stdTools = new StandardToolsPresenter(_editor);
             _docTools = new DocumentToolsPresenter(_editor);
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
@@ -102,10 +101,10 @@ namespace Treefrog.Presentation
             get { return _editor.CurrentLevel; }
         }
 
-        public ILevelToolsPresenter LevelTools
+        /*public ILevelToolsPresenter LevelTools
         {
             get { return _levelTools; }
-        }
+        }*/
 
         public IPropertyListPresenter PropertyList
         {
@@ -128,7 +127,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    public class EditorPresenter : IEditorPresenter
+    public class EditorPresenter : IEditorPresenter, ICommandSubscriber
     {
         private Project _project;
 
@@ -142,6 +141,8 @@ namespace Treefrog.Presentation
         {
             _presentation = new Presentation(this);
             _presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
+
+            InitializeCommandManager();
         }
 
         public EditorPresenter (Project project)
@@ -428,11 +429,26 @@ namespace Treefrog.Presentation
 
         #endregion
 
+        #region Command Handling
+
+        private ForwardingCommandManager _commandManager;
+
+        private void InitializeCommandManager ()
+        {
+            _commandManager = new ForwardingCommandManager();
+        }
+
+        public CommandManager CommandManager
+        {
+            get { return _commandManager; }
+        }
+
+        #endregion
+
         private void TilePoolSelectedTileChangedHandler (object sender, EventArgs e)
         {
-            if (_presentation.LevelTools.ActiveTileTool == TileToolMode.Erase) {
-                _presentation.LevelTools.ActionToggleDraw();
-            }
+            if (CommandManager.IsSelected(CommandKey.TileToolErase))
+                CommandManager.Perform(CommandKey.TileToolDraw);
         }
 
         private void SelectLevel (string level)
@@ -446,7 +462,7 @@ namespace Treefrog.Presentation
 
             // Unbind previously selected layer if necessary
             if (_currentLevelRef != null) {
-
+                _commandManager.RemoveCommandSubscriber(_currentLevelRef);
             }
 
             _currentLevel = null;
@@ -456,6 +472,8 @@ namespace Treefrog.Presentation
             if (level != null && _levels.ContainsKey(level)) {
                 _currentLevel = level;
                 _currentLevelRef = CurrentLevel;
+
+                _commandManager.AddCommandSubscriber(_currentLevelRef);
 
                 if (!_project.Levels.Contains(level)) {
                     throw new InvalidOperationException("Selected a LevelPresenter with no corresponding model Level!  Selected name: " + level);

@@ -4,6 +4,8 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Treefrog.Presentation;
+using Treefrog.Presentation.Commands;
+using Treefrog.Utility;
 
 namespace Treefrog.Windows.Controls.Composite
 {
@@ -29,6 +31,9 @@ namespace Treefrog.Windows.Controls.Composite
 
         private IStandardToolsPresenter _stdController;
         private IDocumentToolsPresenter _docController;
+
+        private CommandManager _commandManager;
+        private Mapper<CommandKey, ToolStripButton> _commandMap = new Mapper<CommandKey, ToolStripButton>();
 
         public StandardToolbar ()
         {
@@ -57,17 +62,28 @@ namespace Treefrog.Windows.Controls.Composite
                 _tbCompile,
             });
 
+            _commandMap = new Mapper<CommandKey, ToolStripButton>() {
+                { CommandKey.Undo, _tbUndo },
+                { CommandKey.Redo, _tbRedo },
+                { CommandKey.Cut, _tbCut },
+                { CommandKey.Copy, _tbCopy },
+                { CommandKey.Paste, _tbPaste },
+            };
+
+            foreach (ToolStripButton item in _commandMap.Values)
+                item.Click += BoundButtonClickHandler;
+
             ResetStandardComponent();
 
             _tbNewProject.Click += ButtonNewClickHandler;
             _tbOpen.Click += ButtonOpenClickHandler;
             _tbSave.Click += ButtonSaveClickHandler;
 
-            _tbUndo.Click += ButtonUndoClickHandler;
+            /*_tbUndo.Click += ButtonUndoClickHandler;
             _tbRedo.Click += ButtonRedoClickHandler;
             _tbCut.Click += ButtonCut_Click;
             _tbCopy.Click += ButtonCopy_Click;
-            _tbPaste.Click += ButtonPaste_Click;
+            _tbPaste.Click += ButtonPaste_Click;*/
 
             _tbCompile.Click += ButtonCompileClickHandler;
         }
@@ -94,6 +110,22 @@ namespace Treefrog.Windows.Controls.Composite
             }
         }
 
+        public void BindCommandManager (CommandManager commandManager)
+        {
+            if (_commandManager != null) {
+                _commandManager.CommandInvalidated -= HandleCommandInvalidated;
+                _commandManager.ManagerInvalidated -= HandleManagerInvalidated;
+            }
+
+            _commandManager = commandManager;
+            if (_commandManager != null) {
+                _commandManager.CommandInvalidated += HandleCommandInvalidated;
+                _commandManager.ManagerInvalidated += HandleManagerInvalidated;
+            }
+
+            ResetComponent();
+        }
+
         public void BindDocumentToolsController (IDocumentToolsPresenter controller)
         {
             if (_docController == controller) {
@@ -111,9 +143,50 @@ namespace Treefrog.Windows.Controls.Composite
 
                 _docController.RefreshDocumentTools();
             }
-            else {
+            /*else {
                 ResetDocumentComponent();
+            }*/
+        }
+
+        private bool CanPerformCommand (CommandKey key)
+        {
+            return _commandManager != null && _commandManager.CanPerform(key);
+        }
+
+        private void PerformCommand (CommandKey key)
+        {
+            if (_commandManager.CanPerform(key))
+                _commandManager.Perform(key);
+        }
+
+        private bool IsCommandSelected (CommandKey key)
+        {
+            return _commandManager != null && _commandManager.IsSelected(key);
+        }
+
+        private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
+        {
+            Invalidate(e.CommandKey);
+        }
+
+        private void HandleManagerInvalidated (object sender, EventArgs e)
+        {
+            ResetComponent();
+        }
+
+        private void Invalidate (CommandKey key)
+        {
+            if (_commandMap.ContainsKey(key)) {
+                ToolStripButton item = _commandMap[key];
+                item.Enabled = CanPerformCommand(key);
+                item.Checked = IsCommandSelected(key);
             }
+        }
+
+        private void ResetComponent ()
+        {
+            foreach (CommandKey key in _commandMap.Keys)
+                Invalidate(key);
         }
 
         private void ResetStandardComponent ()
@@ -124,18 +197,25 @@ namespace Treefrog.Windows.Controls.Composite
             _tbSave.Enabled = false;
         }
 
-        private void ResetDocumentComponent ()
+        /*private void ResetDocumentComponent ()
         {
             _tbCut.Enabled = false;
             _tbCopy.Enabled = false;
             _tbPaste.Enabled = false;
             _tbUndo.Enabled = false;
             _tbRedo.Enabled = false;
-        }
+        }*/
 
         public ToolStrip Strip
         {
             get { return _strip; }
+        }
+
+        private void BoundButtonClickHandler (object sender, EventArgs e)
+        {
+            ToolStripButton item = sender as ToolStripButton;
+            if (_commandManager != null && _commandMap.ContainsValue(item))
+                _commandManager.Perform(_commandMap[item]);
         }
 
         private void ButtonNewClickHandler (object sender, EventArgs e)
@@ -174,7 +254,7 @@ namespace Treefrog.Windows.Controls.Composite
             }
         }
 
-        private void ButtonUndoClickHandler (object sender, EventArgs e)
+        /*private void ButtonUndoClickHandler (object sender, EventArgs e)
         {
             if (_docController != null)
                 _docController.ActionUndo();
@@ -202,7 +282,7 @@ namespace Treefrog.Windows.Controls.Composite
         {
             if (_docController != null)
                 _docController.ActionPaste();
-        }
+        }*/
 
         private void ButtonCompileClickHandler (object sender, EventArgs e)
         {

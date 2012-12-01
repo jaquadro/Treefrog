@@ -84,9 +84,12 @@ namespace Treefrog.Windows.Forms
                 propertyPane1.BindController(_editor.Presentation.PropertyList);
 
             _menu.BindController(_editor);
-            _tileToolbar.BindController(_editor.Presentation.LevelTools);
+            _menu.BindCommandManager(_editor.CommandManager);
+            //_tileToolbar.BindController(_editor.Presentation.LevelTools);
+            _tileToolbar.BindCommandManager(_editor.CurrentLevel.CommandManager);
             _standardToolbar.BindStandardToolsController(_editor.Presentation.StandardTools);
             _standardToolbar.BindDocumentToolsController(_editor.Presentation.DocumentTools);
+            _standardToolbar.BindCommandManager(_editor.CommandManager);
             _infoStatus.BindController(_editor.Presentation.ContentInfo);
         }
 

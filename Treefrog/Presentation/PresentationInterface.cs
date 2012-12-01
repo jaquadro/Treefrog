@@ -151,9 +151,7 @@ namespace Treefrog.Presentation
             if (CanPaste)
                 PerformCommand(CommandKey.Paste);
             else {
-                if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
-                    _editor.Presentation.LevelTools.ActionToggleSelect();
-                }
+                _editor.CommandManager.Perform(CommandKey.TileToolSelect);
                 OnPasteRaised(EventArgs.Empty);
             }
         }
@@ -171,9 +169,7 @@ namespace Treefrog.Presentation
             if (CanSelectAll)
                 PerformCommand(CommandKey.SelectAll);
             else {
-                if (_editor.Presentation.LevelTools.ActiveTileTool != TileToolMode.Select) {
-                    _editor.Presentation.LevelTools.ActionToggleSelect();
-                }
+                _editor.CommandManager.Perform(CommandKey.TileToolSelect);
                 OnSelectAllRaised(EventArgs.Empty);
             }
         }
