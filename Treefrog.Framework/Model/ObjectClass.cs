@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Framework.Imaging;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Model.Collections;
+using System.Collections.Generic;
 
 namespace Treefrog.Framework.Model
 {
@@ -32,6 +31,10 @@ namespace Treefrog.Framework.Model
 
         [XmlElement]
         public TextureResource.XmlProxy Image { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Property")]
+        public List<PropertyXmlProxy> Properties { get; set; }
     }
 
     /* INamedResource, IPropertyProvider */
@@ -55,10 +58,16 @@ namespace Treefrog.Framework.Model
         private Rectangle _maskBounds;
         private Rectangle _imageBounds;
 
+        private PropertyCollection _properties;
+        private ObjectClassProperties _predefinedProperties;
+
         public ObjectClass (string name)
         {
             _name = name;
             _origin = Point.Zero;
+
+            _properties = new PropertyCollection(_reservedPropertyNames);
+            _predefinedProperties = new ObjectClass.ObjectClassProperties(this);
         }
 
         public ObjectClass (string name, TextureResource image)
@@ -251,6 +260,31 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
+        private class ObjectClassProperties : PredefinedPropertyCollection
+        {
+            private ObjectClass _parent;
+
+            public ObjectClassProperties (ObjectClass parent)
+                : base(_reservedPropertyNames)
+            {
+                _parent = parent;
+            }
+
+            protected override IEnumerable<Property> PredefinedProperties ()
+            {
+                yield return _parent.LookupProperty("Name");
+                yield return _parent.LookupProperty("Width");
+                yield return _parent.LookupProperty("Height");
+                yield return _parent.LookupProperty("OriginX");
+                yield return _parent.LookupProperty("OriginY");
+            }
+
+            protected override Property LookupProperty (string name)
+            {
+                return _parent.LookupProperty(name);
+            }
+        }
+
         public string PropertyProviderName
         {
             get { return _name; }
@@ -265,22 +299,52 @@ namespace Treefrog.Framework.Model
 
         public Collections.PropertyCollection CustomProperties
         {
-            get { throw new NotImplementedException(); }
+            get { return _properties; }
         }
 
         public Collections.PredefinedPropertyCollection PredefinedProperties
         {
-            get { throw new NotImplementedException(); }
+            get { return _predefinedProperties; }
         }
 
         public PropertyCategory LookupPropertyCategory (string name)
         {
-            throw new NotImplementedException();
+            switch (name) {
+                case "Name":
+                case "Width":
+                case "Height":
+                case "OriginX":
+                case "OriginY":
+                    return PropertyCategory.Predefined;
+                default:
+                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
+            }
         }
 
         public Property LookupProperty (string name)
         {
-            throw new NotImplementedException();
+            Property prop;
+
+            switch (name) {
+                case "Name":
+                    prop = new StringProperty("Name", _name);
+                    prop.ValueChanged += NamePropertyChangedHandler;
+                    return prop;
+
+                default:
+                    return _properties.Contains(name) ? _properties[name] : null;
+            }
+        }
+
+        /*private void CustomProperties_Modified (object sender, EventArgs e)
+        {
+            OnModified(e);
+        }*/
+
+        private void NamePropertyChangedHandler (object sender, EventArgs e)
+        {
+            StringProperty property = sender as StringProperty;
+            SetName(property.Value);
         }
 
         #endregion
@@ -307,6 +371,10 @@ namespace Treefrog.Framework.Model
             if (objClass == null)
                 return null;
 
+            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
+            foreach (Property prop in objClass.CustomProperties)
+                props.Add(Property.ToXmlProxy(prop));
+
             return new ObjectClassXmlProxy()
             {
                 Id = objClass.Id,
@@ -315,6 +383,7 @@ namespace Treefrog.Framework.Model
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,
                 Image = TextureResource.ToXmlProxy(objClass._image),
+                Properties = props.Count > 0 ? props : null,
             };
         }
 
@@ -329,6 +398,9 @@ namespace Treefrog.Framework.Model
             objClass._imageBounds = proxy.ImageBounds;
             objClass._maskBounds = proxy.MaskBounds;
             objClass._origin = proxy.Origin;
+
+            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
+                objClass.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
 
             return objClass;
         }

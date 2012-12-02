@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Treefrog.Framework.Imaging;
 using System.Xml;
+using Treefrog.Framework.Compat;
 
 namespace Treefrog.Framework.Model
 {

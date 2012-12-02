@@ -72,11 +72,11 @@ namespace Treefrog.Framework.Model
             List<TileStackXmlProxy> tiles = new List<TileStackXmlProxy>();
             foreach (LocatedTileStack ts in layer.TileStacks) {
                 if (ts.Stack != null && ts.Stack.Count > 0) {
-                    List<int> ids = new List<int>();
+                    List<string> ids = new List<string>();
                     foreach (Tile tile in ts.Stack) {
-                        ids.Add(tile.Id);
+                        ids.Add(tile.Id.ToString());
                     }
-                    string idSet = String.Join(",", ids);
+                    string idSet = String.Join(",", ids.ToArray());
 
                     tiles.Add(new TileStackXmlProxy()
                     {
@@ -283,11 +283,11 @@ namespace Treefrog.Framework.Model
             writer.WriteStartElement("tiles");
             foreach (LocatedTileStack ts in TileStacks) {
                 if (ts.Stack != null && ts.Stack.Count > 0) {
-                    List<int> ids = new List<int>();
+                    List<string> ids = new List<string>();
                     foreach (Tile tile in ts.Stack) {
-                        ids.Add(tile.Id);
+                        ids.Add(tile.Id.ToString());
                     }
-                    string idSet = String.Join(",", ids);
+                    string idSet = String.Join(",", ids.ToArray());
 
                     writer.WriteStartElement("tile");
                     writer.WriteAttributeString("at", ts.X + "," + ts.Y);

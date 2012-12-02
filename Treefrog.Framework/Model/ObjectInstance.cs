@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Framework.Imaging;
 using System.Runtime.Serialization;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {

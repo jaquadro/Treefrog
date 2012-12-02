@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Collections;
 using System.Xml;
-using System.IO.Compression;
+//using System.IO.Compression;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Imaging;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Security.Cryptography;
+using Treefrog.Framework.Compat;
+using Ionic.Zlib;
 
 namespace Treefrog.Framework.Model
 {
@@ -759,8 +761,11 @@ namespace Treefrog.Framework.Model
 
                 inStr.Position = 0;
                 using (MemoryStream outStr = new MemoryStream(TileWidth * TileHeight * 4)) {
-                    using (DeflateStream zstr = new DeflateStream(inStr, CompressionMode.Decompress)) {
-                        zstr.CopyTo(outStr);
+                    using (DeflateStream zStr = new DeflateStream(inStr, CompressionMode.Decompress)) {
+                        byte[] data = new byte[zStr.Length];
+                        zStr.Write(data, 0, data.Length);
+                        outStr.Read(data, 0, data.Length);
+                        //zstr.CopyTo(outStr);
                     }
                     
                     byte[] czData = outStr.GetBuffer();
@@ -809,7 +814,7 @@ namespace Treefrog.Framework.Model
             using (MemoryStream inStr = new MemoryStream(_tileSource.RawData)) {
                 using (MemoryStream outStr = new MemoryStream()) {
                     using (DeflateStream zstr = new DeflateStream(outStr, CompressionMode.Compress)) {
-                        inStr.CopyTo(zstr);
+                        inStr.WriteTo(zstr);
                     }
 
                     byte[] czData = outStr.GetBuffer();
@@ -982,10 +987,11 @@ namespace Treefrog.Framework.Model
             TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
             pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
 
-            pool._tileSource.Apply(c =>
-            {
-                return (c.A == 0) ? Colors.Transparent : c;
-            });
+            if (pool._tileSource != null) {
+                pool._tileSource.Apply(c => {
+                    return (c.A == 0) ? Colors.Transparent : c;
+                });
+            }
 
             foreach (TileDefXmlProxy tiledef in proxy.TileDefinitions)
                 FromXmlProxy(tiledef, pool);
@@ -993,7 +999,8 @@ namespace Treefrog.Framework.Model
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
                 pool.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
 
-            pool.RecalculateOpenLocations();
+            if (pool._tileSource != null)
+                pool.RecalculateOpenLocations();
 
             return pool;
         }
@@ -1060,7 +1067,7 @@ namespace Treefrog.Framework.Model
         [XmlAttribute]
         public int TileHeight { get; set; }
 
-        [XmlElement]
+        [XmlElement(IsNullable = true)]
         public TextureResource.XmlProxy Source { get; set; }
 
         [XmlArray]

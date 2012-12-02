@@ -93,7 +93,7 @@ namespace Treefrog.Framework.Imaging
 
                 return new Color(r, g, b);
             }
-            catch (FormatException e) {
+            catch (FormatException) {
                 throw new ArgumentException("Invalid ARGB hex string.", "hex");
             }
         }
@@ -115,7 +115,7 @@ namespace Treefrog.Framework.Imaging
 
                 return new Color(r, g, b, a);
             }
-            catch (FormatException e) {
+            catch (FormatException) {
                 throw new ArgumentException("Invalid ARGB hex string.", "hex");
             }
         }

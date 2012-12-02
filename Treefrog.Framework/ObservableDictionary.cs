@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using Treefrog.Framework.Compat;
 
 namespace Treefrog.Framework
 {
@@ -181,15 +179,17 @@ namespace Treefrog.Framework
 
             if (items.Count > 0) {
                 if (Dictionary.Count > 0) {
-                    if (items.Keys.Any((k) => Dictionary.ContainsKey(k)))
-                        throw new ArgumentException("An item with the same key has already been added.");
-                    else
-                        foreach (var item in items) Dictionary.Add(item);
+                    foreach (var key in items.Keys)
+                        if (Dictionary.ContainsKey(key))
+                            throw new ArgumentException("An item with the same key has already been added.");
+                    foreach (var item in items) 
+                        Dictionary.Add(item);
                 }
                 else
                     _Dictionary = new Dictionary<TKey, TValue>(items);
 
-                OnCollectionChanged(NotifyCollectionChangedAction.Add, items.ToArray());
+                IList itemList = new List<KeyValuePair<TKey, TValue>>(items);
+                OnCollectionChanged(NotifyCollectionChangedAction.Add, itemList);
             }
         }
 

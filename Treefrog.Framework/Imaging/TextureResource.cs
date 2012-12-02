@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using System.IO;
-using System.IO.Compression;
+using Ionic.Zlib;
+//using System.IO.Compression;
 
 namespace Treefrog.Framework.Imaging
 {
+    public delegate Color PixelFunction (Color c);
+    public delegate Color PixelFunctionXY (Color c, int x, int y);
+
     public class TextureResource
     {
         public class XmlProxy
@@ -20,7 +23,7 @@ namespace Treefrog.Framework.Imaging
             [XmlAttribute]
             public int Height { get; set; }
 
-            [XmlElement]
+            [XmlElement(IsNullable = true)]
             public byte[] Data
             {
                 get 
@@ -28,7 +31,7 @@ namespace Treefrog.Framework.Imaging
                     using (MemoryStream inStr = new MemoryStream(_data)) {
                         using (MemoryStream outStr = new MemoryStream()) {
                             using (DeflateStream zStr = new DeflateStream(outStr, CompressionMode.Compress, true)) {
-                                inStr.CopyTo(zStr);
+                                inStr.WriteTo(zStr);
                             }
 
                             byte[] data = new byte[outStr.Length];
@@ -43,7 +46,12 @@ namespace Treefrog.Framework.Imaging
                     using (MemoryStream inStr = new MemoryStream(value)) {
                         using (MemoryStream outStr = new MemoryStream()) {
                             using (DeflateStream zStr = new DeflateStream(inStr, CompressionMode.Decompress)) {
-                                zStr.CopyTo(outStr);
+                                byte[] buf = new byte[4096];
+                                int bytesRead = 0;
+                                while ((bytesRead = zStr.Read(buf, 0, buf.Length)) > 0) {
+                                    outStr.Write(buf, 0, bytesRead);
+                                }
+                                //zStr.CopyTo(outStr);
                             }
 
                             _data = new byte[outStr.Length];
@@ -197,7 +205,7 @@ namespace Treefrog.Framework.Imaging
             }
         }
 
-        public void Apply (Func<Color, Color> pixelFunc, Rectangle region)
+        public void Apply (PixelFunction pixelFunc, Rectangle region)
         {
             Rectangle rect = ClampRectangle(region, Bounds);
 
@@ -222,7 +230,7 @@ namespace Treefrog.Framework.Imaging
             }
         }
 
-        public void Apply (Func<Color, int, int, Color> pixelFunc, Rectangle region)
+        public void Apply (PixelFunctionXY pixelFunc, Rectangle region)
         {
             Rectangle rect = ClampRectangle(region, Bounds);
 
@@ -247,12 +255,12 @@ namespace Treefrog.Framework.Imaging
             }
         }
 
-        public void Apply (Func<Color, Color> pixelFunc)
+        public void Apply (PixelFunction pixelFunc)
         {
             Apply(pixelFunc, Bounds);
         }
 
-        public void Apply (Func<Color, int, int, Color> pixelFunc)
+        public void Apply (PixelFunctionXY pixelFunc)
         {
             Apply(pixelFunc, Bounds);
         }

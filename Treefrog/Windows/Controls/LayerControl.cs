@@ -14,6 +14,8 @@ using Treefrog.Aux;
 using System.Collections.Specialized;
 using Treefrog.Presentation;
 
+using TFCompat = Treefrog.Framework.Compat;
+
 namespace Treefrog.Windows.Controls
 {
     public enum LayerCondition
@@ -910,22 +912,22 @@ namespace Treefrog.Windows.Controls
             _manager.Pools.CollectionChanged += ObjectPoolCollectionChanged;
         }
 
-        private void ObjectPoolCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        private void ObjectPoolCollectionChanged (object sender, TFCompat.NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
+                case TFCompat.NotifyCollectionChangedAction.Add:
                     foreach (ObjectPool pool in e.NewItems)
                         ObjectPoolAdded(pool);
                     break;
 
-                case NotifyCollectionChangedAction.Replace:
+                case TFCompat.NotifyCollectionChangedAction.Replace:
                     foreach (ObjectPool pool in e.OldItems)
                         ObjectPoolRemoved(pool);
                     foreach (ObjectPool pool in e.NewItems)
                         ObjectPoolAdded(pool);
                     break;
 
-                case NotifyCollectionChangedAction.Remove:
+                case TFCompat.NotifyCollectionChangedAction.Remove:
                     foreach (ObjectPool pool in e.OldItems)
                         ObjectPoolRemoved(pool);
                     break;
@@ -963,22 +965,22 @@ namespace Treefrog.Windows.Controls
             pool.Objects.CollectionChanged -= ObjectCollectionChanged;
         }
 
-        private void ObjectCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        private void ObjectCollectionChanged (object sender, TFCompat.NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
+                case TFCompat.NotifyCollectionChangedAction.Add:
                     foreach (ObjectClass objClass in e.NewItems)
                         ObjectAdded(objClass);
                     break;
 
-                case NotifyCollectionChangedAction.Replace:
+                case TFCompat.NotifyCollectionChangedAction.Replace:
                     foreach (ObjectClass objClass in e.OldItems)
                         ObjectRemoved(objClass);
                     foreach (ObjectClass objClass in e.NewItems)
                         ObjectAdded(objClass);
                     break;
 
-                case NotifyCollectionChangedAction.Remove:
+                case TFCompat.NotifyCollectionChangedAction.Remove:
                     foreach (ObjectClass objClass in e.OldItems)
                         ObjectRemoved(objClass);
                     break;

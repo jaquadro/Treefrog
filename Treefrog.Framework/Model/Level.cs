@@ -672,7 +672,7 @@ namespace Treefrog.Framework.Model
             if (level == null)
                 return null;
 
-            List<LayerXmlProxy> layers = new List<LayerXmlProxy>();
+            List<AbstractXmlSerializer<LayerXmlProxy>> layers = new List<AbstractXmlSerializer<LayerXmlProxy>>();
             foreach (Layer layer in level.Layers) {
                 if (layer is MultiTileGridLayer)
                     layers.Add(MultiTileGridLayer.ToXmlProxy(layer as MultiTileGridLayer));
@@ -712,7 +712,7 @@ namespace Treefrog.Framework.Model
 
         [XmlArray]
         [XmlArrayItem("Layer", Type = typeof(AbstractXmlSerializer<LayerXmlProxy>))]
-        public List<LayerXmlProxy> Layers { get; set; }
+        public List<AbstractXmlSerializer<LayerXmlProxy>> Layers { get; set; }
 
         [XmlArray]
         [XmlArrayItem("Property")]
