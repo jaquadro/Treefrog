@@ -66,8 +66,12 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripMenuItem _tilesExport;
         private ToolStripMenuItem _tilesImportOver;
 
-        private ToolStripMenuItem _objectsNewGroup;
-        private ToolStripMenuItem _objectsNewObject;
+        private ToolStripMenuItem _objectsGroups;
+        private ToolStripMenuItem _objectsProtos;
+        private ToolStripMenuItem _objectsProtosImport;
+        private ToolStripMenuItem _objectsProtosClone;
+        private ToolStripMenuItem _objectsProtosDelete;
+        private ToolStripMenuItem _objectsProtosProperties;
         private ToolStripMenuItem _objectsAlign;
         private ToolStripMenuItem _objectsAlignTop;
         private ToolStripMenuItem _objectsAlignBottom;
@@ -129,7 +133,7 @@ namespace Treefrog.Windows.Controls.Composite
             _layerStrip = CreateMenuItem("La&yers");
             _layersNewTile = CreateMenuItem("New &Tile Layer", "Treefrog.Icons._16.grid.png");
             _layersNewObject = CreateMenuItem("New &Object Layer", "Treefrog.Icons._16.game.png");
-            _layersClone = CreateMenuItem("&Clone", "Treefrog.Icons._16.layers.png");
+            _layersClone = CreateMenuItem("D&uplicate", "Treefrog.Icons._16.layers.png");
             _layersDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.layer--minus.png");
             _layersProperties = CreateMenuItem("&Properties", "Treefrog.Icons._16.tags.png");
             _layersArrange = CreateMenuItem("&Arrange");
@@ -147,6 +151,11 @@ namespace Treefrog.Windows.Controls.Composite
             _tilesImportOver = CreateMenuItem("&Import Over", "Treefrog.Icons._16.drive-upload.png");
 
             _objectStrip = CreateMenuItem("&Objects");
+            _objectsProtos = CreateMenuItem("Object &Prototypes");
+            _objectsProtosImport = CreateMenuItem("Import Object from Image", "Treefrog.Icons._16.game--plus.png");
+            _objectsProtosClone = CreateMenuItem("D&uplicate");
+            _objectsProtosDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.game--minus.png");
+            _objectsProtosProperties = CreateMenuItem("&Properties", "Treefrog.Icons._16.tags.png");
             _objectsReference = CreateMenuItem("&Reference Point");
             _objectsReferenceImageBounds = CreateMenuItem("&Image Bounds", "Treefrog.Icons._16.snap-borders.png");
             _objectsReferenceMaskBounds = CreateMenuItem("&Mask Bounds", "Treefrog.Icons._16.snap-bounds.png");
@@ -197,7 +206,13 @@ namespace Treefrog.Windows.Controls.Composite
             });
 
             _objectStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _objectsProtos, new ToolStripSeparator(),
                 _objectsReference, _objectsSnapping,
+            });
+
+            _objectsProtos.DropDownItems.AddRange(new ToolStripItem[] {
+                _objectsProtosImport, new ToolStripSeparator(),
+                _objectsProtosClone, _objectsProtosDelete, _objectsProtosProperties,
             });
 
             _objectsReference.DropDownItems.AddRange(new ToolStripItem[] {
@@ -242,6 +257,10 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.TilePoolExport, _tilesExport },
                 { CommandKey.TilePoolImportOver, _tilesImportOver },
 
+                { CommandKey.ObjectProtoImport, _objectsProtosImport },
+                { CommandKey.ObjectProtoClone, _objectsProtosClone },
+                { CommandKey.ObjectProtoDelete, _objectsProtosDelete },
+                { CommandKey.ObjectProtoProperties, _objectsProtosProperties },
                 { CommandKey.ObjectReferenceImage, _objectsReferenceImageBounds },
                 { CommandKey.ObjectReferenceMask, _objectsReferenceMaskBounds },
                 { CommandKey.ObjectReferenceOrigin, _objectsReferenceOrigin },

@@ -6,6 +6,10 @@ using Treefrog.Framework.Model;
 using Treefrog.Framework;
 using Treefrog.Presentation.Tools;
 using Treefrog.Presentation.Commands;
+using Treefrog.Windows.Forms;
+using System.Windows.Forms;
+using Treefrog.Framework.Imaging;
+using Treefrog.Aux;
 
 namespace Treefrog.Presentation
 {
@@ -111,6 +115,9 @@ namespace Treefrog.Presentation
             _commandManager = new CommandManager();
             //_commandManager.CommandInvalidated += HandleCommandInvalidated;
 
+            _commandManager.Register(CommandKey.ObjectProtoImport, CommandCanImportObject, CommandImportObject);
+            _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanRemoveObject, CommandRemoveObject);
+
             _commandManager.RegisterToggleGroup(CommandToggleGroup.ObjectReference);
             _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceImage);
             _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceMask);
@@ -137,6 +144,50 @@ namespace Treefrog.Presentation
         public CommandManager CommandManager
         {
             get { return _commandManager; }
+        }
+
+        private bool CommandCanImportObject ()
+        {
+            return _selectedPool != null;
+        }
+
+        private void CommandImportObject ()
+        {
+            if (CommandCanImportObject()) {
+                ImportObject form = new ImportObject();
+                foreach (ObjectClass objClass in  SelectedObjectPool.Objects)
+                    form.ReservedNames.Add(objClass.Name);
+
+                if (form.ShowDialog() == DialogResult.OK) {
+                    TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(form.SourceFile);
+                    ObjectClass objClass = new ObjectClass(form.ObjectName) {
+                        Image = resource,
+                        MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
+                            form.MaskRight ?? 0 - form.MaskLeft ?? 0, form.MaskBottom ?? 0 - form.MaskTop ?? 0),
+                        Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0),
+                    };
+
+                    SelectedObjectPool.AddObject(objClass);
+
+                    RefreshObjectPoolCollection();
+                    OnSyncObjectPoolManager(EventArgs.Empty);
+                }
+            }
+        }
+
+        private bool CommandCanRemoveObject ()
+        {
+            return SelectedObjectPool != null && SelectedObject != null;
+        }
+
+        private void CommandRemoveObject ()
+        {
+            if (CommandCanRemoveObject()) {
+                SelectedObjectPool.RemoveObject(SelectedObject.Name);
+
+                RefreshObjectPoolCollection();
+                OnSyncObjectPoolManager(EventArgs.Empty);
+            }
         }
 
         #endregion

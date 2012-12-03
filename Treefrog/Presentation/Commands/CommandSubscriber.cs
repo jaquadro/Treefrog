@@ -40,6 +40,10 @@ namespace Treefrog.Presentation.Commands
         TilePoolExport,
         TilePoolImportOver,
 
+        ObjectProtoImport,
+        ObjectProtoDelete,
+        ObjectProtoClone,
+        ObjectProtoProperties,
         ObjectReferenceImage,
         ObjectReferenceMask,
         ObjectReferenceOrigin,

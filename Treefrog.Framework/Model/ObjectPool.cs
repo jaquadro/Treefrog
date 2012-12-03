@@ -77,9 +77,10 @@ namespace Treefrog.Framework.Model
         {
             if (_objects.Contains(objClass.Name))
                 throw new ArgumentException("Object Pool already contains an object with the same name as objClass.");
-            _objects.Add(objClass);
 
             objClass.Id = id;
+
+            _objects.Add(objClass);
 
             _manager.LinkItemKey(id, this);
             if (_manager.LastKey < id)

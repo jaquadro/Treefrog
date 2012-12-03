@@ -236,6 +236,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\EventArgs.cs" />
+    <Compile Include="Windows\Forms\ImportObject.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\ImportObject.Designer.cs">
+      <DependentUpon>ImportObject.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\ImportTilePool.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -377,6 +383,9 @@
     <EmbeddedResource Include="Icons\plus16.png" />
     <EmbeddedResource Include="Windows\Controls\ViewportControl.resx">
       <DependentUpon>ViewportControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\ImportObject.resx">
+      <DependentUpon>ImportObject.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
