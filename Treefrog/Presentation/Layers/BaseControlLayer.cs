@@ -150,6 +150,12 @@ namespace Treefrog.Presentation.Layers
 
         #endregion
 
+        public virtual void Activate ()
+        { }
+
+        public virtual void Deactivate ()
+        { }
+
         public void DrawContent (SpriteBatch spriteBatch)
         {
             InvokeDrawEvent(OnPreDrawContent, spriteBatch);

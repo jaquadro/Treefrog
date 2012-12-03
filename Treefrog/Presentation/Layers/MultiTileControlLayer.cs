@@ -6,6 +6,7 @@ using Treefrog.Framework.Model.Support;
 using Treefrog.Windows.Controls;
 using TFImaging = Treefrog.Framework.Imaging;
 using Treefrog.Framework;
+using System.Collections.Generic;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -132,6 +133,24 @@ namespace Treefrog.Presentation.Layers
                 TileCoord tileLoc = locTile.Tile.Pool.GetTileLocation(locTile.Tile.Id);
                 Rectangle srcRect = new Rectangle(tileLoc.X * tile.Width, tileLoc.Y * tile.Height, tile.Width, tile.Height);
                 spriteBatch.Draw(poolTexture, dest, srcRect, Color.White);
+            }
+
+            if (TileSelection != null && TileSelection.Floating) {
+                foreach (KeyValuePair<TileCoord, TileStack> item in TileSelection.Tiles) {
+                    foreach (Tile tile in item.Value) {
+                        TileCoord scoord = tile.Pool.GetTileLocation(tile.Id);
+                        TileCoord dcoord = item.Key;
+
+                        Texture2D poolTexture = textureService.GetTexture(tile.Pool.Name);
+                        Rectangle srcRect = new Rectangle(scoord.X * tile.Width, scoord.Y * tile.Height, tile.Width, tile.Height);
+                        Rectangle dstRect = new Rectangle(
+                                (int)((dcoord.X + TileSelection.Offset.X) * tile.Width * Control.Zoom),
+                                (int)((dcoord.Y + TileSelection.Offset.Y) * tile.Height * Control.Zoom),
+                                (int)(tile.Width * Control.Zoom),
+                                (int)(tile.Height * Control.Zoom));
+                        spriteBatch.Draw(poolTexture, dstRect, srcRect, Color.White);
+                    }
+                }
             }
 
             EndDraw(spriteBatch);

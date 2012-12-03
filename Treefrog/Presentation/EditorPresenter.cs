@@ -438,6 +438,9 @@ namespace Treefrog.Presentation
         private void InitializeCommandManager ()
         {
             _commandManager = new ForwardingCommandManager();
+
+            _commandManager.AddCommandSubscriber(_presentation.TilePoolList);
+            _commandManager.AddCommandSubscriber(_presentation.ObjectPoolCollection);
         }
 
         public CommandManager CommandManager

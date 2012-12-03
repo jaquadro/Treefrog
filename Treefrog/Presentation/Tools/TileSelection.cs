@@ -10,6 +10,15 @@ namespace Treefrog.Prseentation.Tools
 {
     public class TileSelection
     {
+        private static Brush InactiveFill = new SolidColorBrush(new Color(192, 192, 192, 96));
+        private static Pen InactiveOutline = null;
+
+        private static Brush FloatingFill = new SolidColorBrush(new Color(128, 76, 255, 128));
+        private static Pen FloatingOutline = null;
+
+        private static Brush SelectedFill = new SolidColorBrush(new Color(76, 178, 255, 128));
+        private static Pen SelectedOutline = null;
+
         private Dictionary<TileCoord, TileStack> _tiles;
         private MultiTileSelectionAnnot _tileAnnot;
 
@@ -61,8 +70,8 @@ namespace Treefrog.Prseentation.Tools
             _floating = true;
 
             if (_active) {
-                _tileAnnot.Fill = new SolidColorBrush(new Color(128, 96, 216, 96));
-                _tileAnnot.Outline = new Pen(new SolidColorBrush(new Color(80, 50, 180, 200)), 2);
+                _tileAnnot.Fill = FloatingFill;
+                _tileAnnot.Outline = FloatingOutline;
             }
         }
 
@@ -71,8 +80,8 @@ namespace Treefrog.Prseentation.Tools
             _floating = false;
 
             if (_active) {
-                _tileAnnot.Fill = new SolidColorBrush(new Color(64, 96, 216, 96));
-                _tileAnnot.Outline = new Pen(new SolidColorBrush(new Color(40, 70, 190, 200)), 2);
+                _tileAnnot.Fill = SelectedFill;
+                _tileAnnot.Outline = SelectedOutline;
             }
         }
 
@@ -100,9 +109,8 @@ namespace Treefrog.Prseentation.Tools
         public void Deactivate ()
         {
             _active = false;
-
-            _tileAnnot.Fill = new SolidColorBrush(new Color(192, 192, 192, 96));
-            _tileAnnot.Outline = new Pen(new SolidColorBrush(new Color(192, 192, 192, 200)), 2);
+            _tileAnnot.Fill = InactiveFill;
+            _tileAnnot.Outline = InactiveOutline;
         }
 
         #endregion

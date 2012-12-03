@@ -63,6 +63,41 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripMenuItem _layersViewShowNone;
         private ToolStripMenuItem _layersExportRaster;
 
+        private ToolStripMenuItem _tilesExport;
+        private ToolStripMenuItem _tilesImportOver;
+
+        private ToolStripMenuItem _objectsNewGroup;
+        private ToolStripMenuItem _objectsNewObject;
+        private ToolStripMenuItem _objectsAlign;
+        private ToolStripMenuItem _objectsAlignTop;
+        private ToolStripMenuItem _objectsAlignBottom;
+        private ToolStripMenuItem _objectsAlignLeft;
+        private ToolStripMenuItem _objectsAlignRight;
+        private ToolStripMenuItem _objectsAlignCenterHorz;
+        private ToolStripMenuItem _objectsAlignCenterVert;
+        private ToolStripMenuItem _objectsArrange;
+        private ToolStripMenuItem _objectsArrangeMoveTop;
+        private ToolStripMenuItem _objectsArrangeMoveUp;
+        private ToolStripMenuItem _objectsArrangeMoveDown;
+        private ToolStripMenuItem _objectsArrangeMoveBottom;
+        private ToolStripMenuItem _objectsReference;
+        private ToolStripMenuItem _objectsReferenceImageBounds;
+        private ToolStripMenuItem _objectsReferenceMaskBounds;
+        private ToolStripMenuItem _objectsReferenceOrigin;
+        private ToolStripMenuItem _objectsSnapping;
+        private ToolStripMenuItem _objectsSnappingNone;
+        private ToolStripMenuItem _objectsSnappingTopLeft;
+        private ToolStripMenuItem _objectsSnappingTopRight;
+        private ToolStripMenuItem _objectsSnappingBottomLeft;
+        private ToolStripMenuItem _objectsSnappingBottomRight;
+        private ToolStripMenuItem _objectsSnappingTop;
+        private ToolStripMenuItem _objectsSnappingBottom;
+        private ToolStripMenuItem _objectsSnappingLeft;
+        private ToolStripMenuItem _objectsSnappingRight;
+        private ToolStripMenuItem _objectsSnappingCenterHorz;
+        private ToolStripMenuItem _objectsSnappingCenterVert;
+        private ToolStripMenuItem _objectsSnappingCenter;
+
         public StandardMenu () {
             _assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
@@ -108,8 +143,27 @@ namespace Treefrog.Windows.Controls.Composite
             _layersViewShowNone = CreateMenuItem("&None");
 
             _tileStrip = CreateMenuItem("&Tiles");
+            _tilesExport = CreateMenuItem("&Export", "Treefrog.Icons._16.drive-download.png");
+            _tilesImportOver = CreateMenuItem("&Import Over", "Treefrog.Icons._16.drive-upload.png");
 
             _objectStrip = CreateMenuItem("&Objects");
+            _objectsReference = CreateMenuItem("&Reference Point");
+            _objectsReferenceImageBounds = CreateMenuItem("&Image Bounds", "Treefrog.Icons._16.snap-borders.png");
+            _objectsReferenceMaskBounds = CreateMenuItem("&Mask Bounds", "Treefrog.Icons._16.snap-bounds.png");
+            _objectsReferenceOrigin = CreateMenuItem("&Origin", "Treefrog.Icons._16.snap-origin.png");
+            _objectsSnapping = CreateMenuItem("&Snapping");
+            _objectsSnappingNone = CreateMenuItem("&None", "Treefrog.Icons._16.snap-none.png");
+            _objectsSnappingTopLeft = CreateMenuItem("To&p Left", "Treefrog.Icons._16.snap-topleft.png");
+            _objectsSnappingTopRight = CreateMenuItem("Top R&ight", "Treefrog.Icons._16.snap-topright.png");
+            _objectsSnappingBottomLeft = CreateMenuItem("Botto&m Left", "Treefrog.Icons._16.snap-bottomleft.png");
+            _objectsSnappingBottomRight = CreateMenuItem("Bottom Ri&ght", "Treefrog.Icons._16.snap-bottomright.png");
+            _objectsSnappingTop = CreateMenuItem("&Top", "Treefrog.Icons._16.snap-top.png");
+            _objectsSnappingBottom = CreateMenuItem("&Bottom", "Treefrog.Icons._16.snap-bottom.png");
+            _objectsSnappingLeft = CreateMenuItem("&Left", "Treefrog.Icons._16.snap-left.png");
+            _objectsSnappingRight = CreateMenuItem("&Right", "Treefrog.Icons._16.snap-right.png");
+            _objectsSnappingCenterVert = CreateMenuItem("Center &Vertical", "Treefrog.Icons._16.snap-horizontal.png");
+            _objectsSnappingCenterHorz = CreateMenuItem("Center &Horizontal", "Treefrog.Icons._16.snap-vertical.png");
+            _objectsSnappingCenter = CreateMenuItem("&Center", "Treefrog.Icons._16.snap-center.png");
 
             _helpStrip = CreateMenuItem("&Help");
 
@@ -136,6 +190,25 @@ namespace Treefrog.Windows.Controls.Composite
 
             _layersView.DropDownItems.AddRange(new ToolStripItem[] {
                 _layersViewShowCurrentOnly, _layersViewShowAll, _layersViewShowNone,
+            });
+
+            _tileStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _tilesExport, _tilesImportOver,
+            });
+
+            _objectStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _objectsReference, _objectsSnapping,
+            });
+
+            _objectsReference.DropDownItems.AddRange(new ToolStripItem[] {
+                _objectsReferenceImageBounds, _objectsReferenceMaskBounds, _objectsReferenceOrigin,
+            });
+
+            _objectsSnapping.DropDownItems.AddRange(new ToolStripItem[] {
+                _objectsSnappingNone, 
+                _objectsSnappingTopLeft, _objectsSnappingTopRight, _objectsSnappingBottomLeft, _objectsSnappingBottomRight,
+                _objectsSnappingTop, _objectsSnappingBottom, _objectsSnappingLeft, _objectsSnappingRight,
+                _objectsSnappingCenterVert, _objectsSnappingCenterHorz, _objectsSnappingCenter,
             });
 
             _menuStrip.Items.AddRange(new ToolStripItem[] {
@@ -165,6 +238,25 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.LayerShowCurrentOnly, _layersViewShowCurrentOnly },
                 { CommandKey.LayerShowAll, _layersViewShowAll },
                 { CommandKey.LayerShowNone, _layersViewShowNone },
+
+                { CommandKey.TilePoolExport, _tilesExport },
+                { CommandKey.TilePoolImportOver, _tilesImportOver },
+
+                { CommandKey.ObjectReferenceImage, _objectsReferenceImageBounds },
+                { CommandKey.ObjectReferenceMask, _objectsReferenceMaskBounds },
+                { CommandKey.ObjectReferenceOrigin, _objectsReferenceOrigin },
+                { CommandKey.ObjectSnappingNone, _objectsSnappingNone },
+                { CommandKey.ObjectSnappingTopLeft, _objectsSnappingTopLeft },
+                { CommandKey.ObjectSnappingTopRight, _objectsSnappingTopRight },
+                { CommandKey.ObjectSnappingBottomLeft, _objectsSnappingBottomLeft },
+                { CommandKey.ObjectSnappingBottomRight, _objectsSnappingBottomRight },
+                { CommandKey.ObjectSnappingTop, _objectsSnappingTop },
+                { CommandKey.ObjectSnappingBottom, _objectsSnappingBottom },
+                { CommandKey.ObjectSnappingLeft, _objectsSnappingLeft },
+                { CommandKey.ObjectSnappingRight, _objectsSnappingRight },
+                { CommandKey.ObjectSnappingVert, _objectsSnappingCenterVert },
+                { CommandKey.ObjectSnappingHorz, _objectsSnappingCenterHorz },
+                { CommandKey.ObjectSnappingCenter, _objectsSnappingCenter },
             };
 
             foreach (ToolStripMenuItem item in _commandMap.Values)

@@ -101,9 +101,8 @@ namespace Treefrog.Presentation.Tools
         {
             get
             {
-                /*if (PoolManagerService == null)
-                    return ObjectSnappingTarget.None;
-                return PoolManagerService.SelectedSnappingTarget;*/
+                if (_objectPool != null)
+                    return _objectPool.SnappingTarget;
                 return ObjectSnappingTarget.None;
             }
         }
@@ -112,9 +111,8 @@ namespace Treefrog.Presentation.Tools
         {
             get
             {
-                /*if (PoolManagerService == null)
-                    return ObjectSnappingSource.ImageBounds;
-                return PoolManagerService.SelectedSnappingSource;*/
+                if (_objectPool != null)
+                    return _objectPool.SnappingReference;
                 return ObjectSnappingSource.ImageBounds;
             }
         }

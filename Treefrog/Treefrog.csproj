@@ -155,6 +155,7 @@
     <Compile Include="Presentation\Commands\TileSelectionCommands.cs" />
     <Compile Include="Presentation\IViewport.cs" />
     <Compile Include="Presentation\Layers\AnnotationLayer.cs" />
+    <Compile Include="Presentation\Layers\CanvasLayer.cs" />
     <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\Tools\ITileToolCollection.cs" />
@@ -294,6 +295,8 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <EmbeddedResource Include="Icons\16\drive-download.png" />
+    <EmbeddedResource Include="Icons\16\drive-upload.png" />
     <EmbeddedResource Include="Icons\16\arrow-090.png" />
     <EmbeddedResource Include="Icons\16\arrow-270.png" />
     <EmbeddedResource Include="Icons\16\layer--minus.png" />
@@ -324,6 +327,21 @@
     <EmbeddedResource Include="Icons\16\game--plus.png" />
     <EmbeddedResource Include="Icons\16\arrow-skip-090.png" />
     <EmbeddedResource Include="Icons\16\arrow-skip-270.png" />
+    <EmbeddedResource Include="Icons\16\snap-borders.png" />
+    <EmbeddedResource Include="Icons\16\snap-bottom.png" />
+    <EmbeddedResource Include="Icons\16\snap-bottomleft.png" />
+    <EmbeddedResource Include="Icons\16\snap-bottomright.png" />
+    <EmbeddedResource Include="Icons\16\snap-bounds.png" />
+    <EmbeddedResource Include="Icons\16\snap-center.png" />
+    <EmbeddedResource Include="Icons\16\snap-horizontal.png" />
+    <EmbeddedResource Include="Icons\16\snap-left.png" />
+    <EmbeddedResource Include="Icons\16\snap-none.png" />
+    <EmbeddedResource Include="Icons\16\snap-origin.png" />
+    <EmbeddedResource Include="Icons\16\snap-right.png" />
+    <EmbeddedResource Include="Icons\16\snap-top.png" />
+    <EmbeddedResource Include="Icons\16\snap-topleft.png" />
+    <EmbeddedResource Include="Icons\16\snap-topright.png" />
+    <EmbeddedResource Include="Icons\16\snap-vertical.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using Treefrog.Framework.Model;
 using Treefrog.Windows.Forms;
 using Treefrog.Framework;
+using Treefrog.Presentation.Commands;
+using System.Drawing;
+using Treefrog.Aux;
+using System.Windows.Forms;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Presentation
 {
@@ -16,7 +21,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface ITilePoolListPresenter
+    public interface ITilePoolListPresenter : ICommandSubscriber
     {
         bool CanAddTilePool { get; }
         bool CanRemoveSelectedTilePool { get; }
@@ -64,6 +69,8 @@ namespace Treefrog.Presentation
         {
             _editor = editor;
             _editor.SyncCurrentProject += SyncCurrentProjectHandler;
+
+            InitializeCommandManager();
         }
 
         #endregion
@@ -81,6 +88,82 @@ namespace Treefrog.Presentation
             OnSyncTilePoolList(EventArgs.Empty);
             OnSyncTilePoolControl(EventArgs.Empty);
         }
+
+        #region Command Handling
+
+        private CommandManager _commandManager;
+
+        private void InitializeCommandManager ()
+        {
+            _commandManager = new CommandManager();
+            //_commandManager.CommandInvalidated += HandleCommandInvalidated;
+
+            _commandManager.Register(CommandKey.TilePoolExport, CommandCanExport, CommandExport);
+            _commandManager.Register(CommandKey.TilePoolImportOver, CommandCanImportOver, CommandImportOver);
+        }
+
+        public CommandManager CommandManager
+        {
+            get { return _commandManager; }
+        }
+
+        private bool CommandCanExport ()
+        {
+            return _selectedPool != null;
+        }
+
+        private void CommandExport ()
+        {
+            if (CommandCanExport()) {
+                Bitmap export = _selectedPoolRef.TileSource.CreateBitmap();
+
+                SaveFileDialog ofd = new SaveFileDialog();
+                ofd.Title = "Export Raw Tileset";
+                ofd.Filter = "Portable Network Graphics (*.png)|*.png|Windows Bitmap (*.bmp)|*.bmp|All Files|*";
+                ofd.OverwritePrompt = true;
+                ofd.RestoreDirectory = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK) {
+                    export.Save(ofd.FileName);
+                }
+            }
+        }
+
+        private bool CommandCanImportOver ()
+        {
+            return _selectedPool != null;
+        }
+
+        private void CommandImportOver ()
+        {
+            if (CommandCanImportOver()) {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Title = "Import Raw Tileset";
+                ofd.Filter = "Images Files|*.bmp;*.gif;*.png|All Files|*";
+                ofd.Multiselect = false;
+                ofd.RestoreDirectory = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK) {
+                    try {
+                        TextureResource import = TextureResourceBitmapExt.CreateTextureResource(ofd.FileName);
+
+                        TextureResource original =_selectedPoolRef.TileSource;
+                        if (original.Width != import.Width || original.Height != import.Height) {
+                            MessageBox.Show("Imported tileset dimensions are incompatible with the selected Tile Pool.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        _selectedPoolRef.ReplaceTexture(import);
+                    }
+                    catch {
+                        MessageBox.Show("Could not read selected image file.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+            }
+        }
+
+        #endregion
 
         #region Properties
 

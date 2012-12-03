@@ -221,6 +221,8 @@ namespace Treefrog.Presentation.Layers
             if (_objectController != null) {
                 _objectController.ObjectSelectionChanged += HandleSelectedObjectChanged;
             }
+
+            SetCurrentTool(NewSelectTool());
         }
 
         private void HandleSelectedObjectChanged (object sender, EventArgs e)

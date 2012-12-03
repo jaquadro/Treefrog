@@ -81,6 +81,21 @@ namespace Treefrog.Presentation.Layers
             _tilePoolController = tilePoolController;
         }
 
+        public override void Activate ()
+        {
+            if (_selection != null && _levelController != null) {
+                _levelController.Annotations.Remove(_selection.SelectionAnnotation);
+                _levelController.Annotations.Add(_selection.SelectionAnnotation);
+            }
+        }
+
+        public override void Deactivate ()
+        {
+            if (_selection != null && _levelController != null) {
+                _levelController.Annotations.Remove(_selection.SelectionAnnotation);
+            }
+        }
+
         #region Properties
 
         public new TileLayer Layer

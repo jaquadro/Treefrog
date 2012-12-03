@@ -36,12 +36,33 @@ namespace Treefrog.Presentation.Commands
         LayerShowCurrentOnly,
         LayerShowAll,
         LayerShowNone,
+
+        TilePoolExport,
+        TilePoolImportOver,
+
+        ObjectReferenceImage,
+        ObjectReferenceMask,
+        ObjectReferenceOrigin,
+        ObjectSnappingNone,
+        ObjectSnappingTopLeft,
+        ObjectSnappingTopRight,
+        ObjectSnappingBottomLeft,
+        ObjectSnappingBottomRight,
+        ObjectSnappingTop,
+        ObjectSnappingBottom,
+        ObjectSnappingLeft,
+        ObjectSnappingRight,
+        ObjectSnappingVert,
+        ObjectSnappingHorz,
+        ObjectSnappingCenter,
     }
 
     public enum CommandToggleGroup
     {
         Unknown,
         TileTool,
+        ObjectReference,
+        ObjectSnapping,
     }
 
     public class CommandSubscriberEventArgs : EventArgs

@@ -81,6 +81,7 @@ namespace Treefrog.Presentation
             _layerControl.MouseMove += LayerControl_MouseMove;
             _layerControl.MouseLeave += LayerControl_MouseLeave;
 
+            _layerControl.CanvasLayer = new CanvasLayer(_layerControl);
             _layerControl.AnnotationLayer = new AnnotationLayer(_layerControl);
             _layerControl.AnnotationLayer.Annotations = _annotations;
 
@@ -183,13 +184,6 @@ namespace Treefrog.Presentation
         public CommandManager CommandManager
         {
             get { return _commandManager; }
-        }
-
-        private IEnumerable<ICommandSubscriber> CommandForwarder ()
-        {
-            ICommandSubscriber layer = SelectedControlLayer as ICommandSubscriber;
-            if (layer != null)
-                yield return layer;
         }
 
         private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
@@ -767,6 +761,7 @@ namespace Treefrog.Presentation
 
             // Unbind previously selected layer if necessary
             if (_selectedLayerRef != null) {
+                _selectedLayerRef.Deactivate();
                 _selectedLayerRef.Selected = false;
 
                 TileControlLayer tileLayer = _selectedLayerRef as TileControlLayer;
@@ -790,6 +785,7 @@ namespace Treefrog.Presentation
                 _selectedLayer = layer;
                 _selectedLayerRef = _controlLayers[layer];
 
+                _selectedLayerRef.Activate();
                 _selectedLayerRef.Selected = true;
                 _selectedLayerRef.ApplyScrollAttributes();
 

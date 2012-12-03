@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
+using Treefrog.Presentation.Tools;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Presentation
 {
@@ -27,7 +29,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface IObjectPoolCollectionPresenter
+    public interface IObjectPoolCollectionPresenter : ICommandSubscriber
     {
         bool CanAddObjectPool { get; }
         bool CanRemoveSelectedObjectPool { get; }
@@ -38,6 +40,9 @@ namespace Treefrog.Presentation
         IEnumerable<ObjectPool> ObjectPoolCollection { get; }
         ObjectPool SelectedObjectPool { get; }
         ObjectClass SelectedObject { get; }                          // Send to IObjectPoolPresenter
+
+        ObjectSnappingSource SnappingReference { get; }
+        ObjectSnappingTarget SnappingTarget { get; }
 
         event EventHandler SyncObjectPoolManager;
         event EventHandler SyncObjectPoolActions;
@@ -76,6 +81,8 @@ namespace Treefrog.Presentation
         {
             _editor = editor;
             _editor.SyncCurrentProject += SyncCurrentProjectHandler;
+
+            InitializeCommandManager();
         }
 
         private void SyncCurrentProjectHandler (object sender, SyncProjectEventArgs e)
@@ -94,6 +101,45 @@ namespace Treefrog.Presentation
             OnSyncObjectPoolCollection(EventArgs.Empty);
             OnSyncObjectPoolControl(EventArgs.Empty);
         }
+
+        #region Command Handling
+
+        private CommandManager _commandManager;
+
+        private void InitializeCommandManager ()
+        {
+            _commandManager = new CommandManager();
+            //_commandManager.CommandInvalidated += HandleCommandInvalidated;
+
+            _commandManager.RegisterToggleGroup(CommandToggleGroup.ObjectReference);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceImage);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceMask);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceOrigin);
+
+            _commandManager.RegisterToggleGroup(CommandToggleGroup.ObjectSnapping);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingBottom);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingBottomLeft);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingBottomRight);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingCenter);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingHorz);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingLeft);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingNone);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingRight);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingTop);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingTopLeft);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingTopRight);
+            _commandManager.RegisterToggle(CommandToggleGroup.ObjectSnapping, CommandKey.ObjectSnappingVert);
+
+            _commandManager.Perform(CommandKey.ObjectReferenceImage);
+            _commandManager.Perform(CommandKey.ObjectSnappingNone);
+        }
+
+        public CommandManager CommandManager
+        {
+            get { return _commandManager; }
+        }
+
+        #endregion
 
         #region Properties
 
@@ -139,6 +185,41 @@ namespace Treefrog.Presentation
                 return (pool != null && _selectedObjects.ContainsKey(_selectedPool))
                     ? _selectedObjects[_selectedPool]
                     : null;
+            }
+        }
+
+        public ObjectSnappingSource SnappingReference
+        {
+            get
+            { 
+                switch(_commandManager.SelectedCommand(CommandToggleGroup.ObjectReference)) {
+                    case CommandKey.ObjectReferenceImage: return ObjectSnappingSource.ImageBounds;
+                    case CommandKey.ObjectReferenceMask: return ObjectSnappingSource.MaskBounds;
+                    case CommandKey.ObjectReferenceOrigin: return ObjectSnappingSource.Origin;
+                    default: return ObjectSnappingSource.ImageBounds;
+                }
+            }
+        }
+
+        public ObjectSnappingTarget SnappingTarget
+        {
+            get
+            {
+                switch (_commandManager.SelectedCommand(CommandToggleGroup.ObjectSnapping)) {
+                    case CommandKey.ObjectSnappingBottom: return ObjectSnappingTarget.Bottom;
+                    case CommandKey.ObjectSnappingBottomLeft: return ObjectSnappingTarget.BottomLeft;
+                    case CommandKey.ObjectSnappingBottomRight: return ObjectSnappingTarget.BottomRight;
+                    case CommandKey.ObjectSnappingCenter: return ObjectSnappingTarget.Center;
+                    case CommandKey.ObjectSnappingHorz: return ObjectSnappingTarget.CenterHorizontal;
+                    case CommandKey.ObjectSnappingLeft: return ObjectSnappingTarget.Left;
+                    case CommandKey.ObjectSnappingNone: return ObjectSnappingTarget.None;
+                    case CommandKey.ObjectSnappingRight: return ObjectSnappingTarget.Right;
+                    case CommandKey.ObjectSnappingTop: return ObjectSnappingTarget.Top;
+                    case CommandKey.ObjectSnappingTopLeft: return ObjectSnappingTarget.TopLeft;
+                    case CommandKey.ObjectSnappingTopRight: return ObjectSnappingTarget.TopRight;
+                    case CommandKey.ObjectSnappingVert: return ObjectSnappingTarget.CenterVertical;
+                    default: return ObjectSnappingTarget.None;
+                }
             }
         }
 

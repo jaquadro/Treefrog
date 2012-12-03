@@ -44,6 +44,7 @@ namespace Treefrog.Windows.Controls
 
         private OrderedResourceCollection<BaseControlLayer> _layers;
         private AnnotationLayer _annotLayer;
+        private CanvasLayer _canvasLayer;
 
         // Graphics and Service
 
@@ -275,6 +276,12 @@ namespace Treefrog.Windows.Controls
             }
         }
 
+        public CanvasLayer CanvasLayer
+        {
+            get { return _canvasLayer; }
+            set { _canvasLayer = value; }
+        }
+
         public AnnotationLayer AnnotationLayer
         {
             get { return _annotLayer; }
@@ -479,6 +486,9 @@ namespace Treefrog.Windows.Controls
             GraphicsDevice.Clear(_backColor);
 
             DrawLayerEventArgs e = new DrawLayerEventArgs(_spriteBatch, _zoom);
+
+            if (_canvasLayer != null)
+                _canvasLayer.DrawContent(_spriteBatch);
 
             foreach (BaseControlLayer layer in _layers) {
                 layer.DrawContent(_spriteBatch);
