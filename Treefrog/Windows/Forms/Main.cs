@@ -50,7 +50,7 @@ namespace Treefrog.Windows.Forms
             tabControlEx1.TabPages.Clear();
 
             foreach (ILevelPresenter lp in _editor.OpenContent) {
-                TabPage page = new TabPage("Level");
+                TabPage page = new TabPage(lp.Level.Name);
                 tabControlEx1.TabPages.Add(page);
 
                 LevelPanel lpanel = new LevelPanel();

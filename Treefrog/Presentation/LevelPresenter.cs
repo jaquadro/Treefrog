@@ -39,6 +39,8 @@ namespace Treefrog.Presentation
         CommandHistory History { get; }
         ObservableCollection<Annotation> Annotations { get; }
 
+        Level Level { get; }
+
         //TileSelectionOld Selection { get; }
         //TileSelectionOld Clipboard { get; }
 
@@ -121,6 +123,11 @@ namespace Treefrog.Presentation
         public IContentInfoPresenter InfoPresenter
         {
             get { return _info; }
+        }
+
+        public Level Level
+        {
+            get { return _level; }
         }
 
         public LayerControl LayerControl

@@ -45,7 +45,7 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripMenuItem _editSelectAll;
         private ToolStripMenuItem _editSelectNone;
 
-        private ToolStripMenuItem _levelsNew;
+        private ToolStripMenuItem _projectAddLevel;
 
         private ToolStripMenuItem _layersNewTile;
         private ToolStripMenuItem _layersNewObject;
@@ -127,6 +127,7 @@ namespace Treefrog.Windows.Controls.Composite
             _viewStrip = CreateMenuItem("&View");
 
             _projectStrip = CreateMenuItem("&Project");
+            _projectAddLevel = CreateMenuItem("Add &Level...", "Treefrog.Icons._16.map--asterisk.png");
 
             _levelStrip = CreateMenuItem("&Levels");
 
@@ -187,6 +188,10 @@ namespace Treefrog.Windows.Controls.Composite
                 _editSelectAll, _editSelectNone,
             });
 
+            _projectStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _projectAddLevel,
+            });
+
             _layerStrip.DropDownItems.AddRange(new ToolStripItem[] {
                 _layersNewTile, _layersNewObject, new ToolStripSeparator(),
                 _layersClone, _layersDelete, _layersProperties, new ToolStripSeparator(),
@@ -240,6 +245,8 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.Delete, _editDelete },
                 { CommandKey.SelectAll, _editSelectAll },
                 { CommandKey.SelectNone, _editSelectNone },
+
+                { CommandKey.ProjectAddLevel, _projectAddLevel },
 
                 { CommandKey.NewTileLayer, _layersNewTile },
                 { CommandKey.NewObjectLayer, _layersNewObject },

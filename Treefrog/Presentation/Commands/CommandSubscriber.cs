@@ -24,6 +24,8 @@ namespace Treefrog.Presentation.Commands
         TileToolFill,
         TileToolStamp,
 
+        ProjectAddLevel,
+
         NewTileLayer,
         NewObjectLayer,
         LayerClone,

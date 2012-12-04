@@ -447,11 +447,36 @@ namespace Treefrog.Presentation
 
             _commandManager.AddCommandSubscriber(_presentation.TilePoolList);
             _commandManager.AddCommandSubscriber(_presentation.ObjectPoolCollection);
+
+            _commandManager.Register(CommandKey.ProjectAddLevel, CommandCanAddLevel, CommandAddLevel);
         }
 
         public CommandManager CommandManager
         {
             get { return _commandManager; }
+        }
+
+        private bool CommandCanAddLevel ()
+        {
+            return true;
+        }
+
+        private void CommandAddLevel ()
+        {
+            if (CommandCanAddLevel()) {
+                NewLevel form = new NewLevel(_project);
+                if (form.ShowDialog() == DialogResult.OK) {
+                    LevelPresenter pres = new LevelPresenter(this, form.Level);
+                    _levels[form.Level.Name] = pres;
+
+                    _openContent.Add(form.Level.Name);
+                    SelectLevel(form.Level.Name);
+                    Presentation.PropertyList.Provider = form.Level;
+
+                    Modified = true;
+                    RefreshEditor();
+                }
+            }
         }
 
         #endregion

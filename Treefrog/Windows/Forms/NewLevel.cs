@@ -8,6 +8,7 @@ namespace Treefrog.Windows.Forms
     public partial class NewLevel : Form
     {
         private Project _project;
+        private Level _level;
 
         public NewLevel (Project project)
         {
@@ -19,6 +20,11 @@ namespace Treefrog.Windows.Forms
             CheckValid();
         }
 
+        public Level Level 
+        {
+            get { return _level; }
+        }
+
         private void _buttonOK_Click (object sender, EventArgs e)
         {
             int tileWidth = (int)_tileWidth.Value;
@@ -26,9 +32,9 @@ namespace Treefrog.Windows.Forms
             int levelWidth = (int)_levelWidth.Value;
             int levelHeight = (int)_levelHeight.Value;
 
-            Level level = new Level(_name.Text.Trim(), tileWidth, tileHeight, levelWidth, levelHeight);
-            level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", tileWidth, tileHeight, levelWidth, levelHeight));
-            _project.Levels.Add(level);
+            _level = new Level(_name.Text.Trim(), tileWidth, tileHeight, levelWidth, levelHeight);
+            _level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", tileWidth, tileHeight, levelWidth, levelHeight));
+            _project.Levels.Add(_level);
 
             Close();
         }
