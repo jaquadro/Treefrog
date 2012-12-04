@@ -81,11 +81,15 @@ namespace Treefrog.Presentation.Tools
 
         private void FloatSelection ()
         {
-            _selectLayer.FloatSelection();
+            if (_selectLayer != null)
+                _selectLayer.FloatSelection();
         }
 
         private void DefloatSelection ()
         {
+            if (_selectLayer == null || _selectLayer.TileSelection == null)
+                return;
+
             CompoundCommand command = new CompoundCommand();
             if (_selectLayer.TileSelection.Floating)
                 command.AddCommand(new DefloatTileSelectionCommand(Layer, _selectLayer));
@@ -95,9 +99,6 @@ namespace Treefrog.Presentation.Tools
 
         private void StartSelectTilesSequence (PointerEventInfo info, IViewport viewport)
         {
-            //bool controlKey = Keyboard.Modifiers.HasFlag(ModifierKeys.Control);
-            //bool shiftKey = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
-
             bool controlKey = Control.ModifierKeys.HasFlag(Keys.Control);
             bool shiftKey = Control.ModifierKeys.HasFlag(Keys.Control);
 

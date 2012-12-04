@@ -11,7 +11,7 @@ namespace Treefrog.Presentation.Tools
         Primary,
         Secondary,
     }
-
+    
     public struct PointerEventInfo
     {
         public PointerEventType Type;

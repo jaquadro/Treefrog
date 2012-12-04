@@ -32,6 +32,7 @@ namespace Treefrog.Presentation
 
     public interface IEditorPresenter
     {
+        bool CanShowProjectPanel { get; }
         bool CanShowLayerPanel { get; }
         bool CanShowPropertyPanel { get; }
         bool CanShowTilePoolPanel { get; }
@@ -329,6 +330,11 @@ namespace Treefrog.Presentation
         List<string> _openContent;
 
         private bool _modified;
+
+        public bool CanShowProjectPanel
+        {
+            get { return true; }
+        }
 
         public bool CanShowLayerPanel
         {

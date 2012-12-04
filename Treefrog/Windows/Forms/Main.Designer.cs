@@ -61,6 +61,8 @@ namespace Treefrog.Windows.Forms
             this._tabObjects = new System.Windows.Forms.TabPage();
             this.objectPanel1 = new Treefrog.Windows.Panels.ObjectPanel();
             this.tabControl2 = new System.Windows.Forms.TabControl();
+            this._tabProject = new System.Windows.Forms.TabPage();
+            this.projectPanel1 = new Treefrog.Windows.Panels.ProjectPanel();
             this._tabLayers = new System.Windows.Forms.TabPage();
             this.layerPane1 = new Treefrog.Windows.LayerPane();
             this._tabProperties = new System.Windows.Forms.TabPage();
@@ -82,6 +84,7 @@ namespace Treefrog.Windows.Forms
             this._tabTilePools.SuspendLayout();
             this._tabObjects.SuspendLayout();
             this.tabControl2.SuspendLayout();
+            this._tabProject.SuspendLayout();
             this._tabLayers.SuspendLayout();
             this._tabProperties.SuspendLayout();
             this.SuspendLayout();
@@ -394,6 +397,7 @@ namespace Treefrog.Windows.Forms
             // 
             // tabControl2
             // 
+            this.tabControl2.Controls.Add(this._tabProject);
             this.tabControl2.Controls.Add(this._tabLayers);
             this.tabControl2.Controls.Add(this._tabProperties);
             this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -404,6 +408,25 @@ namespace Treefrog.Windows.Forms
             this.tabControl2.Size = new System.Drawing.Size(291, 305);
             this.tabControl2.TabIndex = 0;
             this.tabControl2.TabStop = false;
+            // 
+            // _tabProject
+            // 
+            this._tabProject.Controls.Add(this.projectPanel1);
+            this._tabProject.Location = new System.Drawing.Point(4, 22);
+            this._tabProject.Name = "_tabProject";
+            this._tabProject.Padding = new System.Windows.Forms.Padding(0, 2, 2, 1);
+            this._tabProject.Size = new System.Drawing.Size(283, 279);
+            this._tabProject.TabIndex = 2;
+            this._tabProject.Text = "Project";
+            this._tabProject.UseVisualStyleBackColor = true;
+            // 
+            // projectPanel1
+            // 
+            this.projectPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectPanel1.Location = new System.Drawing.Point(0, 2);
+            this.projectPanel1.Name = "projectPanel1";
+            this.projectPanel1.Size = new System.Drawing.Size(281, 276);
+            this.projectPanel1.TabIndex = 0;
             // 
             // _tabLayers
             // 
@@ -489,6 +512,7 @@ namespace Treefrog.Windows.Forms
             this._tabTilePools.ResumeLayout(false);
             this._tabObjects.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
+            this._tabProject.ResumeLayout(false);
             this._tabLayers.ResumeLayout(false);
             this._tabProperties.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -534,6 +558,8 @@ namespace Treefrog.Windows.Forms
         private PropertyPane propertyPane1;
         private System.Windows.Forms.TabPage _tabObjects;
         private Panels.ObjectPanel objectPanel1;
+        private System.Windows.Forms.TabPage _tabProject;
+        private Panels.ProjectPanel projectPanel1;
     }
 }
 

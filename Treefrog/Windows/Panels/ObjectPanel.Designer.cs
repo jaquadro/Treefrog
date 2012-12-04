@@ -28,10 +28,6 @@
         private void InitializeComponent ()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("Crate", 0);
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("Moles", 1);
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem("Bang!", 2);
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem("Turnip", 3);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ObjectPanel));
             this._listView = new System.Windows.Forms.ListView();
             this._listViewImages = new System.Windows.Forms.ImageList(this.components);
@@ -45,11 +41,6 @@
             // 
             this._listView.Dock = System.Windows.Forms.DockStyle.Fill;
             this._listView.HideSelection = false;
-            this._listView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem5,
-            listViewItem6,
-            listViewItem7,
-            listViewItem8});
             this._listView.LargeImageList = this._listViewImages;
             this._listView.Location = new System.Drawing.Point(0, 25);
             this._listView.MultiSelect = false;
@@ -63,12 +54,9 @@
             // 
             // _listViewImages
             // 
-            this._listViewImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("_listViewImages.ImageStream")));
+            this._listViewImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
+            this._listViewImages.ImageSize = new System.Drawing.Size(64, 64);
             this._listViewImages.TransparentColor = System.Drawing.Color.Transparent;
-            this._listViewImages.Images.SetKeyName(0, "crates.png");
-            this._listViewImages.Images.SetKeyName(1, "tinymole.png");
-            this._listViewImages.Images.SetKeyName(2, "Strange.png");
-            this._listViewImages.Images.SetKeyName(3, "Turnip.png");
             // 
             // _toolStrip
             // 
