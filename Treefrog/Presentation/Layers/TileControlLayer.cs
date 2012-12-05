@@ -407,7 +407,9 @@ namespace Treefrog.Presentation.Layers
                     _currentTool = new TileEraseTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
                     break;
                 case TileTool.Fill:
-                    _currentTool = new TileFillTool(_levelController.History, Layer as MultiTileGridLayer);
+                    TileFillTool fillTool = new TileFillTool(_levelController.History, Layer as MultiTileGridLayer);
+                    fillTool.BindObjectSourceController(_tilePoolController);
+                    _currentTool = fillTool;
                     break;
                 default:
                     _currentTool = null;
