@@ -22,18 +22,22 @@ namespace Treefrog.Framework.Model
             get { return _brushClass; }
         }
 
-        public void ApplyBrush (TileGridLayer tileLayer, int x, int y)
+        public List<LocatedTile> ApplyBrush (TileGridLayer tileLayer, int x, int y)
         {
-            InnerApply(tileLayer, x, y);
+            List<LocatedTile> updatedTiles = new List<LocatedTile>();
+
+            updatedTiles.Add(new LocatedTile(InnerApply(tileLayer, x, y), x, y));
 
             // Update valid neighboring tiles
             foreach (TileCoord coord in NeighborCoordSet(x, y)) {
                 if (_brushClass.ContainsMemberTile(tileLayer.TilesAt(coord)))
-                    InnerApply(tileLayer, coord.X, coord.Y);
+                    updatedTiles.Add(new LocatedTile(InnerApply(tileLayer, coord.X, coord.Y), coord.X, coord.Y));
             }
+
+            return updatedTiles;
         }
 
-        private void InnerApply (TileGridLayer tileLayer, int x, int y)
+        private Tile InnerApply (TileGridLayer tileLayer, int x, int y)
         {
             TileCoord[] coordSet = NeighborCoordSet(x, y);
             List<int> neighbors = new List<int>();
@@ -55,6 +59,8 @@ namespace Treefrog.Framework.Model
             Tile newTile = _brushClass.ApplyRules(neighbors);
             if (newTile != null)
                 tileLayer.AddTile(x, y, newTile);
+
+            return newTile;
         }
 
         private static TileCoord[] NeighborCoordSet (int x, int y)

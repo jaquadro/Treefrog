@@ -5,17 +5,15 @@ using Treefrog.Framework.Imaging.Drawing;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Annotations;
 using Treefrog.Presentation.Commands;
+using Treefrog.Framework.Model.Support;
 
 namespace Treefrog.Presentation.Tools
 {
     public class TileBrushTool : TilePointerTool
     {
-        private ITileBrushManagerPresenter _brushManager;
-
         private ObservableCollection<Annotation> _annots;
 
         private SelectionAnnot _previewMarker;
-        private DynamicBrush _brush;
 
         public TileBrushTool (CommandHistory history, MultiTileGridLayer layer, ObservableCollection<Annotation> annots)
             : base(history, layer)
@@ -138,15 +136,16 @@ namespace Treefrog.Presentation.Tools
             if (!TileInRange(location))
                 return;
 
+            Layer.TileAdding += TileAddingHandler;
+            Layer.TileRemoving += TileRemovingHandler;
+
             if (ActiveBrush is DynamicBrush) {
                 DynamicBrush brush = ActiveBrush as DynamicBrush;
                 brush.ApplyBrush(Layer, location.X, location.Y);
             }
 
-            /*if (Layer[location] == null || Layer[location].Top != ActiveTile) {
-                _drawCommand.QueueAdd(location, ActiveTile);
-                Layer.AddTile(location.X, location.Y, ActiveTile);
-            }*/
+            Layer.TileAdding -= TileAddingHandler;
+            Layer.TileRemoving -= TileRemovingHandler;
         }
 
         private void EndDrawPathSequence (PointerEventInfo info)
@@ -154,7 +153,17 @@ namespace Treefrog.Presentation.Tools
             if (ActiveBrush == null)
                 return;
 
-            //History.Execute(_drawCommand);
+            History.Execute(_drawCommand);
+        }
+
+        private void TileAddingHandler (object sender, LocatedTileEventArgs e)
+        {
+            _drawCommand.QueueAdd(new TileCoord(e.X, e.Y), e.Tile);
+        }
+
+        private void TileRemovingHandler (object sender, LocatedTileEventArgs e)
+        {
+            _drawCommand.QueueRemove(new TileCoord(e.X, e.Y), e.Tile);
         }
 
         #endregion

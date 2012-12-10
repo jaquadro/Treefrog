@@ -88,7 +88,10 @@ namespace Treefrog.Presentation.Commands
                 TileStack stack = new TileStack(_tileSource[coord]);
                 stack.Add(tile);
 
-                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+                if (_tiles.ContainsKey(coord))
+                    _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
+                else
+                    _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
             }
         }
 
@@ -100,7 +103,23 @@ namespace Treefrog.Presentation.Commands
                     newstack.Add(t);
                 }
 
-                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), newstack);
+                if (_tiles.ContainsKey(coord))
+                    _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
+                else
+                    _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), newstack);
+            }
+        }
+
+        public void QueueRemove (TileCoord coord, Tile tile)
+        {
+            if (tile != null) {
+                TileStack stack = new TileStack(_tileSource[coord]);
+                stack.Remove(tile);
+
+                if (_tiles.ContainsKey(coord))
+                    _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
+                else
+                    _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
             }
         }
 

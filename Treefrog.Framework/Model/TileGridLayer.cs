@@ -67,16 +67,20 @@ namespace Treefrog.Framework.Model
             CheckBoundsFail(x, y);
             CheckTileFail(tile);
 
+            LocatedTileEventArgs ea = new LocatedTileEventArgs(tile, x, y);
+            OnTileAdding(ea);
             AddTileImpl(x, y, tile);
-            OnTileAdded(new LocatedTileEventArgs(tile, x, y));
+            OnTileAdded(ea);
         }
 
         public void RemoveTile (int x, int y, Tile tile)
         {
             CheckBoundsFail(x, y);
 
+            LocatedTileEventArgs ea = new LocatedTileEventArgs(tile, x, y);
+            OnTileRemoving(ea);
             RemoveTileImpl(x, y, tile);
-            OnTileRemoved(new LocatedTileEventArgs(tile, x, y));
+            OnTileRemoved(ea);
         }
 
         // NB: Consider changing event to give back the original TileStack
@@ -84,8 +88,10 @@ namespace Treefrog.Framework.Model
         {
             CheckBoundsFail(x, y);
 
+            LocatedTileEventArgs ea = new LocatedTileEventArgs(null, x, y);
+            OnTileClearing(ea);
             ClearTileImpl(x, y);
-            OnTileCleared(new LocatedTileEventArgs(null, x, y));
+            OnTileCleared(ea);
         }
 
         public abstract IEnumerable<LocatedTile> Tiles { get; }
@@ -138,11 +144,32 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        public event EventHandler<LocatedTileEventArgs> TileAdding = (s, e) => { };
+
+        public event EventHandler<LocatedTileEventArgs> TileRemoving = (s, e) => { };
+
+        public event EventHandler<LocatedTileEventArgs> TileClearing = (s, e) => { };
+
         public event EventHandler<LocatedTileEventArgs> TileAdded = (s, e) => { };
 
         public event EventHandler<LocatedTileEventArgs> TileRemoved = (s, e) => { };
 
         public event EventHandler<LocatedTileEventArgs> TileCleared = (s, e) => { };
+
+        protected virtual void OnTileAdding (LocatedTileEventArgs e)
+        {
+            TileAdding(this, e);
+        }
+
+        protected virtual void OnTileRemoving (LocatedTileEventArgs e)
+        {
+            TileRemoving(this, e);
+        }
+
+        protected virtual void OnTileClearing (LocatedTileEventArgs e)
+        {
+            TileClearing(this, e);
+        }
 
         protected virtual void OnTileAdded (LocatedTileEventArgs e)
         {
