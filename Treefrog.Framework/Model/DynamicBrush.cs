@@ -113,6 +113,9 @@ namespace Treefrog.Framework.Model
                 case "Basic":
                     brushClass = new BasicDynamicBrushClass(proxy.TileWidth, proxy.TileHeight);
                     break;
+                case "Extended":
+                    brushClass = new ExtendedDynamicBrushClass(proxy.TileWidth, proxy.TileHeight);
+                    break;
                 default:
                     return null;
             }

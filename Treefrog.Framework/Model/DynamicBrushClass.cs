@@ -255,4 +255,123 @@ namespace Treefrog.Framework.Model
             return resource;
         }
     }
+
+    public class ExtendedDynamicBrushClass : DynamicBrushClass
+    {
+        public ExtendedDynamicBrushClass (int tileWidth, int tileHeight)
+            : base(tileWidth, tileHeight)
+        {
+            // See brush overlay image for intepretation of tile at each coordinate
+            for (int y = 0; y < 4; y++)
+                for (int x = 0; x < 12; x++)
+                    Tiles.Add(new TileProxy(x, y));
+
+            Rules.AddRange(new DynamicBrushRule[] {
+                new DynamicBrushRule(Tiles[0], 4, 5, 6),
+                new DynamicBrushRule(Tiles[1], 4, 5, 6, 7, 8),
+                new DynamicBrushRule(Tiles[2], 6, 7, 8),
+                new DynamicBrushRule(Tiles[3], 2, 3, 4, 5, 6, 7, 8),
+                new DynamicBrushRule(Tiles[4], 2, 6, 7, 8),
+                new DynamicBrushRule(Tiles[5], 4, 5, 6, 8),
+                new DynamicBrushRule(Tiles[6], 2, 8),
+                new DynamicBrushRule(Tiles[7], 2, 3, 4, 5, 6, 8),
+                new DynamicBrushRule(Tiles[8], 2, 6, 8),
+                new DynamicBrushRule(Tiles[9], 2, 4, 5, 6, 8),
+                new DynamicBrushRule(Tiles[10], 6),
+                new DynamicBrushRule(Tiles[11], 2, 6),
+
+                new DynamicBrushRule(Tiles[12], 2, 3, 4, 5, 6),
+                new DynamicBrushRule(Tiles[13], 1, 2, 3, 4, 5, 6, 7, 8),
+                new DynamicBrushRule(Tiles[14], 1, 2, 6, 7, 8),
+                new DynamicBrushRule(Tiles[15], 1, 2, 3, 4, 5, 6, 8),
+                new DynamicBrushRule(Tiles[16], 1, 2, 6, 8),
+                new DynamicBrushRule(Tiles[17], 2, 3, 4, 8),
+                new DynamicBrushRule(Tiles[18], 6, 8),
+                new DynamicBrushRule(Tiles[19], 1, 2, 4, 6, 7, 8),
+                new DynamicBrushRule(Tiles[20], 2, 4, 6),
+                new DynamicBrushRule(Tiles[21], 2, 3, 4, 6, 8),
+                new DynamicBrushRule(Tiles[22], 2),
+                new DynamicBrushRule(Tiles[23], 4, 8),
+
+                new DynamicBrushRule(Tiles[24], 2, 3, 4),
+                new DynamicBrushRule(Tiles[25], 1, 2, 3, 4, 8),
+                new DynamicBrushRule(Tiles[26], 1, 2, 8),
+                new DynamicBrushRule(Tiles[27], 1, 2, 4, 5, 6, 7, 8),
+                new DynamicBrushRule(Tiles[28], 2, 4, 5, 6),
+                new DynamicBrushRule(Tiles[29], 4, 6, 7, 8),
+                new DynamicBrushRule(Tiles[30], 2, 4),
+                new DynamicBrushRule(Tiles[31], 2, 4, 5, 6, 7, 8),
+                new DynamicBrushRule(Tiles[32], 2, 4, 8),
+                new DynamicBrushRule(Tiles[33], 1, 2, 4, 6, 8),
+                new DynamicBrushRule(Tiles[34], 4),
+                new DynamicBrushRule(Tiles[35], 2, 4, 6, 8),
+
+                new DynamicBrushRule(Tiles[37], 2, 3, 4, 6, 7, 8),
+                new DynamicBrushRule(Tiles[38], 1, 2, 4, 5, 6, 8),
+                new DynamicBrushRule(Tiles[39], 1, 2, 3, 4, 6, 7, 8),
+                new DynamicBrushRule(Tiles[40], 2, 3, 4, 6),
+                new DynamicBrushRule(Tiles[41], 1, 2, 4, 8),
+                new DynamicBrushRule(Tiles[42], 4, 6),
+                new DynamicBrushRule(Tiles[43], 1, 2, 3, 4, 6, 8),
+                new DynamicBrushRule(Tiles[44], 4, 6, 8),
+                new DynamicBrushRule(Tiles[45], 2, 4, 6, 7, 8),
+                new DynamicBrushRule(Tiles[46], 8),
+                new DynamicBrushRule(Tiles[47]),
+            });
+        }
+
+        public override string ClassName
+        {
+            get { return "Extended"; }
+        }
+
+        public override Tile PrimaryTile
+        {
+            get
+            {
+                if (Tiles[13] != null)
+                    return Tiles[13].Tile;
+                return null;
+            }
+        }
+
+        protected override Tile DefaultTile
+        {
+            get
+            {
+                if (Tiles[36] != null)
+                    return Tiles[36].Tile;
+                return null;
+            }
+        }
+
+        public override TextureResource MakePreview (int maxWidth, int maxHeight)
+        {
+            TextureResource resource = new TextureResource(maxWidth, maxHeight);
+
+            int tilesWide = Math.Min(3, Math.Max(1, maxWidth / TileWidth));
+            int tilesHigh = Math.Min(3, Math.Max(1, maxHeight / TileHeight));
+            int previewWidth = Math.Min(maxWidth, tilesWide * TileWidth);
+            int previewHeight = Math.Min(maxHeight, tilesHigh * TileHeight);
+            int previewX = (maxWidth - previewWidth) / 2;
+            int previewY = (maxHeight - previewHeight) / 2;
+
+            Tile[,] previewTiles = new Tile[3, 3] {
+                { Tiles[0].Tile, Tiles[1].Tile, Tiles[2].Tile },
+                { Tiles[12].Tile, Tiles[13].Tile, Tiles[14].Tile },
+                { Tiles[24].Tile, Tiles[25].Tile, Tiles[26].Tile },
+            };
+
+            for (int y = 0; y < tilesHigh; y++) {
+                for (int x = 0; x < tilesWide; x++) {
+                    if (previewTiles[y, x] != null) {
+                        TextureResource tex = previewTiles[y, x].Pool.GetTileTexture(previewTiles[y, x].Id);
+                        resource.Set(tex, new Point(previewX + x * TileWidth, previewY + y * TileHeight));
+                    }
+                }
+            }
+
+            return resource;
+        }
+    }
 }
