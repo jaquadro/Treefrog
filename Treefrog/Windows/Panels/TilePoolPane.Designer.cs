@@ -79,7 +79,9 @@ namespace Treefrog.Windows
             // _tileControl
             // 
             this._tileControl.Alignment = Treefrog.Windows.Controls.LayerControlAlignment.Center;
+            this._tileControl.AnnotationLayer = null;
             this._tileControl.CanAutoScroll = false;
+            this._tileControl.CanvasLayer = null;
             this._tileControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._tileControl.HeightSynced = false;
             this._tileControl.Location = new System.Drawing.Point(0, 0);

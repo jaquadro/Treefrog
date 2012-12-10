@@ -13,6 +13,7 @@ namespace Treefrog.Presentation.Tools
         //private TilePoolManagerService _poolManager;
 
         private ITilePoolListPresenter _tilePool;
+        private ITileBrushManagerPresenter _brushManager;
 
         private CommandHistory _history;
         private MultiTileGridLayer _layer;
@@ -23,9 +24,14 @@ namespace Treefrog.Presentation.Tools
             _layer = layer;
         }
 
-        public void BindObjectSourceController (ITilePoolListPresenter controller)
+        public void BindTilePoolController (ITilePoolListPresenter controller)
         {
             _tilePool = controller;
+        }
+
+        public void BindTileBrushManager (ITileBrushManagerPresenter controller)
+        {
+            _brushManager = controller;
         }
 
         protected MultiTileGridLayer Layer
@@ -58,6 +64,27 @@ namespace Treefrog.Presentation.Tools
 
                 return _tilePool.SelectedTile;
             }
+        }
+
+        protected TileBrush ActiveBrush
+        {
+            get
+            {
+                if (_brushManager == null)
+                    return null;
+
+                return _brushManager.SelectedBrush;
+            }
+        }
+
+        protected ITilePoolListPresenter PoolPresenter
+        {
+            get { return _tilePool; }
+        }
+
+        protected ITileBrushManagerPresenter BrushManager
+        {
+            get { return _brushManager; }
         }
 
         protected TileCoord TileLocation (PointerEventInfo info)

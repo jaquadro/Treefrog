@@ -48,8 +48,10 @@ namespace Treefrog.Framework.Model
                 return null;
 
             ObjectPoolManager manager = new ObjectPoolManager();
-            foreach (ObjectPoolXmlProxy pool in proxy.Pools)
-                ObjectPool.FromXmlProxy(pool, manager);
+            if (proxy.Pools != null) {
+                foreach (ObjectPoolXmlProxy pool in proxy.Pools)
+                    ObjectPool.FromXmlProxy(pool, manager);
+            }
 
             return manager;
         }

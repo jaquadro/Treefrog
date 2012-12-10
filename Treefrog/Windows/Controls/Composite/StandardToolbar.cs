@@ -29,9 +29,6 @@ namespace Treefrog.Windows.Controls.Composite
 
         private Assembly _assembly;
 
-        private IStandardToolsPresenter _stdController;
-        private IDocumentToolsPresenter _docController;
-
         private CommandManager _commandManager;
         private Mapper<CommandKey, ToolStripButton> _commandMap = new Mapper<CommandKey, ToolStripButton>();
 
@@ -56,13 +53,17 @@ namespace Treefrog.Windows.Controls.Composite
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
-                _tbNewProject, _tbNewItem, _tbOpen, _tbSave, new ToolStripSeparator(),
+                _tbNewProject, _tbOpen, _tbSave, new ToolStripSeparator(),
                 _tbCut, _tbCopy, _tbPaste, new ToolStripSeparator(),
                 _tbUndo, _tbRedo, new ToolStripSeparator(),
                 _tbCompile,
             });
 
             _commandMap = new Mapper<CommandKey, ToolStripButton>() {
+                { CommandKey.NewProject, _tbNewProject },
+                { CommandKey.OpenProject, _tbOpen },
+                { CommandKey.Save, _tbSave },
+
                 { CommandKey.Undo, _tbUndo },
                 { CommandKey.Redo, _tbRedo },
                 { CommandKey.Cut, _tbCut },
@@ -73,41 +74,8 @@ namespace Treefrog.Windows.Controls.Composite
             foreach (ToolStripButton item in _commandMap.Values)
                 item.Click += BoundButtonClickHandler;
 
-            ResetStandardComponent();
-
-            _tbNewProject.Click += ButtonNewClickHandler;
-            _tbOpen.Click += ButtonOpenClickHandler;
-            _tbSave.Click += ButtonSaveClickHandler;
-
-            /*_tbUndo.Click += ButtonUndoClickHandler;
-            _tbRedo.Click += ButtonRedoClickHandler;
-            _tbCut.Click += ButtonCut_Click;
-            _tbCopy.Click += ButtonCopy_Click;
-            _tbPaste.Click += ButtonPaste_Click;*/
-
+            _tbCompile.Enabled = false;
             _tbCompile.Click += ButtonCompileClickHandler;
-        }
-
-        public void BindStandardToolsController (IStandardToolsPresenter controller)
-        {
-            if (_stdController == controller) {
-                return;
-            }
-
-            if (_stdController != null) {
-                _stdController.SyncStandardToolsActions -= SyncStandardToolsActionsHandler;
-            }
-
-            _stdController = controller;
-
-            if (_stdController != null) {
-                _stdController.SyncStandardToolsActions += SyncStandardToolsActionsHandler;
-
-                _stdController.RefreshStandardTools();
-            }
-            else {
-                ResetStandardComponent();
-            }
         }
 
         public void BindCommandManager (CommandManager commandManager)
@@ -124,28 +92,6 @@ namespace Treefrog.Windows.Controls.Composite
             }
 
             ResetComponent();
-        }
-
-        public void BindDocumentToolsController (IDocumentToolsPresenter controller)
-        {
-            if (_docController == controller) {
-                return;
-            }
-
-            if (_docController != null) {
-                _docController.SyncDocumentToolsActions -= SyncDocumentToolsActionsHandler;
-            }
-
-            _docController = controller;
-
-            if (_docController != null) {
-                _docController.SyncDocumentToolsActions += SyncDocumentToolsActionsHandler;
-
-                _docController.RefreshDocumentTools();
-            }
-            /*else {
-                ResetDocumentComponent();
-            }*/
         }
 
         private bool CanPerformCommand (CommandKey key)
@@ -189,23 +135,6 @@ namespace Treefrog.Windows.Controls.Composite
                 Invalidate(key);
         }
 
-        private void ResetStandardComponent ()
-        {
-            _tbNewProject.Enabled = false;
-            _tbNewItem.Enabled = false;
-            _tbOpen.Enabled = false;
-            _tbSave.Enabled = false;
-        }
-
-        /*private void ResetDocumentComponent ()
-        {
-            _tbCut.Enabled = false;
-            _tbCopy.Enabled = false;
-            _tbPaste.Enabled = false;
-            _tbUndo.Enabled = false;
-            _tbRedo.Enabled = false;
-        }*/
-
         public ToolStrip Strip
         {
             get { return _strip; }
@@ -217,72 +146,6 @@ namespace Treefrog.Windows.Controls.Composite
             if (_commandManager != null && _commandMap.ContainsValue(item))
                 _commandManager.Perform(_commandMap[item]);
         }
-
-        private void ButtonNewClickHandler (object sender, EventArgs e)
-        {
-            if (_stdController != null)
-                _stdController.ActionCreateProject();
-        }
-
-        private void ButtonOpenClickHandler (object sender, EventArgs e)
-        {
-            if (_stdController != null) {
-                OpenFileDialog ofd = new OpenFileDialog();
-                ofd.Title = "Open Project File";
-                ofd.Filter = "Treefrog Project Files|*.tlp";
-                ofd.Multiselect = false;
-                ofd.RestoreDirectory = false;
-
-                if (ofd.ShowDialog() == DialogResult.OK) {
-                    _stdController.ActionOpenProject(ofd.FileName);
-                }
-            }
-        }
-
-        private void ButtonSaveClickHandler (object sender, EventArgs e)
-        {
-            if (_stdController != null) {
-                SaveFileDialog ofd = new SaveFileDialog();
-                ofd.Title = "Save Project File";
-                ofd.Filter = "Treefrog Project Files|*.tlp";
-                ofd.OverwritePrompt = true;
-                ofd.RestoreDirectory = false;
-
-                if (ofd.ShowDialog() == DialogResult.OK) {
-                    _stdController.ActionSaveProject(ofd.FileName);
-                }
-            }
-        }
-
-        /*private void ButtonUndoClickHandler (object sender, EventArgs e)
-        {
-            if (_docController != null)
-                _docController.ActionUndo();
-        }
-
-        private void ButtonRedoClickHandler (object sender, EventArgs e)
-        {
-            if (_docController != null)
-                _docController.ActionRedo();
-        }
-
-        private void ButtonCut_Click (object sender, EventArgs e)
-        {
-            if (_docController != null)
-                _docController.ActionCut();
-        }
-
-        private void ButtonCopy_Click (object sender, EventArgs e)
-        {
-            if (_docController != null)
-                _docController.ActionCopy();
-        }
-
-        private void ButtonPaste_Click (object sender, EventArgs e)
-        {
-            if (_docController != null)
-                _docController.ActionPaste();
-        }*/
 
         private void ButtonCompileClickHandler (object sender, EventArgs e)
         {
@@ -303,26 +166,6 @@ namespace Treefrog.Windows.Controls.Composite
                     File.Copy(filename, Path.Combine(contentPath, Path.GetFileName(filename)), true);
                 }
             }*/
-        }
-
-        private void SyncStandardToolsActionsHandler (object sender, EventArgs e)
-        {
-            if (_stdController != null) {
-                _tbNewProject.Enabled = _stdController.CanCreateProject;
-                _tbOpen.Enabled = _stdController.CanOpenProject;
-                _tbSave.Enabled = _stdController.CavSaveProject;
-            }
-        }
-
-        private void SyncDocumentToolsActionsHandler (object sender, EventArgs e)
-        {
-            if (_docController != null) {
-                _tbCut.Enabled = _docController.CanCut;
-                _tbCopy.Enabled = _docController.CanCopy;
-                _tbPaste.Enabled = _docController.CanPaste;
-                _tbUndo.Enabled = _docController.CanUndo;
-                _tbRedo.Enabled = _docController.CanRedo;
-            }
         }
 
         private ToolStripButton CreateButton (string text, string resource)

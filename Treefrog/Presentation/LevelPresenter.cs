@@ -256,8 +256,10 @@ namespace Treefrog.Presentation
                     objLayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
 
                 TileControlLayer tileLayer = clayer as TileControlLayer;
-                if (tileLayer != null)
+                if (tileLayer != null) {
                     tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
+                    tileLayer.BindTileBrushManager(_editor.Presentation.TileBrushes);
+                }
 
                 _controlLayers[layer.Name] = clayer;
 

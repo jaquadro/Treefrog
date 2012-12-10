@@ -37,6 +37,7 @@ namespace Treefrog.Presentation
         bool CanShowPropertyPanel { get; }
         bool CanShowTilePoolPanel { get; }
         bool CanShowObjectPoolPanel { get; }
+        bool CanShowTileBrushPanel { get; }
 
         bool Modified { get; }
 
@@ -63,6 +64,7 @@ namespace Treefrog.Presentation
 
         private TilePoolListPresenter _tilePoolList;
         private ObjectPoolCollectionPresenter _objectPoolCollection;
+        private TileBrushManagerPresenter _tileBrushManager;
         private PropertyListPresenter _propertyList;
 
         private StandardToolsPresenter _stdTools;
@@ -79,6 +81,7 @@ namespace Treefrog.Presentation
 
             _tilePoolList = new TilePoolListPresenter(_editor);
             _objectPoolCollection = new ObjectPoolCollectionPresenter(_editor);
+            _tileBrushManager = new TileBrushManagerPresenter(_editor);
             _propertyList = new PropertyListPresenter();
         }
 
@@ -125,6 +128,11 @@ namespace Treefrog.Presentation
         public IObjectPoolCollectionPresenter ObjectPoolCollection
         {
             get { return _objectPoolCollection; }
+        }
+
+        public ITileBrushManagerPresenter TileBrushes
+        {
+            get { return _tileBrushManager; }
         }
     }
 
@@ -356,6 +364,11 @@ namespace Treefrog.Presentation
             get { return true; }
         }
 
+        public bool CanShowTileBrushPanel
+        {
+            get { return true; }
+        }
+
         public bool Modified
         {
             get { return _modified; }
@@ -363,6 +376,8 @@ namespace Treefrog.Presentation
             {
                 if (_modified != value) {
                     _modified = value;
+
+                    CommandManager.Invalidate(CommandKey.Save);
                     OnSyncModified(EventArgs.Empty);
                 }
             }
@@ -437,6 +452,8 @@ namespace Treefrog.Presentation
 
         #endregion
 
+        private string _projectPath;
+
         #region Command Handling
 
         private ForwardingCommandManager _commandManager;
@@ -447,13 +464,130 @@ namespace Treefrog.Presentation
 
             _commandManager.AddCommandSubscriber(_presentation.TilePoolList);
             _commandManager.AddCommandSubscriber(_presentation.ObjectPoolCollection);
+            _commandManager.AddCommandSubscriber(_presentation.TileBrushes);
 
+            _commandManager.Register(CommandKey.NewProject, CommandCanCreateProject, CommandCreateProject);
+            _commandManager.Register(CommandKey.OpenProject, CommandCanOpenProject, CommandOpenProject);
+            _commandManager.Register(CommandKey.Save, CommandCanSaveProject, CommandSaveProject);
+            _commandManager.Register(CommandKey.SaveAs, CommandCanSaveProjectAs, CommandSaveProjectAs);
+            _commandManager.Register(CommandKey.Exit, CommandCanExit, CommandExit);
             _commandManager.Register(CommandKey.ProjectAddLevel, CommandCanAddLevel, CommandAddLevel);
         }
 
         public CommandManager CommandManager
         {
             get { return _commandManager; }
+        }
+
+        private bool CommandCanCreateProject ()
+        {
+            return true;
+        }
+
+        private void CommandCreateProject ()
+        {
+            if (CommandCanCreateProject()) {
+                _projectPath = null;
+                New();
+            }
+        }
+
+        private bool CommandCanOpenProject ()
+        {
+            return true;
+        }
+
+        private void CommandOpenProject ()
+        {
+            if (CommandCanOpenProject()) {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Title = "Open Project File";
+                ofd.Filter = "Treefrog Project Files|*.tlp";
+                ofd.Multiselect = false;
+                ofd.RestoreDirectory = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK) {
+                    if (!File.Exists(ofd.FileName)) {
+                        MessageBox.Show("Could not find file: " + ofd.FileName, "Open Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    try {
+                        using (FileStream fs = File.Open(ofd.FileName, FileMode.Open, FileAccess.Read)) {
+                            Project project = Project.Open(fs);
+                            Open(project);
+
+                            _projectPath = ofd.FileName;
+                        }
+                    }
+                    catch (IOException e) {
+                        MessageBox.Show("Could not open file '" + ofd.FileName + "' for reading.\n\n" + e.Message, "Open Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+        }
+
+        private bool CommandCanSaveProject ()
+        {
+            return Modified;
+        }
+
+        private void CommandSaveProject ()
+        {
+            if (CommandCanSaveProject()) {
+                if (_projectPath == null) {
+                    CommandSaveProjectAs();
+                }
+                else {
+                    try {
+                        using (FileStream fs = File.Open(_projectPath, FileMode.Create, FileAccess.Write)) {
+                            Save(fs);
+                        }
+                    }
+                    catch (IOException e) {
+                        MessageBox.Show("Could not save file '" + _projectPath + "'.\n\n" + e.Message, "Save Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+        }
+
+        private bool CommandCanSaveProjectAs ()
+        {
+            return _project != null;
+        }
+
+        private void CommandSaveProjectAs ()
+        {
+            if (CommandCanSaveProjectAs()) {
+                SaveFileDialog ofd = new SaveFileDialog();
+                ofd.Title = "Save Project File";
+                ofd.Filter = "Treefrog Project Files|*.tlp";
+                ofd.OverwritePrompt = true;
+                ofd.RestoreDirectory = false;
+
+                if (ofd.ShowDialog() == DialogResult.OK) {
+                    try {
+                        using (FileStream fs = File.Open(ofd.FileName, FileMode.Create, FileAccess.Write)) {
+                            Save(fs);
+                        }
+                    }
+                    catch (IOException e) {
+                        MessageBox.Show("Could not save file '" + ofd.FileName + "'.\n\n" + e.Message, "Save Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+        }
+
+        private bool CommandCanExit ()
+        {
+            return true;
+        }
+
+        private void CommandExit ()
+        {
+            if (CommandCanExit()) {
+                Application.Exit();
+            }
         }
 
         private bool CommandCanAddLevel ()

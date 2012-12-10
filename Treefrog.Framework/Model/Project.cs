@@ -32,6 +32,7 @@ namespace Treefrog.Framework.Model
 
         private TilePoolManager _tilePools;
         private ObjectPoolManager _objectPools;
+        private TileBrushManager _tileBrushes;
 
         //private bool _initalized;
 
@@ -46,12 +47,14 @@ namespace Treefrog.Framework.Model
             //_tilePools = new NamedResourceCollection<TilePool>();
             _tilePools = new TilePoolManager();
             _objectPools = new ObjectPoolManager();
+            _tileBrushes = new TileBrushManager();
             //_objectPools = new NamedResourceCollection<ObjectPool>();
             //_tileSets = new NamedResourceCollection<TileSet2D>();
             _levels = new NamedResourceCollection<Level>();
 
             _tilePools.Pools.Modified += TilePoolsModifiedHandler;
             _objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
+            _tileBrushes.DynamicBrushes.PropertyChanged += HandleTileBrushManagerPropertyChanged;
             _levels.ResourceModified += LevelsModifiedHandler;
 
             _services.AddService(typeof(TilePoolManager), _tilePools);
@@ -84,6 +87,11 @@ namespace Treefrog.Framework.Model
         public ObjectPoolManager ObjectPoolManager
         {
             get { return _objectPools; }
+        }
+
+        public TileBrushManager TileBrushManager
+        {
+            get { return _tileBrushes; }
         }
 
         /*public NamedResourceCollection<TileSet2D> TileSets
@@ -137,6 +145,11 @@ namespace Treefrog.Framework.Model
         #region Event Handlers
 
         private void HandleObjectPoolManagerPropertyChanged (object sender, PropertyChangedEventArgs e)
+        {
+            OnModified(e);
+        }
+
+        private void HandleTileBrushManagerPropertyChanged (object sender, PropertyChangedEventArgs e)
         {
             OnModified(e);
         }
@@ -199,6 +212,7 @@ namespace Treefrog.Framework.Model
             writer.Close();
         }
 
+        /*
         #region XML Import / Export
 
         public static Project FromXml (XmlReader reader)
@@ -327,17 +341,18 @@ namespace Treefrog.Framework.Model
             TilePoolManagerXmlProxy proxy = serializer.Deserialize(reader) as TilePoolManagerXmlProxy;
             _tilePools = TilePoolManager.FromXmlProxy(proxy);
 
-            /*XmlHelper.SwitchAll(reader, (xmlr, s) =>
+            XmlHelper.SwitchAll(reader, (xmlr, s) =>
             {
                 switch (s) {
                     case "level":
                         _levels.Add(Level.FromXml(xmlr, this));
                         break;
                 }
-            });*/
+            });
         }
 
         #endregion
+        */
 
         public static Project FromXmlProxy (ProjectXmlProxy proxy)
         {
@@ -346,7 +361,16 @@ namespace Treefrog.Framework.Model
 
             Project project = new Project();
             project._objectPools = ObjectPoolManager.FromXmlProxy(proxy.ObjectPools);
+            if (project._objectPools == null)
+                project._objectPools = new ObjectPoolManager();
+
             project._tilePools = TilePoolManager.FromXmlProxy(proxy.TilePools);
+            if (project._tilePools == null)
+                project._tilePools = new TilePoolManager();
+
+            project._tileBrushes = TileBrushManager.FromXmlProxy(proxy.TileBrushes, project._tilePools);
+            if (project._tileBrushes == null)
+                project._tileBrushes = new TileBrushManager();
             
             foreach (LevelXmlProxy levelProxy in proxy.Levels)
                 project.Levels.Add(Level.FromXmlProxy(levelProxy, project));
@@ -370,6 +394,7 @@ namespace Treefrog.Framework.Model
             {
                 ObjectPools = ObjectPoolManager.ToXmlProxy(project.ObjectPoolManager),
                 TilePools = TilePoolManager.ToXmlProxy(project.TilePoolManager),
+                TileBrushes = TileBrushManager.ToXmlProxy(project.TileBrushManager),
                 Levels = levels,
             };
         }
@@ -383,6 +408,9 @@ namespace Treefrog.Framework.Model
 
         [XmlElement]
         public TilePoolManagerXmlProxy TilePools { get; set; }
+
+        [XmlElement]
+        public TileBrushManagerXmlProxy TileBrushes { get; set; }
 
         [XmlArray]
         [XmlArrayItem("Level")]

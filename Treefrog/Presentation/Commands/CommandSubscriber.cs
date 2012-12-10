@@ -9,6 +9,12 @@ namespace Treefrog.Presentation.Commands
     {
         Unknown,
 
+        NewProject,
+        OpenProject,
+        Save,
+        SaveAs,
+        Exit,
+
         Undo,
         Redo,
         Cut,
@@ -41,6 +47,10 @@ namespace Treefrog.Presentation.Commands
 
         TilePoolExport,
         TilePoolImportOver,
+
+        NewDynamicTileBrush,
+        TileBrushDelete,
+        TileBrushFilter,
 
         ObjectProtoImport,
         ObjectProtoDelete,

@@ -111,9 +111,8 @@ namespace Treefrog.Windows.Forms
             if (pool != null) {
                 if (_checkboxTransColor.Checked) {
                     System.Drawing.Color c = _buttonTransColor.Color;
-                    //pool.ApplyTransparentColor(new XnaColor(c.R / 255f, c.G / 255f, c.B / 255f));
                 }
-                _project.TilePools.Add(pool);
+                _project.TilePoolManager.MergePool(pool.Name, pool);
             }
 
             Close();

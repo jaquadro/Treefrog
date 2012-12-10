@@ -81,7 +81,7 @@ namespace Treefrog.Windows.Panels
 
         private void SyncObjectPoolManagerHandler (object sender, EventArgs e)
         {
-            if (_controller != null) {
+            if (_controller != null && _controller.SelectedObjectPool != null) {
                 ImageList imgList = BuildImageList(_controller.SelectedObjectPool.Name);
                 PopulateList(imgList);
             }

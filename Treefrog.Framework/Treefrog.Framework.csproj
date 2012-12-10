@@ -88,6 +88,7 @@
     <Compile Include="KeyedObservableCollection.cs" />
     <Compile Include="Model\Collections\EventArgs.cs" />
     <Compile Include="Model\Collections\PredefinedPropertyCollection.cs" />
+    <Compile Include="Model\DynamicBrush.cs" />
     <Compile Include="Model\Layer.cs" />
     <Compile Include="Model\Level.cs" />
     <Compile Include="Model\MultiTileGridLayer.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Model\Property.cs" />
     <Compile Include="Model\Support\LocatedTile.cs" />
     <Compile Include="Model\Support\LocatedTileStack.cs" />
+    <Compile Include="Model\TileBrushManager.cs" />
     <Compile Include="Model\TilePool.cs" />
     <Compile Include="Model\TilePoolManager.cs" />
     <None Include="Model\TileRegistry.cs" />

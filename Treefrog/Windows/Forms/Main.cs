@@ -86,12 +86,13 @@ namespace Treefrog.Windows.Forms
             if (_editor.CanShowPropertyPanel)
                 propertyPane1.BindController(_editor.Presentation.PropertyList);
 
+            if (_editor.CanShowTileBrushPanel)
+                tileBrushPanel1.BindController(_editor.Presentation.TileBrushes);
+
             _menu.BindController(_editor);
             _menu.BindCommandManager(_editor.CommandManager);
             //_tileToolbar.BindController(_editor.Presentation.LevelTools);
             _tileToolbar.BindCommandManager(_editor.CurrentLevel.CommandManager);
-            _standardToolbar.BindStandardToolsController(_editor.Presentation.StandardTools);
-            _standardToolbar.BindDocumentToolsController(_editor.Presentation.DocumentTools);
             _standardToolbar.BindCommandManager(_editor.CommandManager);
             _infoStatus.BindController(_editor.Presentation.ContentInfo);
         }

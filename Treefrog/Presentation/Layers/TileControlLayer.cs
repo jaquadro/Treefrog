@@ -78,7 +78,28 @@ namespace Treefrog.Presentation.Layers
 
         public void BindObjectController (ITilePoolListPresenter tilePoolController)
         {
+            if (_tilePoolController != null) {
+                _tilePoolController.TileSelectionChanged -= TileSelectionChangedHandler;
+            }
+
             _tilePoolController = tilePoolController;
+
+            if (_tilePoolController != null) {
+                _tilePoolController.TileSelectionChanged += TileSelectionChangedHandler;
+            }
+        }
+
+        public void BindTileBrushManager (ITileBrushManagerPresenter tileBrushController)
+        {
+            if (_tileBrushController != null) {
+                _tileBrushController.TileBrushSelected -= TileBrushSelectedHandler;
+            }
+
+            _tileBrushController = tileBrushController;
+
+            if (_tileBrushController != null) {
+                _tileBrushController.TileBrushSelected += TileBrushSelectedHandler;
+            }
         }
 
         public override void Activate ()
@@ -93,6 +114,44 @@ namespace Treefrog.Presentation.Layers
         {
             if (_selection != null && _levelController != null) {
                 _levelController.Annotations.Remove(_selection.SelectionAnnotation);
+            }
+        }
+
+        private enum DrawToolMode
+        {
+            Tile,
+            Brush,
+        }
+
+        private DrawToolMode _drawMode = DrawToolMode.Tile;
+
+        private void TileSelectionChangedHandler (object sender, EventArgs e)
+        {
+            _drawMode = DrawToolMode.Tile;
+
+            switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
+                case CommandKey.TileToolDraw:
+                    SetTool(TileTool.Draw);
+                    break;
+                case CommandKey.TileToolErase:
+                case CommandKey.TileToolSelect:
+                    CommandManager.Perform(CommandKey.TileToolDraw);
+                    break;
+            }
+        }
+
+        private void TileBrushSelectedHandler (object sender, EventArgs e)
+        {
+            _drawMode = DrawToolMode.Brush;
+
+            switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
+                case CommandKey.TileToolDraw:
+                    SetTool(TileTool.Draw);
+                    break;
+                case CommandKey.TileToolErase:
+                case CommandKey.TileToolSelect:
+                    CommandManager.Perform(CommandKey.TileToolDraw);
+                    break;
             }
         }
 
@@ -378,6 +437,7 @@ namespace Treefrog.Presentation.Layers
 
         private ILevelPresenter _levelController;
         private ITilePoolListPresenter _tilePoolController;
+        private ITileBrushManagerPresenter _tileBrushController;
         private PointerTool _currentTool;
         private TileSelection _selection;
 
@@ -399,16 +459,25 @@ namespace Treefrog.Presentation.Layers
                     _currentTool = new TileSelectTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations, this);
                     break;
                 case TileTool.Draw:
-                    TileDrawTool drawTool = new TileDrawTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
-                    drawTool.BindObjectSourceController(_tilePoolController);
-                    _currentTool = drawTool;
+                    if (_drawMode == DrawToolMode.Tile) {
+                        TileDrawTool drawTool = new TileDrawTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
+                        drawTool.BindTilePoolController(_tilePoolController);
+                        drawTool.BindTileBrushManager(_tileBrushController);
+                        _currentTool = drawTool;
+                    }
+                    if (_drawMode == DrawToolMode.Brush) {
+                        TileBrushTool drawTool = new TileBrushTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
+                        drawTool.BindTilePoolController(_tilePoolController);
+                        drawTool.BindTileBrushManager(_tileBrushController);
+                        _currentTool = drawTool;
+                    }
                     break;
                 case TileTool.Erase:
                     _currentTool = new TileEraseTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
                     break;
                 case TileTool.Fill:
                     TileFillTool fillTool = new TileFillTool(_levelController.History, Layer as MultiTileGridLayer);
-                    fillTool.BindObjectSourceController(_tilePoolController);
+                    fillTool.BindTilePoolController(_tilePoolController);
                     _currentTool = fillTool;
                     break;
                 default:

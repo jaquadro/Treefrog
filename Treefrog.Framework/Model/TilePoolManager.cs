@@ -56,6 +56,24 @@ namespace Treefrog.Framework.Model
             return pool;
         }
 
+        public TilePool MergePool (string name, TilePool pool)
+        {
+            TilePool dst = null;
+            if (_pools.Contains(name)) {
+                dst = _pools[name];
+                if (dst.TileWidth != pool.TileWidth || dst.TileHeight != pool.TileHeight)
+                    throw new ArgumentException("Source pool tile dimensions do not match destination pool tile dimensions.");
+            }
+            else
+                dst = CreateTilePool(name, pool.TileWidth, pool.TileHeight);
+
+            foreach (Tile srcTile in pool) {
+                dst.AddTile(pool.GetTileTexture(srcTile.Id));
+            }
+
+            return dst;
+        }
+
         public void Reset ()
         {
             _lastId = 0;

@@ -158,6 +158,7 @@
     <Compile Include="Presentation\Layers\CanvasLayer.cs" />
     <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
+    <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
     <Compile Include="Presentation\Tools\ITileToolCollection.cs" />
     <Compile Include="Presentation\Tools\IToolCollection.cs" />
     <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />
@@ -189,6 +190,7 @@
     <None Include="Presentation\Tools\FillTool.cs" />
     <Compile Include="Presentation\Tools\MouseTool.cs" />
     <Compile Include="Presentation\Tools\SnappingManager.cs" />
+    <Compile Include="Presentation\Tools\TileBrushTool.cs" />
     <Compile Include="Presentation\Tools\TileDrawTool.cs" />
     <Compile Include="Presentation\Tools\TileEraseTool.cs" />
     <Compile Include="Presentation\Tools\TileFillTool.cs" />
@@ -290,6 +292,12 @@
     <Compile Include="Windows\Panels\PropertyPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Windows\Panels\TileBrushPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\TileBrushPanel.Designer.cs">
+      <DependentUpon>TileBrushPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Panels\TilePoolPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -348,6 +356,10 @@
     <EmbeddedResource Include="Icons\16\snap-topleft.png" />
     <EmbeddedResource Include="Icons\16\snap-topright.png" />
     <EmbeddedResource Include="Icons\16\snap-vertical.png" />
+    <EmbeddedResource Include="Icons\16\funnel.png" />
+    <EmbeddedResource Include="Icons\16\paint-brush--minus.png" />
+    <EmbeddedResource Include="Icons\16\paint-brush--plus.png" />
+    <EmbeddedResource Include="Icons\16\table-dynamic.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />
@@ -410,6 +422,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\PropertyPane.resx">
       <DependentUpon>PropertyPane.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Panels\TileBrushPanel.resx">
+      <DependentUpon>TileBrushPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\TilePoolPane.resx">
       <DependentUpon>TilePoolPane.cs</DependentUpon>
