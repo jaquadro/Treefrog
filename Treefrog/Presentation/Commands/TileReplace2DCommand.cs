@@ -131,13 +131,20 @@ namespace Treefrog.Presentation.Commands
                 stack.Add(replacement);
             }
 
-            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+            if (_tiles.ContainsKey(coord))
+                _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
+            else
+                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
         }
 
         public void QueueReplacement (TileCoord coord, TileStack replacement)
         {
             replacement = (replacement != null) ? new TileStack(replacement) : null;
-            _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), replacement);
+
+            if (_tiles.ContainsKey(coord))
+                _tiles[coord] = new TileRecord(_tiles[coord].Original, replacement);
+            else
+                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), replacement);
         }
 
         public override void Execute ()

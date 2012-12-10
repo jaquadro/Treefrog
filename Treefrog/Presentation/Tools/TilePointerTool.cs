@@ -8,15 +8,20 @@ using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Presentation.Tools
 {
+    public enum TileSourceType
+    {
+        Tile,
+        Brush,
+    }
+
     public class TilePointerTool : PointerTool
     {
-        //private TilePoolManagerService _poolManager;
-
         private ITilePoolListPresenter _tilePool;
         private ITileBrushManagerPresenter _brushManager;
 
         private CommandHistory _history;
         private MultiTileGridLayer _layer;
+        private TileSourceType _sourceType;
 
         public TilePointerTool (CommandHistory history, MultiTileGridLayer layer)
         {
@@ -24,14 +29,59 @@ namespace Treefrog.Presentation.Tools
             _layer = layer;
         }
 
+        public TilePointerTool (CommandHistory history, MultiTileGridLayer layer, TileSourceType mode)
+            : this(history, layer)
+        {
+            _sourceType = mode;
+        }
+
+        protected override void DisposeManaged ()
+        {
+            if (_tilePool != null) {
+                _tilePool.TileSelectionChanged -= TileSelectionChangedHandler;
+            }
+
+            if (_brushManager != null) {
+                _brushManager.TileBrushSelected -= TileBrushSelectedHandler;
+            }
+
+            base.DisposeManaged();
+        }
+
         public void BindTilePoolController (ITilePoolListPresenter controller)
         {
+            if (_tilePool != null) {
+                _tilePool.TileSelectionChanged -= TileSelectionChangedHandler;
+            }
+
             _tilePool = controller;
+
+            if (_tilePool != null) {
+                _tilePool.TileSelectionChanged += TileSelectionChangedHandler;
+            }
         }
 
         public void BindTileBrushManager (ITileBrushManagerPresenter controller)
         {
+            if (_brushManager != null) {
+                _brushManager.TileBrushSelected -= TileBrushSelectedHandler;
+            }
+
             _brushManager = controller;
+
+            if (_brushManager != null) {
+                _brushManager.TileBrushSelected += TileBrushSelectedHandler;
+            }
+        }
+
+        private void TileSelectionChangedHandler (object sender, EventArgs e)
+        {
+            _sourceType = TileSourceType.Tile;
+        }
+
+        private void TileBrushSelectedHandler (object sender, EventArgs e)
+        {
+            _sourceType = TileSourceType.Brush;
         }
 
         protected MultiTileGridLayer Layer
@@ -42,6 +92,11 @@ namespace Treefrog.Presentation.Tools
         protected CommandHistory History
         {
             get { return _history; }
+        }
+
+        protected TileSourceType SourceType
+        {
+            get { return _sourceType; }
         }
 
         protected Tile ActiveTile
@@ -74,6 +129,21 @@ namespace Treefrog.Presentation.Tools
                     return null;
 
                 return _brushManager.SelectedBrush;
+            }
+        }
+
+        protected bool SourceValid
+        {
+            get
+            {
+                switch (SourceType) {
+                    case TileSourceType.Brush:
+                        return ActiveBrush != null;
+                    case TileSourceType.Tile:
+                        return ActiveTile != null;
+                }
+
+                return false;
             }
         }
 

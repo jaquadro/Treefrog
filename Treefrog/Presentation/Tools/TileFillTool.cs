@@ -14,8 +14,11 @@ namespace Treefrog.Presentation.Tools
 
         public TileFillTool (CommandHistory history, MultiTileGridLayer layer)
             : base(history, layer)
-        {
-        }
+        { }
+
+        public TileFillTool (CommandHistory history, MultiTileGridLayer layer, TileSourceType sourceType)
+            : base(history, layer, sourceType)
+        { }
 
         protected override void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
         {
@@ -32,12 +35,17 @@ namespace Treefrog.Presentation.Tools
 
         private void StartFillSequence (PointerEventInfo info)
         {
-            if (ActiveTile == null)
+            if (!SourceValid)
                 return;
 
             TileCoord location = TileLocation(info);
             if (!TileInRange(location))
                 return;
+
+            if (SourceType == TileSourceType.Brush) {
+                Layer.TileAdding += TileAddingHandler;
+                Layer.TileRemoving += TileRemovingHandler;
+            }
 
             _fillLayer = Layer;
             _sourceStack = new TileStack();
@@ -46,7 +54,22 @@ namespace Treefrog.Presentation.Tools
             _fillCommand = new TileReplace2DCommand(Layer);
             FloodFill(location.X, location.Y);
 
+            if (SourceType == TileSourceType.Brush) {
+                Layer.TileAdding -= TileAddingHandler;
+                Layer.TileRemoving -= TileRemovingHandler;
+            }
+
             History.Execute(_fillCommand);
+        }
+
+        private void TileAddingHandler (object sender, LocatedTileEventArgs e)
+        {
+            _fillCommand.QueueReplacement(new TileCoord(e.X, e.Y), e.Tile);
+        }
+
+        private void TileRemovingHandler (object sender, LocatedTileEventArgs e)
+        {
+            _fillCommand.QueueRemove(new TileCoord(e.X, e.Y), e.Tile);
         }
 
         #endregion
@@ -76,12 +99,12 @@ namespace Treefrog.Presentation.Tools
                 TileCoord tid;
                 for (int i = range.StartX; i <= range.EndX; i++) {
                     tid = new TileCoord(i, upY);
-                    if (range.Y > 0 && !_sourceStack.Equals(_fillLayer[tid]) &&
+                    if (range.Y > 0 && /*!_sourceStack.Equals(_fillLayer[tid]) &&*/
                         (_matchStack == null ? _matchStack == _fillLayer[tid] : _matchStack.Equals(_fillLayer[tid])))
                         LinearFill(ref i, ref upY);
 
                     tid = new TileCoord(i, downY);
-                    if (range.Y < (_fillLayer.TilesHigh - 1) && !_sourceStack.Equals(_fillLayer[tid]) &&
+                    if (range.Y < (_fillLayer.TilesHigh - 1) && /*!_sourceStack.Equals(_fillLayer[tid]) &&*/
                         (_matchStack == null ? _matchStack == _fillLayer[tid] : _matchStack.Equals(_fillLayer[tid])))
                         LinearFill(ref i, ref downY);
                 }
@@ -96,13 +119,19 @@ namespace Treefrog.Presentation.Tools
             while (true) {
                 TileCoord tid = new TileCoord(lFillLoc, y);
 
-                _fillCommand.QueueReplacement(tid, _sourceStack);
-                _fillLayer[tid] = _sourceStack;
+                if (SourceType == TileSourceType.Brush && ActiveBrush is DynamicBrush) {
+                    DynamicBrush brush = ActiveBrush as DynamicBrush;
+                    brush.ApplyBrush(_fillLayer, tid.X, tid.Y);
+                }
+                else {
+                    _fillCommand.QueueReplacement(tid, _sourceStack);
+                    _fillLayer[tid] = _sourceStack;
+                }
 
                 lFillLoc--;
                 tid = new TileCoord(lFillLoc, y);
 
-                if (lFillLoc < 0 || _sourceStack.Equals(_fillLayer[tid]) ||
+                if (lFillLoc < 0 || /*_sourceStack.Equals(_fillLayer[tid]) ||*/
                     !(_matchStack == null ? _matchStack == _fillLayer[tid] : _matchStack.Equals(_fillLayer[tid])))
                     break;
             }
@@ -114,15 +143,21 @@ namespace Treefrog.Presentation.Tools
             while (true) {
                 TileCoord tid = new TileCoord(rFillLoc, y);
 
-                if (!_sourceStack.Equals(_fillLayer[tid])) {
-                    _fillCommand.QueueReplacement(tid, _sourceStack);
-                    _fillLayer[tid] = _sourceStack;
-                }
+                /*if (!_sourceStack.Equals(_fillLayer[tid])) {*/
+                    if (SourceType == TileSourceType.Brush && ActiveBrush is DynamicBrush) {
+                        DynamicBrush brush = ActiveBrush as DynamicBrush;
+                        brush.ApplyBrush(_fillLayer, tid.X, tid.Y);
+                    }
+                    else {
+                        _fillCommand.QueueReplacement(tid, _sourceStack);
+                        _fillLayer[tid] = _sourceStack;
+                    }
+                //}
 
                 rFillLoc++;
                 tid = new TileCoord(rFillLoc, y);
 
-                if (rFillLoc >= _fillLayer.TilesWide || _sourceStack.Equals(_fillLayer[tid]) ||
+                if (rFillLoc >= _fillLayer.TilesWide || /*_sourceStack.Equals(_fillLayer[tid]) ||*/
                     !(_matchStack == null ? _matchStack == _fillLayer[tid] : _matchStack.Equals(_fillLayer[tid])))
                     break;
             }

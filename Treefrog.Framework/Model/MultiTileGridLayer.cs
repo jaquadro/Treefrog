@@ -174,6 +174,9 @@ namespace Treefrog.Framework.Model
 
         public override IEnumerable<LocatedTile> TilesAt (TileCoord location)
         {
+            if (location.X < 0 || location.X >= TilesWide || location.Y < 0 || location.Y >= TilesHigh)
+                yield break;
+
             if (_tiles[location.Y, location.X] == null) {
                 yield break;
             }
