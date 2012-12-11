@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.ObjectModel;
 using Treefrog.Presentation.Annotations;
+using Treefrog.Windows.Forms;
+using Treefrog.Presentation.Controllers;
 
 namespace Treefrog.Presentation
 {
@@ -41,9 +43,6 @@ namespace Treefrog.Presentation
 
         Level Level { get; }
 
-        //TileSelectionOld Selection { get; }
-        //TileSelectionOld Clipboard { get; }
-
         event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
 
         IEditToolResponder EditToolResponder { get; }
@@ -56,11 +55,7 @@ namespace Treefrog.Presentation
         private Level _level;
 
         private LayerControl _layerControl;
-
-        //private SelectTool _selectTool;
-        //private DrawTool _drawTool;
-        //private EraseTool _eraseTool;
-        //private FillTool _fillTool;
+        private PointerEventController _pointerController;
 
         private LevelInfoPresenter _info;
 
@@ -78,10 +73,11 @@ namespace Treefrog.Presentation
             _layerControl.MouseLeave += LayerControlMouseLeaveHandler;
             _layerControl.ControlInitialized += LayerControlInitialized;
 
-            _layerControl.MouseDown += LayerControl_MouseDown;
-            _layerControl.MouseUp += LayerControl_MouseUp;
-            _layerControl.MouseMove += LayerControl_MouseMove;
-            _layerControl.MouseLeave += LayerControl_MouseLeave;
+            _pointerController = new PointerEventController(_layerControl);
+            _layerControl.MouseDown += _pointerController.TargetMouseDown;
+            _layerControl.MouseUp += _pointerController.TargetMouseUp;
+            _layerControl.MouseMove += _pointerController.TargetMouseMove;
+            _layerControl.MouseLeave += _pointerController.TargetMouseLeave;
 
             _layerControl.CanvasLayer = new CanvasLayer(_layerControl);
             _layerControl.AnnotationLayer = new AnnotationLayer(_layerControl);
@@ -89,21 +85,6 @@ namespace Treefrog.Presentation
 
             _history = new CommandHistory();
             _history.HistoryChanged += HistoryChangedHandler;
-
-            //_selectTool = new SelectTool(this);
-            //_selectTool.BindLevelToolsController(_editor.Presentation.LevelTools);
-            //_selectTool.BindDocumentToolsController(_editor.Presentation.DocumentTools);
-
-            //_drawTool = new DrawTool(this);
-            //_drawTool.BindLevelToolsController(_editor.Presentation.LevelTools);
-            //_drawTool.BindTileSourceController(_editor.Presentation.TilePoolList);
-
-            //_eraseTool = new EraseTool(this);
-            //_eraseTool.BindLevelToolsController(_editor.Presentation.LevelTools);
-
-            //_fillTool = new FillTool(this);
-            //_fillTool.BindLevelToolsController(_editor.Presentation.LevelTools);
-            //_fillTool.BindTileSourceController(_editor.Presentation.TilePoolList);
 
             InitializeCommandManager();
             InitializeLayerListPresenter();
@@ -521,101 +502,6 @@ namespace Treefrog.Presentation
 
         #endregion
 
-        private Dictionary<PointerEventType, bool> _sequenceOpen = new Dictionary<PointerEventType, bool>
-        {
-            { PointerEventType.Primary, false },
-            { PointerEventType.Secondary, false },
-        };
-
-        private PointerEventType GetPointerType (MouseButtons button)
-        {
-            switch (button) {
-                case MouseButtons.Left:
-                    return PointerEventType.Primary;
-                case MouseButtons.Right:
-                    return PointerEventType.Secondary;
-                default:
-                    return PointerEventType.None;
-            }
-        }
-
-        private Point TranslateMousePosition (Point position)
-        {
-            Microsoft.Xna.Framework.Vector2 offset = LayerControl.VirtualSurfaceOffset;
-            position.X = (int)((position.X - offset.X) / LayerControl.Zoom);
-            position.Y = (int)((position.Y - offset.Y) / LayerControl.Zoom);
-
-            position.X += LayerControl.GetScrollValue(ScrollOrientation.HorizontalScroll);
-            position.Y += LayerControl.GetScrollValue(ScrollOrientation.VerticalScroll);
-
-            return position;
-        }
-
-        void LayerControl_MouseDown (object sender, MouseEventArgs e)
-        {
-            PointerEventType type = GetPointerType(e.Button);
-            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
-            if (pointerLayer == null || type == PointerEventType.None)
-                return;
-
-            Point position = TranslateMousePosition(e.Location);
-            PointerEventInfo info = new PointerEventInfo(type, position.X, position.Y);
-
-            // Ignore event if a sequence is active
-            if (_sequenceOpen.Count(kv => { return kv.Value; }) == 0) {
-                _sequenceOpen[info.Type] = true;
-                pointerLayer.HandleStartPointerSequence(info);
-            }
-        }
-
-        void LayerControl_MouseUp (object sender, MouseEventArgs e)
-        {
-            PointerEventType type = GetPointerType(e.Button);
-            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
-            if (pointerLayer == null || type == PointerEventType.None)
-                return;
-
-            Point position = TranslateMousePosition(e.Location);
-            PointerEventInfo info = new PointerEventInfo(type, position.X, position.Y);
-
-            if (_sequenceOpen[info.Type]) {
-                _sequenceOpen[info.Type] = false;
-                pointerLayer.HandleEndPointerSequence(info);
-            }
-        }
-
-        void LayerControl_MouseMove (object sender, MouseEventArgs e)
-        {
-            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
-            if (pointerLayer == null)
-                return;
-
-            Point position = TranslateMousePosition(e.Location);
-
-            if (_sequenceOpen[PointerEventType.Primary])
-                pointerLayer.HandleUpdatePointerSequence(new PointerEventInfo(PointerEventType.Primary, position.X, position.Y));
-            if (_sequenceOpen[PointerEventType.Secondary])
-                pointerLayer.HandleUpdatePointerSequence(new PointerEventInfo(PointerEventType.Secondary, position.X, position.Y));
-
-            pointerLayer.HandlePointerPosition(new PointerEventInfo(PointerEventType.None, position.X, position.Y));
-        }
-
-        void LayerControl_MouseLeave (object sender, EventArgs e)
-        {
-            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
-            if (pointerLayer == null)
-                return;
-
-            pointerLayer.HandlePointerLeaveField();
-        }
-
-        void LayerControl_MouseClick (object sender, MouseEventArgs e)
-        {
-            IPointerToolResponder pointerLayer = SelectedControlLayer as IPointerToolResponder;
-            if (pointerLayer != null)
-                pointerLayer.HandlePointerPosition(new PointerEventInfo(GetPointerType(e.Button), e.X, e.Y));
-        }
-
         private void Layer_NameChanged (object sender, NameChangedEventArgs e) 
         {
             if (_controlLayers.ContainsKey(e.OldName)) {
@@ -786,6 +672,7 @@ namespace Treefrog.Presentation
 
             _selectedLayer = null;
             _selectedLayerRef = null;
+            _pointerController.Responder = null;
 
             _info.ActionUpdateCoordinates("");
 
@@ -811,6 +698,8 @@ namespace Treefrog.Presentation
                 if (!_level.Layers.Contains(layer)) {
                     throw new InvalidOperationException("Selected a ControlLayer with no corresponding model Layer!  Selected name: " + layer);
                 }
+
+                _pointerController.Responder = SelectedControlLayer as IPointerToolResponder;
             }
 
             OnSyncCurrentLayer(new SyncLayerEventArgs(prevLayer, prevControlLayer));

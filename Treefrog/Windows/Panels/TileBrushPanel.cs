@@ -11,12 +11,14 @@ using Treefrog.Presentation;
 using Treefrog.Framework.Model;
 
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
+using Treefrog.Windows.Forms;
 
 namespace Treefrog.Windows.Panels
 {
     public partial class TileBrushPanel : UserControl
     {
         private ITileBrushManagerPresenter _controller;
+        private ITilePoolListPresenter _tileController;
 
         public TileBrushPanel ()
         {
@@ -44,6 +46,7 @@ namespace Treefrog.Windows.Panels
 
             _listView.ItemSelectionChanged += ListViewSelectionChangedHandler;
             _listView.MouseClick += ListViewItemActivateHandler;
+            _listView.MouseDoubleClick += ListViewMouseDoubleClick;
         }
 
         public void BindController (ITileBrushManagerPresenter controller)
@@ -63,6 +66,11 @@ namespace Treefrog.Windows.Panels
             else {
                 ResetComponent();
             }
+        }
+
+        public void BindTileController (ITilePoolListPresenter controller)
+        {
+            _tileController = controller;
         }
 
         protected override void OnSizeChanged (EventArgs e)
@@ -91,6 +99,13 @@ namespace Treefrog.Windows.Panels
                 foreach (ListViewItem item in _listView.SelectedItems)
                     _controller.ActionSelectBrush((int)item.Tag);
             }
+        }
+
+        private void ListViewMouseDoubleClick (object sender, MouseEventArgs e)
+        {
+            DynamicBrushForm brushForm = new DynamicBrushForm(_controller.SelectedBrush as DynamicBrush);
+            brushForm.BindTileController(_tileController);
+            brushForm.ShowDialog();
         }
 
         private void SyncTileBrushManagerHandler (object sender, EventArgs e)

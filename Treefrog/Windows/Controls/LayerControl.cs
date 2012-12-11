@@ -15,6 +15,8 @@ using System.Collections.Specialized;
 using Treefrog.Presentation;
 
 using TFCompat = Treefrog.Framework.Compat;
+using Treefrog.Windows.Forms;
+using Treefrog.Presentation.Controllers;
 
 namespace Treefrog.Windows.Controls
 {
@@ -38,7 +40,7 @@ namespace Treefrog.Windows.Controls
         LowerRight
     }
 
-    public class LayerControl : GraphicsDeviceControl, IScrollableControl
+    public class LayerControl : GraphicsDeviceControl, IScrollableControl, IPointerTarget
     {
         #region Fields
 
@@ -825,6 +827,33 @@ namespace Treefrog.Windows.Controls
             return new SolidColorBrush(_spriteBatch.GraphicsDevice, color);
         }
 
+        #region IPointerTarget
+
+        public System.Drawing.Point InteriorOffset
+        {
+            get
+            {
+                Vector2 offset = VirtualSurfaceOffset;
+                return new System.Drawing.Point((int)offset.X, (int)offset.Y);
+            }
+        }
+
+        public System.Drawing.Point ScrollOffset
+        {
+            get
+            {
+                return new System.Drawing.Point(
+                    GetScrollValue(ScrollOrientation.HorizontalScroll), 
+                    GetScrollValue(ScrollOrientation.VerticalScroll));
+            }
+        }
+
+        float IPointerTarget.Zoom
+        {
+            get { return Zoom; }
+        }
+
+        #endregion
     }
 
     public class LayerControlViewport : IViewport

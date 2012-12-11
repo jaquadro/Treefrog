@@ -11,6 +11,7 @@ using TFImaging = Treefrog.Framework.Imaging;
 using Treefrog.Presentation.Tools;
 using Treefrog.Presentation.Commands;
 using System.Windows.Forms;
+using Treefrog.Presentation.Controllers;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -280,15 +281,15 @@ namespace Treefrog.Presentation.Layers
         }
     }
 
-    public interface IPointerToolResponder
+    public interface IPointerToolResponder : IPointerResponder
     {
         void BindLevelController (ILevelPresenter controller);
 
-        void HandleStartPointerSequence (PointerEventInfo info);
+        /*void HandleStartPointerSequence (PointerEventInfo info);
         void HandleEndPointerSequence (PointerEventInfo info);
         void HandleUpdatePointerSequence (PointerEventInfo info);
         void HandlePointerPosition (PointerEventInfo info);
-        void HandlePointerLeaveField ();
+        void HandlePointerLeaveField ();*/
     }
 
     public interface IEditToolResponder

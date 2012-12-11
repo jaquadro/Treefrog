@@ -153,6 +153,7 @@
     <Compile Include="Presentation\Commands\ObjectRemoveCommand.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
     <Compile Include="Presentation\Commands\TileSelectionCommands.cs" />
+    <Compile Include="Presentation\Controllers\PointerEventController.cs" />
     <Compile Include="Presentation\IViewport.cs" />
     <Compile Include="Presentation\Layers\AnnotationLayer.cs" />
     <Compile Include="Presentation\Layers\CanvasLayer.cs" />
@@ -238,6 +239,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\EventArgs.cs" />
+    <Compile Include="Windows\Forms\DynamicBrushForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\DynamicBrushForm.Designer.cs">
+      <DependentUpon>DynamicBrushForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\ImportObject.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -395,6 +402,9 @@
     <EmbeddedResource Include="Icons\plus16.png" />
     <EmbeddedResource Include="Windows\Controls\ViewportControl.resx">
       <DependentUpon>ViewportControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\DynamicBrushForm.resx">
+      <DependentUpon>DynamicBrushForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\ImportObject.resx">
       <DependentUpon>ImportObject.cs</DependentUpon>

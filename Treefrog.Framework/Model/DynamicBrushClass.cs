@@ -93,6 +93,14 @@ namespace Treefrog.Framework.Model
             get { return _tileHeight; }
         }
 
+        public abstract int TemplateWidth { get; }
+        public abstract int TemplateHeight { get; }
+
+        public int TileCount
+        {
+            get { return _tiles.Count; }
+        }
+
         protected List<TileProxy> Tiles
         {
             get { return _tiles; }
@@ -163,7 +171,16 @@ namespace Treefrog.Framework.Model
         {
             if (position >= 0 && position < Tiles.Count)
                 return Tiles[position].Tile;
-            return null;
+            else
+                return null;
+        }
+
+        public LocatedTile GetLocatedTile (int position)
+        {
+            if (position >= 0 && position < Tiles.Count)
+                return new LocatedTile(Tiles[position].Tile, position % TemplateWidth, position / TemplateWidth);
+            else
+                return new LocatedTile();
         }
 
         public virtual TextureResource MakePreview (int maxWidth, int maxHeight)
@@ -204,6 +221,16 @@ namespace Treefrog.Framework.Model
         public override string ClassName
         {
             get { return "Basic"; }
+        }
+
+        public override int TemplateWidth
+        {
+            get { return 4; }
+        }
+
+        public override int TemplateHeight
+        {
+            get { return 4; }
         }
 
         public override Tile PrimaryTile
@@ -323,6 +350,16 @@ namespace Treefrog.Framework.Model
         public override string ClassName
         {
             get { return "Extended"; }
+        }
+
+        public override int TemplateWidth
+        {
+            get { return 12; }
+        }
+
+        public override int TemplateHeight
+        {
+            get { return 4; }
         }
 
         public override Tile PrimaryTile
