@@ -61,7 +61,7 @@
             this._buttonAdd.ImageTransparentColor = System.Drawing.Color.Magenta;
             this._buttonAdd.Name = "_buttonAdd";
             this._buttonAdd.Size = new System.Drawing.Size(29, 22);
-            this._buttonAdd.Text = "toolStripDropDownButton1";
+            this._buttonAdd.Text = "Add Brush";
             // 
             // _buttonRemove
             // 
@@ -70,7 +70,7 @@
             this._buttonRemove.ImageTransparentColor = System.Drawing.Color.Magenta;
             this._buttonRemove.Name = "_buttonRemove";
             this._buttonRemove.Size = new System.Drawing.Size(23, 22);
-            this._buttonRemove.Text = "toolStripButton1";
+            this._buttonRemove.Text = "Delete Selected Brush";
             // 
             // toolStripSeparator1
             // 
@@ -84,13 +84,14 @@
             this._buttonFilter.ImageTransparentColor = System.Drawing.Color.Magenta;
             this._buttonFilter.Name = "_buttonFilter";
             this._buttonFilter.Size = new System.Drawing.Size(23, 22);
-            this._buttonFilter.Text = "toolStripButton2";
+            this._buttonFilter.Text = "Filter Brush List";
             // 
             // _filterSelection
             // 
             this._filterSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._filterSelection.Name = "_filterSelection";
             this._filterSelection.Size = new System.Drawing.Size(121, 25);
+            this._filterSelection.ToolTipText = "Brush Filter";
             // 
             // _listView
             // 

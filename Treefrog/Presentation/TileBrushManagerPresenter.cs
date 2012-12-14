@@ -70,6 +70,7 @@ namespace Treefrog.Presentation
             _commandManager = new CommandManager();
 
             _commandManager.Register(CommandKey.NewDynamicTileBrush, CommandCanCreateDynamicBrush, CommandCreateDynamicBrush);
+            _commandManager.Register(CommandKey.TileBrushClone, CommandCanCloneBrush, CommandCloneBrush);
             _commandManager.Register(CommandKey.TileBrushDelete, CommandCanDeleteBrush, CommandDeleteBrush);
 
             //_commandManager.Register(CommandKey.TileBrushFilter, CommandCanToggleFilter, CommandToggleFilter);
@@ -105,14 +106,52 @@ namespace Treefrog.Presentation
             }
         }
 
+        private bool CommandCanCloneBrush ()
+        {
+            return SelectedBrush != null;
+        }
+
+        private void CommandCloneBrush ()
+        {
+            if (CommandCanCloneBrush()) {
+                string name = FindCloneBrushName(SelectedBrush.Name);
+
+                DynamicBrush brush = SelectedBrush as DynamicBrush;
+                if (brush == null)
+                    return;
+
+                DynamicBrushClass brushClass;
+                if (brush.BrushClass is BasicDynamicBrushClass)
+                    brushClass = new BasicDynamicBrushClass(brush.BrushClass.TileWidth, brush.BrushClass.TileHeight);
+                else if (brush.BrushClass is ExtendedDynamicBrushClass)
+                    brushClass = new ExtendedDynamicBrushClass(brush.BrushClass.TileWidth, brush.BrushClass.TileHeight);
+                else
+                    return;
+
+                DynamicBrush newBrush = new DynamicBrush(name, brush.TileWidth, brush.TileHeight, brushClass);
+                for (int i = 0; i < brush.BrushClass.SlotCount; i++)
+                    newBrush.BrushClass.SetTile(i, brush.BrushClass.GetTile(i));
+
+                TileBrushManager.DynamicBrushes.AddBrush(newBrush);
+
+                OnSyncTileBrushCollection(EventArgs.Empty);
+                SelectBrush(newBrush.Id);
+                OnTileBrushSelected(EventArgs.Empty);
+            }
+        }
+
         private bool CommandCanDeleteBrush ()
         {
-            return false;
+            return SelectedBrush != null;
         }
 
         private void CommandDeleteBrush ()
         {
-
+            if (CommandCanDeleteBrush()) {
+                TileBrushManager.DynamicBrushes.RemoveBrush(SelectedBrush.Name);
+                OnSyncTileBrushCollection(EventArgs.Empty);
+                SelectBrush(-1);
+            }
         }
 
         #endregion
@@ -149,6 +188,9 @@ namespace Treefrog.Presentation
 
         protected virtual void OnSyncCurrentBrush (SyncTileBrushEventArgs e)
         {
+            CommandManager.Invalidate(CommandKey.TileBrushDelete);
+            CommandManager.Invalidate(CommandKey.TileBrushClone);
+
             if (SyncCurrentBrush != null)
                 SyncCurrentBrush(this, e);
         }
@@ -201,6 +243,23 @@ namespace Treefrog.Presentation
             _selectedBrushRef = newBrush;
 
             OnSyncCurrentBrush(new SyncTileBrushEventArgs(prevBrush));
+        }
+
+        private string FindCloneBrushName (string basename)
+        {
+            List<string> names = new List<string>();
+            foreach (TileBrush brush in TileBrushManager.Brushes) {
+                names.Add(brush.Name);
+            }
+
+            int i = 0;
+            while (true) {
+                string name = basename + " (" + ++i + ")";
+                if (names.Contains(name)) {
+                    continue;
+                }
+                return name;
+            }
         }
     }
 }

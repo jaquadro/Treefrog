@@ -20,6 +20,7 @@
             this._buttonCancel = new System.Windows.Forms.Button();
             this._buttonOk = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this._tilePanel = new Treefrog.Windows.TilePoolPane();
             this._toggleErase = new System.Windows.Forms.CheckBox();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this._toggleDraw = new System.Windows.Forms.CheckBox();
@@ -30,8 +31,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this._prototypeList = new System.Windows.Forms.ComboBox();
             this._nameField = new System.Windows.Forms.TextBox();
-            this._tilePanel = new Treefrog.Windows.TilePoolPane();
             this._layerControl = new Treefrog.Windows.Controls.LayerControl();
+            this._ViewportControl = new Treefrog.Windows.Controls.ViewportControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -83,6 +84,14 @@
             this.splitContainer1.SplitterDistance = 236;
             this.splitContainer1.TabIndex = 0;
             // 
+            // _tilePanel
+            // 
+            this._tilePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._tilePanel.Location = new System.Drawing.Point(0, 0);
+            this._tilePanel.Name = "_tilePanel";
+            this._tilePanel.Size = new System.Drawing.Size(236, 465);
+            this._tilePanel.TabIndex = 0;
+            // 
             // _toggleErase
             // 
             this._toggleErase.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -133,13 +142,13 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this._ViewportControl);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this._tileSizeList);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this._prototypeList);
             this.groupBox1.Controls.Add(this._nameField);
-            this.groupBox1.Controls.Add(this._layerControl);
             this.groupBox1.Location = new System.Drawing.Point(3, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(516, 412);
@@ -205,30 +214,31 @@
             this._nameField.Size = new System.Drawing.Size(177, 20);
             this._nameField.TabIndex = 3;
             // 
-            // _tilePanel
-            // 
-            this._tilePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._tilePanel.Location = new System.Drawing.Point(0, 0);
-            this._tilePanel.Name = "_tilePanel";
-            this._tilePanel.Size = new System.Drawing.Size(236, 465);
-            this._tilePanel.TabIndex = 0;
-            // 
             // _layerControl
             // 
             this._layerControl.Alignment = Treefrog.Windows.Controls.LayerControlAlignment.Center;
-            this._layerControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this._layerControl.AnnotationLayer = null;
             this._layerControl.CanAutoScroll = false;
             this._layerControl.CanvasLayer = null;
+            this._layerControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._layerControl.HeightSynced = false;
-            this._layerControl.Location = new System.Drawing.Point(6, 73);
+            this._layerControl.Location = new System.Drawing.Point(0, 0);
             this._layerControl.Name = "_layerControl";
-            this._layerControl.Size = new System.Drawing.Size(504, 333);
+            this._layerControl.Size = new System.Drawing.Size(487, 316);
             this._layerControl.TabIndex = 0;
             this._layerControl.Text = "layerControl1";
             this._layerControl.WidthSynced = false;
+            // 
+            // _ViewportControl
+            // 
+            this._ViewportControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._ViewportControl.Control = this._layerControl;
+            this._ViewportControl.Location = new System.Drawing.Point(6, 73);
+            this._ViewportControl.Name = "_ViewportControl";
+            this._ViewportControl.Size = new System.Drawing.Size(504, 333);
+            this._ViewportControl.TabIndex = 9;
             // 
             // DynamicBrushForm
             // 
@@ -267,5 +277,6 @@
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.CheckBox _toggleErase;
         private System.Windows.Forms.CheckBox _toggleDraw;
+        private Controls.ViewportControl _ViewportControl;
     }
 }

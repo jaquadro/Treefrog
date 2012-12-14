@@ -63,8 +63,11 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripMenuItem _layersViewShowNone;
         private ToolStripMenuItem _layersExportRaster;
 
+        private ToolStripMenuItem _tilesBrushes;
         private ToolStripMenuItem _tilesNewTileBrush;
         private ToolStripMenuItem _tilesNewDynamicBrush;
+        private ToolStripMenuItem _tilesBrushesClone;
+        private ToolStripMenuItem _tilesBrushesDelete;
         private ToolStripMenuItem _tilesExport;
         private ToolStripMenuItem _tilesImportOver;
 
@@ -129,7 +132,7 @@ namespace Treefrog.Windows.Controls.Composite
             _viewStrip = CreateMenuItem("&View");
 
             _projectStrip = CreateMenuItem("&Project");
-            _projectAddLevel = CreateMenuItem("Add &Level...", "Treefrog.Icons._16.map--asterisk.png");
+            _projectAddLevel = CreateMenuItem("New &Level...", "Treefrog.Icons._16.map--asterisk.png");
 
             _levelStrip = CreateMenuItem("&Levels");
 
@@ -150,12 +153,16 @@ namespace Treefrog.Windows.Controls.Composite
             _layersViewShowNone = CreateMenuItem("&None");
 
             _tileStrip = CreateMenuItem("&Tiles");
-            _tilesExport = CreateMenuItem("&Export", "Treefrog.Icons._16.drive-download.png");
-            _tilesImportOver = CreateMenuItem("&Import Over", "Treefrog.Icons._16.drive-upload.png");
+            _tilesBrushes = CreateMenuItem("&Brushes");
+            _tilesNewDynamicBrush = CreateMenuItem("New D&ynamic Brush...", "Treefrog.Icons._16.table-dynamic.png");
+            _tilesBrushesClone = CreateMenuItem("D&uplicate");
+            _tilesBrushesDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.paint-brush--minus.png");
+            _tilesExport = CreateMenuItem("&Export Raw Tileset...", "Treefrog.Icons._16.drive-download.png");
+            _tilesImportOver = CreateMenuItem("&Import Raw Tileset...", "Treefrog.Icons._16.drive-upload.png");
 
             _objectStrip = CreateMenuItem("&Objects");
             _objectsProtos = CreateMenuItem("Object &Prototypes");
-            _objectsProtosImport = CreateMenuItem("Import Object from Image", "Treefrog.Icons._16.game--plus.png");
+            _objectsProtosImport = CreateMenuItem("Import Object from Image...", "Treefrog.Icons._16.game--plus.png");
             _objectsProtosClone = CreateMenuItem("D&uplicate");
             _objectsProtosDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.game--minus.png");
             _objectsProtosProperties = CreateMenuItem("&Properties", "Treefrog.Icons._16.tags.png");
@@ -209,7 +216,13 @@ namespace Treefrog.Windows.Controls.Composite
             });
 
             _tileStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _tilesBrushes, new ToolStripSeparator(),
                 _tilesExport, _tilesImportOver,
+            });
+
+            _tilesBrushes.DropDownItems.AddRange(new ToolStripItem[] {
+                _tilesNewDynamicBrush, new ToolStripSeparator(),
+                _tilesBrushesClone, _tilesBrushesDelete,
             });
 
             _objectStrip.DropDownItems.AddRange(new ToolStripItem[] {
@@ -269,6 +282,9 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.LayerShowAll, _layersViewShowAll },
                 { CommandKey.LayerShowNone, _layersViewShowNone },
 
+                { CommandKey.NewDynamicTileBrush, _tilesNewDynamicBrush },
+                { CommandKey.TileBrushClone, _tilesBrushesClone },
+                { CommandKey.TileBrushDelete, _tilesBrushesDelete },
                 { CommandKey.TilePoolExport, _tilesExport },
                 { CommandKey.TilePoolImportOver, _tilesImportOver },
 

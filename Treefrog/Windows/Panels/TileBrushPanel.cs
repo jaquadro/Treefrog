@@ -70,6 +70,7 @@ namespace Treefrog.Windows.Panels
             if (_controller != null) {
                 _controller.SyncTileBrushManager -= SyncTileBrushManagerHandler;
                 _controller.SyncTileBrushCollection -= SyncTileBrushCollectionHandler;
+                _controller.SyncCurrentBrush -= SyncCurrentBrushHandler;
             }
 
             _controller = controller;
@@ -77,6 +78,7 @@ namespace Treefrog.Windows.Panels
             if (_controller != null) {
                 _controller.SyncTileBrushManager += SyncTileBrushManagerHandler;
                 _controller.SyncTileBrushCollection += SyncTileBrushCollectionHandler;
+                _controller.SyncCurrentBrush += SyncCurrentBrushHandler;
 
                 _commandController.BindCommandManager(_controller.CommandManager);
             }
@@ -146,6 +148,21 @@ namespace Treefrog.Windows.Panels
             if (_controller != null) {
                 ImageList imgList = BuildImageList();
                 PopulateList(imgList);
+            }
+        }
+
+        private void SyncCurrentBrushHandler (object sender, EventArgs e)
+        {
+            if (_controller != null) {
+                if (_controller.SelectedBrush == null)
+                    _listView.SelectedItems.Clear();
+                else if (_listView.SelectedItems.Count == 0 || (int)_listView.SelectedItems[0].Tag != _controller.SelectedBrush.Id) {
+                    _listView.SelectedItems.Clear();
+                    foreach (ListViewItem item in _listView.Items) {
+                        if (_controller.SelectedBrush.Id == (int)item.Tag)
+                            item.Selected = true;
+                    }
+                }
             }
         }
 

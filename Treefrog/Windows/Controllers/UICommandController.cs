@@ -28,6 +28,8 @@ namespace Treefrog.Windows.Controllers
                 _commandManager.CommandInvalidated += HandleCommandInvalidated;
                 _commandManager.ManagerInvalidated += HandleManagerInvalidated;
             }
+
+            ResetComponent();
         }
 
         public void MapButtons (IEnumerable<KeyValuePair<CommandKey, ToolStripButton>> mappings)
@@ -35,6 +37,8 @@ namespace Treefrog.Windows.Controllers
             foreach (var item in mappings) {
                 _buttonMap.Add(item.Key, item.Value);
                 item.Value.Click += BoundButtonClickHandler;
+
+                Invalidate(item.Key);
             }
         }
 
@@ -43,6 +47,8 @@ namespace Treefrog.Windows.Controllers
             foreach (var item in mappings) {
                 _menuMap.Add(item.Key, item.Value);
                 item.Value.Click += BoundMenuClickHandler;
+
+                Invalidate(item.Key);
             }
         }
 
