@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
+using Treefrog.Windows.Forms;
+using System.Windows.Forms;
 
 namespace Treefrog.Presentation
 {
@@ -31,6 +33,7 @@ namespace Treefrog.Presentation
         event EventHandler TileBrushSelected;
 
         void ActionSelectBrush (int brushId);
+        void ActionEditBrush (int brushId);
 
         void RefreshTileBrushCollection ();
     }
@@ -84,7 +87,22 @@ namespace Treefrog.Presentation
 
         private void CommandCreateDynamicBrush ()
         {
+            if (CommandCanCreateDynamicBrush()) {
+                using (DynamicBrushForm form = new DynamicBrushForm()) {
+                    form.BindTileController(_editor.Presentation.TilePoolList);
+                    foreach (TileBrush item in TileBrushManager.Brushes)
+                        form.ReservedNames.Add(item.Name);
 
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        if (TileBrushManager.DynamicBrushes.GetBrush(form.Brush.Id) == null)
+                            TileBrushManager.DynamicBrushes.AddBrush(form.Brush);
+
+                        OnSyncTileBrushCollection(EventArgs.Empty);
+                        SelectBrush(form.Brush.Id);
+                        OnTileBrushSelected(EventArgs.Empty);
+                    }
+                }
+            }
         }
 
         private bool CommandCanDeleteBrush ()
@@ -145,6 +163,26 @@ namespace Treefrog.Presentation
         {
             SelectBrush(brushId);
             OnTileBrushSelected(EventArgs.Empty);
+        }
+
+        public void ActionEditBrush (int brushId)
+        {
+            DynamicBrush brush = TileBrushManager.GetBrush(brushId) as DynamicBrush;
+            if (brush == null)
+                return;
+
+            using (DynamicBrushForm form = new DynamicBrushForm(brush)) {
+                form.BindTileController(_editor.Presentation.TilePoolList);
+                foreach (TileBrush item in TileBrushManager.Brushes)
+                    if (item.Name != brush.Name)
+                        form.ReservedNames.Add(item.Name);
+
+                if (form.ShowDialog() == DialogResult.OK) {
+                    OnSyncTileBrushCollection(EventArgs.Empty);
+                    SelectBrush(form.Brush.Id);
+                    OnTileBrushSelected(EventArgs.Empty);
+                }
+            }
         }
 
         public void RefreshTileBrushCollection ()

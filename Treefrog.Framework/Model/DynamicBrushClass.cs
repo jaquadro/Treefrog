@@ -167,6 +167,12 @@ namespace Treefrog.Framework.Model
                 Tiles[position].Tile = tile;
         }
 
+        public void SetTile (int x, int y, Tile tile)
+        {
+            int position = y * TemplateWidth + x;
+            SetTile(position, tile);
+        }
+
         public Tile GetTile (int position)
         {
             if (position >= 0 && position < Tiles.Count)

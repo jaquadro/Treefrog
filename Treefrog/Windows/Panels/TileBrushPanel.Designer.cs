@@ -88,6 +88,7 @@
             // 
             // _filterSelection
             // 
+            this._filterSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._filterSelection.Name = "_filterSelection";
             this._filterSelection.Size = new System.Drawing.Size(121, 25);
             // 

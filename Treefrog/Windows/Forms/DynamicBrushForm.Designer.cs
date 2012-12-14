@@ -7,18 +7,6 @@
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose (bool disposing)
-        {
-            if (disposing && (components != null)) {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -60,16 +48,19 @@
             this._buttonCancel.TabIndex = 1;
             this._buttonCancel.Text = "Cancel";
             this._buttonCancel.UseVisualStyleBackColor = true;
+            this._buttonCancel.Click += new System.EventHandler(this._buttonCancel_Click);
             // 
             // _buttonOk
             // 
             this._buttonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonOk.Enabled = false;
             this._buttonOk.Location = new System.Drawing.Point(363, 430);
             this._buttonOk.Name = "_buttonOk";
             this._buttonOk.Size = new System.Drawing.Size(75, 23);
             this._buttonOk.TabIndex = 2;
             this._buttonOk.Text = "OK";
             this._buttonOk.UseVisualStyleBackColor = true;
+            this._buttonOk.Click += new System.EventHandler(this._buttonOk_Click);
             // 
             // splitContainer1
             // 
@@ -96,6 +87,7 @@
             // 
             this._toggleErase.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._toggleErase.Appearance = System.Windows.Forms.Appearance.Button;
+            this._toggleErase.AutoCheck = false;
             this._toggleErase.AutoSize = true;
             this._toggleErase.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this._toggleErase.FlatAppearance.CheckedBackColor = System.Drawing.SystemColors.GradientActiveCaption;
@@ -107,6 +99,7 @@
             this._toggleErase.Size = new System.Drawing.Size(22, 22);
             this._toggleErase.TabIndex = 8;
             this._toggleErase.UseVisualStyleBackColor = true;
+            this._toggleErase.Click += new System.EventHandler(this._toggleErase_Click);
             // 
             // imageList1
             // 
@@ -119,6 +112,7 @@
             // 
             this._toggleDraw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._toggleDraw.Appearance = System.Windows.Forms.Appearance.Button;
+            this._toggleDraw.AutoCheck = false;
             this._toggleDraw.AutoSize = true;
             this._toggleDraw.Checked = true;
             this._toggleDraw.CheckState = System.Windows.Forms.CheckState.Checked;
@@ -132,6 +126,7 @@
             this._toggleDraw.Size = new System.Drawing.Size(22, 22);
             this._toggleDraw.TabIndex = 7;
             this._toggleDraw.UseVisualStyleBackColor = true;
+            this._toggleDraw.Click += new System.EventHandler(this._toggleDraw_Click);
             // 
             // groupBox1
             // 

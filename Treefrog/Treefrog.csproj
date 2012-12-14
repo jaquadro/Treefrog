@@ -204,6 +204,8 @@
     <Compile Include="Utility\Mapper.cs" />
     <Compile Include="Windows\Annotations\AnnotationRendererFactory.cs" />
     <Compile Include="Windows\Annotations\SelectionAnnotRenderer.cs" />
+    <Compile Include="Windows\Controllers\UICommandController.cs" />
+    <Compile Include="Windows\Controllers\ValidationController.cs" />
     <Compile Include="Windows\Controls\Composite\InfoStatus.cs" />
     <Compile Include="Windows\Controls\Composite\Menu.cs" />
     <Compile Include="Windows\Controls\Composite\StandardToolbar.cs" />
@@ -316,6 +318,8 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <EmbeddedResource Include="Icons\dynamicBrushEdge.png" />
+    <EmbeddedResource Include="Icons\dynamicBrushSplit.png" />
     <EmbeddedResource Include="Icons\16\drive-download.png" />
     <EmbeddedResource Include="Icons\16\drive-upload.png" />
     <EmbeddedResource Include="Icons\16\arrow-090.png" />

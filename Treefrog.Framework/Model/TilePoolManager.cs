@@ -25,7 +25,21 @@ namespace Treefrog.Framework.Model
         public TilePoolManager ()
         {
             _pools = new NamedResourceCollection<TilePool>();
+            _pools.ResourceRemoved += PoolRemovedHandler;
+
             _tileIndexMap = new Dictionary<int, TilePool>();
+        }
+
+        private void PoolRemovedHandler (object sender, NamedResourceEventArgs<TilePool> e)
+        {
+            List<int> removeQueue = new List<int>();
+            foreach (var item in _tileIndexMap) {
+                if (item.Value == e.Resource)
+                    removeQueue.Add(item.Key);
+            }
+
+            foreach (int key in removeQueue)
+                _tileIndexMap.Remove(key);
         }
 
         public NamedResourceCollection<TilePool> Pools
@@ -83,7 +97,9 @@ namespace Treefrog.Framework.Model
 
         public TilePool PoolFromTileId (int id)
         {
-            return _tileIndexMap[id];
+            TilePool pool = null;
+            _tileIndexMap.TryGetValue(id, out pool);
+            return pool;
         }
 
         internal int LastId

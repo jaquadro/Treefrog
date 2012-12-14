@@ -310,6 +310,8 @@ namespace Treefrog.Presentation
         public void ActionRemoveSelectedTilePool ()
         {
             if (_selectedPool != null && _editor.Project.TilePools.Contains(_selectedPool)) {
+                if (_selectedTiles.ContainsKey(_selectedPool))
+                    _selectedTiles.Remove(_selectedPool);
                 _editor.Project.TilePools.Remove(_selectedPool);
             }
 

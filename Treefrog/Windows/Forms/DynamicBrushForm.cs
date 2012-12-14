@@ -15,6 +15,8 @@ using Treefrog.Presentation.Tools;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Framework;
 using Treefrog.Framework.Model.Support;
+using Microsoft.Xna.Framework.Graphics;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Forms
 {
@@ -22,6 +24,7 @@ namespace Treefrog.Windows.Forms
     {
         private class LocalPointerEventResponder : PointerEventResponder
         {
+            private bool _erase;
             private DynamicBrushForm _form;
 
             public LocalPointerEventResponder (DynamicBrushForm form)
@@ -31,14 +34,34 @@ namespace Treefrog.Windows.Forms
 
             public override void HandlePointerPosition (PointerEventInfo info)
             {
+                if (_form._tileController == null || _form._layer == null)
+                    return;
+
                 TileCoord location = TileLocation(info);
                 if (!TileInRange(location))
                     return;
 
                 if (_form._tileController.SelectedTile != null) {
+                    if (_form._tileController.SelectedTile.Width != _form._layer.TileWidth ||
+                        _form._tileController.SelectedTile.Height != _form._layer.TileHeight) {
+                        MessageBox.Show("Selected tile not compatible with brush tile dimensions.", "Incompatible Tile", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
                     _form._layer.ClearTile(location.X, location.Y);
-                    _form._layer.AddTile(location.X, location.Y, _form._tileController.SelectedTile);
+                    if (!_erase)
+                        _form._layer.AddTile(location.X, location.Y, _form._tileController.SelectedTile);
                 }
+            }
+
+            public void SetDrawTool ()
+            {
+                _erase = false;
+            }
+
+            public void SetEraseTool ()
+            {
+                _erase = true;
             }
 
             private TileCoord TileLocation (PointerEventInfo info)
@@ -67,23 +90,62 @@ namespace Treefrog.Windows.Forms
         private MultiTileGridLayer _layer;
         private MultiTileControlLayer _clayer;
 
+        private ValidationController _validateController;
+
+        public DynamicBrushForm ()
+        {
+            InitializeForm();
+
+            InitializeNewBrush();
+
+            _prototypeList.SelectedIndexChanged += HandlePrototypeChanged;
+            _tileSizeList.SelectedIndexChanged += HandleTileSizeChanged;
+
+            _validateController.Validate();
+        }
+
         public DynamicBrushForm (DynamicBrush brush)
         {
-            InitializeComponent();
-            InitializePrototypeList();
-
-            _layerControl.ControlInitialized += LayerControlInitialized;
-
-            _pointerController = new PointerEventController(_layerControl);
-            _layerControl.MouseClick += _pointerController.TargetMouseClick;
-
-            _pointerResponder = new LocalPointerEventResponder(this);
-            _pointerController.Responder = _pointerResponder;
+            InitializeForm();
 
             InitializeBrush(brush);
 
             _prototypeList.SelectedIndexChanged += HandlePrototypeChanged;
             _tileSizeList.SelectedIndexChanged += HandleTileSizeChanged;
+
+            _prototypeList.Enabled = false;
+            _tileSizeList.Enabled = false;
+
+            _validateController.Validate();
+        }
+
+        private void InitializeForm ()
+        {
+            InitializeComponent();
+
+            _validateController = new ValidationController() {
+                OKButton = _buttonOk,
+            };
+
+            _validateController.RegisterControl(_nameField, ValidateName);
+
+            _validateController.RegisterValidationFunc(ValidatePrototype);
+            _validateController.RegisterValidationFunc(ValidateTileSize);
+
+            InitializePrototypeList();
+            InitializeLayers();
+        }
+
+        protected override void Dispose (bool disposing)
+        {
+            if (disposing) {
+                if (components != null)
+                    components.Dispose();
+
+                _tilePanel.BindController(null);
+                _validateController.Dispose();
+            }
+            base.Dispose(disposing);
         }
 
         private void LayerControlInitialized (object sender, EventArgs e)
@@ -94,10 +156,100 @@ namespace Treefrog.Windows.Forms
 
         public void BindTileController (ITilePoolListPresenter controller)
         {
+            if (_tileController != null) {
+                _tileController.SyncTilePoolList -= SyncTilePoolListHandler;
+            }
+
             _tileController = controller;
             _tilePanel.BindController(controller);
 
+            if (_tileController != null) {
+                _tileController.SyncTilePoolList += SyncTilePoolListHandler;
+            }
+
             InitializeTileSizeList();
+        }
+
+        private void SyncTilePoolListHandler (object sender, EventArgs e)
+        {
+            InitializeTileSizeList();
+
+            if (_layer != null) {
+                List<LocatedTile> removeQueue = new List<LocatedTile>();
+                foreach (LocatedTile tile in _layer.Tiles) {
+                    if (_tileController.TilePoolManager.PoolFromTileId(tile.Tile.Id) == null)
+                        removeQueue.Add(tile);
+                }
+
+                foreach (LocatedTile tile in removeQueue) {
+                    _layer.RemoveTile(tile.X, tile.Y, tile.Tile);
+                    RemoveTileFromBrush(_brush, tile.Tile);
+                }
+            }
+        }
+
+        private void RemoveTileFromBrush (DynamicBrush brush, Tile tile)
+        {
+            if (brush != null) {
+                for (int i = 0; i < _brush.BrushClass.SlotCount; i++) {
+                    if (_brush.BrushClass.GetTile(i) == tile)
+                        _brush.BrushClass.SetTile(i, null);
+                }
+            }
+        }
+
+        private List<string> _reservedNames = new List<string>();
+
+        public List<string> ReservedNames
+        {
+            get { return _reservedNames; }
+            set { _reservedNames = value; }
+        }
+
+        public DynamicBrush Brush
+        {
+            get { return _brush; }
+        }
+
+        private Texture2D _basicOverlay;
+        private Texture2D _extendedOverlay;
+
+        private void DrawOverlay (object sender, DrawLayerEventArgs e)
+        {
+            if (_basicOverlay == null) {
+                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                _basicOverlay = Texture2D.FromStream(e.SpriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.dynamicBrushSplit.png"));
+            }
+            if (_extendedOverlay == null) {
+                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                _extendedOverlay = Texture2D.FromStream(e.SpriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.dynamicBrushEdge.png"));
+            }
+
+            Texture2D overlay;
+            if (_brush.BrushClass is BasicDynamicBrushClass)
+                overlay = _basicOverlay;
+            else if (_brush.BrushClass is ExtendedDynamicBrushClass)
+                overlay = _extendedOverlay;
+            else
+                return;
+
+            int width = (int)(overlay.Width * e.Zoom * (_brush.TileWidth / 16.0));
+            int height = (int)(overlay.Height * e.Zoom * (_brush.TileHeight / 16.0));
+
+            Microsoft.Xna.Framework.Rectangle dstRect = new Microsoft.Xna.Framework.Rectangle(0, 0, width, height);
+            e.SpriteBatch.Draw(overlay, dstRect, new Microsoft.Xna.Framework.Color(1f, 1f, 1f, .5f));
+        }
+
+        private void InitializeLayers ()
+        {
+            _layerControl.Zoom = 2f;
+            _layerControl.ControlInitialized += LayerControlInitialized;
+
+            _pointerController = new PointerEventController(_layerControl);
+            _layerControl.MouseClick += _pointerController.TargetMouseClick;
+
+            _pointerResponder = new LocalPointerEventResponder(this);
+            _pointerController.Responder = _pointerResponder;
         }
 
         private void InitializeBrush (DynamicBrush brush)
@@ -116,6 +268,7 @@ namespace Treefrog.Windows.Forms
             _clayer.ShouldDrawContent = LayerCondition.Always;
             _clayer.ShouldDrawGrid = LayerCondition.Always;
             _clayer.ShouldRespondToInput = LayerCondition.Always;
+            _clayer.PreDrawContent += DrawOverlay;
 
             _nameField.Text = brush.Name;
 
@@ -138,8 +291,13 @@ namespace Treefrog.Windows.Forms
 
         private void SelectCurrentPrototype ()
         {
-            if (_brush == null)
+            if (_brush == null) {
+                if (_prototypeList.Items.Count > 0)
+                    _prototypeList.SelectedIndex = 0;
+
+                _validateController.Validate();
                 return;
+            }
 
             for (int i = 0; i < _prototypeList.Items.Count; i++) {
                 string item = _prototypeList.Items[i] as string;
@@ -148,6 +306,8 @@ namespace Treefrog.Windows.Forms
                     break;
                 }
             }
+
+            _validateController.Validate();
         }
 
         private class TileSize
@@ -185,13 +345,26 @@ namespace Treefrog.Windows.Forms
                 }
             }
 
+            if (_brush != null) {
+                if (!_availableSizes.Exists(sz => { return sz.Width == _brush.TileWidth && sz.Height == _brush.TileHeight; })) {
+                    TileSize brushSize = new TileSize(_brush.TileWidth, _brush.TileHeight);
+                    _availableSizes.Add(brushSize);
+                    _tileSizeList.Items.Add(brushSize);
+                }
+            }
+
             SelectCurrentTileSize();
         }
 
         private void SelectCurrentTileSize ()
         {
-            if (_brush == null)
+            if (_brush == null) {
+                if (_tileSizeList.Items.Count > 0)
+                    _tileSizeList.SelectedIndex = 0;
+
+                _validateController.Validate();
                 return;
+            }
 
             for (int i = 0; i < _tileSizeList.Items.Count; i++) {
                 TileSize item = _tileSizeList.Items[i] as TileSize;
@@ -200,6 +373,8 @@ namespace Treefrog.Windows.Forms
                     break;
                 }
             }
+
+            _validateController.Validate();
         }
 
         private void HandlePrototypeChanged (object sender, EventArgs e)
@@ -242,7 +417,77 @@ namespace Treefrog.Windows.Forms
                     return;
             }
 
-            InitializeBrush(new DynamicBrush(_brush.Name, size.Width, size.Height, brushClass));
+            string name = "";
+            if (_brush != null)
+                name = _brush.Name;
+
+            InitializeBrush(new DynamicBrush(name, size.Width, size.Height, brushClass));
+        }
+
+        private void _buttonOk_Click (object sender, EventArgs e)
+        {
+            if (!_validateController.ValidateForm())
+                return;
+
+            _brush.SetName(_nameField.Text);
+
+            for (int i = 0; i < _brush.BrushClass.SlotCount; i++)
+                _brush.BrushClass.SetTile(i, null);
+
+            foreach (LocatedTile tile in _layer.Tiles) {
+                _brush.BrushClass.SetTile(tile.Location.X, tile.Location.Y, tile.Tile);
+            }
+
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void _buttonCancel_Click (object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
+        private void _toggleDraw_Click (object sender, EventArgs e)
+        {
+            _toggleDraw.Checked = true;
+            _toggleErase.Checked = false;
+            _pointerResponder.SetDrawTool();
+        }
+
+        private void _toggleErase_Click (object sender, EventArgs e)
+        {
+            _toggleDraw.Checked = false;
+            _toggleErase.Checked = true;
+            _pointerResponder.SetEraseTool();
+        }
+
+        private string ValidateName ()
+        {
+            string txt = _nameField.Text.Trim();
+
+            if (String.IsNullOrEmpty(txt))
+                return "Name field must be non-empty.";
+            else if (_reservedNames.Contains(txt))
+                return "A resource with this name already exists.";
+            else
+                return null;
+        }
+
+        private string ValidatePrototype ()
+        {
+            if (_prototypeList.SelectedItem == null)
+                return "A brush prototype must be selected.";
+            else
+                return null;
+        }
+
+        private string ValidateTileSize ()
+        {
+            if (_tileSizeList.SelectedItem == null)
+                return "A tile size must be selected.";
+            else
+                return null;
         }
     }
 }

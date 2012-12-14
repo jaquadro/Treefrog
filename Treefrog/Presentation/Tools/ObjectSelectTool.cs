@@ -118,6 +118,11 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
+        protected override void PointerPositionCore (PointerEventInfo info, IViewport viewport)
+        {
+            SelectObjectPosition(info, viewport);
+        }
+
         #region Command Handling
 
         private CommandManager _commandManager;
@@ -366,6 +371,19 @@ namespace Treefrog.Presentation.Tools
                     EndDrag(info, viewport);
                     break;
             }
+        }
+
+        private void SelectObjectPosition (PointerEventInfo info, IViewport viewport)
+        {
+            foreach (SelectedObjectRecord record in _selectedObjects) {
+                if (record.Instance.ImageBounds.Contains(new Point((int)info.X, (int)info.Y))) {
+                    Cursor.Current = Cursors.SizeAll;
+                    return;
+                }
+            }
+
+            // Pointer not over any selected object
+            Cursor.Current = Cursors.Default;
         }
 
         #region Move Actions

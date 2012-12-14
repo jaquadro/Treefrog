@@ -72,6 +72,11 @@ namespace Treefrog.Framework.Imaging
         {
         }
 
+        public bool Contains (Point point)
+        {
+            return point.X >= Left && point.X < Right && point.Y >= Top && point.Y < Bottom;
+        }
+
         public static bool IsAreaNegative (Rectangle rect)
         {
             return IsAreaNegativeOrEmpty(rect) && !IsAreaEmpty(rect);

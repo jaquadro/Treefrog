@@ -12,6 +12,9 @@ using Treefrog.Framework.Model;
 
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 using Treefrog.Windows.Forms;
+using Treefrog.Presentation.Commands;
+using Treefrog.Utility;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Panels
 {
@@ -19,6 +22,8 @@ namespace Treefrog.Windows.Panels
     {
         private ITileBrushManagerPresenter _controller;
         private ITilePoolListPresenter _tileController;
+
+        private UICommandController _commandController;
 
         public TileBrushPanel ()
         {
@@ -42,6 +47,14 @@ namespace Treefrog.Windows.Panels
                 buttonAddDynamic,
             });
 
+            _commandController = new UICommandController();
+            _commandController.MapButtons(new Dictionary<CommandKey, ToolStripButton>() {
+                { CommandKey.TileBrushDelete, _buttonRemove },
+            });
+            _commandController.MapMenuItems(new Dictionary<CommandKey, ToolStripMenuItem>() {
+                { CommandKey.NewDynamicTileBrush, buttonAddDynamic },
+            });
+
             // Wire Events
 
             _listView.ItemSelectionChanged += ListViewSelectionChangedHandler;
@@ -56,15 +69,19 @@ namespace Treefrog.Windows.Panels
 
             if (_controller != null) {
                 _controller.SyncTileBrushManager -= SyncTileBrushManagerHandler;
+                _controller.SyncTileBrushCollection -= SyncTileBrushCollectionHandler;
             }
 
             _controller = controller;
 
             if (_controller != null) {
                 _controller.SyncTileBrushManager += SyncTileBrushManagerHandler;
+                _controller.SyncTileBrushCollection += SyncTileBrushCollectionHandler;
+
+                _commandController.BindCommandManager(_controller.CommandManager);
             }
             else {
-                ResetComponent();
+                _commandController.BindCommandManager(null);
             }
         }
 
@@ -96,13 +113,21 @@ namespace Treefrog.Windows.Panels
         private void ListViewItemActivateHandler (object sender, EventArgs e)
         {
             if (_controller != null) {
-                foreach (ListViewItem item in _listView.SelectedItems)
+                foreach (ListViewItem item in _listView.SelectedItems) {
                     _controller.ActionSelectBrush((int)item.Tag);
+                    return;
+                }
             }
         }
 
         private void ListViewMouseDoubleClick (object sender, MouseEventArgs e)
         {
+            if (_controller != null) {
+                foreach (ListViewItem item in _listView.SelectedItems) {
+                    _controller.ActionEditBrush((int)item.Tag);
+                    return;
+                }
+            }
             DynamicBrushForm brushForm = new DynamicBrushForm(_controller.SelectedBrush as DynamicBrush);
             brushForm.BindTileController(_tileController);
             brushForm.ShowDialog();
@@ -116,13 +141,18 @@ namespace Treefrog.Windows.Panels
             }
         }
 
+        private void SyncTileBrushCollectionHandler (object sender, EventArgs e)
+        {
+            if (_controller != null) {
+                ImageList imgList = BuildImageList();
+                PopulateList(imgList);
+            }
+        }
+
         private void ResetComponent ()
         {
             _filterSelection.Items.Clear();
             _filterSelection.Text = "";
-
-            //_buttonAdd.Enabled = false;
-            _buttonRemove.Enabled = false;
         }
 
         private void PopulateList (ImageList imgList)
