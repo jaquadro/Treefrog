@@ -10,6 +10,12 @@ using Treefrog.Presentation.Tools;
 using Treefrog.Prseentation.Tools;
 using Treefrog.Presentation.Commands;
 using System.Collections.Generic;
+using Treefrog.Framework.Model.Support;
+using Treefrog.Aux;
+
+using SysDrawing = System.Drawing;
+using SysImaging = System.Drawing.Imaging;
+using SysDrawing2D = System.Drawing.Drawing2D;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -657,6 +663,7 @@ namespace Treefrog.Presentation.Layers
             _commandManager.Register(CommandKey.Copy, CommandCanCopy, CommandCopy);
             _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
             _commandManager.Register(CommandKey.Delete, CommandCanDelete, CommandDelete);
+            _commandManager.Register(CommandKey.LayerExportRaster, CommandCanExportRaster, CommandExportRaster);
 
             _commandManager.RegisterToggleGroup(CommandToggleGroup.TileTool, CommandGroupCheckTileTool, CommandGroupPerformTileTool);
             _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolSelect);
@@ -824,6 +831,62 @@ namespace Treefrog.Presentation.Layers
                     break;
             }
         }
+
+        #region Export Raster
+
+        private bool CommandCanExportRaster ()
+        {
+            return Layer != null && Layer is TileGridLayer;
+        }
+
+        private void CommandExportRaster ()
+        {
+            if (!CommandCanExportRaster())
+                return;
+
+            SaveFileDialog ofd = new SaveFileDialog();
+            ofd.Title = "Export Layer to Image";
+            ofd.Filter = "Portable Network Graphics (*.png)|*.png|Windows Bitmap (*.bmp)|*.bmp|All Files|*";
+            ofd.OverwritePrompt = true;
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            TileGridLayer layer = Layer as TileGridLayer;
+
+            Control.UseWaitCursor = true;
+
+            try {
+                using (SysDrawing.Bitmap raster = new SysDrawing.Bitmap(VirtualWidth, VirtualHeight, SysImaging.PixelFormat.Format32bppArgb)) {
+                    using (SysDrawing.Graphics gsurface = SysDrawing.Graphics.FromImage(raster)) {
+                        gsurface.CompositingMode = SysDrawing2D.CompositingMode.SourceOver;
+                        gsurface.InterpolationMode = SysDrawing2D.InterpolationMode.NearestNeighbor;
+
+                        foreach (LocatedTile tile in layer.Tiles) {
+                            RasterizeTile(gsurface, tile);
+                        }
+                    }
+
+                    raster.Save(ofd.FileName, SysImaging.ImageFormat.Png);
+                }
+            }
+            catch (Exception e) {
+                MessageBox.Show("Layer rasterization failed with the following exception:\n\n" + e.Message, "Rasterization Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            Control.UseWaitCursor = false;
+        }
+
+        private void RasterizeTile (SysDrawing.Graphics surface, LocatedTile tile)
+        {
+            using (SysDrawing.Bitmap tileBmp = tile.Tile.Pool.GetTileTexture(tile.Tile.Id).CreateBitmap()) {
+                SysDrawing.Point location = new SysDrawing.Point(tile.X * Layer.TileWidth, tile.Y * Layer.TileHeight);
+                surface.DrawImage(tileBmp, location);
+            }
+        }
+
+        #endregion
 
         #endregion
 

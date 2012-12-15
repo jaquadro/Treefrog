@@ -151,6 +151,7 @@ namespace Treefrog.Windows.Controls.Composite
             _layersViewShowCurrentOnly = CreateMenuItem("Show &Current Layer Only");
             _layersViewShowAll = CreateMenuItem("&All");
             _layersViewShowNone = CreateMenuItem("&None");
+            _layersExportRaster = CreateMenuItem("E&xport Raster Image");
 
             _tileStrip = CreateMenuItem("&Tiles");
             _tilesBrushes = CreateMenuItem("&Brushes");
@@ -204,7 +205,8 @@ namespace Treefrog.Windows.Controls.Composite
             _layerStrip.DropDownItems.AddRange(new ToolStripItem[] {
                 _layersNewTile, _layersNewObject, new ToolStripSeparator(),
                 _layersClone, _layersDelete, _layersProperties, new ToolStripSeparator(),
-                _layersArrange, _layersView,
+                _layersArrange, _layersView, new ToolStripSeparator(),
+                _layersExportRaster,
             });
 
             _layersArrange.DropDownItems.AddRange(new ToolStripItem[] {
@@ -281,6 +283,7 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.LayerShowCurrentOnly, _layersViewShowCurrentOnly },
                 { CommandKey.LayerShowAll, _layersViewShowAll },
                 { CommandKey.LayerShowNone, _layersViewShowNone },
+                { CommandKey.LayerExportRaster, _layersExportRaster },
 
                 { CommandKey.NewDynamicTileBrush, _tilesNewDynamicBrush },
                 { CommandKey.TileBrushClone, _tilesBrushesClone },

@@ -44,6 +44,7 @@ namespace Treefrog.Presentation.Commands
         LayerShowCurrentOnly,
         LayerShowAll,
         LayerShowNone,
+        LayerExportRaster,
 
         TilePoolExport,
         TilePoolImportOver,
