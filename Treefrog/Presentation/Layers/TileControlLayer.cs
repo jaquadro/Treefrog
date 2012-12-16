@@ -282,10 +282,15 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
-            //offset.X -= Control.OriginX;
-            //offset.Y -= Control.OriginY;
+            spriteBatch.GraphicsDevice.ScissorRectangle = Control.VisibleSurface;
+            RasterizerState state = new RasterizerState() {
+                ScissorTestEnable = true,
+            };
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+            if (spriteBatch.GraphicsDevice.ScissorRectangle.IsEmpty)
+                state.ScissorTestEnable = false;
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, state, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
 
             return offset;
         }
@@ -302,15 +307,6 @@ namespace Treefrog.Presentation.Layers
             }
 
             Rectangle region = Control.VisibleRegion;
-            //region.X += _layer.LayerOriginX;
-            //region.Y += _layer.LayerOriginY;
-
-            /*Vector2 offset = Control.VirtualSurfaceOffset;
-            offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
-            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
-
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
-            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;*/
 
             int zoomTileWidth = (int)(_layer.TileWidth * Control.Zoom);
             int zoomTileHeight = (int)(_layer.TileHeight * Control.Zoom);
@@ -318,8 +314,8 @@ namespace Treefrog.Presentation.Layers
             TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
                 (int)Math.Floor(region.X * 1.0 / _layer.TileWidth),
                 (int)Math.Floor(region.Y * 1.0 / _layer.TileHeight),
-                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
-                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
+                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth * 2 - 1) / _layer.TileWidth,
+                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight * 2 - 1) / _layer.TileHeight
                 );
             tileRegion.Width = Math.Min(tileRegion.Width, (int)Math.Ceiling(_layer.LayerWidth * 1.0 / _layer.TileWidth));
             tileRegion.Height = Math.Min(tileRegion.Height, (int)Math.Ceiling(_layer.LayerHeight * 1.0 / _layer.TileHeight));
@@ -341,7 +337,15 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+            Matrix m = Matrix.CreateTranslation(offset.X, offset.Y, 0);
+            Matrix s = Matrix.CreateScale(Control.Zoom);
+            Matrix f = m;// *s;
+
+            spriteBatch.GraphicsDevice.ScissorRectangle = Control.VisibleSurface;
+            RasterizerState state = new RasterizerState() {
+                ScissorTestEnable = true,
+            };
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, state, null, f);
 
             TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
                 (int)Math.Floor(region.X * 1.0 / _layer.TileWidth),
@@ -361,9 +365,9 @@ namespace Treefrog.Presentation.Layers
                     bool iUpper = inside(x, y - 1);
                     bool iUpperLeft = inside(x - 1, y - 1);
 
-                    //Vector2 pos = new Vector2(x * _layer.TileWidth * Control.Zoom, y * _layer.TileHeight * Control.Zoom);
+                    Vector2 pos = new Vector2(x * _layer.TileWidth * Control.Zoom, y * _layer.TileHeight * Control.Zoom);
 
-                    Rectangle dest = new Rectangle(
+                    /*Rectangle dest = new Rectangle(
                         (int)Math.Max(x * _layer.TileWidth * Control.Zoom, Control.OriginX * Control.Zoom),
                         (int)Math.Max(y * _layer.TileHeight * Control.Zoom, Control.OriginY * Control.Zoom),
                         (int)Math.Min(_layer.TileWidth, _layer.TileWidth - (Control.OriginX * Control.Zoom - x * _layer.TileWidth * Control.Zoom)),
@@ -380,16 +384,16 @@ namespace Treefrog.Presentation.Layers
                         (dest.Y % _layer.TileHeight + _layer.TileHeight) % _layer.TileHeight,
                         dest.Width,
                         dest.Height
-                        );
+                        );*/
 
                     if (iCenter || (iLeft && iUpper)) {
-                        spriteBatch.Draw(_tileGridBrush, dest, src, Color.White);
+                        spriteBatch.Draw(_tileGridBrush, pos, Color.White);
                     }
                     else if (iLeft) {
-                        spriteBatch.Draw(_tileGridBrushRight, dest, src, Color.White);
+                        spriteBatch.Draw(_tileGridBrushRight, pos, Color.White);
                     }
                     else if (iUpper) {
-                        spriteBatch.Draw(_tileGridBrushBottom, dest, src, Color.White);
+                        spriteBatch.Draw(_tileGridBrushBottom, pos, Color.White);
                     }
                     if (iUpperLeft) {
                         continue;

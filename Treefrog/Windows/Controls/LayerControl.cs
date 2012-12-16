@@ -204,32 +204,32 @@ namespace Treefrog.Windows.Controls
                 float offsetX = 0;
                 float offsetY = 0;
 
-                if (Width > VirtualWidth * _zoom) {
+                if (Width > ReferenceWidth * _zoom) {
                     switch (_alignment) {
                         case LayerControlAlignment.Center:
                         case LayerControlAlignment.Upper:
                         case LayerControlAlignment.Lower:
-                            offsetX = (Width - VirtualWidth * _zoom) / 2;
+                            offsetX = (Width - ReferenceWidth * _zoom) / 2;
                             break;
                         case LayerControlAlignment.Right:
                         case LayerControlAlignment.UpperRight:
                         case LayerControlAlignment.LowerRight:
-                            offsetX = (Width - VirtualWidth * _zoom);
+                            offsetX = (Width - ReferenceWidth * _zoom);
                             break;
                     }
                 }
 
-                if (Height > VirtualHeight * _zoom) {
+                if (Height > ReferenceHeight * _zoom) {
                     switch (_alignment) {
                         case LayerControlAlignment.Center:
                         case LayerControlAlignment.Left:
                         case LayerControlAlignment.Right:
-                            offsetY = (Height - VirtualHeight * _zoom) / 2;
+                            offsetY = (Height - ReferenceHeight * _zoom) / 2;
                             break;
                         case LayerControlAlignment.Lower:
                         case LayerControlAlignment.LowerLeft:
                         case LayerControlAlignment.LowerRight:
-                            offsetY = (Height - VirtualHeight * _zoom);
+                            offsetY = (Height - ReferenceHeight * _zoom);
                             break;
                     }
                 }
@@ -276,7 +276,17 @@ namespace Treefrog.Windows.Controls
             }
         }
 
-        
+        public Rectangle VisibleSurface
+        {
+            get
+            {
+                Vector2 offset = VirtualSurfaceOffset;
+                return new Rectangle((int)Math.Ceiling(offset.X), (int)Math.Ceiling(offset.Y),
+                    (int)Math.Ceiling(Math.Min(Width, ReferenceWidth * _zoom)),
+                    (int)Math.Ceiling(Math.Min(Height, ReferenceHeight * _zoom))
+                    );
+            }
+        }
 
         public IEnumerable<BaseControlLayer> ControlLayers
         {
