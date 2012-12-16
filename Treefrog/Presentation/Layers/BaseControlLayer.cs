@@ -17,6 +17,8 @@ namespace Treefrog.Presentation.Layers
         private Layer _layer;
         private bool _visible;
 
+        private IContentInfoPresenter _info;
+
         #endregion
 
         #region Properties
@@ -56,6 +58,11 @@ namespace Treefrog.Presentation.Layers
 
         #endregion
 
+        public void BindContentInfoController (IContentInfoPresenter controller)
+        {
+            _info = controller;
+        }
+
         #region Properties
 
         public Layer Layer
@@ -76,6 +83,11 @@ namespace Treefrog.Presentation.Layers
         public abstract int VirtualHeight { get; }
 
         public abstract int VirtualWidth { get; }
+
+        protected IContentInfoPresenter ContentInfo
+        {
+            get { return _info; }
+        }
 
         #endregion
 

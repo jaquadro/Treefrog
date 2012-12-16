@@ -1,4 +1,5 @@
 ﻿using System;
+using Treefrog.Framework.Model;
 
 namespace Treefrog.Presentation
 {
@@ -11,6 +12,8 @@ namespace Treefrog.Presentation
 
         void ActionZoom (float zoom);
         void ActionUpdateCoordinates (string coords);
+
+        Layer CurrentLayer { get; }
 
         event EventHandler SyncContentInfoActions;
         event EventHandler SyncZoomLevel;
@@ -61,6 +64,11 @@ namespace Treefrog.Presentation
         public string CoordinateString
         {
             get { return (_curPresenter != null) ? _curPresenter.CoordinateString : ""; }
+        }
+
+        public Layer CurrentLayer
+        {
+            get { return (_curPresenter != null) ? _curPresenter.CurrentLayer : null; }
         }
 
         public void ActionZoom (float zoom)
@@ -158,6 +166,11 @@ namespace Treefrog.Presentation
         public string CoordinateString
         {
             get { return _coordinates; }
+        }
+
+        public Layer CurrentLayer
+        {
+            get { return _level.SelectedLayer; }
         }
 
         public void ActionZoom (float zoom)

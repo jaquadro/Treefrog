@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Presentation;
+using Treefrog.Framework.Model;
 
 namespace Treefrog.Windows.Controls.Composite
 {
@@ -15,6 +16,7 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripStatusLabel _statusZoomOut;
         private ToolStripStatusLabel _statusZoomText;
         private ToolStripStatusLabel _statusInfo;
+        private ToolStripStatusLabel _statusLayer;
 
         private TrackBar _trackBarZoom;
         private ToolStripItem _trackBarZoomItem;
@@ -51,8 +53,20 @@ namespace Treefrog.Windows.Controls.Composite
             _statusCoord.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.status-loc.png"));
             _statusCoord.ImageScaling = ToolStripItemImageScaling.None;
             _statusCoord.ImageAlign = ContentAlignment.MiddleLeft;
-            _statusCoord.Width = 70;
+            _statusCoord.Width = 80;
             _statusCoord.BorderSides = ToolStripStatusLabelBorderSides.Right;
+
+            // Layer
+
+            _statusLayer = new ToolStripStatusLabel();
+            _statusLayer.AutoSize = true;
+            _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
+            _statusLayer.ImageScaling = ToolStripItemImageScaling.None;
+            _statusLayer.ImageAlign = ContentAlignment.MiddleLeft;
+            _statusLayer.BorderSides = ToolStripStatusLabelBorderSides.Right;
+            _statusLayer.Margin = new Padding(6, 3, 0, 2);
+
+            // Info
 
             _statusInfo = new ToolStripStatusLabel();
             _statusInfo.Spring = true;
@@ -95,6 +109,7 @@ namespace Treefrog.Windows.Controls.Composite
 
             _statusBar.Items.AddRange(new ToolStripItem[] {
                 _statusCoord,
+                _statusLayer,
                 _statusInfo,
                 _statusZoomText,
                 _statusZoomOut,
@@ -149,6 +164,7 @@ namespace Treefrog.Windows.Controls.Composite
         private void ResetComponent ()
         {
             _statusCoord.Text = "";
+            _statusLayer.Text = "";
             _statusZoomText.Text = "100%";
             _trackBarZoom.Value = 2;
 
@@ -179,6 +195,15 @@ namespace Treefrog.Windows.Controls.Composite
         {
             if (_controller != null) {
                 _statusCoord.Text = _controller.CoordinateString;
+
+                _statusLayer.Text = (_controller.CurrentLayer != null)
+                    ? _controller.CurrentLayer.Name : "";
+
+                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                if (_controller.CurrentLayer is MultiTileGridLayer)
+                    _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
+                else if (_controller.CurrentLayer is ObjectLayer)
+                    _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
             }
         }
 

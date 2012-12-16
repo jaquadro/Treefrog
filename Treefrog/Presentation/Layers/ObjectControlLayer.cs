@@ -263,6 +263,9 @@ namespace Treefrog.Presentation.Layers
         {
             if (_currentTool != null)
                 _currentTool.PointerPosition(info, new LayerControlViewport(Control));
+
+            if (ContentInfo != null)
+                ContentInfo.ActionUpdateCoordinates(info.X + ", " + info.Y);
         }
 
         public void HandlePointerLeaveField ()

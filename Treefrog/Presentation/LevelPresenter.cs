@@ -233,6 +233,8 @@ namespace Treefrog.Presentation
                 clayer.ShouldDrawGrid = LayerCondition.Selected;
                 clayer.ShouldRespondToInput = LayerCondition.Selected;
 
+                clayer.BindContentInfoController(_info);
+
                 IPointerToolResponder pointerLayer = clayer as IPointerToolResponder;
                 if (pointerLayer != null)
                     pointerLayer.BindLevelController(this);
@@ -713,6 +715,8 @@ namespace Treefrog.Presentation
             }
 
             OnSyncCurrentLayer(new SyncLayerEventArgs(prevLayer, prevControlLayer));
+
+            _info.RefreshContentInfo();
         }
 
         private void LayerMouseMoveHandler (object sender, TileMouseEventArgs e)
