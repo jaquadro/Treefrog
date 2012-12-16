@@ -304,103 +304,6 @@ namespace Treefrog.Framework.Model
             return y - TileOriginY;
         }
 
-        /*
-        #region XML Import / Export
-
-        public override void WriteXml (XmlWriter writer)
-        {
-            // <layer name="" type="multi">
-            writer.WriteStartElement("layer");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("type", "tilemulti");
-
-            if (Opacity < 1f) {
-                writer.WriteAttributeString("opacity", Opacity.ToString("0.###"));
-            }
-
-            if (!IsVisible) {
-                writer.WriteAttributeString("visible", "False");
-            }
-
-            writer.WriteStartElement("tiles");
-            foreach (LocatedTileStack ts in TileStacks) {
-                if (ts.Stack != null && ts.Stack.Count > 0) {
-                    List<string> ids = new List<string>();
-                    foreach (Tile tile in ts.Stack) {
-                        ids.Add(tile.Id.ToString());
-                    }
-                    string idSet = String.Join(",", ids.ToArray());
-
-                    writer.WriteStartElement("tile");
-                    writer.WriteAttributeString("at", ts.X + "," + ts.Y);
-                    writer.WriteString(idSet);
-                    writer.WriteEndElement();
-                }
-            }
-            writer.WriteEndElement();
-
-            // <properties> [optional]
-            if (CustomProperties.Count > 0) {
-                writer.WriteStartElement("properties");
-
-                foreach (Property property in CustomProperties) {
-                    property.WriteXml(writer);
-                }
-                writer.WriteEndElement();
-            }
-
-            writer.WriteEndElement();
-        }
-
-        protected override bool ReadXmlElement (XmlReader reader, string name)
-        {
-            switch (name) {
-                case "tiles":
-                    ReadXmlTiles(reader);
-                    return true;
-            }
-
-            return base.ReadXmlElement(reader, name);
-        }
-
-        private void ReadXmlTiles (XmlReader reader)
-        {
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "tile":
-                        AddTileFromXml(xmlr);
-                        break;
-                }
-            });
-        }
-
-        private void AddTileFromXml (XmlReader reader)
-        {
-            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "at",
-            });
-
-            string[] coords = attribs["at"].Split(new char[] { ',' });
-
-            string idstr = reader.ReadString();
-            string[] ids = idstr.Split(new char[] { ',' });
-
-            TilePoolManager manager = Level.Project.TilePoolManager;
-
-            foreach (string id in ids) {
-                int tileId = Convert.ToInt32(id);
-
-                TilePool pool = manager.PoolFromTileId(tileId);
-                Tile tile = pool.GetTile(tileId);
-
-                AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
-            }
-        }
-
-        #endregion
-        */
-
         #region ICloneable Members
 
         public override object Clone ()
@@ -409,9 +312,5 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
-
-        
     }
-
-    
 }

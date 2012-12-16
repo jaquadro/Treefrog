@@ -182,8 +182,6 @@ namespace Treefrog.Framework.Model
 
             XmlReader reader = XmlTextReader.Create(stream, settings);
 
-            //Project project = Project.FromXml(reader, device);
-
             XmlSerializer serializer = new XmlSerializer(typeof(ProjectXmlProxy));
             ProjectXmlProxy proxy = serializer.Deserialize(reader) as ProjectXmlProxy;
             Project project = Project.FromXmlProxy(proxy);
@@ -203,156 +201,12 @@ namespace Treefrog.Framework.Model
 
             XmlWriter writer = XmlTextWriter.Create(stream, settings);
 
-            //WriteXml(writer);
-
             ProjectXmlProxy proxy = Project.ToXmlProxy(this);
             XmlSerializer serializer = new XmlSerializer(typeof(ProjectXmlProxy));
             serializer.Serialize(writer, proxy);
 
             writer.Close();
         }
-
-        /*
-        #region XML Import / Export
-
-        public static Project FromXml (XmlReader reader)
-        {
-            Project project = new Project();
-
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "project":
-                        project.ReadXmlProject(xmlr);
-                        break;
-                }
-            });
-
-            return project;
-        }
-
-        public void WriteXml (XmlWriter writer)
-        {
-            // <project>
-            writer.WriteStartElement("project");
-
-            // <ObjectPools>
-            XmlSerializer serializer = new XmlSerializer(typeof(ObjectPoolManagerXmlProxy));
-            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-            ns.Add("", "");
-            serializer.Serialize(writer, ObjectPoolManager.ToXmlProxy(_objectPools), ns);
-
-            //   <tilesets>
-            writer.WriteStartElement("tilesets");
-            writer.WriteAttributeString("lastid", _tilePools.LastId.ToString());
-
-            foreach (TilePool pool in TilePools) {
-                pool.WriteXml(writer);
-            }
-            writer.WriteEndElement();
-
-            //   <templates>
-            writer.WriteStartElement("templates");
-            writer.WriteEndElement();
-
-            //   <levels>
-            writer.WriteStartElement("levels");
-            foreach (Level level in _levels) {
-                level.WriteXml(writer);
-            }
-            writer.WriteEndElement();
-
-            writer.WriteEndElement();
-        }
-
-        public void WriteXmlTilesets (XmlWriter writer)
-        {
-            writer.WriteStartElement("tilesets");
-            writer.WriteAttributeString("lastid", _tilePools.LastId.ToString());
-
-            foreach (TilePool pool in TilePools) {
-                pool.WriteXml(writer);
-            }
-            writer.WriteEndElement();
-        }
-
-        private void ReadXmlProject (XmlReader reader)
-        {
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    //case "tilesets":
-                    //    ReadXmlTilesets(xmlr);
-                    //    break;
-                    case "TilePools":
-                        ReadXmlTilePools(xmlr);
-                        break;
-                    case "levels":
-                        ReadXmlLevels(xmlr);
-                        break;
-                    case "ObjectPools":
-                        ReadXmlObjectPools(xmlr);
-                        break;
-                }
-            });
-        }
-
-        private void ReadXmlObjectPools (XmlReader reader)
-        {
-            reader.MoveToContent();
-
-            XmlSerializer serializer = new XmlSerializer(typeof(ObjectPoolManagerXmlProxy));
-            ObjectPoolManagerXmlProxy proxy = serializer.Deserialize(reader) as ObjectPoolManagerXmlProxy;
-            _objectPools = ObjectPoolManager.FromXmlProxy(proxy);
-        }
-
-        private void ReadXmlTilePools (XmlReader reader)
-        {
-            reader.MoveToContent();
-
-            XmlSerializer serializer = new XmlSerializer(typeof(TilePoolManagerXmlProxy));
-            TilePoolManagerXmlProxy proxy = serializer.Deserialize(reader) as TilePoolManagerXmlProxy;
-            _tilePools = TilePoolManager.FromXmlProxy(proxy);
-        }
-
-        public void ReadXmlTilesets (XmlReader reader)
-        {
-            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "lastid",
-            });
-
-            _tilePools.LastId = Convert.ToInt32(attribs["lastid"]);
-
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "tileset":
-                        TilePool.FromXml(xmlr, _tilePools);
-                        break;
-                }
-            });
-        }
-
-        private void ReadXmlLevels (XmlReader reader)
-        {
-            reader.MoveToContent();
-
-            XmlSerializer serializer = new XmlSerializer(typeof(LevelXmlProxy));
-            TilePoolManagerXmlProxy proxy = serializer.Deserialize(reader) as TilePoolManagerXmlProxy;
-            _tilePools = TilePoolManager.FromXmlProxy(proxy);
-
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "level":
-                        _levels.Add(Level.FromXml(xmlr, this));
-                        break;
-                }
-            });
-        }
-
-        #endregion
-        */
 
         public static Project FromXmlProxy (ProjectXmlProxy proxy)
         {
