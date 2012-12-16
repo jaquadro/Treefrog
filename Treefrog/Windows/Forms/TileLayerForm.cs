@@ -57,9 +57,12 @@ namespace Treefrog.Windows.Forms
             };
 
             _validateController.RegisterControl(_nameField, ValidateName);
-            _validateController.RegisterControl(_opacityField, ValidateOpacity);
-            _validateController.RegisterControl(_tileWidthField, ValidateTileWidth);
-            _validateController.RegisterControl(_tileHeightField, ValidateTileHeight);
+            _validateController.RegisterControl(_opacityField,
+                ValidationController.ValidateNumericUpDownFunc("Opacity", _opacityField));
+            _validateController.RegisterControl(_tileWidthField, 
+                ValidationController.ValidateNumericUpDownFunc("Tile Width", _tileWidthField));
+            _validateController.RegisterControl(_tileHeightField,
+                ValidationController.ValidateNumericUpDownFunc("Tile Height", _tileHeightField));
         }
 
         public MultiTileGridLayer Layer
@@ -83,30 +86,6 @@ namespace Treefrog.Windows.Forms
                 return "Name field must be non-empty.";
             else if (_reservedNames.Contains(txt))
                 return "A layer with this name already exists.";
-            else
-                return null;
-        }
-
-        private string ValidateOpacity ()
-        {
-            if (_opacityField.Value < 0 || _opacityField.Value > 1)
-                return "Opacity must be in range [0.0, 1.0].";
-            else
-                return null;
-        }
-
-        private string ValidateTileWidth ()
-        {
-            if (_tileWidthField.Value < _tileWidthField.Minimum || _tileWidthField.Value > _tileWidthField.Maximum)
-                return "Tile Width must be in range [" + _tileWidthField.Minimum + ", " + _tileWidthField.Maximum + "].";
-            else
-                return null;
-        }
-
-        private string ValidateTileHeight ()
-        {
-            if (_tileHeightField.Value < _tileHeightField.Minimum || _tileHeightField.Value > _tileHeightField.Maximum)
-                return "Tile Height must be in range [" + _tileHeightField.Minimum + ", " + _tileHeightField.Maximum + "].";
             else
                 return null;
         }

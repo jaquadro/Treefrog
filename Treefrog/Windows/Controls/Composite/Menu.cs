@@ -137,6 +137,12 @@ namespace Treefrog.Windows.Controls.Composite
             _editSelectNone = CreateMenuItem("Select &None", "Treefrog.Icons._16.selection.png", Keys.Control | Keys.Shift | Keys.A);
 
             _viewStrip = CreateMenuItem("&View");
+            _viewZoomNormal = CreateMenuItem("Zoom &1:1", "Treefrog.Icons._16.magnifier-zoom-actual.png");
+            _viewZoomIn = CreateMenuItem("Zoom &In", "Treefrog.Icons._16.magnifier-zoom-in.png", Keys.Control | Keys.Add);
+            _viewZoomIn.ShortcutKeyDisplayString = "Ctrl+Plus";
+            _viewZoomOut = CreateMenuItem("Zoom &Out", "Treefrog.Icons._16.magnifier-zoom-out.png", Keys.Control | Keys.Subtract);
+            _viewZoomOut.ShortcutKeyDisplayString = "Ctrl+Minus";
+            _viewShowGrid = CreateMenuItem("Show &Grid", "Treefrog.Icons._16.grid.png", Keys.Control | Keys.G);
 
             _projectStrip = CreateMenuItem("&Project");
             _projectAddLevel = CreateMenuItem("New &Level...", "Treefrog.Icons._16.map--asterisk.png");
@@ -203,6 +209,11 @@ namespace Treefrog.Windows.Controls.Composite
                 _editUndo, _editRedo, new ToolStripSeparator(),
                 _editCut, _editCopy, _editPaste, _editDelete, new ToolStripSeparator(),
                 _editSelectAll, _editSelectNone,
+            });
+
+            _viewStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _viewZoomNormal, _viewZoomIn, _viewZoomOut, new ToolStripSeparator(),
+                _viewShowGrid,
             });
 
             _projectStrip.DropDownItems.AddRange(new ToolStripItem[] {
@@ -275,6 +286,11 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.Delete, _editDelete },
                 { CommandKey.SelectAll, _editSelectAll },
                 { CommandKey.SelectNone, _editSelectNone },
+
+                { CommandKey.ViewZoomNormal, _viewZoomNormal },
+                { CommandKey.ViewZoomIn, _viewZoomIn },
+                { CommandKey.ViewZoomOut, _viewZoomOut },
+                { CommandKey.ViewGrid, _viewShowGrid },
 
                 { CommandKey.ProjectAddLevel, _projectAddLevel },
 
@@ -411,6 +427,7 @@ namespace Treefrog.Windows.Controls.Composite
         {
             ToolStripMenuItem item = CreateMenuItem(text);
             item.ShortcutKeys = keys;
+
             return item;
         }
 

@@ -24,6 +24,11 @@ namespace Treefrog.Presentation.Commands
         SelectAll,
         SelectNone,
 
+        ViewZoomNormal,
+        ViewZoomIn,
+        ViewZoomOut,
+        ViewGrid,
+
         TileToolSelect,
         TileToolDraw,
         TileToolErase,

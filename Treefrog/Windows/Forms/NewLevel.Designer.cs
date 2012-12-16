@@ -28,13 +28,13 @@
         private void InitializeComponent ()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this._originYField = new System.Windows.Forms.NumericUpDown();
+            this._originXField = new System.Windows.Forms.NumericUpDown();
             this._buttonOK = new System.Windows.Forms.Button();
             this._buttonCancel = new System.Windows.Forms.Button();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this._tileWidth = new System.Windows.Forms.NumericUpDown();
-            this._tileHeight = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
@@ -47,8 +47,8 @@
             this._name = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._tileWidth)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._tileHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._originYField)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._originXField)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._levelHeight)).BeginInit();
@@ -65,7 +65,83 @@
             this.groupBox1.Size = new System.Drawing.Size(123, 78);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Tile Size";
+            this.groupBox1.Text = "Origin";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this._originYField, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this._originXField, 1, 0);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 19);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(111, 53);
+            this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 33);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(49, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Y:";
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(3, 6);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(49, 13);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "X:";
+            // 
+            // _originYField
+            // 
+            this._originYField.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this._originYField.Location = new System.Drawing.Point(58, 29);
+            this._originYField.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this._originYField.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
+            this._originYField.Name = "_originYField";
+            this._originYField.Size = new System.Drawing.Size(50, 20);
+            this._originYField.TabIndex = 3;
+            // 
+            // _originXField
+            // 
+            this._originXField.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this._originXField.Location = new System.Drawing.Point(58, 3);
+            this._originXField.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this._originXField.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
+            this._originXField.Name = "_originXField";
+            this._originXField.Size = new System.Drawing.Size(50, 20);
+            this._originXField.TabIndex = 3;
             // 
             // _buttonOK
             // 
@@ -87,92 +163,6 @@
             this._buttonCancel.TabIndex = 2;
             this._buttonCancel.Text = "Cancel";
             this._buttonCancel.UseVisualStyleBackColor = true;
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this._tileHeight, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this._tileWidth, 1, 0);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 19);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(111, 53);
-            this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // _tileWidth
-            // 
-            this._tileWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this._tileWidth.Location = new System.Drawing.Point(58, 3);
-            this._tileWidth.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._tileWidth.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this._tileWidth.Name = "_tileWidth";
-            this._tileWidth.Size = new System.Drawing.Size(50, 20);
-            this._tileWidth.TabIndex = 3;
-            this._tileWidth.Value = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            // 
-            // _tileHeight
-            // 
-            this._tileHeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this._tileHeight.Location = new System.Drawing.Point(58, 29);
-            this._tileHeight.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._tileHeight.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this._tileHeight.Name = "_tileHeight";
-            this._tileHeight.Size = new System.Drawing.Size(50, 20);
-            this._tileHeight.TabIndex = 3;
-            this._tileHeight.Value = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(49, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Width:";
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 33);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(49, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Height:";
             // 
             // groupBox2
             // 
@@ -229,7 +219,7 @@
             this._levelHeight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this._levelHeight.Location = new System.Drawing.Point(58, 29);
             this._levelHeight.Maximum = new decimal(new int[] {
-            99999,
+            999999,
             0,
             0,
             0});
@@ -242,7 +232,7 @@
             this._levelHeight.Size = new System.Drawing.Size(50, 20);
             this._levelHeight.TabIndex = 3;
             this._levelHeight.Value = new decimal(new int[] {
-            30,
+            480,
             0,
             0,
             0});
@@ -252,7 +242,7 @@
             this._levelWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this._levelWidth.Location = new System.Drawing.Point(58, 3);
             this._levelWidth.Maximum = new decimal(new int[] {
-            99999,
+            999999,
             0,
             0,
             0});
@@ -265,7 +255,7 @@
             this._levelWidth.Size = new System.Drawing.Size(50, 20);
             this._levelWidth.TabIndex = 3;
             this._levelWidth.Value = new decimal(new int[] {
-            50,
+            800,
             0,
             0,
             0});
@@ -311,7 +301,6 @@
             this._name.Name = "_name";
             this._name.Size = new System.Drawing.Size(180, 20);
             this._name.TabIndex = 1;
-            this._name.TextChanged += new System.EventHandler(this._name_TextChanged);
             // 
             // NewLevel
             // 
@@ -337,8 +326,8 @@
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._tileWidth)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._tileHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._originYField)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._originXField)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
@@ -359,8 +348,8 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown _tileHeight;
-        private System.Windows.Forms.NumericUpDown _tileWidth;
+        private System.Windows.Forms.NumericUpDown _originYField;
+        private System.Windows.Forms.NumericUpDown _originXField;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Label label3;

@@ -113,5 +113,15 @@ namespace Treefrog.Windows.Controllers
             if (ApplyButton != null)
                 ApplyButton.Enabled = enable;
         }
+
+        public static Func<string> ValidateNumericUpDownFunc (string fieldName, NumericUpDown control)
+        {
+            return () => {
+                if (control.Value < control.Minimum || control.Value > control.Maximum)
+                    return fieldName + " must be in range [" + control.Minimum + ", " + control.Maximum + "].";
+                else
+                    return null;
+            };
+        }
     }
 }

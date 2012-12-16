@@ -201,6 +201,8 @@ namespace Treefrog.Presentation
 
         public void New ()
         {
+            SelectLevel("");
+
             Project project = EmptyProject();
 
             NewLevel form = new NewLevel(project);
