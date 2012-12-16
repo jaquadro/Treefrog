@@ -47,6 +47,8 @@ namespace Treefrog.Windows.Controls.Composite
 
         private ToolStripMenuItem _projectAddLevel;
 
+        private ToolStripMenuItem _levelsExportRaster;
+
         private ToolStripMenuItem _layersNewTile;
         private ToolStripMenuItem _layersNewObject;
         private ToolStripMenuItem _layersClone;

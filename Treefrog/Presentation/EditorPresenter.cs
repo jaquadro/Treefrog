@@ -174,7 +174,7 @@ namespace Treefrog.Presentation
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
 
-            Level level = new Level("Level 1", 16, 16, 50, 30);
+            Level level = new Level("Level 1", 0, 0, 800, 480);
             level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
 
             LevelPresenter pres = new LevelPresenter(this, level);

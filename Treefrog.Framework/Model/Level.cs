@@ -14,15 +14,20 @@ namespace Treefrog.Framework.Model
     {
         #region Fields
 
-        private static string[] _reservedPropertyNames = { "Name", "TileWidth", "TileHeight" };
+        private static string[] _reservedPropertyNames = { "Name", "Left", "Right", "Top", "Bottom" };
 
         private Project _project;
         private string _name;
 
-        private int _tileWidth = 16;
-        private int _tileHeight = 16;
-        private int _tilesWide = 30;
-        private int _tilesHigh = 20;
+        private int _x;
+        private int _y;
+        private int _width;
+        private int _height;
+
+        //private int _tileWidth = 16;
+        //private int _tileHeight = 16;
+        //private int _tilesWide = 30;
+        //private int _tilesHigh = 20;
 
         private OrderedResourceCollection<Layer> _layers;
         //private NamedResourceCollection<Property> _properties;
@@ -66,13 +71,25 @@ namespace Treefrog.Framework.Model
         /// <param name="tileHeight">The height of tiles in the level.</param>
         /// <param name="width">The width of the level, in tiles.</param>
         /// <param name="height">The height of the level, in tiles.</param>
-        public Level (string name, int tileWidth, int tileHeight, int width, int height)
+        /*public Level (string name, int tileWidth, int tileHeight, int width, int height)
             : this(name)
         {
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
-            _tilesWide = width;
-            _tilesHigh = height;
+            //_tileWidth = tileWidth;
+            //_tileHeight = tileHeight;
+            //_tilesWide = width;
+            //_tilesHigh = height;
+        }*/
+
+        public Level (string name, int originX, int originY, int width, int height)
+            : this(name)
+        {
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Level must be created with positive area.");
+
+            _x = originX;
+            _y = originY;
+            _width = width;
+            _height = height;
         }
 
         #endregion
@@ -85,27 +102,47 @@ namespace Treefrog.Framework.Model
             set { _project = value; }
         }
 
+        public int OriginX
+        {
+            get { return _x; }
+        }
+
+        /*public int Width
+        {
+            get { return _x + _width; }
+        }*/
+
+        public int OriginY
+        {
+            get { return _y; }
+        }
+
+        /*public int Height
+        {
+            get { return _y + _height; }
+        }*/
+
         /// <summary>
         /// Gets the height of the level in pixels.
         /// </summary>
-        public int PixelsHigh
+        public int Height
         {
-            get { return _tilesHigh * _tileHeight; }
+            get { return _height; }
         }
 
         /// <summary>
         /// Gets the width of the level in pixels.
         /// </summary>
-        public int PixelsWide
+        public int Width
         {
-            get { return _tilesWide * _tileWidth; }
+            get { return _width; }
         }
 
         /// <summary>
         /// Gets or sets the height of tiles used in the level.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the set value is not positive.</exception>
-        public int TileHeight
+        /*public int TileHeight
         {
             get { return _tileHeight; }
             set
@@ -119,13 +156,13 @@ namespace Treefrog.Framework.Model
                     OnTileSizeChanged(EventArgs.Empty);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the width of tiles used in the level.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the set value is not positive.</exception>
-        public int TileWidth
+        /*public int TileWidth
         {
             get { return _tileWidth; }
             set
@@ -139,13 +176,13 @@ namespace Treefrog.Framework.Model
                     OnTileSizeChanged(EventArgs.Empty);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the height of the level in tiles.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the set value is not positive.</exception>
-        public int TilesHigh
+        /*public int TilesHigh
         {
             get { return _tilesHigh; }
             set
@@ -159,13 +196,13 @@ namespace Treefrog.Framework.Model
                     OnLevelSizeChanged(EventArgs.Empty);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the width of the level in tiles.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the set value is not positive.</exception>
-        public int TilesWide
+        /*public int TilesWide
         {
             get { return _tilesWide; }
             set
@@ -179,7 +216,7 @@ namespace Treefrog.Framework.Model
                     OnLevelSizeChanged(EventArgs.Empty);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Gets an ordered collection of <see cref="Layer"/> objects used in the level.
@@ -209,7 +246,7 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Occurs when the dimension of the tiles in the level changes.
         /// </summary>
-        public event EventHandler TileSizeChanged;
+        //public event EventHandler TileSizeChanged;
         
         /// <summary>
         /// Occurs when either the tile or level dimensions change.
@@ -251,13 +288,13 @@ namespace Treefrog.Framework.Model
         /// Raises the <see cref="TileSizeChanged"/> event.
         /// </summary>
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
-        protected virtual void OnTileSizeChanged (EventArgs e)
+        /*protected virtual void OnTileSizeChanged (EventArgs e)
         {
             if (TileSizeChanged != null) {
                 TileSizeChanged(this, e);
             }
             OnSizeChanged(e);
-        }
+        }*/
 
         /// <summary>
         /// Raises the <see cref="SizeChanged"/> event.
@@ -411,8 +448,12 @@ namespace Treefrog.Framework.Model
             protected override IEnumerable<Property> PredefinedProperties ()
             {
                 yield return _parent.LookupProperty("Name");
-                yield return _parent.LookupProperty("TileWidth");
-                yield return _parent.LookupProperty("TileHeight");
+                yield return _parent.LookupProperty("Left");
+                yield return _parent.LookupProperty("Right");
+                yield return _parent.LookupProperty("Top");
+                yield return _parent.LookupProperty("Bottom");
+                //yield return _parent.LookupProperty("TileWidth");
+                //yield return _parent.LookupProperty("TileHeight");
             }
 
             protected override Property LookupProperty (string name)
@@ -476,8 +517,12 @@ namespace Treefrog.Framework.Model
         {
             switch (name) {
                 case "Name":
-                case "TileHeight":
-                case "TileWidth":
+                case "Left":
+                case "Right":
+                case "Top":
+                case "Bottom":
+                //case "TileHeight":
+                //case "TileWidth":
                     return PropertyCategory.Predefined;
                 default:
                     return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
@@ -499,7 +544,27 @@ namespace Treefrog.Framework.Model
                     prop.ValueChanged += NamePropertyChangedHandler;
                     return prop;
 
-                case "TileHeight":
+                case "Left":
+                    prop = new NumberProperty("Left", OriginX);
+                    prop.ValueChanged += PredefPropertyValueChangedHandler;
+                    return prop;
+
+                case "Right":
+                    prop = new NumberProperty("Right", Width);
+                    prop.ValueChanged += PredefPropertyValueChangedHandler;
+                    return prop;
+
+                case "Top":
+                    prop = new NumberProperty("Top", OriginY);
+                    prop.ValueChanged += PredefPropertyValueChangedHandler;
+                    return prop;
+
+                case "Bottom":
+                    prop = new NumberProperty("Bottom", Height);
+                    prop.ValueChanged += PredefPropertyValueChangedHandler;
+                    return prop;
+
+                /*case "TileHeight":
                     prop = new NumberProperty("TileHeight", _tileHeight);
                     prop.ValueChanged += PredefPropertyValueChangedHandler;
                     return prop;
@@ -507,7 +572,7 @@ namespace Treefrog.Framework.Model
                 case "TileWidth":
                     prop = new NumberProperty("TileWidth", _tileWidth);
                     prop.ValueChanged += PredefPropertyValueChangedHandler;
-                    return prop;
+                    return prop;*/
 
                 default:
                     return _properties.Contains(name) ? _properties[name] : null;
@@ -548,6 +613,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        /*
         #region XML Import / Export
 
         /// <summary>
@@ -645,13 +711,14 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion 
+        */
 
         public static Level FromXmlProxy (LevelXmlProxy proxy, Project project)
         {
             if (proxy == null)
                 return null;
 
-            Level level = new Level(proxy.Name, proxy.TileWidth, proxy.TileHeight, proxy.Width, proxy.Height);
+            Level level = new Level(proxy.Name, proxy.OriginX, proxy.OriginY, proxy.Width, proxy.Height);
             level.Project = project;
 
             foreach (LayerXmlProxy layerProxy in proxy.Layers) {
@@ -683,10 +750,14 @@ namespace Treefrog.Framework.Model
             return new LevelXmlProxy()
             {
                 Name = level.Name,
-                Width = level.TilesWide,
+                OriginX = level.OriginX,
+                OriginY = level.OriginY,
+                Width = level.Width,
+                Height = level.Height,
+                /*Width = level.TilesWide,
                 Height = level.TilesHigh,
                 TileWidth = level.TileWidth,
-                TileHeight = level.TileHeight,
+                TileHeight = level.TileHeight,*/
                 Layers = layers.Count > 0 ? layers : null,
             };
         }
@@ -699,6 +770,18 @@ namespace Treefrog.Framework.Model
         public string Name { get; set; }
 
         [XmlAttribute]
+        public int OriginX { get; set; }
+
+        [XmlAttribute]
+        public int OriginY { get; set; }
+
+        [XmlAttribute]
+        public int Width { get; set; }
+
+        [XmlAttribute]
+        public int Height { get; set; }
+
+        /*[XmlAttribute]
         public int Width { get; set; }
 
         [XmlAttribute]
@@ -708,7 +791,7 @@ namespace Treefrog.Framework.Model
         public int TileWidth { get; set; }
 
         [XmlAttribute]
-        public int TileHeight { get; set; }
+        public int TileHeight { get; set; }*/
 
         [XmlArray]
         [XmlArrayItem("Layer", Type = typeof(AbstractXmlSerializer<LayerXmlProxy>))]
@@ -803,6 +886,12 @@ namespace Treefrog.Framework.Model
     [XmlRoot("LayerData")]
     public class MultiTileGridLayerXmlProxy : LayerXmlProxy
     {
+        [XmlAttribute]
+        public int TileWidth { get; set; }
+
+        [XmlAttribute]
+        public int TileHeight { get; set; }
+
         [XmlArray]
         [XmlArrayItem("Tile")]
         public List<TileStackXmlProxy> Tiles { get; set; }

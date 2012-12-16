@@ -78,6 +78,7 @@ namespace Treefrog.Model
             }
         }
 
+        /*
         public override void WriteXml (XmlWriter writer)
         {
             // <layer name="" type="multi">
@@ -87,6 +88,7 @@ namespace Treefrog.Model
 
             writer.WriteEndElement();
         }
+        */
 
         #region ICloneable Members
 

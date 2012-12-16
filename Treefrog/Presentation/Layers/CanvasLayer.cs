@@ -35,6 +35,9 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
+            //offset.X += Control.OriginX;
+            //offset.Y += Control.OriginY;
+
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointWrap, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
 
             return offset;
@@ -54,8 +57,16 @@ namespace Treefrog.Presentation.Layers
                 _pattern = BuildCanvasPattern(spriteBatch.GraphicsDevice);
 
             Vector2 offset = BeginDraw(spriteBatch);
+            Rectangle region = Control.VisibleRegion;
 
-            Rectangle dest = new Rectangle(0, 0, (int)(Control.VirtualWidth * Control.Zoom), (int)(Control.VirtualHeight * Control.Zoom));
+            Rectangle dest = new Rectangle(
+                (int)(region.X * Control.Zoom),
+                (int)(region.Y * Control.Zoom),
+                (int)(region.Width * Control.Zoom),
+                (int)(region.Height * Control.Zoom)
+                );
+
+            //Rectangle dest = new Rectangle(0, 0, (int)(Control.VirtualWidth * Control.Zoom), (int)(Control.VirtualHeight * Control.Zoom));
 
             spriteBatch.Draw(_pattern, dest, dest, Color.White);
 

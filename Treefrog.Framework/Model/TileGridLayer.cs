@@ -23,6 +23,8 @@ namespace Treefrog.Framework.Model
     {
         #region Fields
 
+        private int _tileOriginX;
+        private int _tileOriginY;
         private int _tilesWide;
         private int _tilesHigh;
 
@@ -33,13 +35,30 @@ namespace Treefrog.Framework.Model
         protected TileGridLayer (string name, int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
             : base(name, tileWidth, tileHeight)
         {
+            _tileOriginX = 0;
+            _tileOriginY = 0;
             _tilesWide = tilesWide;
             _tilesHigh = tilesHigh;
+        }
+
+        protected TileGridLayer (string name, int tileWidth, int tileHeight, Level level)
+            : base(name, tileWidth, tileHeight)
+        {
+            _tileOriginX = (int)Math.Floor(level.OriginX * 1.0 / tileWidth);
+            _tileOriginY = (int)Math.Floor(level.OriginY * 1.0 / tileHeight);
+
+            int diffOriginX = level.OriginX - (_tileOriginX * tileWidth);
+            int diffOriginY = level.OriginY - (_tileOriginY * tileHeight);
+
+            _tilesWide = (int)Math.Ceiling((level.OriginX + level.Width + diffOriginX) * 1.0 / tileWidth) - _tileOriginX;
+            _tilesHigh = (int)Math.Ceiling((level.OriginY + level.Height + diffOriginY) * 1.0 / tileHeight) - _tileOriginY;
         }
 
         protected TileGridLayer (string name, TileGridLayer layer)
             : base(name, layer)
         {
+            _tileOriginX = layer._tileOriginX;
+            _tileOriginY = layer._tileOriginY;
             _tilesHigh = layer._tilesHigh;
             _tilesWide = layer._tilesWide;
         }
@@ -47,6 +66,16 @@ namespace Treefrog.Framework.Model
         #endregion
 
         #region Properties
+
+        public int TileOriginX
+        {
+            get { return _tileOriginX; }
+        }
+
+        public int TileOriginY
+        {
+            get { return _tileOriginY; }
+        }
 
         public int TilesHigh
         {
@@ -100,6 +129,16 @@ namespace Treefrog.Framework.Model
 
         public abstract IEnumerable<LocatedTile> TilesAt (Rectangle region);
 
+        public override int LayerOriginX
+        {
+            get { return _tileOriginX * TileWidth; }
+        }
+
+        public override int LayerOriginY
+        {
+            get { return _tileOriginY * TileHeight; }
+        }
+
         public override int LayerHeight
         {
             get { return _tilesHigh * TileHeight; }
@@ -115,19 +154,37 @@ namespace Treefrog.Framework.Model
             get { return true; }
         }
 
-        public override void RequestNewSize (int pixelsWide, int pixelsHigh)
+        public override void RequestNewSize (int originX, int originY, int pixelsWide, int pixelsHigh)
         {
             if (pixelsWide <= 0 || pixelsHigh <= 0) {
                 throw new ArgumentException("New layer dimensions must be greater than 0.");
             }
 
-            int tilesW = (pixelsWide + TileWidth - 1) / TileWidth;
-            int tilesH = (pixelsHigh + TileHeight - 1) / TileHeight;
+            int tileX = (int)Math.Floor(originX * 1.0 / TileWidth);
+            int tileY = (int)Math.Floor(originY * 1.0 / TileHeight);
 
-            if (tilesW != _tilesWide || tilesH != _tilesHigh) {
-                ResizeLayer(tilesW, tilesH);
+            int tilesW = (int)Math.Ceiling((originX + pixelsWide) * 1.0 / TileWidth) - tileX;
+            int tilesH = (int)Math.Ceiling((originY + pixelsHigh) * 1.0 / TileHeight) - tileY;
+
+            if (tileX != _tileOriginX || tileY != _tileOriginY || tilesW != _tilesWide || tilesH != _tilesHigh) {
+                ResizeLayer(tileX, tileY, tilesW, tilesH);
                 OnLayerSizeChanged(EventArgs.Empty);
             }
+        }
+
+        public bool InRange (int x, int y)
+        {
+            return CheckBounds(x, y);
+        }
+
+        public bool InRange (TileCoord coord)
+        {
+            return CheckBounds(coord.X, coord.Y);
+        }
+
+        public bool InRange (LocatedTile tile)
+        {
+            return CheckBounds(tile.X, tile.Y);
         }
 
         #endregion
@@ -140,7 +197,7 @@ namespace Treefrog.Framework.Model
 
         protected abstract void ClearTileImpl (int x, int y);
 
-        protected abstract void ResizeLayer (int newTilesWide, int newTilesHigh);
+        protected abstract void ResizeLayer (int newOriginX, int newOriginY, int newTilesWide, int newTilesHigh);
 
         #endregion
 
@@ -202,8 +259,10 @@ namespace Treefrog.Framework.Model
         protected void CheckBoundsFail (int x, int y)
         {
             if (!CheckBounds(x, y)) {
-                throw new ArgumentOutOfRangeException(String.Format("Tried to add tile at ({0}, {1}), which is outside of layer dimensions ({2}, {3})",
-                    new string[] { x.ToString(), y.ToString(), TilesWide.ToString(), TilesHigh.ToString() }));
+                throw new ArgumentOutOfRangeException(String.Format("Tried to add tile at ({0}, {1}), which is outside of layer dimensions ({2}, {3}),({4}, {5})",
+                    new string[] { x.ToString(), y.ToString(), 
+                        TileOriginX.ToString(), TileOriginY.ToString(),
+                        (TilesWide - TileOriginX).ToString(), (TilesHigh - TileOriginY).ToString() }));
             }
         }
 
@@ -214,8 +273,8 @@ namespace Treefrog.Framework.Model
 
         protected bool CheckBounds (int x, int y)
         {
-            return x >= 0 &&
-                y >= 0 &&
+            return x >= TileOriginX &&
+                y >= TileOriginY &&
                 x < TilesWide &&
                 y < TilesHigh;
         }

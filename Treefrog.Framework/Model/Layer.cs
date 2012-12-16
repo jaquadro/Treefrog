@@ -165,6 +165,16 @@ namespace Treefrog.Framework.Model
             OnModified(e);
         }
 
+        public virtual int LayerOriginX
+        {
+            get { return -1; }
+        }
+
+        public virtual int LayerOriginY
+        {
+            get { return -1; }
+        }
+
         /// <summary>
         /// Gets the layer's width in pixels.  Returns -1 if the layer does not provide size information.
         /// </summary>
@@ -184,13 +194,15 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Makes a request to the layer to resize itself to overall pixel dimensions equal to or greater than the requested size.
         /// </summary>
+        /// <param name="originX"></param>
+        /// <param name="originY"></param>
         /// <param name="pixelsWide">The requested minimum width of the layer in pixels.</param>
         /// <param name="pixelsHigh">The request minimum height of the layer in pixels.</param>
         /// <remarks>If an implementing layer's <see cref="IsResizable"/> property returns true, then it is required to honor
         /// the new size request.  Due to differences in layer resolution, an implementing layer may not be able to exactly
         /// match the requested pixel size.  However, an implementing layer is required to never pick a size smaller than the
         /// request.</remarks>
-        public virtual void RequestNewSize (int pixelsWide, int pixelsHigh) { }
+        public virtual void RequestNewSize (int originX, int originY, int pixelsWide, int pixelsHigh) { }
 
         /// <summary>
         /// If set to <c>true</c>, the layer will honor requests to resize itself.
@@ -286,6 +298,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        /*
         #region XML Import / Export
 
         public static Layer FromXml (XmlReader reader, Level level)
@@ -303,7 +316,7 @@ namespace Treefrog.Framework.Model
                     };
                     break;
                 case "object":
-                    layer = new ObjectLayer(attribs["name"], level.PixelsWide, level.PixelsHigh)
+                    layer = new ObjectLayer(attribs["name"], level.Width, level.Height)
                     {
                         Level = level,
                     };
@@ -353,6 +366,7 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+         * */
 
         #region INamedResource Members
 

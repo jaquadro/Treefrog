@@ -109,7 +109,7 @@ namespace Treefrog.Presentation.Layers
         {
             int index = CoordToIndex(e.TileLocation.X, e.TileLocation.Y);
             if (index >= 0 && index < _layer.Count) {
-                e = new TileMouseEventArgs(e, e.TileLocation, _layer[index]);
+                e = new TileMouseEventArgs(e.TileLocation, _layer[index]);
             }
 
             base.OnMouseTileClick(e);

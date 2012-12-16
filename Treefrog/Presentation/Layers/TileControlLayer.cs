@@ -62,7 +62,7 @@ namespace Treefrog.Presentation.Layers
             Control.MouseClick += ControlMouseClickHandler;
             Control.MouseUp += ControlMouseUpHandler;
             Control.MouseDown += ControlMouseDownHandler;
-            Control.MouseMove += ControlMouseMoveHandler;
+            //Control.MouseMove += ControlMouseMoveHandler;
 
             InitializeCommandManager();
         }
@@ -199,7 +199,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileClick(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileClick(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -207,7 +207,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileUp(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileUp(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -215,7 +215,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileDown(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileDown(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -223,7 +223,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileMove(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileMove(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -282,6 +282,9 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
+            //offset.X -= Control.OriginX;
+            //offset.Y -= Control.OriginY;
+
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
 
             return offset;
@@ -299,6 +302,8 @@ namespace Treefrog.Presentation.Layers
             }
 
             Rectangle region = Control.VisibleRegion;
+            //region.X += _layer.LayerOriginX;
+            //region.Y += _layer.LayerOriginY;
 
             /*Vector2 offset = Control.VirtualSurfaceOffset;
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
@@ -311,11 +316,13 @@ namespace Treefrog.Presentation.Layers
             int zoomTileHeight = (int)(_layer.TileHeight * Control.Zoom);
 
             TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
-                region.X / _layer.TileWidth,
-                region.Y / _layer.TileHeight,
+                (int)Math.Floor(region.X * 1.0 / _layer.TileWidth),
+                (int)Math.Floor(region.Y * 1.0 / _layer.TileHeight),
                 (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
                 (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
                 );
+            tileRegion.Width = Math.Min(tileRegion.Width, (int)Math.Ceiling(_layer.LayerWidth * 1.0 / _layer.TileWidth));
+            tileRegion.Height = Math.Min(tileRegion.Height, (int)Math.Ceiling(_layer.LayerHeight * 1.0 / _layer.TileHeight));
 
             DrawTiles(spriteBatch, tileRegion);
 
@@ -334,15 +341,16 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
-            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
 
             TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
-                region.X / _layer.TileWidth,
-                region.Y / _layer.TileHeight,
-                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
-                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
+                (int)Math.Floor(region.X * 1.0 / _layer.TileWidth),
+                (int)Math.Floor(region.Y * 1.0 / _layer.TileHeight),
+                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth * 3 - 1) / _layer.TileWidth,
+                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight * 3 - 1) / _layer.TileHeight
                 );
+            tileRegion.Width = Math.Min(tileRegion.Width, (int)Math.Ceiling(_layer.LayerWidth * 1.0 / _layer.TileWidth));
+            tileRegion.Height = Math.Min(tileRegion.Height, (int)Math.Ceiling(_layer.LayerHeight * 1.0 / _layer.TileHeight));
 
             Func<int, int, bool> inside = TileInRegionPredicate(tileRegion);
 
@@ -353,15 +361,35 @@ namespace Treefrog.Presentation.Layers
                     bool iUpper = inside(x, y - 1);
                     bool iUpperLeft = inside(x - 1, y - 1);
 
-                    Vector2 pos = new Vector2(x * _layer.TileWidth * Control.Zoom, y * _layer.TileHeight * Control.Zoom);
+                    //Vector2 pos = new Vector2(x * _layer.TileWidth * Control.Zoom, y * _layer.TileHeight * Control.Zoom);
+
+                    Rectangle dest = new Rectangle(
+                        (int)Math.Max(x * _layer.TileWidth * Control.Zoom, Control.OriginX * Control.Zoom),
+                        (int)Math.Max(y * _layer.TileHeight * Control.Zoom, Control.OriginY * Control.Zoom),
+                        (int)Math.Min(_layer.TileWidth, _layer.TileWidth - (Control.OriginX * Control.Zoom - x * _layer.TileWidth * Control.Zoom)),
+                        (int)Math.Min(_layer.TileHeight, _layer.TileHeight - (Control.OriginY * Control.Zoom - y * _layer.TileHeight * Control.Zoom))
+                        );
+
+                    if (dest.X + dest.Width > (Control.OriginX + Control.ReferenceWidth) * Control.Zoom)
+                        dest.Width = (int)((Control.OriginX + Control.ReferenceWidth) * Control.Zoom) - dest.X;
+                    if (dest.Y + dest.Height > (Control.OriginY + Control.ReferenceHeight) * Control.Zoom)
+                        dest.Height = (int)((Control.OriginY + Control.ReferenceHeight) * Control.Zoom) - dest.Y;
+
+                    Rectangle src = new Rectangle(
+                        (dest.X % _layer.TileWidth + _layer.TileWidth) % _layer.TileWidth,
+                        (dest.Y % _layer.TileHeight + _layer.TileHeight) % _layer.TileHeight,
+                        dest.Width,
+                        dest.Height
+                        );
+
                     if (iCenter || (iLeft && iUpper)) {
-                        spriteBatch.Draw(_tileGridBrush, pos, Color.White);
+                        spriteBatch.Draw(_tileGridBrush, dest, src, Color.White);
                     }
                     else if (iLeft) {
-                        spriteBatch.Draw(_tileGridBrushRight, pos, Color.White);
+                        spriteBatch.Draw(_tileGridBrushRight, dest, src, Color.White);
                     }
                     else if (iUpper) {
-                        spriteBatch.Draw(_tileGridBrushBottom, pos, Color.White);
+                        spriteBatch.Draw(_tileGridBrushBottom, dest, src, Color.White);
                     }
                     if (iUpperLeft) {
                         continue;
@@ -421,19 +449,9 @@ namespace Treefrog.Presentation.Layers
 
         private TileCoord MouseToTileCoords (Point mouse)
         {
-            Rectangle region = Control.VisibleRegion;
-
-            Vector2 offset = Control.VirtualSurfaceOffset;
-            offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
-            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
-
-            int tx = (int)Math.Floor(((float)mouse.X - offset.X) / (_layer.TileWidth * Control.Zoom));
-            int ty = (int)Math.Floor(((float)mouse.Y - offset.Y) / (_layer.TileHeight * Control.Zoom));
-
-            return new TileCoord(tx, ty);
+            return new TileCoord((int)Math.Floor(mouse.X * 1.0 / Layer.TileWidth),
+                (int)Math.Floor(mouse.Y * 1.0 / Layer.TileHeight));
         }
-
-
 
         private ILevelPresenter _levelController;
         private ITilePoolListPresenter _tilePoolController;
@@ -514,6 +532,11 @@ namespace Treefrog.Presentation.Layers
         {
             if (_currentTool != null)
                 _currentTool.PointerPosition(info, new LayerControlViewport(Control));
+
+            if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
+                TileCoord coords = MouseToTileCoords(new Point((int)info.X, (int)info.Y));
+                OnMouseTileMove(new TileMouseEventArgs(coords, GetTile(coords)));
+            }
         }
 
         public void HandlePointerLeaveField ()

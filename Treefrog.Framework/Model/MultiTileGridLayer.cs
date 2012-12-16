@@ -38,8 +38,10 @@ namespace Treefrog.Framework.Model
         }
 
         public MultiTileGridLayer (MultiTileGridLayerXmlProxy proxy, Level level)
-            : this(proxy.Name, level.TileWidth, level.TileHeight, level.TilesWide, level.TilesHigh)
+            : base(proxy.Name, proxy.TileWidth, proxy.TileHeight, level)
         {
+            _tiles = new TileStack[TilesHigh, TilesWide];
+
             Opacity = proxy.Opacity;
             IsVisible = proxy.Visible;
             Level = level;
@@ -95,6 +97,8 @@ namespace Treefrog.Framework.Model
                 Name = layer.Name,
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,
+                TileWidth = layer.TileWidth,
+                TileHeight = layer.TileHeight,
                 Tiles = tiles.Count > 0 ? tiles : null,
                 Properties = props.Count > 0 ? props : null,
             };
@@ -118,23 +122,26 @@ namespace Treefrog.Framework.Model
             get
             {
                 CheckBoundsFail(x, y);
-                return _tiles[y, x];
+                return _tiles[YIndex(y), XIndex(x)];
             }
 
             set
             {
                 CheckBoundsFail(x, y);
 
-                if (_tiles[y, x] != null) {
-                    _tiles[y, x].Modified -= TileStackModifiedHandler;
+                int xi = XIndex(x);
+                int yi = YIndex(y);
+
+                if (_tiles[yi, xi] != null) {
+                    _tiles[yi, xi].Modified -= TileStackModifiedHandler;
                 }
 
                 if (value != null) {
-                    _tiles[y, x] = new TileStack(value);
-                    _tiles[y, x].Modified += TileStackModifiedHandler;
+                    _tiles[yi, xi] = new TileStack(value);
+                    _tiles[yi, xi].Modified += TileStackModifiedHandler;
                 }
                 else {
-                    _tiles[y, x] = null;
+                    _tiles[yi, xi] = null;
                 }
 
                 OnModified(EventArgs.Empty);
@@ -152,7 +159,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        protected override void ResizeLayer (int newTilesWide, int newTilesHigh)
+        protected override void ResizeLayer (int newOriginX, int newOriginY, int newTilesWide, int newTilesHigh)
         {
             TileStack[,] newTiles = new TileStack[newTilesHigh, newTilesWide];
             int copyLimX = Math.Min(TilesWide, newTilesWide);
@@ -169,37 +176,43 @@ namespace Treefrog.Framework.Model
 
         public override IEnumerable<LocatedTile> Tiles
         {
-            get { return TilesAt(new Rectangle(0, 0, TilesWide, TilesHigh)); }
+            get { return TilesAt(new Rectangle(TileOriginX, TileOriginY, TilesWide, TilesHigh)); }
         }
 
         public override IEnumerable<LocatedTile> TilesAt (TileCoord location)
         {
-            if (location.X < 0 || location.X >= TilesWide || location.Y < 0 || location.Y >= TilesHigh)
+            if (!CheckBounds(location.X, location.Y))
                 yield break;
 
-            if (_tiles[location.Y, location.X] == null) {
+            int xi = XIndex(location.X);
+            int yi = YIndex(location.Y);
+
+            if (_tiles[yi, xi] == null) {
                 yield break;
             }
 
-            foreach (Tile tile in _tiles[location.Y, location.X]) {
+            foreach (Tile tile in _tiles[yi, xi]) {
                 yield return new LocatedTile(tile, location);
             }
         }
 
         public override IEnumerable<LocatedTile> TilesAt (Rectangle region)
         {
-            int xs = Math.Max(region.X, 0);
-            int ys = Math.Max(region.Y, 0);
-            int xe = Math.Min(region.X + region.Width, TilesWide);
-            int ye = Math.Min(region.Y + region.Height, TilesHigh);
+            int xs = Math.Max(region.X, TileOriginX);
+            int ys = Math.Max(region.Y, TileOriginY);
+            int xe = Math.Min(region.X + region.Width, TilesWide + TileOriginX);
+            int ye = Math.Min(region.Y + region.Height, TilesHigh + TileOriginY);
 
             for (int y = ys; y < ye; y++) {
                 for (int x = xs; x < xe; x++) {
-                    if (_tiles[y, x] == null) {
+                    int xi = XIndex(x);
+                    int yi = YIndex(y);
+
+                    if (_tiles[yi, xi] == null) {
                         continue;
                     }
 
-                    foreach (Tile tile in _tiles[y, x]) {
+                    foreach (Tile tile in _tiles[yi, xi]) {
                         yield return new LocatedTile(tile, x, y);
                     }
                 }
@@ -208,25 +221,31 @@ namespace Treefrog.Framework.Model
 
         public IEnumerable<LocatedTileStack> TileStacks
         {
-            get { return TileStacksAt(new Rectangle(0, 0, TilesWide, TilesHigh)); }
+            get { return TileStacksAt(new Rectangle(TileOriginX, TileOriginY, TilesWide, TilesHigh)); }
         }
 
         public TileStack TileStacksAt (TileCoord location)
         {
-            return _tiles[location.Y, location.X];
+            if (!CheckBounds(location.X, location.Y))
+                return null;
+
+            return _tiles[YIndex(location.Y), XIndex(location.X)];
         }
 
         public IEnumerable<LocatedTileStack> TileStacksAt (Rectangle region)
         {
-            int xs = Math.Max(region.X, 0);
-            int ys = Math.Max(region.Y, 0);
+            int xs = Math.Max(region.X, TileOriginX);
+            int ys = Math.Max(region.Y, TileOriginY);
             int w = Math.Min(region.Width, TilesWide - region.X);
             int h = Math.Min(region.Height, TilesHigh - region.Y);
 
             for (int y = ys; y < ys + h; y++) {
                 for (int x = xs; x < xs + w; x++) {
-                    if (_tiles[y, x] != null) {
-                        yield return new LocatedTileStack(_tiles[y, x], x, y);
+                    int xi = XIndex(x);
+                    int yi = YIndex(y);
+
+                    if (_tiles[yi, xi] != null) {
+                        yield return new LocatedTileStack(_tiles[yi, xi], x, y);
                     }
                 }
             }
@@ -243,29 +262,49 @@ namespace Treefrog.Framework.Model
 
         protected override void AddTileImpl (int x, int y, Tile tile)
         {
-            if (_tiles[y, x] == null) {
-                _tiles[y, x] = new TileStack();
-                _tiles[y, x].Modified += TileStackModifiedHandler;
+            int xi = XIndex(x);
+            int yi = YIndex(y);
+
+            if (_tiles[yi, xi] == null) {
+                _tiles[yi, xi] = new TileStack();
+                _tiles[yi, xi].Modified += TileStackModifiedHandler;
             }
 
-            _tiles[y, x].Remove(tile);
-            _tiles[y, x].Add(tile);
+            _tiles[yi, xi].Remove(tile);
+            _tiles[yi, xi].Add(tile);
         }
 
         protected override void RemoveTileImpl (int x, int y, Tile tile)
         {
-            if (_tiles[y, x] != null) {
-                _tiles[y, x].Remove(tile);
+            int xi = XIndex(x);
+            int yi = YIndex(y);
+
+            if (_tiles[yi, xi] != null) {
+                _tiles[yi, xi].Remove(tile);
             }
         }
 
         protected override void ClearTileImpl (int x, int y)
         {
-            if (_tiles[y, x] != null) {
-                _tiles[y, x].Clear();
+            int xi = XIndex(x);
+            int yi = YIndex(y);
+
+            if (_tiles[yi, xi] != null) {
+                _tiles[yi, xi].Clear();
             }
         }
 
+        private int XIndex (int x)
+        {
+            return x - TileOriginX;
+        }
+
+        private int YIndex (int y)
+        {
+            return y - TileOriginY;
+        }
+
+        /*
         #region XML Import / Export
 
         public override void WriteXml (XmlWriter writer)
@@ -360,6 +399,7 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+        */
 
         #region ICloneable Members
 

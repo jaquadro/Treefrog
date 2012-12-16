@@ -254,6 +254,14 @@ namespace Treefrog.Windows.Controls
             get { return _vWidth; }
         }
 
+        public int OriginX { get; set; }
+
+        public int OriginY { get; set; }
+
+        public int ReferenceWidth { get; set; }
+
+        public int ReferenceHeight { get; set; }
+
         /// <summary>
         /// Gets the bounds of the visible part of the virtual surface at the current zoom setting.
         /// </summary>
@@ -261,9 +269,9 @@ namespace Treefrog.Windows.Controls
         {
             get
             {
-                return new Rectangle(_scrollH, _scrollV,
-                    (int)Math.Ceiling(Math.Min(Width / _zoom, VirtualWidth)),
-                    (int)Math.Ceiling(Math.Min(Height / _zoom, VirtualHeight))
+                return new Rectangle(_scrollH + OriginX, _scrollV + OriginY,
+                    (int)Math.Ceiling(Math.Min(Width / _zoom, ReferenceWidth)),
+                    (int)Math.Ceiling(Math.Min(Height / _zoom, ReferenceHeight))
                     );
             }
         }
@@ -828,6 +836,11 @@ namespace Treefrog.Windows.Controls
         }
 
         #region IPointerTarget
+
+        public System.Drawing.Point OriginOffset
+        {
+            get { return new System.Drawing.Point(OriginX, OriginY); }
+        }
 
         public System.Drawing.Point InteriorOffset
         {
