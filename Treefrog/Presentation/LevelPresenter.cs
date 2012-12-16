@@ -278,7 +278,42 @@ namespace Treefrog.Presentation
 
         private void CommandAddTileLayer ()
         {
-            ActionAddLayer();
+            string name = FindDefaultLayerName("Tile Layer");
+
+            using (TileLayerForm form = new TileLayerForm(_level, name)) {
+                foreach (Layer layer in _level.Layers)
+                    form.ReservedNames.Add(layer.Name);
+
+                if (form.ShowDialog() == DialogResult.OK) {
+                    BindLayerEvents(form.Layer);
+                    _level.Layers.Add(form.Layer);
+
+                    MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, form.Layer);
+                    clayer.ShouldDrawContent = LayerCondition.Always;
+                    clayer.ShouldDrawGrid = LayerCondition.Selected;
+                    clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+                    clayer.BindContentInfoController(_info);
+
+                    IPointerToolResponder pointerLayer = clayer as IPointerToolResponder;
+                    if (pointerLayer != null)
+                        pointerLayer.BindLevelController(this);
+
+                    TileControlLayer tileLayer = clayer as TileControlLayer;
+                    if (tileLayer != null) {
+                        tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
+                        tileLayer.BindTileBrushManager(_editor.Presentation.TileBrushes);
+                    }
+
+                    _controlLayers[name] = clayer;
+
+                    SelectLayer(name);
+
+                    OnSyncLayerActions(EventArgs.Empty);
+                    OnSyncLayerList(EventArgs.Empty);
+                    OnSyncLayerSelection(EventArgs.Empty);
+                }
+            }
         }
 
         private bool CommandCanAddObjectLayer ()

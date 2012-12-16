@@ -271,6 +271,12 @@
     <Compile Include="Windows\Forms\NewLevel.Designer.cs">
       <DependentUpon>NewLevel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\TileLayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\TileLayerForm.Designer.cs">
+      <DependentUpon>TileLayerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\ResizeLevelForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -377,6 +383,9 @@
     <EmbeddedResource Include="Icons\16\paint-brush--minus.png" />
     <EmbeddedResource Include="Icons\16\paint-brush--plus.png" />
     <EmbeddedResource Include="Icons\16\table-dynamic.png" />
+    <EmbeddedResource Include="Icons\16\magnifier-zoom-actual.png" />
+    <EmbeddedResource Include="Icons\16\magnifier-zoom-in.png" />
+    <EmbeddedResource Include="Icons\16\magnifier-zoom-out.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />
@@ -427,6 +436,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\NewLevel.resx">
       <DependentUpon>NewLevel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\TileLayerForm.resx">
+      <DependentUpon>TileLayerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\ResizeLevelForm.resx">
       <DependentUpon>ResizeLevelForm.cs</DependentUpon>

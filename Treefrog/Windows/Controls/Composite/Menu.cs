@@ -45,6 +45,11 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripMenuItem _editSelectAll;
         private ToolStripMenuItem _editSelectNone;
 
+        private ToolStripMenuItem _viewZoomNormal;
+        private ToolStripMenuItem _viewZoomIn;
+        private ToolStripMenuItem _viewZoomOut;
+        private ToolStripMenuItem _viewShowGrid;
+
         private ToolStripMenuItem _projectAddLevel;
 
         private ToolStripMenuItem _levelsExportRaster;

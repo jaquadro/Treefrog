@@ -1,0 +1,169 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using Treefrog.Windows.Controllers;
+using Treefrog.Framework.Model;
+
+namespace Treefrog.Windows.Forms
+{
+    public partial class TileLayerForm : Form
+    {
+        private MultiTileGridLayer _layer;
+        private Level _level;
+
+        private ValidationController _validateController;
+
+        public TileLayerForm (Level level, string name)
+        {
+            InitializeForm();
+
+            Text = "New Tile Layer";
+
+            _level = level;
+            _nameField.Text = name;
+
+            _validateController.Validate();
+        }
+
+        public TileLayerForm (MultiTileGridLayer layer)
+        {
+            InitializeForm();
+
+            Text = "Edit Tile Layer";
+
+            _layer = layer;
+            _nameField.Text = _layer.Name;
+            _opacityField.Value = (decimal)_layer.Opacity;
+            _tileWidthField.Value = _layer.TileWidth;
+            _tileHeightField.Value = _layer.TileHeight;
+
+            _tileHeightField.Enabled = false;
+            _tileWidthField.Enabled = false;
+
+            _validateController.Validate();
+        }
+
+        private void InitializeForm ()
+        {
+            InitializeComponent();
+
+            _validateController = new ValidationController() {
+                OKButton = _okButton,
+            };
+
+            _validateController.RegisterControl(_nameField, ValidateName);
+            _validateController.RegisterControl(_opacityField, ValidateOpacity);
+            _validateController.RegisterControl(_tileWidthField, ValidateTileWidth);
+            _validateController.RegisterControl(_tileHeightField, ValidateTileHeight);
+        }
+
+        public MultiTileGridLayer Layer
+        {
+            get { return _layer; }
+        }
+
+        private List<string> _reservedNames = new List<string>();
+
+        public List<string> ReservedNames
+        {
+            get { return _reservedNames; }
+            set { _reservedNames = value; }
+        }
+
+        private string ValidateName ()
+        {
+            string txt = _nameField.Text.Trim();
+
+            if (String.IsNullOrEmpty(txt))
+                return "Name field must be non-empty.";
+            else if (_reservedNames.Contains(txt))
+                return "A layer with this name already exists.";
+            else
+                return null;
+        }
+
+        private string ValidateOpacity ()
+        {
+            if (_opacityField.Value < 0 || _opacityField.Value > 1)
+                return "Opacity must be in range [0.0, 1.0].";
+            else
+                return null;
+        }
+
+        private string ValidateTileWidth ()
+        {
+            if (_tileWidthField.Value < _tileWidthField.Minimum || _tileWidthField.Value > _tileWidthField.Maximum)
+                return "Tile Width must be in range [" + _tileWidthField.Minimum + ", " + _tileWidthField.Maximum + "].";
+            else
+                return null;
+        }
+
+        private string ValidateTileHeight ()
+        {
+            if (_tileHeightField.Value < _tileHeightField.Minimum || _tileHeightField.Value > _tileHeightField.Maximum)
+                return "Tile Height must be in range [" + _tileHeightField.Minimum + ", " + _tileHeightField.Maximum + "].";
+            else
+                return null;
+        }
+
+        private void _opacitySlider_Scroll (object sender, EventArgs e)
+        {
+            decimal value = (decimal)_opacitySlider.Value / (decimal)_opacitySlider.Maximum;
+            if (_opacityField.Value != value)
+                _opacityField.Value = value;
+
+            _validateController.Validate();
+        }
+
+        private void _opacityField_ValueChanged (object sender, EventArgs e)
+        {
+            int value = (int)(_opacityField.Value * 100);
+            if (_opacitySlider.Value != value)
+                _opacitySlider.Value = value;
+
+            _validateController.Validate();
+        }
+
+        private void ApplyNew ()
+        {
+            _layer = new MultiTileGridLayer(
+                _nameField.Text.Trim(), 
+                (int)_tileWidthField.Value, 
+                (int)_tileHeightField.Value, 
+                _level);
+
+            _layer.Opacity = (float)_opacityField.Value;
+        }
+
+        private void ApplyModify ()
+        {
+            _layer.Name = _nameField.Text.Trim();
+            _layer.Opacity = (float)_opacityField.Value;
+        }
+
+        private void _okButton_Click (object sender, EventArgs e)
+        {
+            if (!_validateController.ValidateForm())
+                return;
+
+            if (_level != null)
+                ApplyNew();
+            else
+                ApplyModify();
+
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void _cancelButton_Click (object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+    }
+}

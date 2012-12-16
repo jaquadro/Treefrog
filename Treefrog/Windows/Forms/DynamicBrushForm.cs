@@ -245,6 +245,9 @@ namespace Treefrog.Windows.Forms
 
         private void InitializeBrush (DynamicBrush brush)
         {
+            _layerControl.ReferenceWidth = brush.BrushClass.TemplateWidth * brush.TileWidth + 1;
+            _layerControl.ReferenceHeight = brush.BrushClass.TemplateHeight * brush.TileHeight + 1;
+
             _layer = new MultiTileGridLayer("Default", brush.TileWidth, brush.TileHeight, brush.BrushClass.TemplateWidth, brush.BrushClass.TemplateHeight);
             for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
                 LocatedTile tile = brush.GetLocatedTile(i);

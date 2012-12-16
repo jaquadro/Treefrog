@@ -23,6 +23,12 @@ namespace Treefrog.Framework.Model
             _tiles = new TileStack[tilesHigh, tilesWide];
         }
 
+        public MultiTileGridLayer (string name, int tileWidth, int tileHeight, Level level)
+            : base(name, tileWidth, tileHeight, level)
+        {
+            _tiles = new TileStack[TilesHigh, TilesWide];
+        }
+
         public MultiTileGridLayer (string name, MultiTileGridLayer layer)
             : base(name, layer)
         {
