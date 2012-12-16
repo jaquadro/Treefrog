@@ -192,8 +192,8 @@ namespace Treefrog.Windows.Forms
         {
             if (brush != null) {
                 for (int i = 0; i < _brush.BrushClass.SlotCount; i++) {
-                    if (_brush.BrushClass.GetTile(i) == tile)
-                        _brush.BrushClass.SetTile(i, null);
+                    if (_brush.GetTile(i) == tile)
+                        _brush.SetTile(i, null);
                 }
             }
         }
@@ -211,27 +211,18 @@ namespace Treefrog.Windows.Forms
             get { return _brush; }
         }
 
-        private Texture2D _basicOverlay;
-        private Texture2D _extendedOverlay;
+        // TODO: Overlays need a separate registry if planning plugin support
+        private Dictionary<string, Texture2D> _brushClassOverlays = new Dictionary<string, Texture2D>();
 
         private void DrawOverlay (object sender, DrawLayerEventArgs e)
         {
-            if (_basicOverlay == null) {
+            if (!_brushClassOverlays.ContainsKey(_brush.BrushClass.ClassName)) {
                 System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                _basicOverlay = Texture2D.FromStream(e.SpriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.dynamicBrushSplit.png"));
-            }
-            if (_extendedOverlay == null) {
-                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                _extendedOverlay = Texture2D.FromStream(e.SpriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.dynamicBrushEdge.png"));
+                _brushClassOverlays.Add(_brush.BrushClass.ClassName,
+                    Texture2D.FromStream(e.SpriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.DynBrushOverlays." + _brush.BrushClass.ClassName + ".png")));
             }
 
-            Texture2D overlay;
-            if (_brush.BrushClass is BasicDynamicBrushClass)
-                overlay = _basicOverlay;
-            else if (_brush.BrushClass is ExtendedDynamicBrushClass)
-                overlay = _extendedOverlay;
-            else
-                return;
+            Texture2D overlay = _brushClassOverlays[_brush.BrushClass.ClassName];
 
             int width = (int)(overlay.Width * e.Zoom * (_brush.TileWidth / 16.0));
             int height = (int)(overlay.Height * e.Zoom * (_brush.TileHeight / 16.0));
@@ -255,8 +246,8 @@ namespace Treefrog.Windows.Forms
         private void InitializeBrush (DynamicBrush brush)
         {
             _layer = new MultiTileGridLayer("Default", brush.TileWidth, brush.TileHeight, brush.BrushClass.TemplateWidth, brush.BrushClass.TemplateHeight);
-            for (int i = 0; i < brush.BrushClass.TileCount; i++) {
-                LocatedTile tile = brush.BrushClass.GetLocatedTile(i);
+            for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
+                LocatedTile tile = brush.GetLocatedTile(i);
                 if (tile.Tile != null)
                     _layer.AddTile(tile.X, tile.Y, tile.Tile);
             }
@@ -281,10 +272,8 @@ namespace Treefrog.Windows.Forms
         private void InitializePrototypeList ()
         {
             _prototypeList.Items.Clear();
-            _prototypeList.Items.AddRange(new string[] {
-                "Basic",
-                "Extended",
-            });
+            foreach (var item in Project.DynamicBrushClassRegistry.RegisteredTypes)
+                _prototypeList.Items.Add(item.ClassName);
 
             SelectCurrentPrototype();
         }
@@ -368,7 +357,7 @@ namespace Treefrog.Windows.Forms
 
             for (int i = 0; i < _tileSizeList.Items.Count; i++) {
                 TileSize item = _tileSizeList.Items[i] as TileSize;
-                if (item.Width == _brush.BrushClass.TileWidth && item.Height == _brush.BrushClass.TileHeight) {
+                if (item.Width == _brush.TileWidth && item.Height == _brush.TileHeight) {
                     _tileSizeList.SelectedIndex = i;
                     break;
                 }
@@ -405,17 +394,9 @@ namespace Treefrog.Windows.Forms
             if (prototype == null || size == null)
                 return;
 
-            DynamicBrushClass brushClass = null;
-            switch (prototype) {
-                case "Basic":
-                    brushClass = new BasicDynamicBrushClass(size.Width, size.Height);
-                    break;
-                case "Extended":
-                    brushClass = new ExtendedDynamicBrushClass(size.Width, size.Height);
-                    break;
-                default:
-                    return;
-            }
+            DynamicBrushClass brushClass = Project.DynamicBrushClassRegistry.Lookup(prototype);
+            if (brushClass == null)
+                return;
 
             string name = "";
             if (_brush != null)
@@ -432,10 +413,10 @@ namespace Treefrog.Windows.Forms
             _brush.SetName(_nameField.Text);
 
             for (int i = 0; i < _brush.BrushClass.SlotCount; i++)
-                _brush.BrushClass.SetTile(i, null);
+                _brush.SetTile(i, null);
 
             foreach (LocatedTile tile in _layer.Tiles) {
-                _brush.BrushClass.SetTile(tile.Location.X, tile.Location.Y, tile.Tile);
+                _brush.SetTile(tile.Location.X, tile.Location.Y, tile.Tile);
             }
 
             DialogResult = DialogResult.OK;

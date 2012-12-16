@@ -36,6 +36,12 @@ namespace Treefrog.Framework.Model
 
         //private bool _initalized;
 
+        private static DynamicBrushClassRegistry _dynamicBrushRegistry = new DynamicBrushClassRegistry();
+        public static DynamicBrushClassRegistry DynamicBrushClassRegistry
+        {
+            get { return _dynamicBrushRegistry; }
+        }
+
         #endregion
 
         #region Constructors
@@ -222,7 +228,7 @@ namespace Treefrog.Framework.Model
             if (project._tilePools == null)
                 project._tilePools = new TilePoolManager();
 
-            project._tileBrushes = TileBrushManager.FromXmlProxy(proxy.TileBrushes, project._tilePools);
+            project._tileBrushes = TileBrushManager.FromXmlProxy(proxy.TileBrushes, project._tilePools, Project.DynamicBrushClassRegistry);
             if (project._tileBrushes == null)
                 project._tileBrushes = new TileBrushManager();
             

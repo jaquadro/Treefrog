@@ -90,13 +90,13 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static TileBrushManager FromXmlProxy (TileBrushManagerXmlProxy proxy, TilePoolManager tileManager)
+        public static TileBrushManager FromXmlProxy (TileBrushManagerXmlProxy proxy, TilePoolManager tileManager, DynamicBrushClassRegistry registry)
         {
             if (proxy == null)
                 return null;
 
             Func<DynamicBrushXmlProxy, DynamicBrush> brushFunc = (brushProxy) => {
-                return DynamicBrush.FromXmlProxy(brushProxy, tileManager);
+                return DynamicBrush.FromXmlProxy(brushProxy, tileManager, registry);
             };
 
             TileBrushManager manager = new TileBrushManager();

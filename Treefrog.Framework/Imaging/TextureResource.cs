@@ -386,6 +386,9 @@ namespace Treefrog.Aux
 
         public static Bitmap CreateBitmap (this TextureResource self)
         {
+            if (self == null)
+                return null;
+
             TextureResource tex = self.Crop(self.Bounds);
 
             tex.Apply(c => { return new TFColor(c.B, c.G, c.R, c.A); });

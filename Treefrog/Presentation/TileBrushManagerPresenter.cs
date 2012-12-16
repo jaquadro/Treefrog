@@ -120,17 +120,9 @@ namespace Treefrog.Presentation
                 if (brush == null)
                     return;
 
-                DynamicBrushClass brushClass;
-                if (brush.BrushClass is BasicDynamicBrushClass)
-                    brushClass = new BasicDynamicBrushClass(brush.BrushClass.TileWidth, brush.BrushClass.TileHeight);
-                else if (brush.BrushClass is ExtendedDynamicBrushClass)
-                    brushClass = new ExtendedDynamicBrushClass(brush.BrushClass.TileWidth, brush.BrushClass.TileHeight);
-                else
-                    return;
-
-                DynamicBrush newBrush = new DynamicBrush(name, brush.TileWidth, brush.TileHeight, brushClass);
+                DynamicBrush newBrush = new DynamicBrush(name, brush.TileWidth, brush.TileHeight, brush.BrushClass);
                 for (int i = 0; i < brush.BrushClass.SlotCount; i++)
-                    newBrush.BrushClass.SetTile(i, brush.BrushClass.GetTile(i));
+                    newBrush.SetTile(i, brush.GetTile(i));
 
                 TileBrushManager.DynamicBrushes.AddBrush(newBrush);
 

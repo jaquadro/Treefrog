@@ -324,8 +324,8 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
-    <EmbeddedResource Include="Icons\dynamicBrushEdge.png" />
-    <EmbeddedResource Include="Icons\dynamicBrushSplit.png" />
+    <EmbeddedResource Include="Icons\DynBrushOverlays\Extended.png" />
+    <EmbeddedResource Include="Icons\DynBrushOverlays\Basic.png" />
     <EmbeddedResource Include="Icons\16\drive-download.png" />
     <EmbeddedResource Include="Icons\16\drive-upload.png" />
     <EmbeddedResource Include="Icons\16\arrow-090.png" />

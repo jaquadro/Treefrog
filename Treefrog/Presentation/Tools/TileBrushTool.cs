@@ -88,9 +88,9 @@ namespace Treefrog.Presentation.Tools
 
                     if (ActiveBrush is DynamicBrush) {
                         DynamicBrush brush = ActiveBrush as DynamicBrush;
-                        if (brush.BrushClass.PrimaryTile != null)
+                        if (brush.PrimaryTile != null)
                             _previewMarker.Fill = new PatternBrush(
-                                brush.BrushClass.PrimaryTile.Pool.GetTileTexture(brush.BrushClass.PrimaryTile.Id), 0.5);
+                                brush.PrimaryTile.Pool.GetTileTexture(brush.PrimaryTile.Id), 0.5);
                         else
                             _previewMarker.Outline = new Pen(new SolidColorBrush(Colors.Black));
                     }

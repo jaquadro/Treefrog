@@ -114,6 +114,7 @@
     <Compile Include="Model\TileLayer.cs" />
     <Compile Include="NamedResourceEventArgs.cs" />
     <Compile Include="Model\Collections\PropertyCollection.cs" />
+    <Compile Include="ObjectRegistry.cs" />
     <Compile Include="ObservableDictionary.cs" />
     <Compile Include="ServiceContainer.cs" />
     <Compile Include="TileCoord.cs" />

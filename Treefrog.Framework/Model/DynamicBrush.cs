@@ -10,16 +10,83 @@ namespace Treefrog.Framework.Model
     public class DynamicBrush : TileBrush
     {
         private DynamicBrushClass _brushClass;
+        private IList<TileProxy> _tiles;
 
         public DynamicBrush (string name, int tileWidth, int tileHeight, DynamicBrushClass brushClass)
             : base(name, tileWidth, tileHeight)
         {
             _brushClass = brushClass;
+            _tiles = brushClass.CreateTileProxyList();
         }
 
         public DynamicBrushClass BrushClass
         {
             get { return _brushClass; }
+        }
+
+        public Tile PrimaryTile
+        {
+            get
+            {
+                int index = _brushClass.PrimaryTileIndex;
+                if (index >= 0 && index < _tiles.Count && _tiles[index] != null)
+                    return _tiles[index].Tile;
+                else
+                    return null;
+            }
+        }
+
+        public TextureResource MakePreview (int maxWidth, int maxHeight)
+        {
+            return _brushClass.MakePreview(_tiles, TileWidth, TileHeight, maxWidth, maxHeight);
+        }
+
+        public bool IsMemberTile (LocatedTile tile)
+        {
+            foreach (TileProxy proxy in _tiles) {
+                if (proxy.Tile != null && proxy.Tile.Id == tile.Tile.Id)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool ContainsMemberTile (IEnumerable<LocatedTile> tiles)
+        {
+            foreach (LocatedTile tile in tiles) {
+                if (IsMemberTile(tile))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void SetTile (int position, Tile tile)
+        {
+            if (position >= 0 && position < _tiles.Count)
+                _tiles[position].Tile = tile;
+        }
+
+        public void SetTile (int x, int y, Tile tile)
+        {
+            int position = y * _brushClass.TemplateWidth + x;
+            SetTile(position, tile);
+        }
+
+        public Tile GetTile (int position)
+        {
+            if (position >= 0 && position < _tiles.Count)
+                return _tiles[position].Tile;
+            else
+                return null;
+        }
+
+        public LocatedTile GetLocatedTile (int position)
+        {
+            if (position >= 0 && position < _tiles.Count)
+                return new LocatedTile(_tiles[position].Tile, position % _brushClass.TemplateWidth, position / _brushClass.TemplateWidth);
+            else
+                return new LocatedTile();
         }
 
         public List<LocatedTile> ApplyBrush (TileGridLayer tileLayer, int x, int y)
@@ -30,7 +97,7 @@ namespace Treefrog.Framework.Model
 
             // Update valid neighboring tiles
             foreach (TileCoord coord in NeighborCoordSet(x, y)) {
-                if (_brushClass.ContainsMemberTile(tileLayer.TilesAt(coord)))
+                if (ContainsMemberTile(tileLayer.TilesAt(coord)))
                     updatedTiles.Add(new LocatedTile(InnerApply(tileLayer, coord.X, coord.Y), coord.X, coord.Y));
             }
 
@@ -43,7 +110,7 @@ namespace Treefrog.Framework.Model
             List<int> neighbors = new List<int>();
 
             for (int i = 0; i < coordSet.Length; i++) {
-                if (_brushClass.ContainsMemberTile(tileLayer.TilesAt(coordSet[i])))
+                if (ContainsMemberTile(tileLayer.TilesAt(coordSet[i])))
                     neighbors.Add(i + 1);
             }
 
@@ -52,11 +119,16 @@ namespace Treefrog.Framework.Model
                 targetStack.Add(tile);
 
             foreach (LocatedTile tile in targetStack) {
-                if (_brushClass.IsMemberTile(tile))
+                if (IsMemberTile(tile))
                     tileLayer.RemoveTile(x, y, tile.Tile);
             }
 
-            Tile newTile = _brushClass.ApplyRules(neighbors);
+            int index = _brushClass.ApplyRules(neighbors);
+            Tile newTile = null;
+
+            if (index >= 0 && index < _tiles.Count && _tiles[index].Tile != null)
+                newTile = _tiles[index].Tile;
+
             if (newTile != null)
                 tileLayer.AddTile(x, y, newTile);
 
@@ -84,7 +156,7 @@ namespace Treefrog.Framework.Model
 
             List<BrushEntryXmlProxy> brushEntries = new List<BrushEntryXmlProxy>();
             for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
-                Tile tile = brush.BrushClass.GetTile(i);
+                Tile tile = brush.GetTile(i);
                 if (tile != null)
                     brushEntries.Add(new BrushEntryXmlProxy() {
                         Slot = i,
@@ -102,23 +174,14 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static DynamicBrush FromXmlProxy (DynamicBrushXmlProxy proxy, TilePoolManager manager)
+        public static DynamicBrush FromXmlProxy (DynamicBrushXmlProxy proxy, TilePoolManager manager, DynamicBrushClassRegistry registry)
         {
             if (proxy == null)
                 return null;
 
-            // TODO: Switch to a factory
-            DynamicBrushClass brushClass = null;
-            switch (proxy.Type) {
-                case "Basic":
-                    brushClass = new BasicDynamicBrushClass(proxy.TileWidth, proxy.TileHeight);
-                    break;
-                case "Extended":
-                    brushClass = new ExtendedDynamicBrushClass(proxy.TileWidth, proxy.TileHeight);
-                    break;
-                default:
-                    return null;
-            }
+            DynamicBrushClass brushClass = registry.Lookup(proxy.Type);
+            if (brushClass == null)
+                return null;
 
             DynamicBrush brush = new DynamicBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
 
@@ -127,7 +190,7 @@ namespace Treefrog.Framework.Model
                 if (pool == null)
                     continue;
 
-                brush.BrushClass.SetTile(entry.Slot, pool.GetTile(entry.TileId));
+                brush.SetTile(entry.Slot, pool.GetTile(entry.TileId));
             }
 
             return brush;

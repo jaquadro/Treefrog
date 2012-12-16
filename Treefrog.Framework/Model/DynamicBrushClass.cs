@@ -14,29 +14,38 @@ namespace Treefrog.Framework.Model
     // | 7 | 6 | 5 |
     // +---+---+---+
 
+    public class DynamicBrushClassRegistry : ObjectRegistry<DynamicBrushClass>
+    {
+        public DynamicBrushClassRegistry ()
+        {
+            Register("Basic", new BasicDynamicBrushClass());
+            Register("Extended", new ExtendedDynamicBrushClass());
+        }
+    }
+
+    public class TileProxy
+    {
+        public Tile Tile { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+
+        public TileProxy (int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+
     public abstract class DynamicBrushClass
     {
-        protected class TileProxy
-        {
-            public Tile Tile { get; set; }
-            public int X { get; set; }
-            public int Y { get; set; }
-
-            public TileProxy (int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-        }
-
         protected class DynamicBrushRule
         {
-            private TileProxy _tile;
+            private int _tileIndex;
             private bool[] _neighbors = new bool[8];
 
-            public DynamicBrushRule (TileProxy tile, params int[] neighbors)
+            public DynamicBrushRule (int tileIndex, params int[] neighbors)
             {
-                _tile = tile;
+                _tileIndex = tileIndex;
 
                 foreach (int n in neighbors) {
                     if (n >= 1 && n <= 8)
@@ -44,9 +53,9 @@ namespace Treefrog.Framework.Model
                 }
             }
 
-            public TileProxy Tile
+            public int TileIndex
             {
-                get { return _tile; }
+                get { return _tileIndex; }
             }
 
             public int Matches (IList<int> neighbors)
@@ -71,156 +80,88 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        private List<TileProxy> _tiles = new List<TileProxy>();
         private List<DynamicBrushRule> _rules = new List<DynamicBrushRule>();
 
-        private int _tileWidth;
-        private int _tileHeight;
-
-        public DynamicBrushClass (int tileWidth, int tileHeight)
-        {
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
-        }
-
-        public int TileWidth
-        {
-            get { return _tileWidth; }
-        }
-
-        public int TileHeight
-        {
-            get { return _tileHeight; }
-        }
-
         public abstract int TemplateWidth { get; }
+
         public abstract int TemplateHeight { get; }
-
-        public int TileCount
-        {
-            get { return _tiles.Count; }
-        }
-
-        protected List<TileProxy> Tiles
-        {
-            get { return _tiles; }
-        }
 
         protected List<DynamicBrushRule> Rules
         {
             get { return _rules; }
         }
 
-        protected virtual Tile DefaultTile
+        public virtual int SlotCount
         {
-            get { return null; }
-        }
-
-        public int SlotCount
-        {
-            get { return _tiles.Count; }
+            get { return TemplateWidth * TemplateHeight; }
         }
 
         public abstract string ClassName { get; }
 
-        public abstract Tile PrimaryTile { get; }
+        public abstract int PrimaryTileIndex { get; }
 
-        public bool ContainsMemberTile (IEnumerable<LocatedTile> tiles)
-        {
-            foreach (LocatedTile tile in tiles) {
-                if (IsMemberTile(tile))
-                    return true;
-            }
+        protected abstract int DefaultTileIndex { get; }
 
-            return false;
-        }
-
-        public bool IsMemberTile (LocatedTile tile)
-        {
-            foreach (TileProxy proxy in _tiles) {
-                if (proxy.Tile != null && proxy.Tile.Id == tile.Tile.Id)
-                    return true;
-            }
-
-            return false;
-        }
-
-        public Tile ApplyRules (IList<int> neighbors)
+        public int ApplyRules (IList<int> neighbors)
         {
             int bestMatchWeight = 0;
-            Tile tile = DefaultTile;
+            int tileIndex = DefaultTileIndex;
 
             foreach (DynamicBrushRule rule in _rules) {
                 int matchWeight = rule.Matches(neighbors);
                 if (matchWeight > bestMatchWeight) {
                     bestMatchWeight = matchWeight;
-                    tile = rule.Tile.Tile;
+                    tileIndex = rule.TileIndex;
                 }
             }
 
-            return tile;
+            return tileIndex;
         }
 
-        public void SetTile (int position, Tile tile)
-        {
-            if (position >= 0 && position < Tiles.Count)
-                Tiles[position].Tile = tile;
-        }
-
-        public void SetTile (int x, int y, Tile tile)
-        {
-            int position = y * TemplateWidth + x;
-            SetTile(position, tile);
-        }
-
-        public Tile GetTile (int position)
-        {
-            if (position >= 0 && position < Tiles.Count)
-                return Tiles[position].Tile;
-            else
-                return null;
-        }
-
-        public LocatedTile GetLocatedTile (int position)
-        {
-            if (position >= 0 && position < Tiles.Count)
-                return new LocatedTile(Tiles[position].Tile, position % TemplateWidth, position / TemplateWidth);
-            else
-                return new LocatedTile();
-        }
-
-        public virtual TextureResource MakePreview (int maxWidth, int maxHeight)
+        public virtual TextureResource MakePreview (IList<TileProxy> tiles, int tileWidth, int tileHeight, int maxWidth, int maxHeight)
         {
             return null;
+        }
+
+        protected virtual TileProxy TileProxyFromIndex (int index)
+        {
+            int y = index / TemplateWidth;
+            int x = index % TemplateWidth;
+
+            return new TileProxy(x, y);
+        }
+
+        public virtual IList<TileProxy> CreateTileProxyList ()
+        {
+            List<TileProxy> list = new List<TileProxy>();
+            for (int i = 0; i < SlotCount; i++)
+                list.Add(TileProxyFromIndex(i));
+
+            return list;
         }
     }
 
     public class BasicDynamicBrushClass : DynamicBrushClass
     {
-        public BasicDynamicBrushClass (int tileWidth, int tileHeight)
-            : base(tileWidth, tileHeight)
+        public BasicDynamicBrushClass ()
         {
             // See brush overlay image for intepretation of tile at each coordinate
-            for (int y = 0; y < 4; y++)
-                for (int x = 0; x < 4; x++)
-                    Tiles.Add(new TileProxy(x, y));
-
             Rules.AddRange(new DynamicBrushRule[] {
-                new DynamicBrushRule(Tiles[0], 4, 5, 6),
-                new DynamicBrushRule(Tiles[1], 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[2], 6, 7, 8),
-                new DynamicBrushRule(Tiles[3], 2, 3, 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[4], 2, 3, 4, 5, 6),
-                new DynamicBrushRule(Tiles[5], 1, 2, 3, 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[6], 1, 2, 6, 7, 8),
-                new DynamicBrushRule(Tiles[7], 1, 2, 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[8], 2, 3, 4),
-                new DynamicBrushRule(Tiles[9], 1, 2, 3, 4, 8),
-                new DynamicBrushRule(Tiles[10], 1, 2, 8),
-                new DynamicBrushRule(Tiles[11], 1, 2, 3, 4, 5, 6, 8),
-                new DynamicBrushRule(Tiles[13], 1, 2, 4, 5, 6, 8),
-                new DynamicBrushRule(Tiles[14], 2, 3, 4, 6, 7, 8),
-                new DynamicBrushRule(Tiles[15], 1, 2, 3, 4, 6, 7, 8),
+                new DynamicBrushRule(0, new int[] { 4, 5, 6 }),
+                new DynamicBrushRule(1, new int[] { 4, 5, 6, 7, 8}),
+                new DynamicBrushRule(2, new int[] { 6, 7, 8}),
+                new DynamicBrushRule(3, new int[] { 2, 3, 4, 5, 6, 7, 8}),
+                new DynamicBrushRule(4, new int[] { 2, 3, 4, 5, 6}),
+                new DynamicBrushRule(5, new int[] { 1, 2, 3, 4, 5, 6, 7, 8}),
+                new DynamicBrushRule(6, new int[] { 1, 2, 6, 7, 8}),
+                new DynamicBrushRule(7, new int[] { 1, 2, 4, 5, 6, 7, 8}),
+                new DynamicBrushRule(8, new int[] { 2, 3, 4}),
+                new DynamicBrushRule(9, new int[] { 1, 2, 3, 4, 8}),
+                new DynamicBrushRule(10, new int[] { 1, 2, 8}),
+                new DynamicBrushRule(11, new int[] { 1, 2, 3, 4, 5, 6, 8}),
+                new DynamicBrushRule(13, new int[] { 1, 2, 4, 5, 6, 8}),
+                new DynamicBrushRule(14, new int[] { 2, 3, 4, 6, 7, 8}),
+                new DynamicBrushRule(15, new int[] { 1, 2, 3, 4, 6, 7, 8}),
             });
         }
 
@@ -239,48 +180,44 @@ namespace Treefrog.Framework.Model
             get { return 4; }
         }
 
-        public override Tile PrimaryTile
+        public override int PrimaryTileIndex
         {
-            get
-            {
-                if (Tiles[5] != null)
-                    return Tiles[5].Tile;
-                return null;
-            }
+            get { return 5; }
         }
 
-        protected override Tile DefaultTile
+        protected override int DefaultTileIndex
         {
-            get
-            {
-                if (Tiles[12] != null)
-                    return Tiles[12].Tile;
-                return null;
-            }
+            get { return 12; }
         }
 
-        public override TextureResource MakePreview (int maxWidth, int maxHeight)
+        public override TextureResource MakePreview (IList<TileProxy> tiles, int tileWidth, int tileHeight, int maxWidth, int maxHeight)
         {
+            if (tiles.Count < SlotCount)
+                return null;
+            for (int i = 0; i < SlotCount; i++)
+                if (tiles[i] == null)
+                    return null;
+
             TextureResource resource = new TextureResource(maxWidth, maxHeight);
 
-            int tilesWide = Math.Min(3, Math.Max(1, maxWidth / TileWidth));
-            int tilesHigh = Math.Min(3, Math.Max(1, maxHeight / TileHeight));
-            int previewWidth = Math.Min(maxWidth, tilesWide * TileWidth);
-            int previewHeight = Math.Min(maxHeight, tilesHigh * TileHeight);
+            int tilesWide = Math.Min(3, Math.Max(1, maxWidth / tileWidth));
+            int tilesHigh = Math.Min(3, Math.Max(1, maxHeight / tileHeight));
+            int previewWidth = Math.Min(maxWidth, tilesWide * tileWidth);
+            int previewHeight = Math.Min(maxHeight, tilesHigh * tileHeight);
             int previewX = (maxWidth - previewWidth) / 2;
             int previewY = (maxHeight - previewHeight) / 2;
 
             Tile[,] previewTiles = new Tile[3, 3] {
-                { Tiles[0].Tile, Tiles[1].Tile, Tiles[2].Tile },
-                { Tiles[4].Tile, Tiles[5].Tile, Tiles[6].Tile },
-                { Tiles[8].Tile, Tiles[9].Tile, Tiles[10].Tile },
+                { tiles[0].Tile, tiles[1].Tile, tiles[2].Tile },
+                { tiles[4].Tile, tiles[5].Tile, tiles[6].Tile },
+                { tiles[8].Tile, tiles[9].Tile, tiles[10].Tile },
             };
 
             for (int y = 0; y < tilesHigh; y++) {
                 for (int x = 0; x < tilesWide; x++) {
                     if (previewTiles[y, x] != null) {
                         TextureResource tex = previewTiles[y, x].Pool.GetTileTexture(previewTiles[y, x].Id);
-                        resource.Set(tex, new Point(previewX + x * TileWidth, previewY + y * TileHeight));
+                        resource.Set(tex, new Point(previewX + x * tileWidth, previewY + y * tileHeight));
                     }
                 }
             }
@@ -291,65 +228,60 @@ namespace Treefrog.Framework.Model
 
     public class ExtendedDynamicBrushClass : DynamicBrushClass
     {
-        public ExtendedDynamicBrushClass (int tileWidth, int tileHeight)
-            : base(tileWidth, tileHeight)
+        public ExtendedDynamicBrushClass ()
         {
             // See brush overlay image for intepretation of tile at each coordinate
-            for (int y = 0; y < 4; y++)
-                for (int x = 0; x < 12; x++)
-                    Tiles.Add(new TileProxy(x, y));
-
             Rules.AddRange(new DynamicBrushRule[] {
-                new DynamicBrushRule(Tiles[0], 4, 5, 6),
-                new DynamicBrushRule(Tiles[1], 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[2], 6, 7, 8),
-                new DynamicBrushRule(Tiles[3], 2, 3, 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[4], 2, 6, 7, 8),
-                new DynamicBrushRule(Tiles[5], 4, 5, 6, 8),
-                new DynamicBrushRule(Tiles[6], 2, 8),
-                new DynamicBrushRule(Tiles[7], 2, 3, 4, 5, 6, 8),
-                new DynamicBrushRule(Tiles[8], 2, 6, 8),
-                new DynamicBrushRule(Tiles[9], 2, 4, 5, 6, 8),
-                new DynamicBrushRule(Tiles[10], 6),
-                new DynamicBrushRule(Tiles[11], 2, 6),
+                new DynamicBrushRule(0, new int[] { 4, 5, 6 }),
+                new DynamicBrushRule(1, new int[] { 4, 5, 6, 7, 8 }),
+                new DynamicBrushRule(2, new int[] { 6, 7, 8 }),
+                new DynamicBrushRule(3, new int[] { 2, 3, 4, 5, 6, 7, 8 }),
+                new DynamicBrushRule(4, new int[] { 2, 6, 7, 8 }),
+                new DynamicBrushRule(5, new int[] { 4, 5, 6, 8 }),
+                new DynamicBrushRule(6, new int[] { 2, 8 }),
+                new DynamicBrushRule(7, new int[] { 2, 3, 4, 5, 6, 8 }),
+                new DynamicBrushRule(8, new int[] { 2, 6, 8 }),
+                new DynamicBrushRule(9, new int[] { 2, 4, 5, 6, 8 }),
+                new DynamicBrushRule(10, new int[] { 6 }),
+                new DynamicBrushRule(11, new int[] { 2, 6 }),
 
-                new DynamicBrushRule(Tiles[12], 2, 3, 4, 5, 6),
-                new DynamicBrushRule(Tiles[13], 1, 2, 3, 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[14], 1, 2, 6, 7, 8),
-                new DynamicBrushRule(Tiles[15], 1, 2, 3, 4, 5, 6, 8),
-                new DynamicBrushRule(Tiles[16], 1, 2, 6, 8),
-                new DynamicBrushRule(Tiles[17], 2, 3, 4, 8),
-                new DynamicBrushRule(Tiles[18], 6, 8),
-                new DynamicBrushRule(Tiles[19], 1, 2, 4, 6, 7, 8),
-                new DynamicBrushRule(Tiles[20], 2, 4, 6),
-                new DynamicBrushRule(Tiles[21], 2, 3, 4, 6, 8),
-                new DynamicBrushRule(Tiles[22], 2),
-                new DynamicBrushRule(Tiles[23], 4, 8),
+                new DynamicBrushRule(12, new int[] { 2, 3, 4, 5, 6 }),
+                new DynamicBrushRule(13, new int[] { 1, 2, 3, 4, 5, 6, 7, 8 }),
+                new DynamicBrushRule(14, new int[] { 1, 2, 6, 7, 8 }),
+                new DynamicBrushRule(15, new int[] { 1, 2, 3, 4, 5, 6, 8 }),
+                new DynamicBrushRule(16, new int[] { 1, 2, 6, 8 }),
+                new DynamicBrushRule(17, new int[] { 2, 3, 4, 8 }),
+                new DynamicBrushRule(18, new int[] { 6, 8 }),
+                new DynamicBrushRule(19, new int[] { 1, 2, 4, 6, 7, 8 }),
+                new DynamicBrushRule(20, new int[] { 2, 4, 6 }),
+                new DynamicBrushRule(21, new int[] { 2, 3, 4, 6, 8 }),
+                new DynamicBrushRule(22, new int[] { 2 }),
+                new DynamicBrushRule(23, new int[] { 4, 8 }),
 
-                new DynamicBrushRule(Tiles[24], 2, 3, 4),
-                new DynamicBrushRule(Tiles[25], 1, 2, 3, 4, 8),
-                new DynamicBrushRule(Tiles[26], 1, 2, 8),
-                new DynamicBrushRule(Tiles[27], 1, 2, 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[28], 2, 4, 5, 6),
-                new DynamicBrushRule(Tiles[29], 4, 6, 7, 8),
-                new DynamicBrushRule(Tiles[30], 2, 4),
-                new DynamicBrushRule(Tiles[31], 2, 4, 5, 6, 7, 8),
-                new DynamicBrushRule(Tiles[32], 2, 4, 8),
-                new DynamicBrushRule(Tiles[33], 1, 2, 4, 6, 8),
-                new DynamicBrushRule(Tiles[34], 4),
-                new DynamicBrushRule(Tiles[35], 2, 4, 6, 8),
+                new DynamicBrushRule(24, new int[] { 2, 3, 4 }),
+                new DynamicBrushRule(25, new int[] { 1, 2, 3, 4, 8 }),
+                new DynamicBrushRule(26, new int[] { 1, 2, 8 }),
+                new DynamicBrushRule(27, new int[] { 1, 2, 4, 5, 6, 7, 8 }),
+                new DynamicBrushRule(28, new int[] { 2, 4, 5, 6 }),
+                new DynamicBrushRule(29, new int[] { 4, 6, 7, 8 }),
+                new DynamicBrushRule(30, new int[] { 2, 4 }),
+                new DynamicBrushRule(31, new int[] { 2, 4, 5, 6, 7, 8 }),
+                new DynamicBrushRule(32, new int[] { 2, 4, 8 }),
+                new DynamicBrushRule(33, new int[] { 1, 2, 4, 6, 8 }),
+                new DynamicBrushRule(34, new int[] { 4 }),
+                new DynamicBrushRule(35, new int[] { 2, 4, 6, 8 }),
 
-                new DynamicBrushRule(Tiles[37], 2, 3, 4, 6, 7, 8),
-                new DynamicBrushRule(Tiles[38], 1, 2, 4, 5, 6, 8),
-                new DynamicBrushRule(Tiles[39], 1, 2, 3, 4, 6, 7, 8),
-                new DynamicBrushRule(Tiles[40], 2, 3, 4, 6),
-                new DynamicBrushRule(Tiles[41], 1, 2, 4, 8),
-                new DynamicBrushRule(Tiles[42], 4, 6),
-                new DynamicBrushRule(Tiles[43], 1, 2, 3, 4, 6, 8),
-                new DynamicBrushRule(Tiles[44], 4, 6, 8),
-                new DynamicBrushRule(Tiles[45], 2, 4, 6, 7, 8),
-                new DynamicBrushRule(Tiles[46], 8),
-                new DynamicBrushRule(Tiles[47]),
+                new DynamicBrushRule(37, new int[] { 2, 3, 4, 6, 7, 8 }),
+                new DynamicBrushRule(38, new int[] { 1, 2, 4, 5, 6, 8 }),
+                new DynamicBrushRule(39, new int[] { 1, 2, 3, 4, 6, 7, 8 }),
+                new DynamicBrushRule(40, new int[] { 2, 3, 4, 6 }),
+                new DynamicBrushRule(41, new int[] { 1, 2, 4, 8 }),
+                new DynamicBrushRule(42, new int[] { 4, 6 }),
+                new DynamicBrushRule(43, new int[] { 1, 2, 3, 4, 6, 8 }),
+                new DynamicBrushRule(44, new int[] { 4, 6, 8 }),
+                new DynamicBrushRule(45, new int[] { 2, 4, 6, 7, 8 }),
+                new DynamicBrushRule(46, new int[] { 8 }),
+                new DynamicBrushRule(47),
             });
         }
 
@@ -368,48 +300,44 @@ namespace Treefrog.Framework.Model
             get { return 4; }
         }
 
-        public override Tile PrimaryTile
+        public override int PrimaryTileIndex
         {
-            get
-            {
-                if (Tiles[13] != null)
-                    return Tiles[13].Tile;
-                return null;
-            }
+            get { return 13; }
         }
 
-        protected override Tile DefaultTile
+        protected override int DefaultTileIndex
         {
-            get
-            {
-                if (Tiles[36] != null)
-                    return Tiles[36].Tile;
-                return null;
-            }
+            get { return 36; }
         }
 
-        public override TextureResource MakePreview (int maxWidth, int maxHeight)
+        public override TextureResource MakePreview (IList<TileProxy> tiles, int tileWidth, int tileHeight, int maxWidth, int maxHeight)
         {
+            if (tiles.Count < SlotCount)
+                return null;
+            for (int i = 0; i < SlotCount; i++)
+                if (tiles[i] == null)
+                    return null;
+
             TextureResource resource = new TextureResource(maxWidth, maxHeight);
 
-            int tilesWide = Math.Min(3, Math.Max(1, maxWidth / TileWidth));
-            int tilesHigh = Math.Min(3, Math.Max(1, maxHeight / TileHeight));
-            int previewWidth = Math.Min(maxWidth, tilesWide * TileWidth);
-            int previewHeight = Math.Min(maxHeight, tilesHigh * TileHeight);
+            int tilesWide = Math.Min(3, Math.Max(1, maxWidth / tileWidth));
+            int tilesHigh = Math.Min(3, Math.Max(1, maxHeight / tileHeight));
+            int previewWidth = Math.Min(maxWidth, tilesWide * tileWidth);
+            int previewHeight = Math.Min(maxHeight, tilesHigh * tileHeight);
             int previewX = (maxWidth - previewWidth) / 2;
             int previewY = (maxHeight - previewHeight) / 2;
 
             Tile[,] previewTiles = new Tile[3, 3] {
-                { Tiles[0].Tile, Tiles[1].Tile, Tiles[2].Tile },
-                { Tiles[12].Tile, Tiles[13].Tile, Tiles[14].Tile },
-                { Tiles[24].Tile, Tiles[25].Tile, Tiles[26].Tile },
+                { tiles[0].Tile, tiles[1].Tile, tiles[2].Tile },
+                { tiles[12].Tile, tiles[13].Tile, tiles[14].Tile },
+                { tiles[24].Tile, tiles[25].Tile, tiles[26].Tile },
             };
 
             for (int y = 0; y < tilesHigh; y++) {
                 for (int x = 0; x < tilesWide; x++) {
                     if (previewTiles[y, x] != null) {
                         TextureResource tex = previewTiles[y, x].Pool.GetTileTexture(previewTiles[y, x].Id);
-                        resource.Set(tex, new Point(previewX + x * TileWidth, previewY + y * TileHeight));
+                        resource.Set(tex, new Point(previewX + x * tileWidth, previewY + y * tileHeight));
                     }
                 }
             }

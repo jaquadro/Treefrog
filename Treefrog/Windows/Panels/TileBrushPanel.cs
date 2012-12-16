@@ -192,7 +192,7 @@ namespace Treefrog.Windows.Panels
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
             foreach (DynamicBrush brush in _controller.TileBrushManager.DynamicBrushes) {
-                imgList.Images.Add(brush.Id.ToString(), CreateCenteredBitmap(brush.BrushClass.MakePreview(64, 64), 64, 64));
+                imgList.Images.Add(brush.Id.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
             }
 
             return imgList;
@@ -207,6 +207,9 @@ namespace Treefrog.Windows.Panels
 
         private Bitmap CreateCenteredBitmap (Bitmap source, int width, int height)
         {
+            if (source == null)
+                return new Bitmap(width, height);
+
             Bitmap dest = new Bitmap(width, height, source.PixelFormat);
             int x = Math.Max(0, (width - source.Width) / 2);
             int y = Math.Max(0, (height - source.Height) / 2);
