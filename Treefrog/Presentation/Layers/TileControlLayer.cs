@@ -885,7 +885,7 @@ namespace Treefrog.Presentation.Layers
             Control.UseWaitCursor = true;
 
             try {
-                using (SysDrawing.Bitmap raster = new SysDrawing.Bitmap(VirtualWidth, VirtualHeight, SysImaging.PixelFormat.Format32bppArgb)) {
+                using (SysDrawing.Bitmap raster = new SysDrawing.Bitmap(Control.ReferenceWidth, Control.ReferenceHeight, SysImaging.PixelFormat.Format32bppArgb)) {
                     using (SysDrawing.Graphics gsurface = SysDrawing.Graphics.FromImage(raster)) {
                         gsurface.CompositingMode = SysDrawing2D.CompositingMode.SourceOver;
                         gsurface.InterpolationMode = SysDrawing2D.InterpolationMode.NearestNeighbor;
@@ -908,7 +908,7 @@ namespace Treefrog.Presentation.Layers
         private void RasterizeTile (SysDrawing.Graphics surface, LocatedTile tile)
         {
             using (SysDrawing.Bitmap tileBmp = tile.Tile.Pool.GetTileTexture(tile.Tile.Id).CreateBitmap()) {
-                SysDrawing.Point location = new SysDrawing.Point(tile.X * Layer.TileWidth, tile.Y * Layer.TileHeight);
+                SysDrawing.Point location = new SysDrawing.Point(tile.X * Layer.TileWidth - Control.OriginX, tile.Y * Layer.TileHeight - Control.OriginY);
                 surface.DrawImage(tileBmp, location);
             }
         }
