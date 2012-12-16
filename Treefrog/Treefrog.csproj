@@ -271,6 +271,12 @@
     <Compile Include="Windows\Forms\NewLevel.Designer.cs">
       <DependentUpon>NewLevel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\ResizeLevelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\ResizeLevelForm.Designer.cs">
+      <DependentUpon>ResizeLevelForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\GraphicsDeviceService.cs" />
     <None Include="Windows\GraphicsDeviceServiceGL.cs" />
     <Compile Include="Windows\Panels\EventArgs.cs" />
@@ -421,6 +427,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\NewLevel.resx">
       <DependentUpon>NewLevel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\ResizeLevelForm.resx">
+      <DependentUpon>ResizeLevelForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\LayerPane.resx">
       <DependentUpon>LayerPane.cs</DependentUpon>

@@ -204,32 +204,32 @@ namespace Treefrog.Windows.Controls
                 float offsetX = 0;
                 float offsetY = 0;
 
-                if (Width > VirtualWidth * _zoom) {
+                if (Width > ReferenceWidth * _zoom) {
                     switch (_alignment) {
                         case LayerControlAlignment.Center:
                         case LayerControlAlignment.Upper:
                         case LayerControlAlignment.Lower:
-                            offsetX = (Width - VirtualWidth * _zoom) / 2;
+                            offsetX = (Width - ReferenceWidth * _zoom) / 2;
                             break;
                         case LayerControlAlignment.Right:
                         case LayerControlAlignment.UpperRight:
                         case LayerControlAlignment.LowerRight:
-                            offsetX = (Width - VirtualWidth * _zoom);
+                            offsetX = (Width - ReferenceWidth * _zoom);
                             break;
                     }
                 }
 
-                if (Height > VirtualHeight * _zoom) {
+                if (Height > ReferenceHeight * _zoom) {
                     switch (_alignment) {
                         case LayerControlAlignment.Center:
                         case LayerControlAlignment.Left:
                         case LayerControlAlignment.Right:
-                            offsetY = (Height - VirtualHeight * _zoom) / 2;
+                            offsetY = (Height - ReferenceHeight * _zoom) / 2;
                             break;
                         case LayerControlAlignment.Lower:
                         case LayerControlAlignment.LowerLeft:
                         case LayerControlAlignment.LowerRight:
-                            offsetY = (Height - VirtualHeight * _zoom);
+                            offsetY = (Height - ReferenceHeight * _zoom);
                             break;
                     }
                 }
@@ -254,6 +254,14 @@ namespace Treefrog.Windows.Controls
             get { return _vWidth; }
         }
 
+        public int OriginX { get; set; }
+
+        public int OriginY { get; set; }
+
+        public int ReferenceWidth { get; set; }
+
+        public int ReferenceHeight { get; set; }
+
         /// <summary>
         /// Gets the bounds of the visible part of the virtual surface at the current zoom setting.
         /// </summary>
@@ -261,14 +269,24 @@ namespace Treefrog.Windows.Controls
         {
             get
             {
-                return new Rectangle(_scrollH, _scrollV,
-                    (int)Math.Ceiling(Math.Min(Width / _zoom, VirtualWidth)),
-                    (int)Math.Ceiling(Math.Min(Height / _zoom, VirtualHeight))
+                return new Rectangle(_scrollH + OriginX, _scrollV + OriginY,
+                    (int)Math.Ceiling(Math.Min(Width / _zoom, ReferenceWidth)),
+                    (int)Math.Ceiling(Math.Min(Height / _zoom, ReferenceHeight))
                     );
             }
         }
 
-        
+        public Rectangle VisibleSurface
+        {
+            get
+            {
+                Vector2 offset = VirtualSurfaceOffset;
+                return new Rectangle((int)Math.Ceiling(offset.X), (int)Math.Ceiling(offset.Y),
+                    (int)Math.Ceiling(Math.Min(Width, ReferenceWidth * _zoom)),
+                    (int)Math.Ceiling(Math.Min(Height, ReferenceHeight * _zoom))
+                    );
+            }
+        }
 
         public IEnumerable<BaseControlLayer> ControlLayers
         {
@@ -828,6 +846,11 @@ namespace Treefrog.Windows.Controls
         }
 
         #region IPointerTarget
+
+        public System.Drawing.Point OriginOffset
+        {
+            get { return new System.Drawing.Point(OriginX, OriginY); }
+        }
 
         public System.Drawing.Point InteriorOffset
         {

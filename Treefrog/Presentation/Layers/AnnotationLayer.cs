@@ -37,6 +37,9 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
+            //offset.X -= Control.OriginX;
+            //offset.Y -= Control.OriginY;
+
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
 
             return offset;

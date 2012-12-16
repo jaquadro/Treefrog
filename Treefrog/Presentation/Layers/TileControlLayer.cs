@@ -62,7 +62,7 @@ namespace Treefrog.Presentation.Layers
             Control.MouseClick += ControlMouseClickHandler;
             Control.MouseUp += ControlMouseUpHandler;
             Control.MouseDown += ControlMouseDownHandler;
-            Control.MouseMove += ControlMouseMoveHandler;
+            //Control.MouseMove += ControlMouseMoveHandler;
 
             InitializeCommandManager();
         }
@@ -199,7 +199,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileClick(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileClick(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -207,7 +207,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileUp(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileUp(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -215,7 +215,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileDown(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileDown(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -223,7 +223,7 @@ namespace Treefrog.Presentation.Layers
         {
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point(e.X, e.Y));
-                OnMouseTileMove(new TileMouseEventArgs(e, coords, GetTile(coords)));
+                OnMouseTileMove(new TileMouseEventArgs(coords, GetTile(coords)));
             }
         }
 
@@ -282,7 +282,15 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+            spriteBatch.GraphicsDevice.ScissorRectangle = Control.VisibleSurface;
+            RasterizerState state = new RasterizerState() {
+                ScissorTestEnable = true,
+            };
+
+            if (spriteBatch.GraphicsDevice.ScissorRectangle.IsEmpty)
+                state.ScissorTestEnable = false;
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, state, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
 
             return offset;
         }
@@ -300,22 +308,17 @@ namespace Treefrog.Presentation.Layers
 
             Rectangle region = Control.VisibleRegion;
 
-            /*Vector2 offset = Control.VirtualSurfaceOffset;
-            offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
-            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
-
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, _effectTrans, Matrix.CreateTranslation(offset.X, offset.Y, 0));
-            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;*/
-
             int zoomTileWidth = (int)(_layer.TileWidth * Control.Zoom);
             int zoomTileHeight = (int)(_layer.TileHeight * Control.Zoom);
 
             TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
-                region.X / _layer.TileWidth,
-                region.Y / _layer.TileHeight,
-                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
-                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
+                (int)Math.Floor(region.X * 1.0 / _layer.TileWidth),
+                (int)Math.Floor(region.Y * 1.0 / _layer.TileHeight),
+                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth * 2 - 1) / _layer.TileWidth,
+                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight * 2 - 1) / _layer.TileHeight
                 );
+            tileRegion.Width = Math.Min(tileRegion.Width, (int)Math.Ceiling(_layer.LayerWidth * 1.0 / _layer.TileWidth));
+            tileRegion.Height = Math.Min(tileRegion.Height, (int)Math.Ceiling(_layer.LayerHeight * 1.0 / _layer.TileHeight));
 
             DrawTiles(spriteBatch, tileRegion);
 
@@ -334,15 +337,24 @@ namespace Treefrog.Presentation.Layers
             offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
             offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
-            spriteBatch.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            Matrix m = Matrix.CreateTranslation(offset.X, offset.Y, 0);
+            Matrix s = Matrix.CreateScale(Control.Zoom);
+            Matrix f = m;// *s;
+
+            spriteBatch.GraphicsDevice.ScissorRectangle = Control.VisibleSurface;
+            RasterizerState state = new RasterizerState() {
+                ScissorTestEnable = true,
+            };
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, state, null, f);
 
             TFImaging.Rectangle tileRegion = new TFImaging.Rectangle(
-                region.X / _layer.TileWidth,
-                region.Y / _layer.TileHeight,
-                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth - 1) / _layer.TileWidth,
-                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight - 1) / _layer.TileHeight
+                (int)Math.Floor(region.X * 1.0 / _layer.TileWidth),
+                (int)Math.Floor(region.Y * 1.0 / _layer.TileHeight),
+                (int)(region.Width + region.X % _layer.TileWidth + _layer.TileWidth * 3 - 1) / _layer.TileWidth,
+                (int)(region.Height + region.Y % _layer.TileHeight + _layer.TileHeight * 3 - 1) / _layer.TileHeight
                 );
+            tileRegion.Width = Math.Min(tileRegion.Width, (int)Math.Ceiling(_layer.LayerWidth * 1.0 / _layer.TileWidth));
+            tileRegion.Height = Math.Min(tileRegion.Height, (int)Math.Ceiling(_layer.LayerHeight * 1.0 / _layer.TileHeight));
 
             Func<int, int, bool> inside = TileInRegionPredicate(tileRegion);
 
@@ -354,6 +366,26 @@ namespace Treefrog.Presentation.Layers
                     bool iUpperLeft = inside(x - 1, y - 1);
 
                     Vector2 pos = new Vector2(x * _layer.TileWidth * Control.Zoom, y * _layer.TileHeight * Control.Zoom);
+
+                    /*Rectangle dest = new Rectangle(
+                        (int)Math.Max(x * _layer.TileWidth * Control.Zoom, Control.OriginX * Control.Zoom),
+                        (int)Math.Max(y * _layer.TileHeight * Control.Zoom, Control.OriginY * Control.Zoom),
+                        (int)Math.Min(_layer.TileWidth, _layer.TileWidth - (Control.OriginX * Control.Zoom - x * _layer.TileWidth * Control.Zoom)),
+                        (int)Math.Min(_layer.TileHeight, _layer.TileHeight - (Control.OriginY * Control.Zoom - y * _layer.TileHeight * Control.Zoom))
+                        );
+
+                    if (dest.X + dest.Width > (Control.OriginX + Control.ReferenceWidth) * Control.Zoom)
+                        dest.Width = (int)((Control.OriginX + Control.ReferenceWidth) * Control.Zoom) - dest.X;
+                    if (dest.Y + dest.Height > (Control.OriginY + Control.ReferenceHeight) * Control.Zoom)
+                        dest.Height = (int)((Control.OriginY + Control.ReferenceHeight) * Control.Zoom) - dest.Y;
+
+                    Rectangle src = new Rectangle(
+                        (dest.X % _layer.TileWidth + _layer.TileWidth) % _layer.TileWidth,
+                        (dest.Y % _layer.TileHeight + _layer.TileHeight) % _layer.TileHeight,
+                        dest.Width,
+                        dest.Height
+                        );*/
+
                     if (iCenter || (iLeft && iUpper)) {
                         spriteBatch.Draw(_tileGridBrush, pos, Color.White);
                     }
@@ -421,19 +453,9 @@ namespace Treefrog.Presentation.Layers
 
         private TileCoord MouseToTileCoords (Point mouse)
         {
-            Rectangle region = Control.VisibleRegion;
-
-            Vector2 offset = Control.VirtualSurfaceOffset;
-            offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
-            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
-
-            int tx = (int)Math.Floor(((float)mouse.X - offset.X) / (_layer.TileWidth * Control.Zoom));
-            int ty = (int)Math.Floor(((float)mouse.Y - offset.Y) / (_layer.TileHeight * Control.Zoom));
-
-            return new TileCoord(tx, ty);
+            return new TileCoord((int)Math.Floor(mouse.X * 1.0 / Layer.TileWidth),
+                (int)Math.Floor(mouse.Y * 1.0 / Layer.TileHeight));
         }
-
-
 
         private ILevelPresenter _levelController;
         private ITilePoolListPresenter _tilePoolController;
@@ -514,6 +536,11 @@ namespace Treefrog.Presentation.Layers
         {
             if (_currentTool != null)
                 _currentTool.PointerPosition(info, new LayerControlViewport(Control));
+
+            if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
+                TileCoord coords = MouseToTileCoords(new Point((int)info.X, (int)info.Y));
+                OnMouseTileMove(new TileMouseEventArgs(coords, GetTile(coords)));
+            }
         }
 
         public void HandlePointerLeaveField ()

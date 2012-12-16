@@ -69,7 +69,12 @@ namespace Treefrog.Presentation
 
             _info = new LevelInfoPresenter(this);
 
-            _layerControl = new LayerControl();
+            _layerControl = new LayerControl() {
+                OriginX = _level.OriginX,
+                OriginY = _level.OriginY,
+                ReferenceWidth = _level.Width,
+                ReferenceHeight = _level.Height,
+            };
             _layerControl.MouseLeave += LayerControlMouseLeaveHandler;
             _layerControl.ControlInitialized += LayerControlInitialized;
 
@@ -283,7 +288,7 @@ namespace Treefrog.Presentation
         {
             string name = FindDefaultLayerName("Object Layer");
 
-            ObjectLayer layer = new ObjectLayer(name, _level.TileWidth * _level.TilesWide, _level.TileHeight * _level.TilesHigh);
+            ObjectLayer layer = new ObjectLayer(name, _level);
 
             BindLayerEvents(layer);
 
@@ -523,7 +528,12 @@ namespace Treefrog.Presentation
         {
             string name = FindDefaultLayerName("Tile Layer");
 
-            MultiTileGridLayer layer = new MultiTileGridLayer(name, _level.TileWidth, _level.TileHeight, _level.TilesWide, _level.TilesHigh);
+            int tileWidth = 16;
+            int tileHeight = 16;
+            int tilesWide = (int)Math.Ceiling(_level.Width * 1.0 / tileWidth);
+            int tilesHigh = (int)Math.Ceiling(_level.Height * 1.0 / tileHeight);
+
+            MultiTileGridLayer layer = new MultiTileGridLayer(name, tileWidth, tileHeight, tilesWide, tilesHigh);
 
             BindLayerEvents(layer);
 

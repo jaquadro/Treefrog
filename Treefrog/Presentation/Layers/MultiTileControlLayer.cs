@@ -67,7 +67,7 @@ namespace Treefrog.Presentation.Layers
                 if (_layer == null) {
                     return 0;
                 }
-                return _layer.TilesHigh * _layer.TileHeight;
+                return _layer.LayerHeight;
             }
         }
 
@@ -78,7 +78,7 @@ namespace Treefrog.Presentation.Layers
                 if (_layer == null) {
                     return 0;
                 } 
-                return _layer.TilesWide * _layer.TileWidth;
+                return _layer.LayerWidth;
             }
         }
 

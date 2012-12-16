@@ -34,20 +34,30 @@ namespace Treefrog.Framework.Model
     public class ObjectLayer : Layer
     {
         private List<ObjectInstance> _objects;
+        private int _layerOriginX;
+        private int _layerOriginY;
         private int _layerWidth;
         private int _layerHeight;
 
-        public ObjectLayer (string name, int layerWidth, int layerHeight)
+        public ObjectLayer (string name, int layerOriginX, int layerOriginY, int layerWidth, int layerHeight)
             : base(name)
         {
             _objects = new List<ObjectInstance>();
+            _layerOriginX = layerOriginX;
+            _layerOriginY = layerOriginY;
             _layerWidth = layerWidth;
             _layerHeight = layerHeight;
         }
 
+        public ObjectLayer (string name, Level level)
+            : this(name, level.OriginX, level.OriginY, level.Width, level.Height)
+        { }
+
         public ObjectLayer (string name, ObjectLayer layer)
             : base(name, layer)
         {
+            _layerOriginX = layer._layerOriginX;
+            _layerOriginY = layer._layerOriginY;
             _layerWidth = layer._layerWidth;
             _layerHeight = layer._layerHeight;
 
@@ -57,7 +67,7 @@ namespace Treefrog.Framework.Model
         }
 
         public ObjectLayer (ObjectLayerXmlProxy proxy, Level level)
-            : this(proxy.Name, level.PixelsWide, level.PixelsHigh)
+            : this(proxy.Name, level)
         {
             Opacity = proxy.Opacity;
             IsVisible = proxy.Visible;
@@ -132,6 +142,16 @@ namespace Treefrog.Framework.Model
             get { return true; }
         }
 
+        public override int LayerOriginX
+        {
+            get { return _layerOriginX; }
+        }
+
+        public override int LayerOriginY
+        {
+            get { return _layerOriginY; }
+        }
+
         public override int LayerHeight
         {
             get { return _layerHeight; }
@@ -142,8 +162,10 @@ namespace Treefrog.Framework.Model
             get { return _layerWidth; }
         }
 
-        public override void RequestNewSize (int pixelsWide, int pixelsHigh)
+        public override void RequestNewSize (int originX, int originY, int pixelsWide, int pixelsHigh)
         {
+            _layerOriginX = originX;
+            _layerOriginY = originY;
             _layerHeight = pixelsHigh;
             _layerWidth = pixelsWide;
         }
@@ -279,6 +301,7 @@ namespace Treefrog.Framework.Model
             return new ObjectLayer(Name, this);
         }
 
+        /*
         public override void WriteXml (XmlWriter writer)
         {
             // <layer name="" type="object">
@@ -359,5 +382,6 @@ namespace Treefrog.Framework.Model
                 }
             }
         }
+        */
     }
 }

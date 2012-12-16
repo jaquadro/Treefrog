@@ -11,6 +11,7 @@ namespace Treefrog.Presentation.Controllers
 {
     public interface IPointerTarget
     {
+        Point OriginOffset { get; }
         Point InteriorOffset { get; }
         Point ScrollOffset { get; }
         float Zoom { get; }
@@ -91,6 +92,10 @@ namespace Treefrog.Presentation.Controllers
             Point scroll = _target.ScrollOffset;
             position.X += scroll.X;
             position.Y += scroll.Y;
+
+            Point origin = _target.OriginOffset;
+            position.X += origin.X;
+            position.Y += origin.Y;
 
             return position;
         }

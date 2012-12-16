@@ -159,14 +159,15 @@ namespace Treefrog.Presentation.Tools
 
         protected TileCoord TileLocation (PointerEventInfo info)
         {
-            return new TileCoord((int)Math.Floor(info.X / Layer.TileWidth), (int)Math.Floor(info.Y / Layer.TileHeight));
+            return new TileCoord((int)Math.Floor(info.X / Layer.TileWidth), 
+                (int)Math.Floor(info.Y / Layer.TileHeight));
         }
 
         protected bool TileInRange (TileCoord location)
         {
-            if (location.X < 0 || location.X >= Layer.TilesWide)
+            if (location.X < Layer.TileOriginX || location.X >= (Layer.TilesWide + Layer.TileOriginX))
                 return false;
-            if (location.Y < 0 || location.Y >= Layer.TilesHigh)
+            if (location.Y < Layer.TileOriginY || location.Y >= (Layer.TilesHigh + Layer.TileOriginY))
                 return false;
 
             return true;

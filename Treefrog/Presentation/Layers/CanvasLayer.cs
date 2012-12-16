@@ -5,6 +5,7 @@ using System.Text;
 using Treefrog.Windows.Controls;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Amphibian.Drawing;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -45,6 +46,31 @@ namespace Treefrog.Presentation.Layers
             spriteBatch.End();
         }
 
+        private DrawBatch _drawBatch;
+
+        protected Vector2 BeginDrawLines (SpriteBatch spriteBatch)
+        {
+            if (_drawBatch == null) {
+                Pens.Initialize(spriteBatch.GraphicsDevice);
+                _drawBatch = new DrawBatch(spriteBatch.GraphicsDevice);
+            }
+
+            Rectangle region = Control.VisibleRegion;
+
+            Vector2 offset = Control.VirtualSurfaceOffset;
+            offset.X = (float)Math.Ceiling(offset.X - region.X * Control.Zoom);
+            offset.Y = (float)Math.Ceiling(offset.Y - region.Y * Control.Zoom);
+
+            _drawBatch.Begin(BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, Matrix.CreateTranslation(offset.X, offset.Y, 0));
+
+            return offset;
+        }
+
+        protected void EndDrawLines (SpriteBatch spriteBatch)
+        {
+            _drawBatch.End();
+        }
+
         public new void DrawContent (SpriteBatch spriteBatch)
         {
             if (Visible == false)
@@ -54,12 +80,38 @@ namespace Treefrog.Presentation.Layers
                 _pattern = BuildCanvasPattern(spriteBatch.GraphicsDevice);
 
             Vector2 offset = BeginDraw(spriteBatch);
+            Rectangle region = Control.VisibleRegion;
 
-            Rectangle dest = new Rectangle(0, 0, (int)(Control.VirtualWidth * Control.Zoom), (int)(Control.VirtualHeight * Control.Zoom));
+            Rectangle dest = new Rectangle(
+                (int)(region.X * Control.Zoom),
+                (int)(region.Y * Control.Zoom),
+                (int)(region.Width * Control.Zoom),
+                (int)(region.Height * Control.Zoom)
+                );
+
+            //Rectangle dest = new Rectangle(0, 0, (int)(Control.VirtualWidth * Control.Zoom), (int)(Control.VirtualHeight * Control.Zoom));
 
             spriteBatch.Draw(_pattern, dest, dest, Color.White);
 
             EndDraw(spriteBatch);
+
+            BeginDrawLines(spriteBatch);
+
+            Vector2 surfaceOffset = Control.VirtualSurfaceOffset;
+            Rectangle bounds = new Rectangle(
+                (int)Math.Ceiling((Control.OriginX * Control.Zoom)), 
+                (int)Math.Ceiling((Control.OriginY * Control.Zoom)),
+                (int)(Control.ReferenceWidth * Control.Zoom), 
+                (int)(Control.ReferenceHeight * Control.Zoom)
+                );
+            _drawBatch.DrawRectangle(bounds, Pens.Black);
+
+            if (Control.OriginX != 0)
+                _drawBatch.DrawLine(new Point(0, bounds.Top), new Point(0, bounds.Bottom), Pens.Gray);
+            if (Control.OriginY != 0)
+                _drawBatch.DrawLine(new Point(bounds.Left, 0), new Point(bounds.Right, 0), Pens.Gray);
+
+            EndDrawLines(spriteBatch);
         }
 
         private Texture2D BuildCanvasPattern (GraphicsDevice device)

@@ -19,19 +19,18 @@ namespace Treefrog.Presentation.Layers
         }
     }
 
-    public class TileMouseEventArgs : MouseEventArgs
+    public class TileMouseEventArgs : EventArgs
     {
         public TileCoord TileLocation { get; private set; }
         public Tile Tile { get; private set; }
 
-        public TileMouseEventArgs (MouseEventArgs e, TileCoord coord)
-            : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
+        public TileMouseEventArgs (TileCoord coord)
         {
             TileLocation = coord;
         }
 
-        public TileMouseEventArgs (MouseEventArgs e, TileCoord coord, Tile tile)
-            : this(e, coord)
+        public TileMouseEventArgs (TileCoord coord, Tile tile)
+            : this(coord)
         {
             Tile = tile;
         }

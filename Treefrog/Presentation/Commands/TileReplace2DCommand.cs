@@ -21,21 +21,24 @@ namespace Treefrog.Presentation.Commands
         public override void Execute ()
         {
             foreach (LocatedTileStack kv in _selection) {
-                _tileSource[kv.Location] = null;
+                if (_tileSource.InRange(kv.Location))
+                    _tileSource[kv.Location] = null;
             }
         }
 
         public override void Undo ()
         {
             foreach (LocatedTileStack kv in _selection) {
-                _tileSource[kv.Location] = kv.Stack != null ? new TileStack(kv.Stack) : null;
+                if (_tileSource.InRange(kv.Location))
+                    _tileSource[kv.Location] = kv.Stack != null ? new TileStack(kv.Stack) : null;
             }
         }
 
         public override void Redo ()
         {
             foreach (LocatedTileStack kv in _selection) {
-                _tileSource[kv.Location] = null;
+                if (_tileSource.InRange(kv.Location))
+                    _tileSource[kv.Location] = null;
             }
         }
     }
@@ -85,46 +88,61 @@ namespace Treefrog.Presentation.Commands
         public void QueueAdd (TileCoord coord, Tile tile)
         {
             if (tile != null) {
-                TileStack stack = new TileStack(_tileSource[coord]);
+                TileStack srcStack = null;
+                if (_tileSource.InRange(coord))
+                    srcStack = _tileSource[coord];
+
+                TileStack stack = new TileStack(srcStack);
                 stack.Add(tile);
 
                 if (_tiles.ContainsKey(coord))
                     _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
                 else
-                    _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+                    _tiles[coord] = new TileRecord(srcStack, stack);
             }
         }
 
         public void QueueAdd (TileCoord coord, TileStack stack)
         {
             if (stack != null) {
-                TileStack newstack = new TileStack(_tileSource[coord]);
-                foreach (Tile t in stack) {
-                    newstack.Add(t);
-                }
+                TileStack srcStack = null;
+                if (_tileSource.InRange(coord))
+                    srcStack = _tileSource[coord];
+
+                TileStack newStack = new TileStack(srcStack);
+                foreach (Tile t in stack)
+                    newStack.Add(t);
 
                 if (_tiles.ContainsKey(coord))
                     _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
                 else
-                    _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), newstack);
+                    _tiles[coord] = new TileRecord(srcStack, newStack);
             }
         }
 
         public void QueueRemove (TileCoord coord, Tile tile)
         {
             if (tile != null) {
-                TileStack stack = new TileStack(_tileSource[coord]);
+                TileStack srcStack = null;
+                if (_tileSource.InRange(coord))
+                    srcStack = _tileSource[coord];
+
+                TileStack stack = new TileStack(srcStack);
                 stack.Remove(tile);
 
                 if (_tiles.ContainsKey(coord))
                     _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
                 else
-                    _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+                    _tiles[coord] = new TileRecord(srcStack, stack);
             }
         }
 
         public void QueueReplacement (TileCoord coord, Tile replacement)
         {
+            TileStack srcStack = null;
+            if (_tileSource.InRange(coord))
+                srcStack = _tileSource[coord];
+
             TileStack stack = null;
             if (replacement != null) {
                 stack = new TileStack();
@@ -134,37 +152,44 @@ namespace Treefrog.Presentation.Commands
             if (_tiles.ContainsKey(coord))
                 _tiles[coord] = new TileRecord(_tiles[coord].Original, stack);
             else
-                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), stack);
+                _tiles[coord] = new TileRecord(srcStack, stack);
         }
 
         public void QueueReplacement (TileCoord coord, TileStack replacement)
         {
+            TileStack srcStack = null;
+            if (_tileSource.InRange(coord))
+                srcStack = _tileSource[coord];
+
             replacement = (replacement != null) ? new TileStack(replacement) : null;
 
             if (_tiles.ContainsKey(coord))
                 _tiles[coord] = new TileRecord(_tiles[coord].Original, replacement);
             else
-                _tiles[coord] = new TileRecord(new TileStack(_tileSource[coord]), replacement);
+                _tiles[coord] = new TileRecord(srcStack, replacement);
         }
 
         public override void Execute ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
+                if (_tileSource.InRange(kv.Key))
+                    _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
             }
         }
 
         public override void Undo ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = (kv.Value.Original != null) ? new TileStack(kv.Value.Original) : null;
+                if (_tileSource.InRange(kv.Key))
+                    _tileSource[kv.Key] = (kv.Value.Original != null) ? new TileStack(kv.Value.Original) : null;
             }
         }
 
         public override void Redo ()
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
-                _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
+                if (_tileSource.InRange(kv.Key))
+                    _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
             }
         }
     }

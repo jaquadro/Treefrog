@@ -319,8 +319,8 @@ namespace Treefrog.Presentation.Tools
 
         private Rectangle ClampSelection (Rectangle rect)
         {
-            int x = Math.Max(rect.X, 0);
-            int y = Math.Max(rect.Y, 0);
+            int x = Math.Max(rect.X, Layer.TileOriginX);
+            int y = Math.Max(rect.Y, Layer.TileOriginY);
 
             return new Rectangle(x, y, 
                 Math.Min(rect.Width, Layer.TilesWide - x),
