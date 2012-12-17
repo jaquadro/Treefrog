@@ -258,9 +258,32 @@ namespace Treefrog.Windows.Controls
 
         public int OriginY { get; set; }
 
-        public int ReferenceWidth { get; set; }
+        private int _refWidth;
+        private int _refHeight;
 
-        public int ReferenceHeight { get; set; }
+        public int ReferenceWidth
+        {
+            get { return _refWidth; }
+            set
+            {
+                if (_refWidth != value) {
+                    _refWidth = value;
+                    OnVirtualSizeChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        public int ReferenceHeight
+        {
+            get { return _refHeight; }
+            set
+            {
+                if (_refHeight != value) {
+                    _refHeight = value;
+                    OnVirtualSizeChanged(EventArgs.Empty);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the bounds of the visible part of the virtual surface at the current zoom setting.
@@ -480,6 +503,8 @@ namespace Treefrog.Windows.Controls
             }
         }
 
+        public bool ShowGrid { get; set; }
+
         #region GraphicsDeviceControl Members
 
         /// <summary>
@@ -515,10 +540,12 @@ namespace Treefrog.Windows.Controls
             }
             OnDrawLayerContent(e);
 
-            foreach (BaseControlLayer layer in _layers) {
-                layer.DrawGrid(_spriteBatch);
+            if (ShowGrid) {
+                foreach (BaseControlLayer layer in _layers) {
+                    layer.DrawGrid(_spriteBatch);
+                }
+                OnDrawLayerGrid(e);
             }
-            OnDrawLayerGrid(e);
 
             foreach (BaseControlLayer layer in _layers) {
                 layer.DrawExtra(_spriteBatch);

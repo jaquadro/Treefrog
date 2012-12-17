@@ -39,6 +39,8 @@ namespace Treefrog.Presentation
         bool CanShowObjectPoolPanel { get; }
         bool CanShowTileBrushPanel { get; }
 
+        bool ShowGrid { get; }
+
         bool Modified { get; }
 
         Project Project { get; }
@@ -46,6 +48,8 @@ namespace Treefrog.Presentation
         Presentation Presentation { get; }
 
         IEnumerable<ILevelPresenter> OpenContent { get; }
+
+        void ActionSelectContent (string name);
 
         event EventHandler SyncContentTabs;
         event EventHandler SyncContentView;
@@ -371,6 +375,11 @@ namespace Treefrog.Presentation
             get { return true; }
         }
 
+        public bool ShowGrid
+        {
+            get { return _commandManager.IsSelected(CommandKey.ViewGrid); }
+        }
+
         public bool Modified
         {
             get { return _modified; }
@@ -393,6 +402,11 @@ namespace Treefrog.Presentation
                     yield return _levels[name];
                 }
             }
+        }
+
+        public void ActionSelectContent (string name)
+        {
+            SelectLevel(name);
         }
 
         private void ProjectModifiedHandler (object sender, EventArgs e)
@@ -474,6 +488,10 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.SaveAs, CommandCanSaveProjectAs, CommandSaveProjectAs);
             _commandManager.Register(CommandKey.Exit, CommandCanExit, CommandExit);
             _commandManager.Register(CommandKey.ProjectAddLevel, CommandCanAddLevel, CommandAddLevel);
+
+            //_commandManager.RegisterToggle(CommandKey.ViewGrid);
+
+            //_commandManager.Perform(CommandKey.ViewGrid);
         }
 
         public CommandManager CommandManager
@@ -650,7 +668,18 @@ namespace Treefrog.Presentation
                 if (!_project.Levels.Contains(level)) {
                     throw new InvalidOperationException("Selected a LevelPresenter with no corresponding model Level!  Selected name: " + level);
                 }
+
+                ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
+                info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+
+                CurrentLevel.InfoPresenter.RefreshContentInfo();
             }
+            else {
+                ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
+                info.BindInfoPresenter(null);
+            }
+
+            CommandManager.Invalidate(CommandKey.ViewGrid);
 
             OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
         }

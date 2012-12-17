@@ -119,6 +119,17 @@ namespace Treefrog.Presentation.Commands
             }
         }
 
+        private class StatefulCommandHandler : CommandHandler
+        {
+            public bool Selected { get; set; }
+
+            public StatefulCommandHandler ()
+                : base()
+            {
+                Selected = false;
+            }
+        }
+
         private class CommandGroup
         {
             public CommandKey Selected { get; set; }
@@ -132,6 +143,8 @@ namespace Treefrog.Presentation.Commands
         }
 
         private static Func<bool> DefaultGroupCheck = delegate { return true; };
+
+        private static Func<bool> DefaultStatefulCheck = delegate { return true; };
 
         private Dictionary<CommandKey, CommandHandler> _handlers = new Dictionary<CommandKey, CommandHandler>();
         private Dictionary<CommandToggleGroup, CommandGroup> _toggleGroups = new Dictionary<CommandToggleGroup, CommandGroup>();
@@ -173,6 +186,19 @@ namespace Treefrog.Presentation.Commands
         {
             _handlers[key] = new CommandHandler() {
                 CanPerform = performCheck,
+                Perform = perform,
+            };
+        }
+
+        public void RegisterToggle (CommandKey key)
+        {
+            RegisterToggle(key, null, null);
+        }
+
+        public void RegisterToggle (CommandKey key, Func<bool> performCheck, Action perform)
+        {
+            _handlers[key] = new StatefulCommandHandler() {
+                CanPerform = performCheck ?? DefaultStatefulCheck,
                 Perform = perform,
             };
         }
@@ -268,8 +294,30 @@ namespace Treefrog.Presentation.Commands
         {
             if (CanHandleGroup(key))
                 GroupPerform(key);
-            else if (CanHandle(key) && _handlers[key].Perform != null)
-                _handlers[key].Perform();
+            else if (CanHandle(key)) {
+                if (_handlers[key] is StatefulCommandHandler)
+                    StatefulPerform(key);
+                else if (_handlers[key].Perform != null)
+                    _handlers[key].Perform();
+            }
+        }
+
+        protected virtual void StatefulPerform (CommandKey key)
+        {
+            CommandHandler handler;
+            if (!_handlers.TryGetValue(key, out handler))
+                return;
+
+            StatefulCommandHandler stateHandler = handler as StatefulCommandHandler;
+            if (stateHandler == null)
+                return;
+
+            stateHandler.Selected = !stateHandler.Selected;
+
+            if (stateHandler.Perform != null)
+                stateHandler.Perform();
+
+            Invalidate(key);
         }
 
         protected virtual void GroupPerform (CommandKey key)
@@ -309,6 +357,10 @@ namespace Treefrog.Presentation.Commands
             CommandHandler handler;
             if (!_handlers.TryGetValue(key, out handler))
                 return false;
+
+            StatefulCommandHandler stateHandler = handler as StatefulCommandHandler;
+            if (stateHandler != null)
+                return stateHandler.Selected;
 
             CommandGroup group;
             if (!_toggleGroups.TryGetValue(handler.Group, out group))

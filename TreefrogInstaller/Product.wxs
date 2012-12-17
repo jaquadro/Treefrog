@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" 
+           Name="Treefrog Map Editor" 
+           Language="1033" 
+           Version="0.8.0.0" 
+           Manufacturer="Treefrog" 
+           UpgradeCode="54df5b12-e0ee-4a46-977c-aef4d0e57d57">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="I.MainIcon" SourceFile="../Staging/Game.ico" />
+    <Property Id="ARPPRODUCTICON" Value="I.MainIcon" />
+
+    <Feature Id="F.MainApplication" Title="Treefrog Map Editor" Level="1">
+      <ComponentGroupRef Id="CG.StartMenu" />
+      <ComponentGroupRef Id="CG.ProductComponents" />
+    </Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="D.StartFolder" Name="Treefrog Editor" />
+      </Directory>
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="D.InstallFolder" Name="Treefrog Editor" />
+			</Directory>
+		</Directory>
+
+    <ComponentGroup Id="CG.StartMenu" Directory="D.StartFolder">
+      <Component Id="C.TLShortcut" Guid="*">
+        <Shortcut Id="S.TLShortcut"
+                  Name="Treefrog Map Editor"
+                  Target="[D.InstallFolder]Treefrog.exe"
+                  WorkingDirectory="D.InstallFolder" />
+        <RemoveFolder Id="RF.StartFolder" On="uninstall" />
+        <RegistryValue Id="R.TLShortcut" Root="HKCU" Key="Software\Treefrog" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+		<ComponentGroup Id="CG.ProductComponents" Directory="D.InstallFolder">
+      <Component Id="C.Amphibian.Drawing.dll" Guid="*">
+        <File Source="../Staging/Amphibian.Drawing.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C.Treefrog.exe" Guid="*">
+        <File Source="../Staging/Treefrog.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="C.Treefrog.exe.config" Guid="*">
+        <File Source="../Staging/Treefrog.exe.config" KeyPath="yes" />
+      </Component>
+      <Component Id="C.Treefrog.Framework.dll" Guid="*">
+        <File Source="../Staging/Treefrog.Framework.dll" KeyPath="yes" />
+      </Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

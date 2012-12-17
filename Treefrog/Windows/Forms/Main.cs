@@ -65,9 +65,11 @@ namespace Treefrog.Windows.Forms
         {
             ILevelPresenter lp = _editor.CurrentLevel;
 
-            foreach (TabPage page in tabControlEx1.TabPages) {
-                if (page.Text == lp.LayerControl.Name) {
-                    tabControlEx1.SelectedTab = page;
+            if (lp != null) {
+                foreach (TabPage page in tabControlEx1.TabPages) {
+                    if (page.Text == lp.LayerControl.Name) {
+                        tabControlEx1.SelectedTab = page;
+                    }
                 }
             }
 
@@ -94,7 +96,8 @@ namespace Treefrog.Windows.Forms
             _menu.BindController(_editor);
             _menu.BindCommandManager(_editor.CommandManager);
             //_tileToolbar.BindController(_editor.Presentation.LevelTools);
-            _tileToolbar.BindCommandManager(_editor.CurrentLevel.CommandManager);
+            if (_editor.CurrentLevel != null)
+                _tileToolbar.BindCommandManager(_editor.CurrentLevel.CommandManager);
             _standardToolbar.BindCommandManager(_editor.CommandManager);
             _infoStatus.BindController(_editor.Presentation.ContentInfo);
         }
@@ -106,6 +109,14 @@ namespace Treefrog.Windows.Forms
             }
             else {
                 base.Text = "Treefrog";
+            }
+        }
+
+        private void tabControlEx1_Selected (object sender, TabControlEventArgs e)
+        {
+            if (_editor != null) {
+                if (e.TabPage != null)
+                    _editor.ActionSelectContent(e.TabPage.Text);
             }
         }
     }

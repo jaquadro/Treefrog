@@ -70,6 +70,8 @@ namespace Treefrog.Windows.Controls
                     _control.ScrollPropertyChanged += ControlVirtualSizeChangedHandler;
                     _control.VirtualSizeChanged += ControlVirtualSizeChangedHandler;
                     _control.Control.Resize += ControlSizeChangedHandler;
+
+                    RecalcScrollBars();
                 }
             }
         }

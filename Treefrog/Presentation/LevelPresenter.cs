@@ -172,6 +172,10 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.LayerMoveUp, CommandCanMoveLayerUp, CommandMoveLayerUp);
             _commandManager.Register(CommandKey.LayerMoveDown, CommandCanMoveLayerDown, CommandMoveLayerDown);
             _commandManager.Register(CommandKey.LayerMoveBottom, CommandCanMoveLayerBottom, CommandMoveLayerBottom);
+
+            _commandManager.RegisterToggle(CommandKey.ViewGrid, CommandCanToggleGrid, CommandToggleGrid);
+
+            _commandManager.Perform(CommandKey.ViewGrid);
         }
 
         public CommandManager CommandManager
@@ -202,6 +206,16 @@ namespace Treefrog.Presentation
         private void CommandRedo ()
         {
             History.Redo();
+        }
+
+        private bool CommandCanToggleGrid ()
+        {
+            return true;
+        }
+
+        private void CommandToggleGrid ()
+        {
+            _layerControl.ShowGrid = _commandManager.IsSelected(CommandKey.ViewGrid);
         }
 
         #endregion
