@@ -37,6 +37,8 @@ namespace Treefrog.Windows.Controls
         {
             InitializeComponent();
 
+            AutoShowScrollbars = true;
+
             _hScrollBar.Scroll += ScrollbarScrollHandler;
             _vScrollBar.Scroll += ScrollbarScrollHandler;
         }
@@ -55,7 +57,7 @@ namespace Treefrog.Windows.Controls
                     _control.Scroll -= ControlScrollHandler;
                     _control.ScrollPropertyChanged -= ControlVirtualSizeChangedHandler;
                     _control.VirtualSizeChanged -= ControlVirtualSizeChangedHandler;
-                    _control.Control.Resize -= ControlVirtualSizeChangedHandler;
+                    _control.Control.Resize -= ControlSizeChangedHandler;
                 }
 
                 _control = value;
@@ -67,10 +69,12 @@ namespace Treefrog.Windows.Controls
                     _control.Scroll += ControlScrollHandler;
                     _control.ScrollPropertyChanged += ControlVirtualSizeChangedHandler;
                     _control.VirtualSizeChanged += ControlVirtualSizeChangedHandler;
-                    _control.Control.Resize += ControlVirtualSizeChangedHandler;
+                    _control.Control.Resize += ControlSizeChangedHandler;
                 }
             }
         }
+
+        public bool AutoShowScrollbars { get; set; }
 
         protected override ControlCollection CreateControlsInstance ()
         {
@@ -119,6 +123,16 @@ namespace Treefrog.Windows.Controls
 
         public void ControlVirtualSizeChangedHandler (object sender, EventArgs e)
         {
+            RecalcScrollBars();
+        }
+
+        private void ControlSizeChangedHandler (object sender, EventArgs e)
+        {
+            RecalcScrollBars();
+        }
+
+        private void RecalcScrollBars ()
+        {
             Rectangle vsize = _control.VirtualSize;
             float zoom = _control.Zoom;
 
@@ -134,14 +148,64 @@ namespace Treefrog.Windows.Controls
             int width = _control.Control.Width;
             int height = _control.Control.Height;
 
+            if (AutoShowScrollbars) {
+                int vwidth = (int)(vsize.Width * zoom);
+                int vheight = (int)(vsize.Height * zoom);
+
+                int hSpan = tableLayoutPanel1.GetColumnSpan(panel1);
+                int vSpan = tableLayoutPanel1.GetRowSpan(panel1);
+
+                int minWidth = (hSpan == 1) ? _control.Control.Width : _control.Control.Width - _vScrollBar.Width;
+                int minHeight = (vSpan == 1) ? _control.Control.Height : _control.Control.Height - _hScrollBar.Height;
+                int maxWidth = minWidth + _vScrollBar.Width;
+                int maxHeight = minHeight + _hScrollBar.Height;
+
+                if (maxWidth >= vwidth && maxHeight >= vheight) {
+                    ShowHScrollBar(false);
+                    ShowVScrollBar(false);
+                    width = maxWidth;
+                    height = maxHeight;
+                }
+                else if (maxWidth >= vwidth) {
+                    ShowVScrollBar(true);
+                    width = minWidth;
+                    if (minWidth >= vwidth) {
+                        ShowHScrollBar(false);
+                        height = maxHeight;
+                    }
+                    else {
+                        ShowHScrollBar(true);
+                        height = minHeight;
+                    }
+                }
+                else if (maxHeight >= vheight) {
+                    ShowHScrollBar(true);
+                    height = minHeight;
+                    if (minHeight >= vheight) {
+                        ShowVScrollBar(false);
+                        width = maxWidth;
+                    }
+                    else {
+                        ShowVScrollBar(true);
+                        width = minWidth;
+                    }
+                }
+                else {
+                    ShowHScrollBar(true);
+                    ShowVScrollBar(true);
+                    width = minWidth;
+                    height = minHeight;
+                }
+            }
+
             // Update scrollbar properties
 
             _hScrollBar.Minimum = 0;
             _vScrollBar.Minimum = 0;
             _hScrollBar.Maximum = (width > vsize.Width * zoom) ? 0
-                : (int)(vsize.Width * zoom) - width + (int)(hLargeChange * zoom) -(int)(1 * zoom);
+                : (int)(vsize.Width * zoom) - width + (int)(hLargeChange * zoom) - (int)(1 * zoom);
             _vScrollBar.Maximum = (height > vsize.Height * zoom) ? 0
-                : (int)(vsize.Height * zoom) - height + (int)(vLargeChange * zoom) -(int)(1 * zoom);
+                : (int)(vsize.Height * zoom) - height + (int)(vLargeChange * zoom) - (int)(1 * zoom);
 
             _hScrollBar.Maximum = (int)(_hScrollBar.Maximum / zoom);
             _vScrollBar.Maximum = (int)(_vScrollBar.Maximum / zoom);
@@ -170,6 +234,43 @@ namespace Treefrog.Windows.Controls
             }
             else {
                 _vScrollBar.Enabled = true & vEnabled;
+            }
+        }
+
+        private bool _showHScrollBar = true;
+        private bool _showVScrollBar = true;
+
+        private void ShowHScrollBar (bool show)
+        {
+            if (show && !_showHScrollBar) {
+                _showHScrollBar = true;
+                _hScrollBar.Visible = true;
+                tableLayoutPanel1.SetRowSpan(panel1, 1);
+                tableLayoutPanel1.SetRowSpan(_vScrollBar, 1);
+            }
+            else if (!show && _showHScrollBar) {
+                _showHScrollBar = false;
+                _hScrollBar.Value = 0;
+                _hScrollBar.Visible = false;
+                tableLayoutPanel1.SetRowSpan(panel1, 2);
+                tableLayoutPanel1.SetRowSpan(_vScrollBar, 2);
+            }
+        }
+
+        private void ShowVScrollBar (bool show)
+        {
+            if (show && !_showVScrollBar) {
+                _showVScrollBar = true;
+                _vScrollBar.Visible = true;
+                tableLayoutPanel1.SetColumnSpan(panel1, 1);
+                tableLayoutPanel1.SetColumnSpan(_hScrollBar, 1);
+            }
+            else if (!show && _showVScrollBar) {
+                _showVScrollBar = false;
+                _vScrollBar.Value = 0;
+                _vScrollBar.Visible = false;
+                tableLayoutPanel1.SetColumnSpan(panel1, 2);
+                tableLayoutPanel1.SetColumnSpan(_hScrollBar, 2);
             }
         }
     }
