@@ -117,7 +117,7 @@ namespace Treefrog.Presentation.Tools
 
                 _previewMarker.Start = new Point(x, y);
                 if (_anonBrush != null)
-                    _previewMarker.End = new Point(x + Layer.TileWidth * _anonBrushSize.Width, y + Layer.TileHeight * _anonBrushSize.Height);
+                    _previewMarker.End = new Point(x + Layer.TileWidth * _anonBrush.TilesWide, y + Layer.TileHeight * _anonBrush.TilesHigh);
                 else
                     _previewMarker.End = new Point(x + Layer.TileWidth, y + Layer.TileHeight);
             }
@@ -133,17 +133,9 @@ namespace Treefrog.Presentation.Tools
 
         private PatternBrush BuildBrushMarker ()
         {
-            Rectangle extants = TileExtants(_anonBrush);
-            if (Rectangle.IsAreaNegativeOrEmpty(extants))
+            TextureResource resource = _anonBrush.MakePreview();
+            if (resource == null)
                 return null;
-
-            TextureResource resource = new TextureResource(extants.Width * Layer.TileWidth, extants.Height * Layer.TileHeight);
-            foreach (LocatedTile tile in _anonBrush) {
-                int x = (tile.X - extants.X) * Layer.TileWidth;
-                int y = (tile.Y - extants.Y) * Layer.TileHeight;
-                if (tile.Tile != null)
-                    resource.Set(tile.Tile.Pool.GetTileTexture(tile.Tile.Id), new Point(x, y));
-            }
 
             return new PatternBrush(resource, 0.5);
         }
@@ -184,7 +176,7 @@ namespace Treefrog.Presentation.Tools
                 return;
 
             if (_anonBrush != null) {
-                foreach (LocatedTile tile in _anonBrush) {
+                foreach (LocatedTile tile in _anonBrush.Tiles) {
                     TileCoord tileloc = new TileCoord(location.X + tile.X, location.Y + tile.Y);
                     if (Layer[tileloc] == null || Layer[tileloc].Top != tile.Tile) {
                         _drawCommand.QueueAdd(tileloc, tile.Tile);
@@ -210,8 +202,7 @@ namespace Treefrog.Presentation.Tools
 
         #region Select Region Sequence
 
-        private List<LocatedTile> _anonBrush;
-        private Size _anonBrushSize;
+        private StaticTileBrush _anonBrush;
 
         private RubberBand2 _band;
         private SelectionAnnot _selectionAnnot;
@@ -253,12 +244,12 @@ namespace Treefrog.Presentation.Tools
         {
             Rectangle selection = ClampSelection(_band.Selection);
 
-            _anonBrush = new List<LocatedTile>();
+            _anonBrush = new StaticTileBrush("User Selected", Layer.TileWidth, Layer.TileHeight);
             foreach (LocatedTile tile in Layer.TilesAt(_band.Selection))
-                _anonBrush.Add(new LocatedTile(tile.Tile, tile.X - _band.Selection.Left, tile.Y - _band.Selection.Top));
+                _anonBrush.AddTile(new TileCoord(tile.X - _band.Selection.Left, tile.Y - _band.Selection.Top), tile.Tile);
 
-            _anonBrushSize = TileExtants(_anonBrush).Size;
-            
+            _anonBrush.Normalize();
+
             _annots.Remove(_selectionAnnot);
 
             //EndAutoScroll(info, viewport);
@@ -282,33 +273,6 @@ namespace Treefrog.Presentation.Tools
                 Math.Min(rect.Width, Layer.TilesWide - x),
                 Math.Min(rect.Height, Layer.TilesHigh - y)
                 );
-        }
-
-        private Rectangle TileExtants (IEnumerable<LocatedTile> tiles)
-        {
-            int xmin = int.MaxValue;
-            int ymin = int.MaxValue;
-            int xmax = int.MinValue;
-            int ymax = int.MinValue;
-
-            foreach (LocatedTile tile in _anonBrush) {
-                if (tile.X < xmin)
-                    xmin = tile.X;
-                if (tile.X > xmax)
-                    xmax = tile.X;
-                if (tile.Y < ymin)
-                    ymin = tile.Y;
-                if (tile.Y > ymax)
-                    ymax = tile.Y;
-            }
-
-            int width = Math.Max(0, xmax - xmin + 1);
-            int height = Math.Max(0, ymax - ymin + 1);
-
-            if (width <= 0 || height <= 0)
-                return Rectangle.Empty;
-
-            return new Rectangle(xmin, ymin, width, height);
         }
     }
 }

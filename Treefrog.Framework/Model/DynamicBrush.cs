@@ -7,6 +7,137 @@ using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
+    public class StaticTileBrush : TileBrush
+    {
+        private Dictionary<TileCoord, TileStack> _tiles;
+
+        private int _minX = int.MaxValue;
+        private int _minY = int.MaxValue;
+        private int _maxX = int.MinValue;
+        private int _maxY = int.MinValue;
+
+        public StaticTileBrush (string name, int tileWidth, int tileHeight)
+            : base(name, tileWidth, tileHeight)
+        {
+            _tiles = new Dictionary<TileCoord, TileStack>();
+        }
+
+        public IEnumerable<LocatedTile> Tiles
+        {
+            get
+            {
+                foreach (var kv in _tiles) {
+                    foreach (Tile tile in kv.Value)
+                        yield return new LocatedTile(tile, kv.Key);
+                }
+            }
+        }
+
+        public void AddTile (TileCoord coord, Tile tile)
+        {
+            if (!_tiles.ContainsKey(coord))
+                _tiles.Add(coord, new TileStack());
+
+            _tiles[coord].Remove(tile);
+            _tiles[coord].Add(tile);
+
+            UpdateExtants(coord);
+        }
+
+        public void ClearTile (TileCoord coord)
+        {
+            _tiles.Remove(coord);
+        }
+
+        public void Normalize ()
+        {
+            if (_minX == 0 || _minY == 0)
+                return;
+
+            Dictionary<TileCoord, TileStack> adjustedTiles = new Dictionary<TileCoord, TileStack>();
+            foreach (var kv in _tiles)
+                adjustedTiles.Add(new TileCoord(kv.Key.X - _minX, kv.Key.Y - _minY), kv.Value);
+
+            _tiles = adjustedTiles;
+
+            ResetExtants();
+        }
+
+        public override void ApplyBrush (TileGridLayer tileLayer, int x, int y)
+        {
+            List<LocatedTile> updatedTiles = new List<LocatedTile>();
+
+            foreach (LocatedTile tile in Tiles)
+                tileLayer.AddTile(x + tile.X, y + tile.Y, tile.Tile);
+        }
+
+        public override TextureResource MakePreview ()
+        {
+            if (TilesWide <= 0 || TilesHigh <= 0)
+                return null;
+
+            TextureResource resource = new TextureResource(TilesWide * TileWidth, TilesHigh * TileHeight);
+            foreach (LocatedTile tile in Tiles) {
+                int x = (tile.X - _minX) * TileWidth;
+                int y = (tile.Y - _minY) * TileHeight;
+                if (tile.Tile != null)
+                    resource.Set(tile.Tile.Pool.GetTileTexture(tile.Tile.Id), new Point(x, y));
+            }
+
+            return resource;
+        }
+
+        public override TextureResource MakePreview (int maxWidth, int maxHeight)
+        {
+            TextureResource resource = MakePreview();
+
+            if (resource.Width <= maxWidth && resource.Height <= maxHeight)
+                return resource;
+
+            double aspectRatio = resource.Width / resource.Height;
+            double scale = (aspectRatio > 1)
+                ? maxWidth / resource.Width : maxHeight / resource.Height;
+
+            TextureResource preview = new TextureResource((int)(resource.Width * scale), (int)(resource.Height * scale));
+            preview.Set(resource, Point.Zero);
+
+            return preview;
+        }
+
+        public override int TilesHigh
+        {
+            get { return (_maxY >= _minY) ? _maxY - _minY + 1 : 0; }
+        }
+
+        public override int TilesWide
+        {
+            get { return (_maxX >= _minX) ? _maxX - _minX + 1 : 0; }
+        }
+
+        private void UpdateExtants (TileCoord coord)
+        {
+            if (coord.X < _minX)
+                _minX = coord.X;
+            if (coord.X > _maxX)
+                _maxX = coord.X;
+            if (coord.Y < _minY)
+                _minY = coord.Y;
+            if (coord.Y > _maxY)
+                _maxY = coord.Y;
+        }
+
+        private void ResetExtants ()
+        {
+            _minX = int.MaxValue;
+            _minY = int.MaxValue;
+            _maxX = int.MinValue;
+            _maxY = int.MinValue;
+
+            foreach (TileCoord coord in _tiles.Keys)
+                UpdateExtants(coord);
+        }
+    }
+
     public class DynamicBrush : TileBrush
     {
         private DynamicBrushClass _brushClass;
@@ -36,7 +167,16 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public TextureResource MakePreview (int maxWidth, int maxHeight)
+        public override TextureResource MakePreview ()
+        {
+            Tile tile = PrimaryTile;
+            if (tile == null)
+                return null;
+
+            return tile.Pool.GetTileTexture(tile.Id);
+        }
+
+        public override TextureResource MakePreview (int maxWidth, int maxHeight)
         {
             return _brushClass.MakePreview(_tiles, TileWidth, TileHeight, maxWidth, maxHeight);
         }
@@ -89,7 +229,7 @@ namespace Treefrog.Framework.Model
                 return new LocatedTile();
         }
 
-        public List<LocatedTile> ApplyBrush (TileGridLayer tileLayer, int x, int y)
+        public override void ApplyBrush (TileGridLayer tileLayer, int x, int y)
         {
             List<LocatedTile> updatedTiles = new List<LocatedTile>();
 
@@ -100,8 +240,6 @@ namespace Treefrog.Framework.Model
                 if (ContainsMemberTile(tileLayer.TilesAt(coord)))
                     updatedTiles.Add(new LocatedTile(InnerApply(tileLayer, coord.X, coord.Y), coord.X, coord.Y));
             }
-
-            return updatedTiles;
         }
 
         private Tile InnerApply (TileGridLayer tileLayer, int x, int y)
@@ -197,20 +335,19 @@ namespace Treefrog.Framework.Model
         }
     }
 
+    [XmlRoot("StaticBrush")]
+    public class StaticTileBrushXmlProxy : TileBrushXmlProxy
+    {
+        [XmlArray]
+        [XmlArrayItem("Tile")]
+        public TileStackXmlProxy Tiles { get; set; }
+    }
+
     [XmlRoot("DynamicBrush")]
     public class DynamicBrushXmlProxy : TileBrushXmlProxy
     {
         [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlAttribute]
         public string Type { get; set; }
-
-        [XmlAttribute]
-        public int TileWidth { get; set; }
-
-        [XmlAttribute]
-        public int TileHeight { get; set; }
 
         [XmlArray]
         [XmlArrayItem("Entry")]

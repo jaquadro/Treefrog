@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
@@ -10,6 +11,15 @@ namespace Treefrog.Framework.Model
     {
         [XmlAttribute]
         public int Id { get; set; }
+
+        [XmlAttribute]
+        public string Name { get; set; }
+
+        [XmlAttribute]
+        public int TileWidth { get; set; }
+
+        [XmlAttribute]
+        public int TileHeight { get; set; }
     }
 
     public abstract class TileBrush : IKeyProvider<string>
@@ -35,6 +45,16 @@ namespace Treefrog.Framework.Model
         public int TileWidth
         {
             get { return _tileWidth; }
+        }
+
+        public virtual int TilesHigh
+        {
+            get { return 1; }
+        }
+
+        public virtual int TilesWide
+        {
+            get { return 1; }
         }
 
         public int Id
@@ -66,8 +86,6 @@ namespace Treefrog.Framework.Model
 
                 _name = name;
                 OnKeyChanged(e);
-                //OnPropertyProviderNameChanged(EventArgs.Empty);
-                //RaisePropertyChanged("Name");
             }
 
             return true;
@@ -88,5 +106,14 @@ namespace Treefrog.Framework.Model
             if (KeyChanged != null)
                 KeyChanged(this, e);
         }
+
+        public abstract void ApplyBrush (TileGridLayer tileLayer, int x, int y);
+
+        public abstract TextureResource MakePreview ();
+
+        public abstract TextureResource MakePreview (int maxWidth, int maxHeight);
+
+        public virtual void Normalize ()
+        { }
     }
 }
