@@ -339,6 +339,9 @@ namespace Treefrog.Presentation
             clayer.ShouldDrawContent = LayerCondition.Always;
             clayer.ShouldDrawGrid = LayerCondition.Selected;
             clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+            clayer.BindContentInfoController(_info);
+
             clayer.BindLevelController(this);
             clayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
 
@@ -361,16 +364,43 @@ namespace Treefrog.Presentation
             if (CommandCanCloneLayer() && _controlLayers.ContainsKey(_selectedLayer)) {
                 string name = FindCloneLayerName(SelectedLayer.Name);
 
-                MultiTileGridLayer layer = new MultiTileGridLayer(name, SelectedLayer as MultiTileGridLayer);
+                Layer layer = null;
+                if (_selectedLayerRef is MultiTileControlLayer)
+                    layer = new MultiTileGridLayer(name, SelectedLayer as MultiTileGridLayer);
+                else if (_selectedLayerRef is ObjectControlLayer)
+                    layer = new ObjectLayer(name, SelectedLayer as ObjectLayer);
+                else
+                    return;
 
                 BindLayerEvents(layer);
 
                 _level.Layers.Add(layer);
 
-                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                BaseControlLayer clayer = null;
+                if (layer is MultiTileGridLayer)
+                    clayer = new MultiTileControlLayer(_layerControl, layer as MultiTileGridLayer);
+                else if (layer is ObjectLayer)
+                    clayer = new ObjectControlLayer(_layerControl, layer as ObjectLayer);
+
                 clayer.ShouldDrawContent = LayerCondition.Always;
                 clayer.ShouldDrawGrid = LayerCondition.Selected;
                 clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+                clayer.BindContentInfoController(_info);
+
+                IPointerToolResponder pointerLayer = clayer as IPointerToolResponder;
+                if (pointerLayer != null)
+                    pointerLayer.BindLevelController(this);
+
+                TileControlLayer tileLayer = clayer as TileControlLayer;
+                if (tileLayer != null) {
+                    tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
+                    tileLayer.BindTileBrushManager(_editor.Presentation.TileBrushes);
+                }
+
+                ObjectControlLayer objectLayer = clayer as ObjectControlLayer;
+                if (objectLayer != null)
+                    objectLayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
 
                 _controlLayers[name] = clayer;
 
