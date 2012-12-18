@@ -6,22 +6,6 @@ using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
-    [XmlRoot("TileBrush")]
-    public class TileBrushXmlProxy
-    {
-        [XmlAttribute]
-        public int Id { get; set; }
-
-        [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlAttribute]
-        public int TileWidth { get; set; }
-
-        [XmlAttribute]
-        public int TileHeight { get; set; }
-    }
-
     public abstract class TileBrush : IKeyProvider<string>
     {
         private int _id;

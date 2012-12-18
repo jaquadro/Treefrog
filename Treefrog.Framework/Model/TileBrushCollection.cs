@@ -3,21 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using Treefrog.Framework.Compat;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    [XmlRoot("TileBrushCollection")]
-    public class TileBrushCollectionXmlProxy<TProxy>
-        where TProxy : TileBrushXmlProxy
-    {
-        [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem("Brush")]
-        public List<TProxy> Brushes { get; set; }
-    }
-
     public abstract class TileBrushCollection : IKeyProvider<string>, INotifyPropertyChanged
     {
         private string _name;

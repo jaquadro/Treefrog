@@ -86,8 +86,8 @@ namespace Treefrog.Presentation.Tools
                 if (_previewMarker == null) {
                     _previewMarker = new SelectionAnnot();
 
-                    if (ActiveBrush is DynamicBrush) {
-                        DynamicBrush brush = ActiveBrush as DynamicBrush;
+                    if (ActiveBrush is DynamicTileBrush) {
+                        DynamicTileBrush brush = ActiveBrush as DynamicTileBrush;
                         if (brush.PrimaryTile != null)
                             _previewMarker.Fill = new PatternBrush(
                                 brush.PrimaryTile.Pool.GetTileTexture(brush.PrimaryTile.Id), 0.5);
@@ -139,8 +139,8 @@ namespace Treefrog.Presentation.Tools
             Layer.TileAdding += TileAddingHandler;
             Layer.TileRemoving += TileRemovingHandler;
 
-            if (ActiveBrush is DynamicBrush) {
-                DynamicBrush brush = ActiveBrush as DynamicBrush;
+            if (ActiveBrush is DynamicTileBrush) {
+                DynamicTileBrush brush = ActiveBrush as DynamicTileBrush;
                 brush.ApplyBrush(Layer, location.X, location.Y);
             }
 

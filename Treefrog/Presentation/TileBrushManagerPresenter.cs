@@ -116,11 +116,11 @@ namespace Treefrog.Presentation
             if (CommandCanCloneBrush()) {
                 string name = FindCloneBrushName(SelectedBrush.Name);
 
-                DynamicBrush brush = SelectedBrush as DynamicBrush;
+                DynamicTileBrush brush = SelectedBrush as DynamicTileBrush;
                 if (brush == null)
                     return;
 
-                DynamicBrush newBrush = new DynamicBrush(name, brush.TileWidth, brush.TileHeight, brush.BrushClass);
+                DynamicTileBrush newBrush = new DynamicTileBrush(name, brush.TileWidth, brush.TileHeight, brush.BrushClass);
                 for (int i = 0; i < brush.BrushClass.SlotCount; i++)
                     newBrush.SetTile(i, brush.GetTile(i));
 
@@ -201,7 +201,7 @@ namespace Treefrog.Presentation
 
         public void ActionEditBrush (int brushId)
         {
-            DynamicBrush brush = TileBrushManager.GetBrush(brushId) as DynamicBrush;
+            DynamicTileBrush brush = TileBrushManager.GetBrush(brushId) as DynamicTileBrush;
             if (brush == null)
                 return;
 

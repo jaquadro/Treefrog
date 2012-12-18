@@ -88,8 +88,8 @@
     <Compile Include="KeyedObservableCollection.cs" />
     <Compile Include="Model\Collections\EventArgs.cs" />
     <Compile Include="Model\Collections\PredefinedPropertyCollection.cs" />
-    <Compile Include="Model\DynamicBrush.cs" />
-    <Compile Include="Model\DynamicBrushClass.cs" />
+    <Compile Include="Model\DynamicTileBrush.cs" />
+    <Compile Include="Model\DynamicTileBrushClass.cs" />
     <Compile Include="Model\Layer.cs" />
     <Compile Include="Model\Level.cs" />
     <Compile Include="Model\MultiTileGridLayer.cs" />
@@ -101,6 +101,13 @@
     <Compile Include="Model\PoolManager.cs" />
     <Compile Include="Model\Project.cs" />
     <Compile Include="Model\Property.cs" />
+    <Compile Include="Model\Proxy\DynamicTileBrushXmlProxy.cs" />
+    <Compile Include="Model\Proxy\StaticTileBrushXmlProxy.cs" />
+    <Compile Include="Model\Proxy\TileBrushCollectionXmlProxy.cs" />
+    <Compile Include="Model\Proxy\TileBrushEntryXmlProxy.cs" />
+    <Compile Include="Model\Proxy\TileBrushManagerXmlProxy.cs" />
+    <Compile Include="Model\Proxy\TileBrushXmlProxy.cs" />
+    <Compile Include="Model\StaticTileBrush.cs" />
     <Compile Include="Model\Support\LocatedTile.cs" />
     <Compile Include="Model\Support\LocatedTileStack.cs" />
     <Compile Include="Model\TileBrush.cs" />
@@ -143,9 +150,7 @@
   <ItemGroup>
     <Content Include="Vendor\DotNetZip\Zlib\LICENSE.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\Proxy\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!--
       To modify your build process, add your task inside one of the targets below and uncomment it. 

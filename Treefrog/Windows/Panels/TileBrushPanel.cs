@@ -130,7 +130,7 @@ namespace Treefrog.Windows.Panels
                     return;
                 }
             }
-            DynamicBrushForm brushForm = new DynamicBrushForm(_controller.SelectedBrush as DynamicBrush);
+            DynamicBrushForm brushForm = new DynamicBrushForm(_controller.SelectedBrush as DynamicTileBrush);
             brushForm.BindTileController(_tileController);
             brushForm.ShowDialog();
         }
@@ -191,7 +191,7 @@ namespace Treefrog.Windows.Panels
             imgList.ImageSize = new Size(64, 64);
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
-            foreach (DynamicBrush brush in _controller.TileBrushManager.DynamicBrushes) {
+            foreach (DynamicTileBrush brush in _controller.TileBrushManager.DynamicBrushes) {
                 imgList.Images.Add(brush.Id.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
             }
 

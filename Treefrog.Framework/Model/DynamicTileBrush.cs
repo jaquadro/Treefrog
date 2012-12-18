@@ -1,156 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Treefrog.Framework.Model.Support;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Model.Support;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class StaticTileBrush : TileBrush
+    public class DynamicTileBrush : TileBrush
     {
-        private Dictionary<TileCoord, TileStack> _tiles;
-
-        private int _minX = int.MaxValue;
-        private int _minY = int.MaxValue;
-        private int _maxX = int.MinValue;
-        private int _maxY = int.MinValue;
-
-        public StaticTileBrush (string name, int tileWidth, int tileHeight)
-            : base(name, tileWidth, tileHeight)
-        {
-            _tiles = new Dictionary<TileCoord, TileStack>();
-        }
-
-        public IEnumerable<LocatedTile> Tiles
-        {
-            get
-            {
-                foreach (var kv in _tiles) {
-                    foreach (Tile tile in kv.Value)
-                        yield return new LocatedTile(tile, kv.Key);
-                }
-            }
-        }
-
-        public void AddTile (TileCoord coord, Tile tile)
-        {
-            if (!_tiles.ContainsKey(coord))
-                _tiles.Add(coord, new TileStack());
-
-            _tiles[coord].Remove(tile);
-            _tiles[coord].Add(tile);
-
-            UpdateExtants(coord);
-        }
-
-        public void ClearTile (TileCoord coord)
-        {
-            _tiles.Remove(coord);
-        }
-
-        public void Normalize ()
-        {
-            if (_minX == 0 || _minY == 0)
-                return;
-
-            Dictionary<TileCoord, TileStack> adjustedTiles = new Dictionary<TileCoord, TileStack>();
-            foreach (var kv in _tiles)
-                adjustedTiles.Add(new TileCoord(kv.Key.X - _minX, kv.Key.Y - _minY), kv.Value);
-
-            _tiles = adjustedTiles;
-
-            ResetExtants();
-        }
-
-        public override void ApplyBrush (TileGridLayer tileLayer, int x, int y)
-        {
-            List<LocatedTile> updatedTiles = new List<LocatedTile>();
-
-            foreach (LocatedTile tile in Tiles)
-                tileLayer.AddTile(x + tile.X, y + tile.Y, tile.Tile);
-        }
-
-        public override TextureResource MakePreview ()
-        {
-            if (TilesWide <= 0 || TilesHigh <= 0)
-                return null;
-
-            TextureResource resource = new TextureResource(TilesWide * TileWidth, TilesHigh * TileHeight);
-            foreach (LocatedTile tile in Tiles) {
-                int x = (tile.X - _minX) * TileWidth;
-                int y = (tile.Y - _minY) * TileHeight;
-                if (tile.Tile != null)
-                    resource.Set(tile.Tile.Pool.GetTileTexture(tile.Tile.Id), new Point(x, y));
-            }
-
-            return resource;
-        }
-
-        public override TextureResource MakePreview (int maxWidth, int maxHeight)
-        {
-            TextureResource resource = MakePreview();
-
-            if (resource.Width <= maxWidth && resource.Height <= maxHeight)
-                return resource;
-
-            double aspectRatio = resource.Width / resource.Height;
-            double scale = (aspectRatio > 1)
-                ? maxWidth / resource.Width : maxHeight / resource.Height;
-
-            TextureResource preview = new TextureResource((int)(resource.Width * scale), (int)(resource.Height * scale));
-            preview.Set(resource, Point.Zero);
-
-            return preview;
-        }
-
-        public override int TilesHigh
-        {
-            get { return (_maxY >= _minY) ? _maxY - _minY + 1 : 0; }
-        }
-
-        public override int TilesWide
-        {
-            get { return (_maxX >= _minX) ? _maxX - _minX + 1 : 0; }
-        }
-
-        private void UpdateExtants (TileCoord coord)
-        {
-            if (coord.X < _minX)
-                _minX = coord.X;
-            if (coord.X > _maxX)
-                _maxX = coord.X;
-            if (coord.Y < _minY)
-                _minY = coord.Y;
-            if (coord.Y > _maxY)
-                _maxY = coord.Y;
-        }
-
-        private void ResetExtants ()
-        {
-            _minX = int.MaxValue;
-            _minY = int.MaxValue;
-            _maxX = int.MinValue;
-            _maxY = int.MinValue;
-
-            foreach (TileCoord coord in _tiles.Keys)
-                UpdateExtants(coord);
-        }
-    }
-
-    public class DynamicBrush : TileBrush
-    {
-        private DynamicBrushClass _brushClass;
+        private DynamicTileBrushClass _brushClass;
         private IList<TileProxy> _tiles;
 
-        public DynamicBrush (string name, int tileWidth, int tileHeight, DynamicBrushClass brushClass)
+        public DynamicTileBrush (string name, int tileWidth, int tileHeight, DynamicTileBrushClass brushClass)
             : base(name, tileWidth, tileHeight)
         {
             _brushClass = brushClass;
             _tiles = brushClass.CreateTileProxyList();
         }
 
-        public DynamicBrushClass BrushClass
+        public DynamicTileBrushClass BrushClass
         {
             get { return _brushClass; }
         }
@@ -287,22 +155,22 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static DynamicBrushXmlProxy ToXmlProxy (DynamicBrush brush)
+        public static DynamicTileBrushXmlProxy ToXmlProxy (DynamicTileBrush brush)
         {
             if (brush == null)
                 return null;
 
-            List<BrushEntryXmlProxy> brushEntries = new List<BrushEntryXmlProxy>();
+            List<TileBrushEntryXmlProxy> brushEntries = new List<TileBrushEntryXmlProxy>();
             for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
                 Tile tile = brush.GetTile(i);
                 if (tile != null)
-                    brushEntries.Add(new BrushEntryXmlProxy() {
+                    brushEntries.Add(new TileBrushEntryXmlProxy() {
                         Slot = i,
                         TileId = tile.Id,
                     });
             }
 
-            return new DynamicBrushXmlProxy() {
+            return new DynamicTileBrushXmlProxy() {
                 Id = brush.Id,
                 Name = brush.Name,
                 Type = brush.BrushClass.ClassName,
@@ -312,18 +180,18 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static DynamicBrush FromXmlProxy (DynamicBrushXmlProxy proxy, TilePoolManager manager, DynamicBrushClassRegistry registry)
+        public static DynamicTileBrush FromXmlProxy (DynamicTileBrushXmlProxy proxy, TilePoolManager manager, DynamicTileBrushClassRegistry registry)
         {
             if (proxy == null)
                 return null;
 
-            DynamicBrushClass brushClass = registry.Lookup(proxy.Type);
+            DynamicTileBrushClass brushClass = registry.Lookup(proxy.Type);
             if (brushClass == null)
                 return null;
 
-            DynamicBrush brush = new DynamicBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
+            DynamicTileBrush brush = new DynamicTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
 
-            foreach (BrushEntryXmlProxy entry in proxy.BrushEntries) {
+            foreach (TileBrushEntryXmlProxy entry in proxy.BrushEntries) {
                 TilePool pool = manager.PoolFromTileId(entry.TileId);
                 if (pool == null)
                     continue;
@@ -333,34 +201,5 @@ namespace Treefrog.Framework.Model
 
             return brush;
         }
-    }
-
-    [XmlRoot("StaticBrush")]
-    public class StaticTileBrushXmlProxy : TileBrushXmlProxy
-    {
-        [XmlArray]
-        [XmlArrayItem("Tile")]
-        public TileStackXmlProxy Tiles { get; set; }
-    }
-
-    [XmlRoot("DynamicBrush")]
-    public class DynamicBrushXmlProxy : TileBrushXmlProxy
-    {
-        [XmlAttribute]
-        public string Type { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem("Entry")]
-        public List<BrushEntryXmlProxy> BrushEntries { get; set; }
-    }
-
-    [XmlRoot("BrushEntry")]
-    public class BrushEntryXmlProxy
-    {
-        [XmlAttribute]
-        public int Slot { get; set; }
-
-        [XmlAttribute]
-        public int TileId { get; set; }
     }
 }

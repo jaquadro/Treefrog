@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
@@ -36,8 +37,8 @@ namespace Treefrog.Framework.Model
 
         //private bool _initalized;
 
-        private static DynamicBrushClassRegistry _dynamicBrushRegistry = new DynamicBrushClassRegistry();
-        public static DynamicBrushClassRegistry DynamicBrushClassRegistry
+        private static DynamicTileBrushClassRegistry _dynamicBrushRegistry = new DynamicTileBrushClassRegistry();
+        public static DynamicTileBrushClassRegistry DynamicBrushClassRegistry
         {
             get { return _dynamicBrushRegistry; }
         }

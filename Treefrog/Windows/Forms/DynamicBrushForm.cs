@@ -83,7 +83,7 @@ namespace Treefrog.Windows.Forms
         private ITilePoolListPresenter _tileController;
         private ITileBrushManagerPresenter _brushController;
 
-        private DynamicBrush _brush;
+        private DynamicTileBrush _brush;
         private PointerEventController _pointerController;
         private LocalPointerEventResponder _pointerResponder;
 
@@ -104,7 +104,7 @@ namespace Treefrog.Windows.Forms
             _validateController.Validate();
         }
 
-        public DynamicBrushForm (DynamicBrush brush)
+        public DynamicBrushForm (DynamicTileBrush brush)
         {
             InitializeForm();
 
@@ -188,7 +188,7 @@ namespace Treefrog.Windows.Forms
             }
         }
 
-        private void RemoveTileFromBrush (DynamicBrush brush, Tile tile)
+        private void RemoveTileFromBrush (DynamicTileBrush brush, Tile tile)
         {
             if (brush != null) {
                 for (int i = 0; i < _brush.BrushClass.SlotCount; i++) {
@@ -206,7 +206,7 @@ namespace Treefrog.Windows.Forms
             set { _reservedNames = value; }
         }
 
-        public DynamicBrush Brush
+        public DynamicTileBrush Brush
         {
             get { return _brush; }
         }
@@ -243,7 +243,7 @@ namespace Treefrog.Windows.Forms
             _pointerController.Responder = _pointerResponder;
         }
 
-        private void InitializeBrush (DynamicBrush brush)
+        private void InitializeBrush (DynamicTileBrush brush)
         {
             _layerControl.ReferenceWidth = brush.BrushClass.TemplateWidth * brush.TileWidth + 1;
             _layerControl.ReferenceHeight = brush.BrushClass.TemplateHeight * brush.TileHeight + 1;
@@ -397,7 +397,7 @@ namespace Treefrog.Windows.Forms
             if (prototype == null || size == null)
                 return;
 
-            DynamicBrushClass brushClass = Project.DynamicBrushClassRegistry.Lookup(prototype);
+            DynamicTileBrushClass brushClass = Project.DynamicBrushClassRegistry.Lookup(prototype);
             if (brushClass == null)
                 return;
 
@@ -405,7 +405,7 @@ namespace Treefrog.Windows.Forms
             if (_brush != null)
                 name = _brush.Name;
 
-            InitializeBrush(new DynamicBrush(name, size.Width, size.Height, brushClass));
+            InitializeBrush(new DynamicTileBrush(name, size.Width, size.Height, brushClass));
         }
 
         private void _buttonOk_Click (object sender, EventArgs e)

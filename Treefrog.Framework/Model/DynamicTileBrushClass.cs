@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Treefrog.Framework.Model.Support;
 using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
@@ -14,12 +12,12 @@ namespace Treefrog.Framework.Model
     // | 7 | 6 | 5 |
     // +---+---+---+
 
-    public class DynamicBrushClassRegistry : ObjectRegistry<DynamicBrushClass>
+    public class DynamicTileBrushClassRegistry : ObjectRegistry<DynamicTileBrushClass>
     {
-        public DynamicBrushClassRegistry ()
+        public DynamicTileBrushClassRegistry ()
         {
-            Register("Basic", new BasicDynamicBrushClass());
-            Register("Extended", new ExtendedDynamicBrushClass());
+            Register("Basic", new BasicDynamicTileBrushClass());
+            Register("Extended", new ExtendedDynamicTileBrushClass());
         }
     }
 
@@ -36,7 +34,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public abstract class DynamicBrushClass
+    public abstract class DynamicTileBrushClass
     {
         protected class DynamicBrushRule
         {
@@ -141,9 +139,9 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class BasicDynamicBrushClass : DynamicBrushClass
+    public class BasicDynamicTileBrushClass : DynamicTileBrushClass
     {
-        public BasicDynamicBrushClass ()
+        public BasicDynamicTileBrushClass ()
         {
             // See brush overlay image for intepretation of tile at each coordinate
             Rules.AddRange(new DynamicBrushRule[] {
@@ -226,9 +224,9 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class ExtendedDynamicBrushClass : DynamicBrushClass
+    public class ExtendedDynamicTileBrushClass : DynamicTileBrushClass
     {
-        public ExtendedDynamicBrushClass ()
+        public ExtendedDynamicTileBrushClass ()
         {
             // See brush overlay image for intepretation of tile at each coordinate
             Rules.AddRange(new DynamicBrushRule[] {

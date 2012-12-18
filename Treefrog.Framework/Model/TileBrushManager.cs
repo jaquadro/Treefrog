@@ -1,34 +1,32 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 using Treefrog.Framework.Compat;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    [XmlRoot("TileBrushes")]
-    public class TileBrushManagerXmlProxy
-    {
-        [XmlAttribute]
-        public int LastKey { get; set; }
-
-        [XmlElement]
-        public TileBrushCollectionXmlProxy<DynamicBrushXmlProxy> DynamicBrushes { get; set; }
-    }
-
     public class TileBrushManager
     {
         private int _lastId;
-        private TileBrushCollection<DynamicBrush> _dynamicBrushCollection;
+        private TileBrushCollection<StaticTileBrush> _staticBrushCollection;
+        private TileBrushCollection<DynamicTileBrush> _dynamicBrushCollection;
 
         private Dictionary<int, TileBrushCollection> _indexMap;
 
         public TileBrushManager ()
         {
             _lastId = 0;
-            _dynamicBrushCollection = new TileBrushCollection<DynamicBrush>("Dynamic Brushes", this);
+            _staticBrushCollection = new TileBrushCollection<StaticTileBrush>("Static Brushes", this);
+            _dynamicBrushCollection = new TileBrushCollection<DynamicTileBrush>("Dynamic Brushes", this);
             _indexMap = new Dictionary<int, TileBrushCollection>();
         }
 
-        public TileBrushCollection<DynamicBrush> DynamicBrushes
+        public TileBrushCollection<StaticTileBrush> StaticBrushes
+        {
+            get { return _staticBrushCollection; }
+        }
+
+        public TileBrushCollection<DynamicTileBrush> DynamicBrushes
         {
             get { return _dynamicBrushCollection; }
         }
@@ -36,6 +34,7 @@ namespace Treefrog.Framework.Model
         public void Reset ()
         {
             _lastId = 0;
+            _staticBrushCollection.Brushes.Clear();
             _dynamicBrushCollection.Brushes.Clear();
         }
 
@@ -86,21 +85,27 @@ namespace Treefrog.Framework.Model
 
             return new TileBrushManagerXmlProxy() {
                 LastKey = manager.LastKey,
-                DynamicBrushes = TileBrushCollection<DynamicBrush>.ToXmlProxy<DynamicBrushXmlProxy>(manager.DynamicBrushes, DynamicBrush.ToXmlProxy),
+                StaticBrushes = TileBrushCollection<StaticTileBrush>.ToXmlProxy<StaticTileBrushXmlProxy>(manager.StaticBrushes, StaticTileBrush.ToXmlProxy),
+                DynamicBrushes = TileBrushCollection<DynamicTileBrush>.ToXmlProxy<DynamicTileBrushXmlProxy>(manager.DynamicBrushes, DynamicTileBrush.ToXmlProxy),
             };
         }
 
-        public static TileBrushManager FromXmlProxy (TileBrushManagerXmlProxy proxy, TilePoolManager tileManager, DynamicBrushClassRegistry registry)
+        public static TileBrushManager FromXmlProxy (TileBrushManagerXmlProxy proxy, TilePoolManager tileManager, DynamicTileBrushClassRegistry registry)
         {
             if (proxy == null)
                 return null;
 
-            Func<DynamicBrushXmlProxy, DynamicBrush> brushFunc = (brushProxy) => {
-                return DynamicBrush.FromXmlProxy(brushProxy, tileManager, registry);
+            Func<StaticTileBrushXmlProxy, StaticTileBrush> staticBrushFunc = (brushProxy) => {
+                return StaticTileBrush.FromXmlProxy(brushProxy, tileManager);
+            };
+
+            Func<DynamicTileBrushXmlProxy, DynamicTileBrush> dynamicBrushFunc = (brushProxy) => {
+                return DynamicTileBrush.FromXmlProxy(brushProxy, tileManager, registry);
             };
 
             TileBrushManager manager = new TileBrushManager();
-            TileBrushCollection<DynamicBrush>.FromXmlProxy<DynamicBrushXmlProxy>(proxy.DynamicBrushes, manager.DynamicBrushes, brushFunc);
+            TileBrushCollection<StaticTileBrush>.FromXmlProxy<StaticTileBrushXmlProxy>(proxy.StaticBrushes, manager.StaticBrushes, staticBrushFunc);
+            TileBrushCollection<DynamicTileBrush>.FromXmlProxy<DynamicTileBrushXmlProxy>(proxy.DynamicBrushes, manager.DynamicBrushes, dynamicBrushFunc);
 
             return manager;
         }

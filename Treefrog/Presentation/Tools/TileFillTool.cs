@@ -119,8 +119,8 @@ namespace Treefrog.Presentation.Tools
             while (true) {
                 TileCoord tid = new TileCoord(lFillLoc, y);
 
-                if (SourceType == TileSourceType.Brush && ActiveBrush is DynamicBrush) {
-                    DynamicBrush brush = ActiveBrush as DynamicBrush;
+                if (SourceType == TileSourceType.Brush && ActiveBrush is DynamicTileBrush) {
+                    DynamicTileBrush brush = ActiveBrush as DynamicTileBrush;
                     brush.ApplyBrush(_fillLayer, tid.X, tid.Y);
                 }
                 else {
@@ -144,8 +144,8 @@ namespace Treefrog.Presentation.Tools
                 TileCoord tid = new TileCoord(rFillLoc, y);
 
                 /*if (!_sourceStack.Equals(_fillLayer[tid])) {*/
-                    if (SourceType == TileSourceType.Brush && ActiveBrush is DynamicBrush) {
-                        DynamicBrush brush = ActiveBrush as DynamicBrush;
+                    if (SourceType == TileSourceType.Brush && ActiveBrush is DynamicTileBrush) {
+                        DynamicTileBrush brush = ActiveBrush as DynamicTileBrush;
                         brush.ApplyBrush(_fillLayer, tid.X, tid.Y);
                     }
                     else {
