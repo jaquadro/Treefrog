@@ -77,12 +77,17 @@ namespace Treefrog.Presentation.Tools
         private void TileSelectionChangedHandler (object sender, EventArgs e)
         {
             _sourceType = TileSourceType.Tile;
+            SourceChangedCore();
         }
 
         private void TileBrushSelectedHandler (object sender, EventArgs e)
         {
             _sourceType = TileSourceType.Brush;
+            SourceChangedCore();
         }
+
+        protected virtual void SourceChangedCore ()
+        { }
 
         protected MultiTileGridLayer Layer
         {

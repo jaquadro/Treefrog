@@ -156,6 +156,39 @@ namespace Treefrog.Presentation.Commands
         }
     }
 
+    public class ModifyNewTileSelectionCommand : Command
+    {
+        private ITileSelectionLayer _selectLayer;
+        private List<TileCoord> _diff;
+
+        public ModifyNewTileSelectionCommand (ITileSelectionLayer selectLayer)
+        {
+            _selectLayer = selectLayer;
+            _diff = new List<TileCoord>();
+        }
+
+        public void AddLocations (IEnumerable<TileCoord> locations)
+        {
+            foreach (TileCoord coord in locations)
+                _diff.Add(coord);
+        }
+
+        public override void Execute ()
+        {
+            _selectLayer.AddTilesToSelection(_diff);
+        }
+
+        public override void Undo ()
+        {
+            _selectLayer.RemoveTilesFromSelection(_diff);
+        }
+
+        public override void Redo ()
+        {
+            _selectLayer.AddTilesToSelection(_diff);
+        }
+    }
+
     public class ModifyAddTileSelectionCommand : Command
     {
         private ITileSelectionLayer _selectLayer;

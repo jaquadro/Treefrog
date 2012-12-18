@@ -100,7 +100,7 @@ namespace Treefrog.Presentation.Tools
         private void StartSelectTilesSequence (PointerEventInfo info, IViewport viewport)
         {
             bool controlKey = Control.ModifierKeys.HasFlag(Keys.Control);
-            bool shiftKey = Control.ModifierKeys.HasFlag(Keys.Control);
+            bool shiftKey = Control.ModifierKeys.HasFlag(Keys.Shift);
 
             if (shiftKey) {
                 StartDragAdd(info, viewport);
@@ -287,15 +287,19 @@ namespace Treefrog.Presentation.Tools
 
             switch (_mergeAction) {
                 case MergeAction.New:
+                    ModifyNewTileSelectionCommand newCommand = new ModifyNewTileSelectionCommand(_selectLayer);
+                    newCommand.AddLocations(TileCoordsFromRegion(selection));
+                    command.AddCommand(newCommand);
+                    break;
                 case MergeAction.Add:
-                        ModifyAddTileSelectionCommand addCommand = new ModifyAddTileSelectionCommand(_selectLayer);
-                        addCommand.AddLocations(TileCoordsFromRegion(selection));
-                        command.AddCommand(addCommand);
+                    ModifyAddTileSelectionCommand addCommand = new ModifyAddTileSelectionCommand(_selectLayer);
+                    addCommand.AddLocations(TileCoordsFromRegion(selection));
+                    command.AddCommand(addCommand);
                     break;
                 case MergeAction.Remove:
-                        ModifyRemoveTileSelectionCommand removeCommand = new ModifyRemoveTileSelectionCommand(_selectLayer);
-                        removeCommand.AddLocations(TileCoordsFromRegion(selection));
-                        command.AddCommand(removeCommand);
+                    ModifyRemoveTileSelectionCommand removeCommand = new ModifyRemoveTileSelectionCommand(_selectLayer);
+                    removeCommand.AddLocations(TileCoordsFromRegion(selection));
+                    command.AddCommand(removeCommand);
                     break;
             }
 
