@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Presentation
 {
@@ -9,13 +10,13 @@ namespace Treefrog.Presentation
         Show,
     }
 
-    public interface ILayerListPresenter
+    public interface ILayerListPresenter : ICommandSubscriber
     {
-        bool CanAddLayer { get; }
-        bool CanRemoveSelectedLayer { get; }
-        bool CanCloneSelectedLayer { get; }
-        bool CanMoveSelectedLayerUp { get; }
-        bool CanMoveSelectedLayerDown { get; }
+        //bool CanAddLayer { get; }
+        //bool CanRemoveSelectedLayer { get; }
+        //bool CanCloneSelectedLayer { get; }
+        //bool CanMoveSelectedLayerUp { get; }
+        //bool CanMoveSelectedLayerDown { get; }
         bool CanShowSelectedLayerProperties { get; }
 
         IEnumerable<Layer> LayerList { get; }
@@ -25,11 +26,11 @@ namespace Treefrog.Presentation
         event EventHandler SyncLayerList;
         event EventHandler SyncLayerSelection;
 
-        void ActionAddLayer ();
-        void ActionRemoveSelectedLayer ();
-        void ActionCloneSelectedLayer ();
-        void ActionMoveSelectedLayerUp ();
-        void ActionMoveSelectedLayerDown ();
+        //void ActionAddLayer ();
+        //void ActionRemoveSelectedLayer ();
+        //void ActionCloneSelectedLayer ();
+        //void ActionMoveSelectedLayerUp ();
+        //void ActionMoveSelectedLayerDown ();
         void ActionSelectLayer (string name);
         void ActionShowSelectedLayerProperties ();
         void ActionShowHideLayer (string name, LayerVisibility visibility);

@@ -33,7 +33,6 @@ namespace Treefrog.Presentation.Commands
         TileToolDraw,
         TileToolErase,
         TileToolFill,
-        TileToolStamp,
 
         ProjectAddLevel,
 

@@ -697,7 +697,6 @@ namespace Treefrog.Presentation.Layers
             _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolDraw);
             _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolErase);
             _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolFill);
-            _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolStamp);
         }
 
         public CommandManager CommandManager
@@ -852,9 +851,6 @@ namespace Treefrog.Presentation.Layers
                     break;
                 case CommandKey.TileToolFill:
                     SetTool(TileTool.Fill);
-                    break;
-                case CommandKey.TileToolStamp:
-                    SetTool(TileTool.Stamp);
                     break;
             }
         }

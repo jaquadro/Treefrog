@@ -16,7 +16,6 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripButton _tbDraw;
         private ToolStripButton _tbErase;
         private ToolStripButton _tbFill;
-        private ToolStripButton _tbStamp;
 
         private ToolStripButton _tbFlipH;
         private ToolStripButton _tbFlipV;
@@ -39,7 +38,6 @@ namespace Treefrog.Windows.Controls.Composite
             _tbDraw = CreateButton("Draw Tool (D)", "Treefrog.Icons.paint-brush16.png");
             _tbErase = CreateButton("Erase Tool (E)", "Treefrog.Icons.eraser16.png");
             _tbFill = CreateButton("Fill Tool (F)", "Treefrog.Icons.paint-can16.png");
-            _tbStamp = CreateButton("Stamp Tool (S)", "Treefrog.Icons.stamp16.png");
 
             _tbFlipH = CreateButton("Flip Horizontally", "Treefrog.Icons.layer-flip16.png");
             _tbFlipV = CreateButton("Flip Vertically", "Treefrog.Icons.layer-flip-vertical16.png");
@@ -48,7 +46,7 @@ namespace Treefrog.Windows.Controls.Composite
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
-                _tbSelect, _tbDraw, _tbErase, _tbFill, _tbStamp, new ToolStripSeparator(),
+                _tbSelect, _tbDraw, _tbErase, _tbFill, new ToolStripSeparator(),
                 _tbFlipH, _tbFlipV, _tbRotateLeft, _tbRotateRight
             });
 
@@ -56,14 +54,12 @@ namespace Treefrog.Windows.Controls.Composite
             _tbDraw.Click += DrawButtonClickHandler;
             _tbErase.Click += EraseButtonClickHandler;
             _tbFill.Click += FillButtonClickHandler;
-            _tbStamp.Click += StampButtonClickHandler;
 
             _commandButtonMap = new Dictionary<CommandKey, ToolStripButton>() {
                 { CommandKey.TileToolSelect, _tbSelect },
                 { CommandKey.TileToolDraw, _tbDraw },
                 { CommandKey.TileToolErase, _tbErase },
                 { CommandKey.TileToolFill, _tbFill },
-                { CommandKey.TileToolStamp, _tbStamp },
             };
 
             ResetComponent();
@@ -154,11 +150,6 @@ namespace Treefrog.Windows.Controls.Composite
         private void FillButtonClickHandler (object sender, EventArgs e)
         {
             PerformCommand(CommandKey.TileToolFill);
-        }
-
-        private void StampButtonClickHandler (object sender, EventArgs e)
-        {
-            PerformCommand(CommandKey.TileToolStamp);
         }
 
         private ToolStripButton CreateButton (string text, string resource)

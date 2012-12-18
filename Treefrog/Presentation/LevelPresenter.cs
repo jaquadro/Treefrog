@@ -131,16 +131,6 @@ namespace Treefrog.Presentation
             get { return _annotations; }
         }
 
-        /*public TileSelectionOld Selection
-        {
-            get { return _editor.Presentation.LevelTools.ActiveTileTool == TileToolMode.Select ? _selectTool.Selection : null; }
-        }
-
-        public TileSelectionOld Clipboard
-        {
-            get { return _selectTool.Clipboard; }
-        }*/
-
         public event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
 
         protected virtual void OnSyncCurrentLayer (SyncLayerEventArgs e)
@@ -368,7 +358,28 @@ namespace Treefrog.Presentation
 
         private void CommandCloneLayer ()
         {
-            ActionCloneSelectedLayer();
+            if (CommandCanCloneLayer() && _controlLayers.ContainsKey(_selectedLayer)) {
+                string name = FindCloneLayerName(SelectedLayer.Name);
+
+                MultiTileGridLayer layer = new MultiTileGridLayer(name, SelectedLayer as MultiTileGridLayer);
+
+                BindLayerEvents(layer);
+
+                _level.Layers.Add(layer);
+
+                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
+                clayer.ShouldDrawContent = LayerCondition.Always;
+                clayer.ShouldDrawGrid = LayerCondition.Selected;
+                clayer.ShouldRespondToInput = LayerCondition.Selected;
+
+                _controlLayers[name] = clayer;
+
+                SelectLayer(name);
+
+                OnSyncLayerActions(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerSelection(EventArgs.Empty);
+            }
         }
 
         private bool CommandCanDeleteLayer ()
@@ -378,7 +389,19 @@ namespace Treefrog.Presentation
 
         private void CommandDeleteLayer ()
         {
-            ActionRemoveSelectedLayer();
+            if (CommandCanDeleteLayer() && _controlLayers.ContainsKey(_selectedLayer)) {
+                UnbindLayerEvents(_level.Layers[_selectedLayer]);
+
+                _level.Layers.Remove(_selectedLayer);
+                _layerControl.RemoveLayer(_controlLayers[_selectedLayer]);
+                _controlLayers.Remove(_selectedLayer);
+
+                SelectLayer();
+            }
+
+            OnSyncLayerActions(EventArgs.Empty);
+            OnSyncLayerList(EventArgs.Empty);
+            OnSyncLayerSelection(EventArgs.Empty);
         }
 
         private bool CommandCanMoveLayerTop ()
@@ -409,8 +432,15 @@ namespace Treefrog.Presentation
 
         private void CommandMoveLayerUp ()
         {
-            ActionMoveSelectedLayerUp();
-            InvalidateLayerViewCommands();
+            if (CommandCanMoveLayerUp()) {
+                _level.Layers.ChangeIndexRelative(_selectedLayer, 1);
+                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], 1);
+
+                InvalidateLayerViewCommands();
+            }
+
+            OnSyncLayerActions(EventArgs.Empty);
+            OnSyncLayerList(EventArgs.Empty);
         }
 
         private bool CommandCanMoveLayerDown ()
@@ -420,8 +450,15 @@ namespace Treefrog.Presentation
 
         private void CommandMoveLayerDown ()
         {
-            ActionMoveSelectedLayerDown();
-            InvalidateLayerViewCommands();
+            if (CommandCanMoveLayerDown()) {
+                _level.Layers.ChangeIndexRelative(_selectedLayer, -1);
+                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], -1);
+
+                InvalidateLayerViewCommands();
+            }
+
+            OnSyncLayerActions(EventArgs.Empty);
+            OnSyncLayerList(EventArgs.Empty);
         }
 
         private bool CommandCanMoveLayerBottom ()
@@ -453,31 +490,6 @@ namespace Treefrog.Presentation
         }
 
         #region Properties
-
-        public bool CanAddLayer
-        {
-            get { return true; }
-        }
-
-        public bool CanRemoveSelectedLayer
-        {
-            get { return SelectedLayer != null; }
-        }
-
-        public bool CanCloneSelectedLayer
-        {
-            get { return SelectedLayer != null; }
-        }
-
-        public bool CanMoveSelectedLayerUp
-        {
-            get { return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) < _level.Layers.Count - 1); }
-        }
-
-        public bool CanMoveSelectedLayerDown
-        {
-            get { return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) > 0); }
-        }
 
         public bool CanShowSelectedLayerProperties
         {
@@ -574,100 +586,6 @@ namespace Treefrog.Presentation
         }
 
         #region View Action API
-
-        public void ActionAddLayer ()
-        {
-            string name = FindDefaultLayerName("Tile Layer");
-
-            int tileWidth = 16;
-            int tileHeight = 16;
-            int tilesWide = (int)Math.Ceiling(_level.Width * 1.0 / tileWidth);
-            int tilesHigh = (int)Math.Ceiling(_level.Height * 1.0 / tileHeight);
-
-            MultiTileGridLayer layer = new MultiTileGridLayer(name, tileWidth, tileHeight, tilesWide, tilesHigh);
-
-            BindLayerEvents(layer);
-
-            _level.Layers.Add(layer);
-
-            MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
-            clayer.ShouldDrawContent = LayerCondition.Always;
-            clayer.ShouldDrawGrid = LayerCondition.Selected;
-            clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-            _controlLayers[name] = clayer;
-
-            SelectLayer(name);
-
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
-            OnSyncLayerSelection(EventArgs.Empty);
-        }
-
-        public void ActionRemoveSelectedLayer ()
-        {
-            if (CanRemoveSelectedLayer && _controlLayers.ContainsKey(_selectedLayer)) {
-                UnbindLayerEvents(_level.Layers[_selectedLayer]);
-
-                _level.Layers.Remove(_selectedLayer);
-                _layerControl.RemoveLayer(_controlLayers[_selectedLayer]);
-                _controlLayers.Remove(_selectedLayer);
-
-                SelectLayer();
-            }
-
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
-            OnSyncLayerSelection(EventArgs.Empty);
-        }
-
-        public void ActionCloneSelectedLayer ()
-        {
-            if (CanCloneSelectedLayer && _controlLayers.ContainsKey(_selectedLayer)) {
-                string name = FindCloneLayerName(SelectedLayer.Name);
-
-                MultiTileGridLayer layer = new MultiTileGridLayer(name, SelectedLayer as MultiTileGridLayer);
-
-                BindLayerEvents(layer);
-
-                _level.Layers.Add(layer);
-
-                MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
-                clayer.ShouldDrawContent = LayerCondition.Always;
-                clayer.ShouldDrawGrid = LayerCondition.Selected;
-                clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-                _controlLayers[name] = clayer;
-
-                SelectLayer(name);
-
-                OnSyncLayerActions(EventArgs.Empty);
-                OnSyncLayerList(EventArgs.Empty);
-                OnSyncLayerSelection(EventArgs.Empty);
-            }
-        }
-
-        public void ActionMoveSelectedLayerUp ()
-        {
-            if (CanMoveSelectedLayerUp) {
-                _level.Layers.ChangeIndexRelative(_selectedLayer, 1);
-                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], 1);
-            }
-
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
-        }
-
-        public void ActionMoveSelectedLayerDown ()
-        {
-            if (CanMoveSelectedLayerDown) {
-                _level.Layers.ChangeIndexRelative(_selectedLayer, -1);
-                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], -1);
-            }
-
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
-        }
 
         public void ActionSelectLayer (string name)
         {

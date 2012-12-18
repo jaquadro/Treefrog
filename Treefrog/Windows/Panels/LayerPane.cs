@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
+using Treefrog.Windows.Controllers;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Windows
 {
@@ -12,6 +14,8 @@ namespace Treefrog.Windows
         #region Fields
 
         private ILayerListPresenter _controller;
+
+        private UICommandController _commandController;
 
         #endregion
 
@@ -37,14 +41,20 @@ namespace Treefrog.Windows
             _menuNewTileLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
             _menuNewObjectLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
 
+            _commandController = new UICommandController();
+            _commandController.MapButtons(new Dictionary<CommandKey, ToolStripButton>() {
+                { CommandKey.LayerDelete, _buttonRemove },
+                { CommandKey.LayerClone, _buttonCopy },
+                { CommandKey.LayerMoveUp, _buttonUp },
+                { CommandKey.LayerMoveDown, _buttonDown },
+            });
+            _commandController.MapMenuItems(new Dictionary<CommandKey, ToolStripMenuItem>() {
+                { CommandKey.NewTileLayer, _menuNewTileLayer },
+                { CommandKey.NewObjectLayer, _menuNewObjectLayer },
+            });
+
             // Wire events
 
-            _menuNewTileLayer.Click += NewTileLayerClickedHandler;
-
-            _buttonRemove.Click += RemoveLayerClickedHandler;
-            _buttonCopy.Click += CloneLayerClickedHandler;
-            _buttonDown.Click += MoveLayerDownClickedHandler;
-            _buttonUp.Click += MoveLayerUpClickedHandler;
             _buttonProperties.Click += ShowPropertiesClickedHandler;
 
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
@@ -71,44 +81,18 @@ namespace Treefrog.Windows
                 _controller.SyncLayerList += SyncLayerListHandler;
                 _controller.SyncLayerSelection += SyncLayerSelectionHandler;
 
+                _commandController.BindCommandManager(_controller.CommandManager);
+
                 _controller.RefreshLayerList();
             }
             else {
+                _commandController.BindCommandManager(null);
+
                 ResetComponent();
             }
         }
 
         #region Event Handlers
-
-        public void NewTileLayerClickedHandler (object sender, EventArgs e)
-        {
-            if (_controller != null)
-                _controller.ActionAddLayer();
-        }
-
-        public void RemoveLayerClickedHandler (object sender, EventArgs e)
-        {
-            if (_controller != null)
-                _controller.ActionRemoveSelectedLayer();
-        }
-
-        public void CloneLayerClickedHandler (object sender, EventArgs e)
-        {
-            if (_controller != null)
-                _controller.ActionCloneSelectedLayer();
-        }
-
-        public void MoveLayerUpClickedHandler (object sender, EventArgs e)
-        {
-            if (_controller != null)
-                _controller.ActionMoveSelectedLayerUp();
-        }
-
-        public void MoveLayerDownClickedHandler (object sender, EventArgs e)
-        {
-            if (_controller != null)
-                _controller.ActionMoveSelectedLayerDown();
-        }
 
         public void ShowPropertiesClickedHandler (object sender, EventArgs e)
         {
@@ -137,11 +121,6 @@ namespace Treefrog.Windows
         public void SyncLayerActionsHandler (object sender, EventArgs e)
         {
             if (_controller != null) {
-                _buttonAdd.Enabled = _controller.CanAddLayer;
-                _buttonCopy.Enabled = _controller.CanCloneSelectedLayer;
-                _buttonRemove.Enabled = _controller.CanRemoveSelectedLayer;
-                _buttonUp.Enabled = _controller.CanMoveSelectedLayerUp;
-                _buttonDown.Enabled = _controller.CanMoveSelectedLayerDown;
                 _buttonProperties.Enabled = _controller.CanShowSelectedLayerProperties;
             }
         }
@@ -201,11 +180,6 @@ namespace Treefrog.Windows
         {
             _listControl.Items.Clear();
 
-            _buttonAdd.Enabled = false;
-            _buttonCopy.Enabled = false;
-            _buttonDown.Enabled = false;
-            _buttonUp.Enabled = false;
-            _buttonRemove.Enabled = false;
             _buttonProperties.Enabled = false;
         }
     }
