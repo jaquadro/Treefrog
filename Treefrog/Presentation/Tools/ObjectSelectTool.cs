@@ -407,7 +407,7 @@ namespace Treefrog.Presentation.Tools
             _initialSnapLocation = new Point(obj.X, obj.Y);
             _action = UpdateAction.Move;
 
-            //StartAutoScroll(info, viewport);
+            StartAutoScroll(info, viewport);
         }
 
         private void StartClickRemove (PointerEventInfo info, IViewport viewport, ObjectInstance obj)
@@ -419,7 +419,7 @@ namespace Treefrog.Presentation.Tools
 
             _action = UpdateAction.None;
 
-            //StartAutoScroll(info, viewport);
+            StartAutoScroll(info, viewport);
         }
 
         private void StartClickMove (PointerEventInfo info, IViewport viewport, ObjectInstance obj)
@@ -433,13 +433,13 @@ namespace Treefrog.Presentation.Tools
             _initialSnapLocation = new Point(obj.X, obj.Y);
             _action = UpdateAction.Move;
 
-            //StartAutoScroll(info, viewport);
+            StartAutoScroll(info, viewport);
         }
 
         private void UpdateMove (PointerEventInfo info, IViewport viewport)
         {
             UpdateMoveCommon(info, viewport);
-            //UpdateAutoScroll(info, viewport);
+            UpdateAutoScroll(info, viewport);
         }
 
         private void UpdateMoveCommon (PointerEventInfo info, IViewport viewport)
@@ -477,7 +477,7 @@ namespace Treefrog.Presentation.Tools
 
             History.Execute(command);
 
-            //EndAutoScroll(info, viewport);
+            EndAutoScroll(info, viewport);
         }
 
         #endregion
@@ -505,13 +505,13 @@ namespace Treefrog.Presentation.Tools
 
             _action = UpdateAction.Box;
 
-            //StartAutoScroll(info, viewport);
+            StartAutoScroll(info, viewport);
         }
 
         private void UpdateDrag (PointerEventInfo info, IViewport viewport)
         {
             UpdateDragCommon(info, viewport);
-            //UpdateAutoScroll(info, viewport);
+            UpdateAutoScroll(info, viewport);
         }
 
         private void UpdateDragCommon (PointerEventInfo info, IViewport viewport)
@@ -531,7 +531,7 @@ namespace Treefrog.Presentation.Tools
                 AddSelected(inst);
             }
 
-            //EndAutoScroll(info, viewport);
+            EndAutoScroll(info, viewport);
         }
 
         #endregion

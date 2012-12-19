@@ -8,7 +8,7 @@ namespace Treefrog.Presentation
 {
     public interface IViewport
     {
-        Point Offset { get; }
+        Point Offset { get; set; }
         Size Viewport { get; }
         Size Limit { get; }
         float ZoomFactor { get; }

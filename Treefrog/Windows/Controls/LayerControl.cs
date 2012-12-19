@@ -818,7 +818,7 @@ namespace Treefrog.Windows.Controls
             }
         }
 
-        private void ScrollTo (ScrollOrientation orientation, int value)
+        public void ScrollTo (ScrollOrientation orientation, int value)
         {
             int oldVal = 0;
 
@@ -923,6 +923,12 @@ namespace Treefrog.Windows.Controls
                     _control.GetScrollValue(ScrollOrientation.HorizontalScroll),
                     _control.GetScrollValue(ScrollOrientation.VerticalScroll)
                     );
+            }
+
+            set
+            {
+                _control.ScrollTo(ScrollOrientation.HorizontalScroll, value.X);
+                _control.ScrollTo(ScrollOrientation.VerticalScroll, value.Y);
             }
         }
 

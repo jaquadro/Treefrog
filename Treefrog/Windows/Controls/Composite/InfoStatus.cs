@@ -197,13 +197,15 @@ namespace Treefrog.Windows.Controls.Composite
                 _statusCoord.Text = _controller.CoordinateString;
 
                 _statusLayer.Text = (_controller.CurrentLayer != null)
-                    ? _controller.CurrentLayer.Name : "";
+                    ? _controller.CurrentLayer.Name : "No Layers";
 
                 System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 if (_controller.CurrentLayer is MultiTileGridLayer)
                     _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
                 else if (_controller.CurrentLayer is ObjectLayer)
                     _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
+                else
+                    _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.selection.png"));
             }
         }
 

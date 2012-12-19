@@ -682,6 +682,7 @@ namespace Treefrog.Presentation
             CommandManager.Invalidate(CommandKey.ViewGrid);
 
             OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
+            OnSyncContentView(EventArgs.Empty);
         }
     }
 }

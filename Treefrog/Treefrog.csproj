@@ -189,7 +189,7 @@
     <None Include="Presentation\Tools\DrawTool.cs" />
     <None Include="Presentation\Tools\EraseTool.cs" />
     <None Include="Presentation\Tools\FillTool.cs" />
-    <Compile Include="Presentation\Tools\MouseTool.cs" />
+    <None Include="Presentation\Tools\MouseTool.cs" />
     <Compile Include="Presentation\Tools\SnappingManager.cs" />
     <Compile Include="Presentation\Tools\TileBrushTool.cs" />
     <Compile Include="Presentation\Tools\TileDrawTool.cs" />

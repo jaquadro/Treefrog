@@ -93,6 +93,9 @@ namespace Treefrog.Presentation.Tools
             if (ActiveTile == null && _anonBrush == null)
                 return;
 
+            if (_selectionAnnot != null)
+                return;
+
             if (_anonBrush == null && ActiveTile != _activeTile) {
                 ClearPreviewMarker();
                 _activeTile = ActiveTile;
@@ -251,6 +254,7 @@ namespace Treefrog.Presentation.Tools
             _anonBrush.Normalize();
 
             _annots.Remove(_selectionAnnot);
+            _selectionAnnot = null;
 
             //EndAutoScroll(info, viewport);
         }

@@ -171,13 +171,13 @@ namespace Treefrog.Presentation.Tools
             _annots.Add(_selection);
             _inAreaSequence = true;
 
-            //StartAutoScroll(info, viewport);
+            StartAutoScroll(info, viewport);
         }
 
         private void UpdateEraseAreaSequence (PointerEventInfo info, IViewport viewport)
         {
             UpdateEraseAreaSequenceCommon(info, viewport);
-            //UpdateAutoScroll(info, viewport);
+            UpdateAutoScroll(info, viewport);
         }
 
         private void UpdateEraseAreaSequenceCommon (PointerEventInfo info, IViewport viewport)
@@ -211,7 +211,7 @@ namespace Treefrog.Presentation.Tools
             _annots.Remove(_selection);
             _inAreaSequence = false;
 
-            //EndAutoScroll(info, viewport);
+            EndAutoScroll(info, viewport);
         }
 
         #endregion

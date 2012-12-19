@@ -162,13 +162,13 @@ namespace Treefrog.Presentation.Tools
 
             _action = UpdateAction.Move;
 
-            //StartAutoScroll(info, viewport);
+            StartAutoScroll(info, viewport);
         }
 
         private void UpdateMove (PointerEventInfo info, IViewport viewport)
         {
             UpdateMoveCommon(info, viewport);
-            //UpdateAutoScroll(info, viewport);
+            UpdateAutoScroll(info, viewport);
         }
 
         private void UpdateMoveCommon (PointerEventInfo info, IViewport viewport)
@@ -192,7 +192,7 @@ namespace Treefrog.Presentation.Tools
 
             _action = UpdateAction.None;
 
-            //EndAutoScroll(info, viewport);
+            EndAutoScroll(info, viewport);
         }
 
         #endregion
@@ -256,13 +256,13 @@ namespace Treefrog.Presentation.Tools
             _action = UpdateAction.Box;
             _mergeAction = action;
 
-            //StartAutoScroll(info, viewport);
+            StartAutoScroll(info, viewport);
         }
 
         private void UpdateDrag (PointerEventInfo info, IViewport viewport)
         {
             UpdateDragCommon(info, viewport);
-            //UpdateAutoScroll(info, viewport);
+            UpdateAutoScroll(info, viewport);
         }
 
         private void UpdateDragCommon (PointerEventInfo info, IViewport viewport)
@@ -309,7 +309,7 @@ namespace Treefrog.Presentation.Tools
             _annots.Remove(_selectionAnnot);
             _action = UpdateAction.None;
 
-            //EndAutoScroll(info, viewport);
+            EndAutoScroll(info, viewport);
         }
 
         private IEnumerable<TileCoord> TileCoordsFromRegion (Rectangle region)
