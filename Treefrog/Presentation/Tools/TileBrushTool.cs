@@ -139,10 +139,7 @@ namespace Treefrog.Presentation.Tools
             Layer.TileAdding += TileAddingHandler;
             Layer.TileRemoving += TileRemovingHandler;
 
-            if (ActiveBrush is DynamicTileBrush) {
-                DynamicTileBrush brush = ActiveBrush as DynamicTileBrush;
-                brush.ApplyBrush(Layer, location.X, location.Y);
-            }
+            ActiveBrush.ApplyBrush(Layer, location.X, location.Y);
 
             Layer.TileAdding -= TileAddingHandler;
             Layer.TileRemoving -= TileRemovingHandler;

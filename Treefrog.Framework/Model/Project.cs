@@ -37,6 +37,12 @@ namespace Treefrog.Framework.Model
 
         //private bool _initalized;
 
+        private static TileBrushRegistry _tileBrushRegistry = new TileBrushRegistry();
+        public static TileBrushRegistry TileBrushRegistry
+        {
+            get { return _tileBrushRegistry; }
+        }
+
         private static DynamicTileBrushClassRegistry _dynamicBrushRegistry = new DynamicTileBrushClassRegistry();
         public static DynamicTileBrushClassRegistry DynamicBrushClassRegistry
         {

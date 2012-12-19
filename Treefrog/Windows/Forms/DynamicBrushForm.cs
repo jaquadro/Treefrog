@@ -275,7 +275,7 @@ namespace Treefrog.Windows.Forms
         private void InitializePrototypeList ()
         {
             _prototypeList.Items.Clear();
-            foreach (var item in Project.DynamicBrushClassRegistry.RegisteredTypes)
+            foreach (var item in Project.DynamicBrushClassRegistry.RegisteredObjects)
                 _prototypeList.Items.Add(item.ClassName);
 
             SelectCurrentPrototype();

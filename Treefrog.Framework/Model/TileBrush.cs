@@ -6,6 +6,15 @@ using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
+    public class TileBrushRegistry : TypeRegistry<TileBrush>
+    {
+        public TileBrushRegistry ()
+        {
+            Register("Static Brush", typeof(StaticTileBrush));
+            Register("Dynamic Brush", typeof(DynamicTileBrush));
+        }
+    }
+
     public abstract class TileBrush : IKeyProvider<string>
     {
         private int _id;

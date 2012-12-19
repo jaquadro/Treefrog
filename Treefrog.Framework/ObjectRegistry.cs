@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace Treefrog.Framework
 {
@@ -10,7 +11,7 @@ namespace Treefrog.Framework
         public ObjectRegistry ()
         { }
 
-        public IEnumerable<T> RegisteredTypes
+        public IEnumerable<T> RegisteredObjects
         {
             get
             {
