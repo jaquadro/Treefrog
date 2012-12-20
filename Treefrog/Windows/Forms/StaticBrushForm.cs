@@ -20,14 +20,14 @@ using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Forms
 {
-    public partial class DynamicBrushForm : Form
+    public partial class StaticBrushForm : Form
     {
         private class LocalPointerEventResponder : PointerEventResponder
         {
             private bool _erase;
-            private DynamicBrushForm _form;
+            private StaticBrushForm _form;
 
-            public LocalPointerEventResponder (DynamicBrushForm form)
+            public LocalPointerEventResponder (StaticBrushForm form)
             {
                 _form = form;
             }
@@ -48,9 +48,10 @@ namespace Treefrog.Windows.Forms
                         return;
                     }
 
-                    _form._layer.ClearTile(location.X, location.Y);
                     if (!_erase)
                         _form._layer.AddTile(location.X, location.Y, _form._tileController.SelectedTile);
+                    else
+                        _form._layer.ClearTile(location.X, location.Y);
                 }
             }
 
@@ -83,7 +84,7 @@ namespace Treefrog.Windows.Forms
         private ITilePoolListPresenter _tileController;
         private ITileBrushManagerPresenter _brushController;
 
-        private DynamicTileBrush _brush;
+        private StaticTileBrush _brush;
         private PointerEventController _pointerController;
         private LocalPointerEventResponder _pointerResponder;
 
@@ -92,28 +93,25 @@ namespace Treefrog.Windows.Forms
 
         private ValidationController _validateController;
 
-        public DynamicBrushForm ()
+        public StaticBrushForm ()
         {
             InitializeForm();
 
             InitializeNewBrush();
 
-            _prototypeList.SelectedIndexChanged += HandlePrototypeChanged;
             _tileSizeList.SelectedIndexChanged += HandleTileSizeChanged;
 
             _validateController.Validate();
         }
 
-        public DynamicBrushForm (DynamicTileBrush brush)
+        public StaticBrushForm (StaticTileBrush brush)
         {
             InitializeForm();
 
             InitializeBrush(brush);
 
-            _prototypeList.SelectedIndexChanged += HandlePrototypeChanged;
             _tileSizeList.SelectedIndexChanged += HandleTileSizeChanged;
 
-            _prototypeList.Enabled = false;
             _tileSizeList.Enabled = false;
 
             _validateController.Validate();
@@ -129,10 +127,8 @@ namespace Treefrog.Windows.Forms
 
             _validateController.RegisterControl(_nameField, ValidateName);
 
-            _validateController.RegisterValidationFunc(ValidatePrototype);
             _validateController.RegisterValidationFunc(ValidateTileSize);
 
-            InitializePrototypeList();
             InitializeLayers();
         }
 
@@ -188,13 +184,17 @@ namespace Treefrog.Windows.Forms
             }
         }
 
-        private void RemoveTileFromBrush (DynamicTileBrush brush, Tile tile)
+        private void RemoveTileFromBrush (StaticTileBrush brush, Tile tile)
         {
             if (brush != null) {
-                for (int i = 0; i < _brush.BrushClass.SlotCount; i++) {
-                    if (_brush.GetTile(i) == tile)
-                        _brush.SetTile(i, null);
+                List<LocatedTile> removeQueue = new List<LocatedTile>();
+                foreach (LocatedTile brushTile in brush.Tiles) {
+                    if (brushTile.Tile == tile)
+                        removeQueue.Add(brushTile);
                 }
+
+                foreach (LocatedTile brushTile in removeQueue)
+                    brush.RemoveTile(brushTile.Location, brushTile.Tile);
             }
         }
 
@@ -206,29 +206,9 @@ namespace Treefrog.Windows.Forms
             set { _reservedNames = value; }
         }
 
-        public DynamicTileBrush Brush
+        public StaticTileBrush Brush
         {
             get { return _brush; }
-        }
-
-        // TODO: Overlays need a separate registry if planning plugin support
-        private Dictionary<string, Texture2D> _brushClassOverlays = new Dictionary<string, Texture2D>();
-
-        private void DrawOverlay (object sender, DrawLayerEventArgs e)
-        {
-            if (!_brushClassOverlays.ContainsKey(_brush.BrushClass.ClassName)) {
-                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                _brushClassOverlays.Add(_brush.BrushClass.ClassName,
-                    Texture2D.FromStream(e.SpriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.DynBrushOverlays." + _brush.BrushClass.ClassName + ".png")));
-            }
-
-            Texture2D overlay = _brushClassOverlays[_brush.BrushClass.ClassName];
-
-            int width = (int)(overlay.Width * e.Zoom * (_brush.TileWidth / 16.0));
-            int height = (int)(overlay.Height * e.Zoom * (_brush.TileHeight / 16.0));
-
-            Microsoft.Xna.Framework.Rectangle dstRect = new Microsoft.Xna.Framework.Rectangle(0, 0, width, height);
-            e.SpriteBatch.Draw(overlay, dstRect, new Microsoft.Xna.Framework.Color(1f, 1f, 1f, .5f));
         }
 
         private void InitializeLayers ()
@@ -244,14 +224,16 @@ namespace Treefrog.Windows.Forms
             _pointerController.Responder = _pointerResponder;
         }
 
-        private void InitializeBrush (DynamicTileBrush brush)
+        private void InitializeBrush (StaticTileBrush brush)
         {
-            _layerControl.ReferenceWidth = brush.BrushClass.TemplateWidth * brush.TileWidth + 1;
-            _layerControl.ReferenceHeight = brush.BrushClass.TemplateHeight * brush.TileHeight + 1;
+            int tilesW = brush.TilesWide + 12;
+            int tilesH = brush.TilesHigh + 12;
 
-            _layer = new MultiTileGridLayer("Default", brush.TileWidth, brush.TileHeight, brush.BrushClass.TemplateWidth, brush.BrushClass.TemplateHeight);
-            for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
-                LocatedTile tile = brush.GetLocatedTile(i);
+            _layerControl.ReferenceWidth = tilesW * brush.TileWidth + 1;
+            _layerControl.ReferenceHeight = tilesH * brush.TileHeight + 1;
+
+            _layer = new MultiTileGridLayer("Default", brush.TileWidth, brush.TileHeight, tilesW, tilesH);
+            foreach (LocatedTile tile in brush.Tiles) {
                 if (tile.Tile != null)
                     _layer.AddTile(tile.X, tile.Y, tile.Tile);
             }
@@ -263,44 +245,12 @@ namespace Treefrog.Windows.Forms
             _clayer.ShouldDrawContent = LayerCondition.Always;
             _clayer.ShouldDrawGrid = LayerCondition.Always;
             _clayer.ShouldRespondToInput = LayerCondition.Always;
-            _clayer.PreDrawContent += DrawOverlay;
 
             _nameField.Text = brush.Name;
 
             _brush = brush;
 
-            SelectCurrentPrototype();
             SelectCurrentTileSize();
-        }
-
-        private void InitializePrototypeList ()
-        {
-            _prototypeList.Items.Clear();
-            foreach (var item in Project.DynamicBrushClassRegistry.RegisteredObjects)
-                _prototypeList.Items.Add(item.ClassName);
-
-            SelectCurrentPrototype();
-        }
-
-        private void SelectCurrentPrototype ()
-        {
-            if (_brush == null) {
-                if (_prototypeList.Items.Count > 0)
-                    _prototypeList.SelectedIndex = 0;
-
-                _validateController.Validate();
-                return;
-            }
-
-            for (int i = 0; i < _prototypeList.Items.Count; i++) {
-                string item = _prototypeList.Items[i] as string;
-                if (item == _brush.BrushClass.ClassName) {
-                    _prototypeList.SelectedIndex = i;
-                    break;
-                }
-            }
-
-            _validateController.Validate();
         }
 
         private class TileSize
@@ -370,16 +320,6 @@ namespace Treefrog.Windows.Forms
             _validateController.Validate();
         }
 
-        private void HandlePrototypeChanged (object sender, EventArgs e)
-        {
-            string prototype = _prototypeList.SelectedItem as string;
-            if (prototype == null)
-                return;
-
-            if (_brush == null || _brush.BrushClass.ClassName != prototype)
-                InitializeNewBrush();
-        }
-
         private void HandleTileSizeChanged (object sender, EventArgs e)
         {
             TileSize size = _tileSizeList.SelectedItem as TileSize;
@@ -392,21 +332,16 @@ namespace Treefrog.Windows.Forms
 
         private void InitializeNewBrush ()
         {
-            string prototype = _prototypeList.SelectedItem as string;
             TileSize size = _tileSizeList.SelectedItem as TileSize;
 
-            if (prototype == null || size == null)
-                return;
-
-            DynamicTileBrushClass brushClass = Project.DynamicBrushClassRegistry.Lookup(prototype);
-            if (brushClass == null)
+            if (size == null)
                 return;
 
             string name = "";
             if (_brush != null)
                 name = _brush.Name;
 
-            InitializeBrush(new DynamicTileBrush(name, size.Width, size.Height, brushClass));
+            InitializeBrush(new StaticTileBrush(name, size.Width, size.Height));
         }
 
         private void _buttonOk_Click (object sender, EventArgs e)
@@ -415,13 +350,13 @@ namespace Treefrog.Windows.Forms
                 return;
 
             _brush.SetName(_nameField.Text);
-
-            for (int i = 0; i < _brush.BrushClass.SlotCount; i++)
-                _brush.SetTile(i, null);
+            _brush.Clear();
 
             foreach (LocatedTile tile in _layer.Tiles) {
-                _brush.SetTile(tile.Location.X, tile.Location.Y, tile.Tile);
+                _brush.AddTile(tile.Location, tile.Tile);
             }
+
+            _brush.Normalize();
 
             DialogResult = DialogResult.OK;
             Close();
@@ -455,14 +390,6 @@ namespace Treefrog.Windows.Forms
                 return "Name field must be non-empty.";
             else if (_reservedNames.Contains(txt))
                 return "A resource with this name already exists.";
-            else
-                return null;
-        }
-
-        private string ValidatePrototype ()
-        {
-            if (_prototypeList.SelectedItem == null)
-                return "A brush prototype must be selected.";
             else
                 return null;
         }

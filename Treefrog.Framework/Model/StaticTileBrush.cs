@@ -44,14 +44,28 @@ namespace Treefrog.Framework.Model
             UpdateExtants(coord);
         }
 
+        public void RemoveTile (TileCoord coord, Tile tile)
+        {
+            if (_tiles.ContainsKey(coord))
+                _tiles[coord].Remove(tile);
+        }
+
         public void ClearTile (TileCoord coord)
         {
             _tiles.Remove(coord);
+            ResetExtants();
+        }
+
+        public void Clear ()
+        {
+            _tiles.Clear();
+            ResetExtants();
         }
 
         public void Normalize ()
         {
-            if (_minX == 0 || _minY == 0)
+            ResetExtants();
+            if (_minX == 0 && _minY == 0)
                 return;
 
             Dictionary<TileCoord, TileStack> adjustedTiles = new Dictionary<TileCoord, TileStack>();
@@ -81,7 +95,7 @@ namespace Treefrog.Framework.Model
                 int x = (tile.X - _minX) * TileWidth;
                 int y = (tile.Y - _minY) * TileHeight;
                 if (tile.Tile != null)
-                    resource.Set(tile.Tile.Pool.GetTileTexture(tile.Tile.Id), new Point(x, y));
+                    resource.SetComposite(tile.Tile.Pool.GetTileTexture(tile.Tile.Id), new Point(x, y));
             }
 
             return resource;
@@ -96,7 +110,7 @@ namespace Treefrog.Framework.Model
 
             double aspectRatio = resource.Width / resource.Height;
             double scale = (aspectRatio > 1)
-                ? maxWidth / resource.Width : maxHeight / resource.Height;
+                ? (maxWidth * 1.0 / resource.Width) : (maxHeight * 1.0 / resource.Height);
 
             TextureResource preview = new TextureResource((int)(resource.Width * scale), (int)(resource.Height * scale));
             preview.Set(resource, Point.Zero);
@@ -171,7 +185,7 @@ namespace Treefrog.Framework.Model
             StaticTileBrush brush = new StaticTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight);
 
             foreach (TileStackXmlProxy stack in proxy.Tiles) {
-                string[] coord = stack.Items.Split(',');
+                string[] coord = stack.At.Split(',');
                 string[] tileIds = stack.Items.Split(',');
 
                 int x = (coord.Length > 0) ? Convert.ToInt32(coord[0].Trim()) : 0;

@@ -187,6 +187,32 @@ namespace Treefrog.Framework.Imaging
             }
         }
 
+        public void SetComposite (TextureResource data, Point location)
+        {
+            Rectangle rect = ClampRectangle(new Rectangle(location, data.Size), Bounds);
+
+            if (Rectangle.IsAreaNegativeOrEmpty(rect))
+                return;
+
+            int dataScan = data.ScanlineSize;
+            int clampScan = rect.Width * _bytesPerPixel;
+
+            int sourceOffset = (rect.Y - location.Y) * dataScan + (rect.X - location.X) * _bytesPerPixel;
+            int targetOffset = rect.Y * ScanlineSize + rect.X * _bytesPerPixel;
+            for (int y = 0; y < rect.Height; y++) {
+                for (int x = 0; x < rect.Width; x++) {
+                    int sourceIndex = sourceOffset + y * dataScan + x * _bytesPerPixel;
+                    int destIndex = targetOffset + y * ScanlineSize + x * _bytesPerPixel;
+
+                    float alpha = data._data[sourceIndex + 3] / 255f;
+                    _data[destIndex + 0] = (byte)(_data[destIndex + 0] * (1f - alpha) + data._data[sourceIndex + 0] * alpha);
+                    _data[destIndex + 1] = (byte)(_data[destIndex + 1] * (1f - alpha) + data._data[sourceIndex + 1] * alpha);
+                    _data[destIndex + 2] = (byte)(_data[destIndex + 2] * (1f - alpha) + data._data[sourceIndex + 2] * alpha);
+                    _data[destIndex + 3] = (byte)Math.Min(255, _data[destIndex + 3] * (1f - alpha) + data._data[sourceIndex + 3]);
+                }
+            }
+        }
+
         public Color this[int x, int y]
         {
             get

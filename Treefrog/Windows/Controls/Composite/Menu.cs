@@ -72,6 +72,7 @@ namespace Treefrog.Windows.Controls.Composite
 
         private ToolStripMenuItem _tilesBrushes;
         private ToolStripMenuItem _tilesNewTileBrush;
+        private ToolStripMenuItem _tilesNewStaticBrush;
         private ToolStripMenuItem _tilesNewDynamicBrush;
         private ToolStripMenuItem _tilesBrushesClone;
         private ToolStripMenuItem _tilesBrushesDelete;
@@ -168,6 +169,7 @@ namespace Treefrog.Windows.Controls.Composite
 
             _tileStrip = CreateMenuItem("&Tiles");
             _tilesBrushes = CreateMenuItem("&Brushes");
+            _tilesNewStaticBrush = CreateMenuItem("New &Static Brush...", "Treefrog.Icons._16.stamp.png");
             _tilesNewDynamicBrush = CreateMenuItem("New D&ynamic Brush...", "Treefrog.Icons._16.table-dynamic.png");
             _tilesBrushesClone = CreateMenuItem("D&uplicate");
             _tilesBrushesDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.paint-brush--minus.png");
@@ -241,7 +243,7 @@ namespace Treefrog.Windows.Controls.Composite
             });
 
             _tilesBrushes.DropDownItems.AddRange(new ToolStripItem[] {
-                _tilesNewDynamicBrush, new ToolStripSeparator(),
+                _tilesNewStaticBrush, _tilesNewDynamicBrush, new ToolStripSeparator(),
                 _tilesBrushesClone, _tilesBrushesDelete,
             });
 
@@ -308,6 +310,7 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.LayerShowNone, _layersViewShowNone },
                 { CommandKey.LayerExportRaster, _layersExportRaster },
 
+                { CommandKey.NewStaticTileBrush, _tilesNewStaticBrush },
                 { CommandKey.NewDynamicTileBrush, _tilesNewDynamicBrush },
                 { CommandKey.TileBrushClone, _tilesBrushesClone },
                 { CommandKey.TileBrushDelete, _tilesBrushesDelete },

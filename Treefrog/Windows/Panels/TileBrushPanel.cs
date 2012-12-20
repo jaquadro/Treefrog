@@ -39,12 +39,15 @@ namespace Treefrog.Windows.Panels
             _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.paint-brush--plus.png"));
             _buttonFilter.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.funnel.png"));
 
+            ToolStripMenuItem buttonAddStatic = new ToolStripMenuItem("New Static Brush...") {
+                Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.stamp.png")),
+            };
             ToolStripMenuItem buttonAddDynamic = new ToolStripMenuItem("New Dynamic Brush...") {
                 Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.table-dynamic.png")),
             };
 
             _buttonAdd.DropDownItems.AddRange(new ToolStripItem[] {
-                buttonAddDynamic,
+                buttonAddStatic, buttonAddDynamic,
             });
 
             _commandController = new UICommandController();
@@ -52,6 +55,7 @@ namespace Treefrog.Windows.Panels
                 { CommandKey.TileBrushDelete, _buttonRemove },
             });
             _commandController.MapMenuItems(new Dictionary<CommandKey, ToolStripMenuItem>() {
+                { CommandKey.NewStaticTileBrush, buttonAddStatic },
                 { CommandKey.NewDynamicTileBrush, buttonAddDynamic },
             });
 
@@ -130,9 +134,6 @@ namespace Treefrog.Windows.Panels
                     return;
                 }
             }
-            DynamicBrushForm brushForm = new DynamicBrushForm(_controller.SelectedBrush as DynamicTileBrush);
-            brushForm.BindTileController(_tileController);
-            brushForm.ShowDialog();
         }
 
         private void SyncTileBrushManagerHandler (object sender, EventArgs e)
@@ -192,6 +193,9 @@ namespace Treefrog.Windows.Panels
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
             foreach (DynamicTileBrush brush in _controller.TileBrushManager.DynamicBrushes) {
+                imgList.Images.Add(brush.Id.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
+            }
+            foreach (StaticTileBrush brush in _controller.TileBrushManager.StaticBrushes) {
                 imgList.Images.Add(brush.Id.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
             }
 
