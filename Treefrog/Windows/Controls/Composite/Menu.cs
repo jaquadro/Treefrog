@@ -71,11 +71,15 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripMenuItem _layersExportRaster;
 
         private ToolStripMenuItem _tilesBrushes;
-        private ToolStripMenuItem _tilesNewTileBrush;
         private ToolStripMenuItem _tilesNewStaticBrush;
         private ToolStripMenuItem _tilesNewDynamicBrush;
         private ToolStripMenuItem _tilesBrushesClone;
         private ToolStripMenuItem _tilesBrushesDelete;
+        private ToolStripMenuItem _tilesSelections;
+        private ToolStripMenuItem _tilesSelectionsCreateBrush;
+        private ToolStripMenuItem _tilesSelectionsPromoteLayer;
+        private ToolStripMenuItem _tilesSelectionsFloat;
+        private ToolStripMenuItem _tilesSelectionsDefloat;
         private ToolStripMenuItem _tilesExport;
         private ToolStripMenuItem _tilesImportOver;
 
@@ -173,6 +177,11 @@ namespace Treefrog.Windows.Controls.Composite
             _tilesNewDynamicBrush = CreateMenuItem("New D&ynamic Brush...", "Treefrog.Icons._16.table-dynamic.png");
             _tilesBrushesClone = CreateMenuItem("D&uplicate");
             _tilesBrushesDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.paint-brush--minus.png");
+            _tilesSelections = CreateMenuItem("&Selections");
+            _tilesSelectionsCreateBrush = CreateMenuItem("Create &Brush from Selection", "Treefrog.Icons._16.paint-brush--plus.png");
+            _tilesSelectionsPromoteLayer = CreateMenuItem("Promote to &Layer", "Treefrog.Icons._16.layer-select.png");
+            _tilesSelectionsFloat = CreateMenuItem("&Float");
+            _tilesSelectionsDefloat = CreateMenuItem("&Defloat");
             _tilesExport = CreateMenuItem("&Export Raw Tileset...", "Treefrog.Icons._16.drive-download.png");
             _tilesImportOver = CreateMenuItem("&Import Raw Tileset...", "Treefrog.Icons._16.drive-upload.png");
 
@@ -238,13 +247,18 @@ namespace Treefrog.Windows.Controls.Composite
             });
 
             _tileStrip.DropDownItems.AddRange(new ToolStripItem[] {
-                _tilesBrushes, new ToolStripSeparator(),
+                _tilesBrushes, _tilesSelections, new ToolStripSeparator(),
                 _tilesExport, _tilesImportOver,
             });
 
             _tilesBrushes.DropDownItems.AddRange(new ToolStripItem[] {
                 _tilesNewStaticBrush, _tilesNewDynamicBrush, new ToolStripSeparator(),
                 _tilesBrushesClone, _tilesBrushesDelete,
+            });
+
+            _tilesSelections.DropDownItems.AddRange(new ToolStripItem[] {
+                _tilesSelectionsCreateBrush, _tilesSelectionsPromoteLayer, new ToolStripSeparator(),
+                _tilesSelectionsFloat, _tilesSelectionsDefloat,
             });
 
             _objectStrip.DropDownItems.AddRange(new ToolStripItem[] {
@@ -314,6 +328,10 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.NewDynamicTileBrush, _tilesNewDynamicBrush },
                 { CommandKey.TileBrushClone, _tilesBrushesClone },
                 { CommandKey.TileBrushDelete, _tilesBrushesDelete },
+                { CommandKey.TileSelectionCreateBrush, _tilesSelectionsCreateBrush },
+                { CommandKey.TileSelectionPromoteLayer, _tilesSelectionsPromoteLayer },
+                { CommandKey.TileSelectionFloat, _tilesSelectionsFloat },
+                { CommandKey.TileSelectionDefloat, _tilesSelectionsDefloat },
                 { CommandKey.TilePoolExport, _tilesExport },
                 { CommandKey.TilePoolImportOver, _tilesImportOver },
 

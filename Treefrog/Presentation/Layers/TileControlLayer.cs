@@ -130,9 +130,9 @@ namespace Treefrog.Presentation.Layers
             _sourceType = TileSourceType.Tile;
 
             switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
-                case CommandKey.TileToolDraw:
-                    SetTool(TileTool.Draw);
-                    break;
+                //case CommandKey.TileToolDraw:
+                //    SetTool(TileTool.Draw);
+                //    break;
                 case CommandKey.TileToolErase:
                 case CommandKey.TileToolSelect:
                     CommandManager.Perform(CommandKey.TileToolDraw);
@@ -145,9 +145,9 @@ namespace Treefrog.Presentation.Layers
             _sourceType = TileSourceType.Brush;
 
             switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
-                case CommandKey.TileToolDraw:
-                    SetTool(TileTool.Draw);
-                    break;
+                //case CommandKey.TileToolDraw:
+                //    SetTool(TileTool.Draw);
+                //    break;
                 case CommandKey.TileToolErase:
                 case CommandKey.TileToolSelect:
                     CommandManager.Perform(CommandKey.TileToolDraw);
@@ -484,18 +484,18 @@ namespace Treefrog.Presentation.Layers
                     _currentTool = new TileSelectTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations, this);
                     break;
                 case TileTool.Draw:
-                    if (_sourceType == TileSourceType.Tile) {
+                    //if (_sourceType == TileSourceType.Tile) {
                         TileDrawTool drawTool = new TileDrawTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
                         drawTool.BindTilePoolController(_tilePoolController);
                         drawTool.BindTileBrushManager(_tileBrushController);
                         _currentTool = drawTool;
-                    }
+                    /*}
                     if (_sourceType == TileSourceType.Brush) {
                         TileBrushTool drawTool = new TileBrushTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);
                         drawTool.BindTilePoolController(_tilePoolController);
                         drawTool.BindTileBrushManager(_tileBrushController);
                         _currentTool = drawTool;
-                    }
+                    }*/
                     break;
                 case TileTool.Erase:
                     _currentTool = new TileEraseTool(_levelController.History, Layer as MultiTileGridLayer, _levelController.Annotations);

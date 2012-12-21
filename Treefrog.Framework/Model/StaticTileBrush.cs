@@ -82,7 +82,8 @@ namespace Treefrog.Framework.Model
             List<LocatedTile> updatedTiles = new List<LocatedTile>();
 
             foreach (LocatedTile tile in Tiles)
-                tileLayer.AddTile(x + tile.X, y + tile.Y, tile.Tile);
+                if (tileLayer.InRange(x + tile.X, y + tile.Y))
+                    tileLayer.AddTile(x + tile.X, y + tile.Y, tile.Tile);
         }
 
         public override TextureResource MakePreview ()
@@ -104,6 +105,7 @@ namespace Treefrog.Framework.Model
         public override TextureResource MakePreview (int maxWidth, int maxHeight)
         {
             TextureResource resource = MakePreview();
+            return resource;
 
             if (resource.Width <= maxWidth && resource.Height <= maxHeight)
                 return resource;

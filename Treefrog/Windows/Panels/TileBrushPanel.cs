@@ -220,10 +220,24 @@ namespace Treefrog.Windows.Panels
             int w = Math.Min(width, source.Width);
             int h = Math.Min(height, source.Height);
 
+            Rectangle srcRect = new Rectangle(Point.Empty, source.Size);
+            Point[] destPoints = new Point[] {
+                new Point(x, y), new Point(x + w, y), new Point(x, y + h),
+            };
+            Rectangle destRect = new Rectangle(x, y, w, h);
+
+            if (source.Width > width || source.Height > height) {
+                double aspectRatio = source.Width * 1.0 / source.Height;
+                double scale = (aspectRatio > 1)
+                    ? (width * 1.0 / source.Width) : (height * 1.0 / source.Height);
+
+                destRect = new Rectangle(x, y, (int)(scale * source.Width), (int)(scale * source.Height));
+            }
+
             using (Graphics g = Graphics.FromImage(dest)) {
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
-                g.DrawImage(source, x, y, w, h);
+                g.DrawImage(source, destRect);
             }
 
             return dest;

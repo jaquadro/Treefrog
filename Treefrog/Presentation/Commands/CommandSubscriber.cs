@@ -59,6 +59,11 @@ namespace Treefrog.Presentation.Commands
         TileBrushDelete,
         TileBrushFilter,
 
+        TileSelectionCreateBrush,
+        TileSelectionPromoteLayer,
+        TileSelectionFloat,
+        TileSelectionDefloat,
+
         ObjectProtoImport,
         ObjectProtoDelete,
         ObjectProtoClone,

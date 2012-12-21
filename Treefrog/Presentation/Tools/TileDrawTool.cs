@@ -77,26 +77,31 @@ namespace Treefrog.Presentation.Tools
             HidePreviewMarker();
         }
 
-        protected override void SourceChangedCore ()
+        protected override void SourceChangedCore (TileSourceType type)
         {
             ClearPreviewMarker();
-            _anonBrush = null;
+            _activeBrush = null;
+
+            if (type == TileSourceType.Brush)
+                _activeBrush = ActiveBrush;
+            //_anonBrush = null;
         }
 
         #region Preview Marker
 
         private bool _previewMarkerVisible;
         private Tile _activeTile;
+        private TileBrush _activeBrush;
 
         private void ShowPreviewMarker (TileCoord location)
         {
-            if (ActiveTile == null && _anonBrush == null)
+            if (ActiveTile == null && _activeBrush == null)
                 return;
 
             if (_selectionAnnot != null)
                 return;
 
-            if (_anonBrush == null && ActiveTile != _activeTile) {
+            if (_activeBrush == null && ActiveTile != _activeTile) {
                 ClearPreviewMarker();
                 _activeTile = ActiveTile;
             }
@@ -104,7 +109,7 @@ namespace Treefrog.Presentation.Tools
             if (!_previewMarkerVisible) {
                 if (_previewMarker == null) {
                     _previewMarker = new SelectionAnnot();
-                    if (_anonBrush != null)
+                    if (_activeBrush != null)
                         _previewMarker.Fill = BuildBrushMarker();
                     else
                         _previewMarker.Fill = BuildTileMarker();
@@ -119,8 +124,8 @@ namespace Treefrog.Presentation.Tools
                 int y = (int)(location.Y * Layer.TileHeight);
 
                 _previewMarker.Start = new Point(x, y);
-                if (_anonBrush != null)
-                    _previewMarker.End = new Point(x + Layer.TileWidth * _anonBrush.TilesWide, y + Layer.TileHeight * _anonBrush.TilesHigh);
+                if (_activeBrush != null)
+                    _previewMarker.End = new Point(x + Layer.TileWidth * _activeBrush.TilesWide, y + Layer.TileHeight * _activeBrush.TilesHigh);
                 else
                     _previewMarker.End = new Point(x + Layer.TileWidth, y + Layer.TileHeight);
             }
@@ -136,7 +141,7 @@ namespace Treefrog.Presentation.Tools
 
         private PatternBrush BuildBrushMarker ()
         {
-            TextureResource resource = _anonBrush.MakePreview();
+            TextureResource resource = _activeBrush.MakePreview();
             if (resource == null)
                 return null;
 
@@ -163,7 +168,7 @@ namespace Treefrog.Presentation.Tools
 
         private void StartDrawPathSequence (PointerEventInfo info)
         {
-            if (ActiveTile == null && _anonBrush == null)
+            if (ActiveTile == null && _activeBrush == null)
                 return;
 
             _drawCommand = new TileReplace2DCommand(Layer);
@@ -171,21 +176,29 @@ namespace Treefrog.Presentation.Tools
 
         private void UpdateDrawPathSequence (PointerEventInfo info)
         {
-            if (ActiveTile == null && _anonBrush == null)
+            if (ActiveTile == null && _activeBrush == null)
                 return;
 
             TileCoord location = TileLocation(info);
             if (!TileInRange(location))
                 return;
 
-            if (_anonBrush != null) {
-                foreach (LocatedTile tile in _anonBrush.Tiles) {
+            if (_activeBrush != null) {
+                Layer.TileAdding += TileAddingHandler;
+                Layer.TileRemoving += TileRemovingHandler;
+
+                _activeBrush.ApplyBrush(Layer, location.X, location.Y);
+
+                Layer.TileAdding -= TileAddingHandler;
+                Layer.TileRemoving -= TileRemovingHandler;
+
+                /*foreach (LocatedTile tile in _anonBrush.Tiles) {
                     TileCoord tileloc = new TileCoord(location.X + tile.X, location.Y + tile.Y);
                     if (Layer[tileloc] == null || Layer[tileloc].Top != tile.Tile) {
                         _drawCommand.QueueAdd(tileloc, tile.Tile);
                         Layer.AddTile(tileloc.X, tileloc.Y, tile.Tile);
                     }
-                }
+                }*/
             }
             else if (Layer[location] == null || Layer[location].Top != ActiveTile) {
                 _drawCommand.QueueAdd(location, ActiveTile);
@@ -195,17 +208,27 @@ namespace Treefrog.Presentation.Tools
 
         private void EndDrawPathSequence (PointerEventInfo info)
         {
-            if (ActiveTile == null && _anonBrush == null)
+            if (ActiveTile == null && _activeBrush == null)
                 return;
 
             History.Execute(_drawCommand);
+        }
+
+        private void TileAddingHandler (object sender, LocatedTileEventArgs e)
+        {
+            _drawCommand.QueueAdd(new TileCoord(e.X, e.Y), e.Tile);
+        }
+
+        private void TileRemovingHandler (object sender, LocatedTileEventArgs e)
+        {
+            _drawCommand.QueueRemove(new TileCoord(e.X, e.Y), e.Tile);
         }
 
         #endregion
 
         #region Select Region Sequence
 
-        private StaticTileBrush _anonBrush;
+        //private StaticTileBrush _anonBrush;
 
         private RubberBand2 _band;
         private SelectionAnnot _selectionAnnot;
@@ -213,7 +236,7 @@ namespace Treefrog.Presentation.Tools
         private void StartDrag (PointerEventInfo info, IViewport viewport)
         {
             ClearPreviewMarker();
-            _anonBrush = null;
+            _activeBrush = null;
 
             TileCoord location = TileLocation(info);
 
@@ -247,11 +270,13 @@ namespace Treefrog.Presentation.Tools
         {
             Rectangle selection = ClampSelection(_band.Selection);
 
-            _anonBrush = new StaticTileBrush("User Selected", Layer.TileWidth, Layer.TileHeight);
+            StaticTileBrush anonBrush = new StaticTileBrush("User Selected", Layer.TileWidth, Layer.TileHeight);
             foreach (LocatedTile tile in Layer.TilesAt(_band.Selection))
-                _anonBrush.AddTile(new TileCoord(tile.X - _band.Selection.Left, tile.Y - _band.Selection.Top), tile.Tile);
+                anonBrush.AddTile(new TileCoord(tile.X - _band.Selection.Left, tile.Y - _band.Selection.Top), tile.Tile);
 
-            _anonBrush.Normalize();
+            anonBrush.Normalize();
+
+            _activeBrush = anonBrush;
 
             _annots.Remove(_selectionAnnot);
             _selectionAnnot = null;

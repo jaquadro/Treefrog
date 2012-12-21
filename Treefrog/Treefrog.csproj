@@ -191,7 +191,6 @@
     <None Include="Presentation\Tools\FillTool.cs" />
     <None Include="Presentation\Tools\MouseTool.cs" />
     <Compile Include="Presentation\Tools\SnappingManager.cs" />
-    <Compile Include="Presentation\Tools\TileBrushTool.cs" />
     <Compile Include="Presentation\Tools\TileDrawTool.cs" />
     <Compile Include="Presentation\Tools\TileEraseTool.cs" />
     <Compile Include="Presentation\Tools\TileFillTool.cs" />
@@ -393,6 +392,7 @@
     <EmbeddedResource Include="Icons\16\magnifier-zoom-in.png" />
     <EmbeddedResource Include="Icons\16\magnifier-zoom-out.png" />
     <EmbeddedResource Include="Icons\16\stamp.png" />
+    <EmbeddedResource Include="Icons\16\layer-select.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />
