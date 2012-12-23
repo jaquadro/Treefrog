@@ -52,6 +52,7 @@ namespace Treefrog.Windows.Controls.Composite
 
         private ToolStripMenuItem _projectAddLevel;
 
+        private ToolStripMenuItem _levelsResize;
         private ToolStripMenuItem _levelsExportRaster;
 
         private ToolStripMenuItem _layersNewTile;
@@ -152,7 +153,8 @@ namespace Treefrog.Windows.Controls.Composite
             _projectStrip = CreateMenuItem("&Project");
             _projectAddLevel = CreateMenuItem("New &Level...", "Treefrog.Icons._16.map--asterisk.png");
 
-            _levelStrip = CreateMenuItem("&Levels");
+            _levelStrip = CreateMenuItem("&Level");
+            _levelsResize = CreateMenuItem("&Resize...", "Treefrog.Icons._16.arrow-resize-135.png", Keys.Control | Keys.R);
 
             _layerStrip = CreateMenuItem("La&yers");
             _layersNewTile = CreateMenuItem("New &Tile Layer", "Treefrog.Icons._16.grid.png");
@@ -229,6 +231,10 @@ namespace Treefrog.Windows.Controls.Composite
 
             _projectStrip.DropDownItems.AddRange(new ToolStripItem[] {
                 _projectAddLevel,
+            });
+
+            _levelStrip.DropDownItems.AddRange(new ToolStripItem[] {
+                _levelsResize,
             });
 
             _layerStrip.DropDownItems.AddRange(new ToolStripItem[] {
@@ -309,6 +315,8 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.ViewGrid, _viewShowGrid },
 
                 { CommandKey.ProjectAddLevel, _projectAddLevel },
+
+                { CommandKey.LevelResize, _levelsResize },
 
                 { CommandKey.NewTileLayer, _layersNewTile },
                 { CommandKey.NewObjectLayer, _layersNewObject },

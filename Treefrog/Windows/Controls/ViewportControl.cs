@@ -202,6 +202,11 @@ namespace Treefrog.Windows.Controls
 
             // Update scrollbar properties
 
+            hSmallChange = width / 10;
+            vSmallChange = height / 10;
+            hLargeChange = (int)(width / 1.5);
+            vLargeChange = (int)(height / 1.5);
+
             _hScrollBar.Minimum = 0;
             _vScrollBar.Minimum = 0;
             _hScrollBar.Maximum = (width > vsize.Width * zoom) ? 0

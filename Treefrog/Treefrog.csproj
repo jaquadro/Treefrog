@@ -205,6 +205,12 @@
     <Compile Include="Windows\Annotations\SelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controllers\UICommandController.cs" />
     <Compile Include="Windows\Controllers\ValidationController.cs" />
+    <Compile Include="Windows\Controls\AlignmentControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Controls\AlignmentControl.Designer.cs">
+      <DependentUpon>AlignmentControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Controls\Composite\InfoStatus.cs" />
     <Compile Include="Windows\Controls\Composite\Menu.cs" />
     <Compile Include="Windows\Controls\Composite\StandardToolbar.cs" />
@@ -393,6 +399,14 @@
     <EmbeddedResource Include="Icons\16\magnifier-zoom-out.png" />
     <EmbeddedResource Include="Icons\16\stamp.png" />
     <EmbeddedResource Include="Icons\16\layer-select.png" />
+    <EmbeddedResource Include="Icons\16\arrow-045.png" />
+    <EmbeddedResource Include="Icons\16\arrow-135.png" />
+    <EmbeddedResource Include="Icons\16\arrow-180.png" />
+    <EmbeddedResource Include="Icons\16\arrow-225.png" />
+    <EmbeddedResource Include="Icons\16\arrow-315.png" />
+    <EmbeddedResource Include="Icons\16\arrow.png" />
+    <EmbeddedResource Include="Icons\16\arrow-resize-135.png" />
+    <EmbeddedResource Include="Icons\16\map.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />
@@ -426,6 +440,9 @@
     <EmbeddedResource Include="Icons\minus16.png" />
     <EmbeddedResource Include="Icons\pencil16.png" />
     <EmbeddedResource Include="Icons\plus16.png" />
+    <EmbeddedResource Include="Windows\Controls\AlignmentControl.resx">
+      <DependentUpon>AlignmentControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Controls\ViewportControl.resx">
       <DependentUpon>ViewportControl.cs</DependentUpon>
     </EmbeddedResource>

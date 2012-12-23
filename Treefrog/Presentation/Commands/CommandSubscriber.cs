@@ -36,6 +36,8 @@ namespace Treefrog.Presentation.Commands
 
         ProjectAddLevel,
 
+        LevelResize,
+
         NewTileLayer,
         NewObjectLayer,
         LayerClone,

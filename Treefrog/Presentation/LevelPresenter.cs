@@ -153,6 +153,7 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
             _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
+            _commandManager.Register(CommandKey.LevelResize, CommandCanResize, CommandResize);
 
             _commandManager.Register(CommandKey.NewTileLayer, CommandCanAddTileLayer, CommandAddTileLayer);
             _commandManager.Register(CommandKey.NewObjectLayer, CommandCanAddObjectLayer, CommandAddObjectLayer);
@@ -206,6 +207,20 @@ namespace Treefrog.Presentation
         private void CommandToggleGrid ()
         {
             _layerControl.ShowGrid = _commandManager.IsSelected(CommandKey.ViewGrid);
+        }
+
+        private bool CommandCanResize ()
+        {
+            return true;
+        }
+
+        private void CommandResize ()
+        {
+            if (CommandCanResize()) {
+                using (ResizeLevelForm form = new ResizeLevelForm(_level)) {
+                    form.ShowDialog();
+                }
+            }
         }
 
         #endregion

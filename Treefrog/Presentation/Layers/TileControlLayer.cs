@@ -567,6 +567,8 @@ namespace Treefrog.Presentation.Layers
             CommandManager.Invalidate(CommandKey.Cut);
             CommandManager.Invalidate(CommandKey.Copy);
             CommandManager.Invalidate(CommandKey.Delete);
+            CommandManager.Invalidate(CommandKey.TileSelectionFloat);
+            CommandManager.Invalidate(CommandKey.TileSelectionDefloat);
         }
 
         public void CreateFloatingSelection ()
@@ -574,6 +576,9 @@ namespace Treefrog.Presentation.Layers
             CreateTileSelection();
 
             _selection.Float();
+
+            CommandManager.Invalidate(CommandKey.TileSelectionFloat);
+            CommandManager.Invalidate(CommandKey.TileSelectionDefloat);
         }
 
         public void DeleteTileSelection ()
@@ -585,6 +590,8 @@ namespace Treefrog.Presentation.Layers
                 CommandManager.Invalidate(CommandKey.Cut);
                 CommandManager.Invalidate(CommandKey.Copy);
                 CommandManager.Invalidate(CommandKey.Delete);
+                CommandManager.Invalidate(CommandKey.TileSelectionFloat);
+                CommandManager.Invalidate(CommandKey.TileSelectionDefloat);
             }
         }
 
@@ -630,6 +637,9 @@ namespace Treefrog.Presentation.Layers
         {
             if (_selection != null && _selection.Floating == false) {
                 _selection.Float();
+
+                CommandManager.Invalidate(CommandKey.TileSelectionFloat);
+                CommandManager.Invalidate(CommandKey.TileSelectionDefloat);
             }
         }
 
@@ -642,6 +652,9 @@ namespace Treefrog.Presentation.Layers
         {
             if (_selection != null && _selection.Floating == true) {
                 _selection.Defloat();
+
+                CommandManager.Invalidate(CommandKey.TileSelectionFloat);
+                CommandManager.Invalidate(CommandKey.TileSelectionDefloat);
             }
         }
 
@@ -691,6 +704,8 @@ namespace Treefrog.Presentation.Layers
             _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
             _commandManager.Register(CommandKey.Delete, CommandCanDelete, CommandDelete);
             _commandManager.Register(CommandKey.LayerExportRaster, CommandCanExportRaster, CommandExportRaster);
+            _commandManager.Register(CommandKey.TileSelectionFloat, CommandCanFloat, CommandFloat);
+            _commandManager.Register(CommandKey.TileSelectionDefloat, CommandCanDefloat, CommandDefloat);
 
             _commandManager.RegisterToggleGroup(CommandToggleGroup.TileTool, CommandGroupCheckTileTool, CommandGroupPerformTileTool);
             _commandManager.RegisterToggle(CommandToggleGroup.TileTool, CommandKey.TileToolSelect);
@@ -827,6 +842,59 @@ namespace Treefrog.Presentation.Layers
                 _levelController.History.Execute(command);
 
                 CommandManager.Invalidate(CommandKey.Paste);
+            }
+        }
+
+        #endregion
+
+        #region Float
+
+        private bool CommandCanFloat ()
+        {
+            TileSelectTool tool = _currentTool as TileSelectTool;
+            if (tool != null)
+                return _selection != null && _selection.Floating == false;
+            else
+                return false;
+        }
+
+        private void CommandFloat ()
+        {
+            if (CommandCanFloat()) {
+                Command command = new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this);
+
+                if (_levelController != null)
+                    _levelController.History.Execute(command);
+                else
+                    FloatSelection();
+            }
+        }
+
+        #endregion
+
+        #region Defloat
+
+        private bool CommandCanDefloat ()
+        {
+            TileSelectTool tool = _currentTool as TileSelectTool;
+            if (tool != null)
+                return _selection != null && _selection.Floating == true;
+            else
+                return false;
+        }
+
+        private void CommandDefloat ()
+        {
+            if (CommandCanDefloat()) {
+                CompoundCommand command = new CompoundCommand();
+                if (TileSelection.Floating)
+                    command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
+
+                if (_levelController != null)
+                    _levelController.History.Execute(command);
+                else
+                    DefloatSelection();
             }
         }
 
