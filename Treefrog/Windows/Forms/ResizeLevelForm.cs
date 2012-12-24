@@ -131,10 +131,20 @@ namespace Treefrog.Windows.Forms
                 _alignmentControl.Alignment = Alignment.None;
         }
 
-        private int NewWidth
+        public int NewOriginX
+        {
+            get { return _level.OriginX - _left; }
+        }
+
+        public int NewOriginY
+        {
+            get { return _level.OriginY - _top; }
+        }
+
+        public int NewWidth
         {
             get { return _newWidth; }
-            set
+            private set
             {
                 if (_newWidth != value) {
                     _newWidth = value;
@@ -146,10 +156,10 @@ namespace Treefrog.Windows.Forms
             }
         }
 
-        private int NewHeight
+        public  int NewHeight
         {
             get { return _newHeight; }
-            set
+            private set
             {
                 if (_newHeight != value) {
                     _newHeight = value;

@@ -113,6 +113,22 @@ namespace Treefrog.Framework.Model
             get { return _layers; }
         }
 
+        public void Resize (int originX, int originY, int width, int height)
+        {
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Level must be created with positive area.");
+
+            _x = originX;
+            _y = originY;
+            _width = width;
+            _height = height;
+
+            foreach (Layer layer in _layers)
+                layer.RequestNewSize(originX, originY, width, height);
+
+            OnLevelSizeChanged(EventArgs.Empty);
+        }
+
         #endregion
 
         #region Events

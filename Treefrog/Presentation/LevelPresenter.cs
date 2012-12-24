@@ -218,7 +218,16 @@ namespace Treefrog.Presentation
         {
             if (CommandCanResize()) {
                 using (ResizeLevelForm form = new ResizeLevelForm(_level)) {
-                    form.ShowDialog();
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        _level.Resize(form.NewOriginX, form.NewOriginY, form.NewWidth, form.NewHeight);
+
+                        _layerControl.OriginX = _level.OriginX;
+                        _layerControl.OriginY = _level.OriginY;
+                        _layerControl.ReferenceWidth = _level.Width;
+                        _layerControl.ReferenceHeight = _level.Height;
+
+                        _history.Clear();
+                    }
                 }
             }
         }

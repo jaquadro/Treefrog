@@ -168,6 +168,12 @@ namespace Treefrog.Framework.Model
 
             if (tileX != _tileOriginX || tileY != _tileOriginY || tilesW != _tilesWide || tilesH != _tilesHigh) {
                 ResizeLayer(tileX, tileY, tilesW, tilesH);
+
+                _tileOriginX = tileX;
+                _tileOriginY = tileY;
+                _tilesWide = tilesW;
+                _tilesHigh = tilesH;
+
                 OnLayerSizeChanged(EventArgs.Empty);
             }
         }
@@ -273,10 +279,10 @@ namespace Treefrog.Framework.Model
 
         protected bool CheckBounds (int x, int y)
         {
-            return x >= TileOriginX &&
-                y >= TileOriginY &&
-                x < TilesWide &&
-                y < TilesHigh;
+            return x >= TileOriginX
+                && y >= TileOriginY
+                && x < (TilesWide + TileOriginX)
+                && y < (TilesHigh + TileOriginY);
         }
 
         #endregion
