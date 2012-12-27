@@ -34,6 +34,7 @@ namespace Treefrog.Framework.Model
         private TilePoolManager _tilePools;
         private ObjectPoolManager _objectPools;
         private TileBrushManager _tileBrushes;
+        private TexturePool _texturePool;
 
         //private bool _initalized;
 
@@ -64,6 +65,7 @@ namespace Treefrog.Framework.Model
             //_objectPools = new NamedResourceCollection<ObjectPool>();
             //_tileSets = new NamedResourceCollection<TileSet2D>();
             _levels = new NamedResourceCollection<Level>();
+            _texturePool = new TexturePool();
 
             _tilePools.Pools.Modified += TilePoolsModifiedHandler;
             _objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
@@ -227,7 +229,11 @@ namespace Treefrog.Framework.Model
                 return null;
 
             Project project = new Project();
-            project._objectPools = ObjectPoolManager.FromXmlProxy(proxy.ObjectPools);
+            project._texturePool = TexturePool.FromXmlProxy(proxy.TexturePool);
+            if (project._texturePool == null)
+                project._texturePool = new TexturePool();
+
+            project._objectPools = ObjectPoolManager.FromXmlProxy(proxy.ObjectPools, project._texturePool);
             if (project._objectPools == null)
                 project._objectPools = new ObjectPoolManager();
 
@@ -270,6 +276,9 @@ namespace Treefrog.Framework.Model
     [XmlRoot("Project")]
     public class ProjectXmlProxy
     {
+        [XmlElement]
+        public TexturePoolXmlProxy TexturePool { get; set; }
+
         [XmlElement]
         public ObjectPoolManagerXmlProxy ObjectPools { get; set; }
 

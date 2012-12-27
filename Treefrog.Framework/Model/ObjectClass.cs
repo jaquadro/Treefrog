@@ -20,6 +20,9 @@ namespace Treefrog.Framework.Model
         [XmlAttribute]
         public string Name { get; set; }
 
+        [XmlAttribute]
+        public int Texture { get; set; }
+
         [XmlElement]
         public Rectangle ImageBounds { get; set; }
 
@@ -29,8 +32,8 @@ namespace Treefrog.Framework.Model
         [XmlElement]
         public Point Origin { get; set; }
 
-        [XmlElement]
-        public TextureResource.XmlProxy Image { get; set; }
+        //[XmlElement]
+        //public TextureResource.XmlProxy Image { get; set; }
 
         [XmlArray]
         [XmlArrayItem("Property")]
@@ -44,6 +47,7 @@ namespace Treefrog.Framework.Model
 
         private int _id;
         private string _name;
+        private int _textureId;
 
         private bool _canRotate;
         private bool _canScale;
@@ -379,25 +383,29 @@ namespace Treefrog.Framework.Model
             {
                 Id = objClass.Id,
                 Name = objClass._name,
+                Texture = objClass._textureId,
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,
-                Image = TextureResource.ToXmlProxy(objClass._image),
+                //Image = TextureResource.ToXmlProxy(objClass._image),
                 Properties = props.Count > 0 ? props : null,
             };
         }
 
-        public static ObjectClass FromXmlProxy (ObjectClassXmlProxy proxy)
+        public static ObjectClass FromXmlProxy (ObjectClassXmlProxy proxy, TexturePool texturePool)
         {
             if (proxy == null)
                 return null;
 
             ObjectClass objClass = new ObjectClass(proxy.Name);
             objClass._id = proxy.Id;
-            objClass._image = TextureResource.FromXmlProxy(proxy.Image);
+            objClass._textureId = proxy.Texture;
+            //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
             objClass._imageBounds = proxy.ImageBounds;
             objClass._maskBounds = proxy.MaskBounds;
             objClass._origin = proxy.Origin;
+
+            objClass._image = texturePool.GetResource(objClass._textureId);
 
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
                 objClass.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));

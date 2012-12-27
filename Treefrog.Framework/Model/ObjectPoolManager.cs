@@ -42,7 +42,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static ObjectPoolManager FromXmlProxy (ObjectPoolManagerXmlProxy proxy)
+        public static ObjectPoolManager FromXmlProxy (ObjectPoolManagerXmlProxy proxy, TexturePool texturePool)
         {
             if (proxy == null)
                 return null;
