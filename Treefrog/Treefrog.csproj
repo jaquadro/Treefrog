@@ -157,7 +157,10 @@
     <Compile Include="Presentation\IViewport.cs" />
     <Compile Include="Presentation\Layers\AnnotationLayer.cs" />
     <Compile Include="Presentation\Layers\CanvasLayer.cs" />
+    <Compile Include="Presentation\Layers\GroupLayerPresenter.cs" />
+    <Compile Include="Presentation\Layers\LayerPresenter.cs" />
     <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
+    <Compile Include="Presentation\Layers\RenderLayerPresenter.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
     <Compile Include="Presentation\Tools\ITileToolCollection.cs" />
@@ -201,6 +204,7 @@
     <Compile Include="Program.cs" />
     <None Include="Windows\Controls\AmphibianGameControl.cs" />
     <Compile Include="Utility\Mapper.cs" />
+    <Compile Include="Utility\ObservableCollectionAdapter.cs" />
     <Compile Include="Windows\Annotations\AnnotationRendererFactory.cs" />
     <Compile Include="Windows\Annotations\SelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controllers\UICommandController.cs" />
@@ -296,6 +300,8 @@
     </Compile>
     <Compile Include="Windows\GraphicsDeviceService.cs" />
     <None Include="Windows\GraphicsDeviceServiceGL.cs" />
+    <Compile Include="Windows\Layers\CanvasLayer.cs" />
+    <Compile Include="Windows\Layers\GroupLayer.cs" />
     <Compile Include="Windows\Panels\EventArgs.cs" />
     <Compile Include="Windows\Panels\LayerPane.cs">
       <SubType>UserControl</SubType>
