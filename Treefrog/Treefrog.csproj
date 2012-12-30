@@ -156,7 +156,9 @@
     <Compile Include="Presentation\Controllers\PointerEventController.cs" />
     <Compile Include="Presentation\IViewport.cs" />
     <Compile Include="Presentation\Layers\AnnotationLayer.cs" />
+    <Compile Include="Presentation\Layers\AnnotationLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\CanvasLayer.cs" />
+    <Compile Include="Presentation\Layers\GridLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\GroupLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\LayerPresenter.cs" />
     <Compile Include="Presentation\Layers\LevelLayerPresenter.cs" />
@@ -179,6 +181,8 @@
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Windows\Layers\AnnotationLayer.cs" />
+    <Compile Include="Windows\Layers\GridLayer.cs" />
     <Compile Include="Windows\Layers\LayerFactory.cs" />
     <Compile Include="Windows\Layers\WorkspaceLayer.cs" />
     <Compile Include="Windows\TextureCache.cs" />

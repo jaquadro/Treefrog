@@ -8,10 +8,11 @@ using Microsoft.Xna.Framework;
 using System.ComponentModel;
 using Treefrog.Presentation;
 using TFImaging = Treefrog.Framework.Imaging;
+using Treefrog.Presentation.Controllers;
 
 namespace Treefrog.Windows.Controls
 {
-    public class LayerGraphicsControl : GraphicsDeviceControl, IScrollableControl
+    public class LayerGraphicsControl : GraphicsDeviceControl, IScrollableControl, IPointerTarget
     {
         private bool _initialized;
         private bool _disposed;
@@ -325,6 +326,39 @@ namespace Treefrog.Windows.Controls
 
             _scrollH = Math.Min(_scrollH, maxH);
             _scrollV = Math.Min(_scrollV, maxV);
+        }
+
+        #endregion
+
+        #region IPointerTarget
+
+        public System.Drawing.Point OriginOffset
+        {
+            get { return new System.Drawing.Point(VirtualOriginX, VirtualOriginY); }
+        }
+
+        public System.Drawing.Point InteriorOffset
+        {
+            get
+            {
+                TFImaging.Point offset = _geometry.CanvasBounds.Location;
+                return new System.Drawing.Point(offset.X, offset.Y);
+            }
+        }
+
+        public System.Drawing.Point ScrollOffset
+        {
+            get
+            {
+                return new System.Drawing.Point(
+                    GetScrollValue(ScrollOrientation.HorizontalScroll),
+                    GetScrollValue(ScrollOrientation.VerticalScroll));
+            }
+        }
+
+        float IPointerTarget.Zoom
+        {
+            get { return Zoom; }
         }
 
         #endregion

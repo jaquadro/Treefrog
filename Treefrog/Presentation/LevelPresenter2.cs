@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Treefrog.Framework;
 using Treefrog.Presentation.Annotations;
 using System.Collections.ObjectModel;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Presentation
 {
@@ -127,6 +128,14 @@ namespace Treefrog.Presentation
             _rootLayer = new GroupLayerPresenter();
             _rootLayer.Layers.Add(new WorkspaceLayerPresenter());
             _rootLayer.Layers.Add(_rootContentLayer);
+            _rootLayer.Layers.Add(new GridLayerPresenter() {
+                GridSpacingX = 16,
+                GridSpacingY = 16,
+                GridColor = new Color(0, 0, 0, 128),
+            });
+            _rootLayer.Layers.Add(new AnnotationLayerPresenter() {
+                Annotations = _annotations,
+            });
         }
 
         private void InitializeLayers ()

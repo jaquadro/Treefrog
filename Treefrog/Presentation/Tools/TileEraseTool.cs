@@ -165,7 +165,7 @@ namespace Treefrog.Presentation.Tools
             _selection = new SelectionAnnot(new Point(x, y))
             {
                 Fill = new SolidColorBrush(new Color(192, 0, 0, 128)),
-                Outline = new Pen(new SolidColorBrush(new Color(192, 0, 0, 200))),
+                //Outline = new Pen(new SolidColorBrush(new Color(192, 0, 0, 200))),
             };
 
             _annots.Add(_selection);

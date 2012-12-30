@@ -163,4 +163,41 @@ namespace Treefrog.Presentation.Controllers
             _responder.HandlePointerPosition(new PointerEventInfo(GetPointerType(e.Button), position.X, position.Y));
         }
     }
+
+    public class ControlPointerEventController : PointerEventController, IDisposable
+    {
+        private Control _control;
+
+        public ControlPointerEventController (Control control, IPointerTarget target)
+            : base(target)
+        {
+            _control = control;
+            _control.MouseDown += TargetMouseDown;
+            _control.MouseUp += TargetMouseUp;
+            _control.MouseMove += TargetMouseMove;
+            _control.MouseLeave += TargetMouseLeave;
+            _control.MouseClick += TargetMouseClick;
+        }
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (_control != null) {
+                if (disposing) {
+                    _control.MouseDown -= TargetMouseDown;
+                    _control.MouseUp -= TargetMouseUp;
+                    _control.MouseMove -= TargetMouseMove;
+                    _control.MouseLeave -= TargetMouseLeave;
+                    _control.MouseClick -= TargetMouseClick;
+                }
+
+                _control = null;
+            }
+        }
+    }
 }

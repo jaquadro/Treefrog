@@ -19,7 +19,7 @@ using SysDrawing2D = System.Drawing.Drawing2D;
 
 namespace Treefrog.Presentation.Layers
 {
-    public class TileLayerPresenter : LevelLayerPresenter, ICommandSubscriber, IPointerResponder
+    public class TileLayerPresenter : LevelLayerPresenter, ICommandSubscriber, IPointerResponder, ITileSelectionLayer
     {
         private TileLayer _layer;
 
@@ -562,8 +562,6 @@ namespace Treefrog.Presentation.Layers
             TileGridLayer layer = Layer as TileGridLayer;
             Rectangle levelBounds = LevelPresenter.LevelGeometry.LevelBounds;
 
-            //Control.UseWaitCursor = true;
-
             try {
                 using (SysDrawing.Bitmap raster = new SysDrawing.Bitmap(levelBounds.Width, levelBounds.Height, SysImaging.PixelFormat.Format32bppArgb)) {
                     using (SysDrawing.Graphics gsurface = SysDrawing.Graphics.FromImage(raster)) {
@@ -581,8 +579,6 @@ namespace Treefrog.Presentation.Layers
             catch (Exception e) {
                 MessageBox.Show("Layer rasterization failed with the following exception:\n\n" + e.Message, "Rasterization Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-
-            //Control.UseWaitCursor = false;
         }
 
         private void RasterizeTile (SysDrawing.Graphics surface, LocatedTile tile)
@@ -617,7 +613,7 @@ namespace Treefrog.Presentation.Layers
 
             switch (tool) {
                 case TileTool.Select:
-                    //_currentTool = new TileSelectTool(LevelPresenter.History, Layer as MultiTileGridLayer, LevelPresenter.Annotations, this);
+                    _currentTool = new TileSelectTool(LevelPresenter.History, Layer as MultiTileGridLayer, LevelPresenter.Annotations, this);
                     break;
                 case TileTool.Draw:
                     TileDrawTool drawTool = new TileDrawTool(LevelPresenter.History, Layer as MultiTileGridLayer, LevelPresenter.Annotations);
