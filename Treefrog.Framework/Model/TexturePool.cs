@@ -58,8 +58,22 @@ namespace Treefrog.Framework.Model
                 OnResourceRemoved(new ResourceEventArgs(id));
         }
 
+        internal void ReplaceResource (int id, TextureResource resource)
+        {
+            if (GetResource(id) != resource) {
+                _resources[id] = resource;
+                Invalidate(id);
+            }
+        }
+
+        public void Invalidate (int id)
+        {
+            OnResourceInvalidated(new ResourceEventArgs(id));
+        }
+
         public event EventHandler<ResourceEventArgs> ResourceAdded;
         public event EventHandler<ResourceEventArgs> ResourceRemoved;
+        public event EventHandler<ResourceEventArgs> ResourceInvalidated;
 
         protected virtual void OnResourceAdded (ResourceEventArgs e)
         {
@@ -71,6 +85,13 @@ namespace Treefrog.Framework.Model
         protected virtual void OnResourceRemoved (ResourceEventArgs e)
         {
             EventHandler<ResourceEventArgs> ev = ResourceRemoved;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnResourceInvalidated (ResourceEventArgs e)
+        {
+            EventHandler<ResourceEventArgs> ev = ResourceInvalidated;
             if (ev != null)
                 ev(this, e);
         }

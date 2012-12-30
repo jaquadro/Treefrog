@@ -68,6 +68,20 @@ namespace Treefrog.Windows.Layers
             set { _levelGeometry = value; }
         }
 
+        private TextureCache _textureCache;
+
+        public TextureCache TextureCache
+        {
+            get
+            {
+                if (ParentLayer != null)
+                    return ParentLayer.TextureCache;
+                else
+                    return _textureCache;
+            }
+            set { _textureCache = value; }
+        }
+
         private bool _isLoaded;
 
         public void Load (GraphicsDevice device)

@@ -110,6 +110,7 @@
     <Compile Include="Model\StaticTileBrush.cs" />
     <Compile Include="Model\Support\LocatedTile.cs" />
     <Compile Include="Model\Support\LocatedTileStack.cs" />
+    <Compile Include="Model\TexturePool.cs" />
     <Compile Include="Model\TileBrush.cs" />
     <Compile Include="Model\TileBrushCollection.cs" />
     <Compile Include="Model\TileBrushManager.cs" />

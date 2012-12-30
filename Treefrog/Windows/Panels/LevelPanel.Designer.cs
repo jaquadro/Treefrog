@@ -29,19 +29,19 @@ namespace Treefrog.Windows
         /// </summary>
         private void InitializeComponent ()
         {
-            this.viewportControl1 = new ViewportControl();
+            this._viewportControl = new ViewportControl();
             this.layerControl1 = new LayerControl();
             this.SuspendLayout();
             // 
             // viewportControl1
             // 
-            this.viewportControl1.Control = this.layerControl1;
-            this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.viewportControl1.Location = new System.Drawing.Point(0, 0);
-            this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
-            this.viewportControl1.Name = "viewportControl1";
-            this.viewportControl1.Size = new System.Drawing.Size(765, 692);
-            this.viewportControl1.TabIndex = 0;
+            this._viewportControl.Control = this.layerControl1;
+            this._viewportControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._viewportControl.Location = new System.Drawing.Point(0, 0);
+            this._viewportControl.Margin = new System.Windows.Forms.Padding(0);
+            this._viewportControl.Name = "viewportControl1";
+            this._viewportControl.Size = new System.Drawing.Size(765, 692);
+            this._viewportControl.TabIndex = 0;
             // 
             // layerControl1
             // 
@@ -61,7 +61,7 @@ namespace Treefrog.Windows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.viewportControl1);
+            this.Controls.Add(this._viewportControl);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "LevelPanel";
             this.Size = new System.Drawing.Size(765, 692);
@@ -71,7 +71,7 @@ namespace Treefrog.Windows
 
         #endregion
 
-        private ViewportControl viewportControl1;
+        private ViewportControl _viewportControl;
         private LayerControl layerControl1;
     }
 }

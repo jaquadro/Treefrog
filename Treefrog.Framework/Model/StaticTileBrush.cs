@@ -107,7 +107,7 @@ namespace Treefrog.Framework.Model
             TextureResource resource = MakePreview();
             return resource;
 
-            if (resource.Width <= maxWidth && resource.Height <= maxHeight)
+            /*if (resource.Width <= maxWidth && resource.Height <= maxHeight)
                 return resource;
 
             double aspectRatio = resource.Width / resource.Height;
@@ -117,7 +117,7 @@ namespace Treefrog.Framework.Model
             TextureResource preview = new TextureResource((int)(resource.Width * scale), (int)(resource.Height * scale));
             preview.Set(resource, Point.Zero);
 
-            return preview;
+            return preview;*/
         }
 
         public override int TilesHigh

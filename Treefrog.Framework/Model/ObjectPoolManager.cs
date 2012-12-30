@@ -15,6 +15,19 @@ namespace Treefrog.Framework.Model
 
     public class ObjectPoolManager : PoolManager<ObjectPool, int>
     {
+        private TexturePool _texPool;
+
+        public ObjectPoolManager (TexturePool texPool)
+            : base()
+        {
+            _texPool = texPool;
+        }
+
+        public TexturePool TexturePool
+        {
+            get { return _texPool; }
+        }
+
         protected override ObjectPool CreatePoolCore (string name)
         {
             return new ObjectPool(name, this);
@@ -47,7 +60,7 @@ namespace Treefrog.Framework.Model
             if (proxy == null)
                 return null;
 
-            ObjectPoolManager manager = new ObjectPoolManager();
+            ObjectPoolManager manager = new ObjectPoolManager(texturePool);
             if (proxy.Pools != null) {
                 foreach (ObjectPoolXmlProxy pool in proxy.Pools)
                     ObjectPool.FromXmlProxy(pool, manager);

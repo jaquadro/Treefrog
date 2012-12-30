@@ -161,13 +161,13 @@ namespace Treefrog.Presentation
                 if (form.ShowDialog() == DialogResult.OK) {
                     TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(form.SourceFile);
                     ObjectClass objClass = new ObjectClass(form.ObjectName) {
-                        Image = resource,
                         MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
                             form.MaskRight ?? 0 - form.MaskLeft ?? 0, form.MaskBottom ?? 0 - form.MaskTop ?? 0),
                         Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0),
                     };
 
                     SelectedObjectPool.AddObject(objClass);
+                    objClass.Image = resource;
 
                     RefreshObjectPoolCollection();
                     OnSyncObjectPoolManager(EventArgs.Empty);

@@ -5,10 +5,7 @@ using System.Text;
 
 namespace Treefrog.Presentation.Layers
 {
-    public abstract class LayerPresenter : IDisposable
+    public class WorkspaceLayerPresenter : LayerPresenter
     {
-        public void Dispose ()
-        {
-        }
     }
 }

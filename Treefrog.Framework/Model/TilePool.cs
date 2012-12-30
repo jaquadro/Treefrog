@@ -42,6 +42,7 @@ namespace Treefrog.Framework.Model
         private string _name;
 
         private TilePoolManager _manager;
+        private int _textureId;
         private TextureResource _tileSource;
 
         private int _tileWidth;
@@ -79,6 +80,7 @@ namespace Treefrog.Framework.Model
             _tileHeight = tileHeight;
 
             _tileSource = new TextureResource(_tileWidth * _initFactor, _tileHeight * _initFactor);
+            _textureId = _manager.TexturePool.AddResource(_tileSource);
 
             for (int x = 0; x < _initFactor; x++) {
                 for (int y = 0; y < _initFactor; y++) {
@@ -109,6 +111,11 @@ namespace Treefrog.Framework.Model
         public int TileHeight
         {
             get { return _tileHeight; }
+        }
+
+        public int TextureId
+        {
+            get { return _textureId; }
         }
 
         public TextureResource TileSource
@@ -212,6 +219,7 @@ namespace Treefrog.Framework.Model
             _openLocations.RemoveAt(_openLocations.Count - 1);
 
             _tileSource.Set(texture, new Point(coord.X * _tileWidth, coord.Y * _tileHeight));
+            _manager.TexturePool.Invalidate(_textureId);
 
             _locations[id] = coord;
             _tiles[id] = new PhysicalTile(id, this);
@@ -252,6 +260,7 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(coord.X * _tileWidth, coord.Y * _tileHeight, _tileWidth, _tileHeight);
             _tileSource.Clear(dest);
+            _manager.TexturePool.Invalidate(_textureId);
 
             _openLocations.Add(_locations[id]);
 
@@ -301,6 +310,7 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
             _tileSource.Set(texture, new Point(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight));
+            _manager.TexturePool.Invalidate(_textureId);
 
             OnTileModified(new TileEventArgs(_tiles[id]));
         }
@@ -323,6 +333,7 @@ namespace Treefrog.Framework.Model
                 throw new ArgumentException("Replacement texture has different dimensions than internal texture.");
 
             _tileSource.Set(data, Point.Zero);
+            _manager.TexturePool.Invalidate(_textureId);
 
             OnTileSourceInvalidated(EventArgs.Empty);
             OnModified(EventArgs.Empty);
@@ -367,6 +378,7 @@ namespace Treefrog.Framework.Model
             }
 
             _tileSource = newTex;
+            _manager.TexturePool.ReplaceResource(_textureId, _tileSource);
         }
 
         private void ReduceTexture ()
@@ -411,6 +423,7 @@ namespace Treefrog.Framework.Model
             }
 
             _tileSource = newTex;
+            _manager.TexturePool.ReplaceResource(_textureId, _tileSource);
         }
 
         private void RecalculateOpenLocations ()
@@ -971,7 +984,8 @@ namespace Treefrog.Framework.Model
             return new TilePoolXmlProxy()
             {
                 Name = pool.Name,
-                Source = TextureResource.ToXmlProxy(pool._tileSource),
+                Texture = pool._textureId,
+                //Source = TextureResource.ToXmlProxy(pool._tileSource),
                 TileWidth = pool._tileWidth,
                 TileHeight = pool._tileHeight,
                 TileDefinitions = tiledefs.Count > 0 ? tiledefs : null,
@@ -985,7 +999,12 @@ namespace Treefrog.Framework.Model
                 return null;
 
             TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
-            pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
+            manager.TexturePool.RemoveResource(pool._textureId);
+
+            pool._textureId = proxy.Texture;
+            pool._tileSource = manager.TexturePool.GetResource(pool._textureId);
+
+            //pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
 
             if (pool._tileSource != null) {
                 pool._tileSource.Apply(c => {
@@ -1067,8 +1086,11 @@ namespace Treefrog.Framework.Model
         [XmlAttribute]
         public int TileHeight { get; set; }
 
-        [XmlElement(IsNullable = true)]
-        public TextureResource.XmlProxy Source { get; set; }
+        [XmlAttribute]
+        public int Texture { get; set; }
+
+        //[XmlElement(IsNullable = true)]
+        //public TextureResource.XmlProxy Source { get; set; }
 
         [XmlArray]
         [XmlArrayItem("TileDef")]

@@ -29,6 +29,7 @@ namespace Treefrog.Presentation.Controllers
     public interface IPointerResponderProvider
     {
         IPointerResponder PointerEventResponder { get; }
+        event EventHandler PointerEventResponderChanged;
     }
 
     public class PointerEventResponder : IPointerResponder

@@ -10,6 +10,11 @@ namespace Treefrog.Presentation.Layers
     {
         private ObservableCollection<LayerPresenter> _layers;
 
+        public GroupLayerPresenter ()
+        {
+            _layers = new ObservableCollection<LayerPresenter>();
+        }
+
         public virtual ObservableCollection<LayerPresenter> Layers
         {
             get { return _layers; }

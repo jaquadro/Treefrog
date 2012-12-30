@@ -174,8 +174,10 @@ namespace Treefrog.Windows
                     _tileControl.Services.RemoveService<TilePoolTextureService>();
                 }
 
-                poolService = new TilePoolTextureService(_controller.TilePoolManager, _tileControl.GraphicsDeviceService);
-                _tileControl.Services.AddService<TilePoolTextureService>(poolService);
+                if (_tileControl.GraphicsDeviceService != null) {
+                    poolService = new TilePoolTextureService(_controller.TilePoolManager, _tileControl.GraphicsDeviceService);
+                    _tileControl.Services.AddService<TilePoolTextureService>(poolService);
+                }
             }
         }
 

@@ -22,8 +22,12 @@ namespace Treefrog.Framework.Model
         private NamedResourceCollection<TilePool> _pools;
         private Dictionary<int, TilePool> _tileIndexMap;
 
-        public TilePoolManager ()
+        private TexturePool _texPool;
+
+        public TilePoolManager (TexturePool texPool)
         {
+            _texPool = texPool;
+
             _pools = new NamedResourceCollection<TilePool>();
             _pools.ResourceRemoved += PoolRemovedHandler;
 
@@ -45,6 +49,11 @@ namespace Treefrog.Framework.Model
         public NamedResourceCollection<TilePool> Pools
         {
             get { return _pools; }
+        }
+
+        public TexturePool TexturePool
+        {
+            get { return _texPool; }
         }
 
         public TilePool CreateTilePool (string name, int tileWidth, int tileHeight)
@@ -140,12 +149,12 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static TilePoolManager FromXmlProxy (TilePoolManagerXmlProxy proxy)
+        public static TilePoolManager FromXmlProxy (TilePoolManagerXmlProxy proxy, TexturePool texturePool)
         {
             if (proxy == null)
                 return null;
 
-            TilePoolManager manager = new TilePoolManager();
+            TilePoolManager manager = new TilePoolManager(texturePool);
 
             if (proxy.Pools != null)
                 foreach (TilePoolXmlProxy pool in proxy.Pools)

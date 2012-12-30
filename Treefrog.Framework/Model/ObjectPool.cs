@@ -52,6 +52,11 @@ namespace Treefrog.Framework.Model
             _manager = manager;
         }
 
+        public TexturePool TexturePool
+        {
+            get { return _manager.TexturePool; }
+        }
+
         public int Count
         {
             get { return _objects.Count; }
@@ -79,6 +84,7 @@ namespace Treefrog.Framework.Model
                 throw new ArgumentException("Object Pool already contains an object with the same name as objClass.");
 
             objClass.Id = id;
+            objClass.Pool = this;
 
             _objects.Add(objClass);
 
@@ -91,6 +97,8 @@ namespace Treefrog.Framework.Model
         {
             if (_objects.Contains(name)) {
                 ObjectClass objClass = _objects[name];
+                objClass.Pool = null;
+
                 _manager.UnlinkItemKey(objClass.Id);
 
                 _objects.Remove(name);
@@ -335,14 +343,14 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static ObjectPool FromXmlProxy (ObjectPoolXmlProxy proxy, ObjectPoolManager manager, TexturePool texturePool)
+        public static ObjectPool FromXmlProxy (ObjectPoolXmlProxy proxy, ObjectPoolManager manager)
         {
             if (proxy == null)
                 return null;
 
             ObjectPool pool = manager.CreatePool(proxy.Name);
             foreach (ObjectClassXmlProxy objClass in proxy.ObjectClasses) {
-                ObjectClass inst = ObjectClass.FromXmlProxy(objClass, texturePool);
+                ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
                 pool.AddObject(inst, objClass.Id);
             }
 

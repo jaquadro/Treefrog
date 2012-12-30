@@ -45,6 +45,7 @@ namespace Treefrog.Framework.Model
     {
         private static string[] _reservedPropertyNames = new string[] { "Name", "Width", "Height", "OriginX", "OriginY" };
 
+        private ObjectPool _pool;
         private int _id;
         private string _name;
         private int _textureId;
@@ -98,6 +99,12 @@ namespace Treefrog.Framework.Model
         {
             get { return _id; }
             set { _id = value; }
+        }
+
+        public ObjectPool Pool
+        {
+            get { return _pool; }
+            internal set { _pool = value; }
         }
 
         [SystemProperty]
@@ -154,10 +161,39 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        public int ImageId
+        {
+            get { return _textureId; }
+        }
+
         public TextureResource Image
         {
-            get { return _image; }
+            get { return _pool != null ? _pool.TexturePool.GetResource(_textureId) : null; }
             set
+            {
+                if (_image != value) {
+                    if (_image == null)
+                        _textureId = _pool.TexturePool.AddResource(value);
+                    else if (value == null) {
+                        _pool.TexturePool.RemoveResource(_textureId);
+                        _textureId = 0;
+                    }
+                    else
+                        _pool.TexturePool.ReplaceResource(_textureId, value);
+
+                    _image = value;
+                    if (_image == null) {
+                        _imageBounds = Rectangle.Empty;
+                        RaisePropertyChanged("ImageBounds");
+                    }
+                    else if (_imageBounds.Width != _image.Width || _imageBounds.Height != _image.Height) {
+                        _imageBounds = _image.Bounds;
+                        RaisePropertyChanged("ImageBounds");
+                    }
+                    RaisePropertyChanged("Image");
+                }
+            }
+            /*set
             {
                 if (_image != value) {
                     _image = value;
@@ -168,7 +204,7 @@ namespace Treefrog.Framework.Model
                     }
                     RaisePropertyChanged("Image");
                 }
-            }
+            }*/
         }
 
         public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;

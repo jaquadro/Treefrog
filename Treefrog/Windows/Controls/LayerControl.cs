@@ -1087,8 +1087,10 @@ namespace Treefrog.Windows.Controls
             if (_objTextureMap.ContainsKey(objClass.Id))
                 _objTextureMap[objClass.Id].Dispose();
 
-            Texture2D tex = objClass.Image.CreateTexture(_deviceService.GraphicsDevice);
-            _objTextureMap[objClass.Id] = tex;
+            if (objClass.Image != null) {
+                Texture2D tex = objClass.Image.CreateTexture(_deviceService.GraphicsDevice);
+                _objTextureMap[objClass.Id] = tex;
+            }
         }
 
         private void ObjectRemoved (ObjectClass objClass)

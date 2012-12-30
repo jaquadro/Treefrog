@@ -47,7 +47,7 @@ namespace Treefrog.Presentation
 
         Presentation Presentation { get; }
 
-        IEnumerable<ILevelPresenter> OpenContent { get; }
+        IEnumerable<LevelPresenter2> OpenContent { get; }
 
         void ActionSelectContent (string name);
 
@@ -99,12 +99,12 @@ namespace Treefrog.Presentation
             get { return _docTools; }
         }
 
-        public ILayerListPresenter LayerList
+        public LevelPresenter2 LayerList
         {
             get { return _editor.CurrentLevel; }
         }
 
-        public ILevelPresenter Level
+        public LevelPresenter2 Level
         {
             get { return _editor.CurrentLevel; }
         }
@@ -144,9 +144,9 @@ namespace Treefrog.Presentation
     {
         private Project _project;
 
-        private Dictionary<string, LevelPresenter> _levels;
+        private Dictionary<string, LevelPresenter2> _levels;
         private string _currentLevel;
-        private LevelPresenter _currentLevelRef;
+        private LevelPresenter2 _currentLevelRef;
 
         private Presentation _presentation;
 
@@ -176,12 +176,13 @@ namespace Treefrog.Presentation
             _project.Modified += ProjectModifiedHandler;
 
             _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter>();
+            _levels = new Dictionary<string, LevelPresenter2>();
 
             Level level = new Level("Level 1", 0, 0, 800, 480);
+            level.Project = _project;
             level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
 
-            LevelPresenter pres = new LevelPresenter(this, level);
+            LevelPresenter2 pres = new LevelPresenter2(this, level);
             _levels[level.Name] = pres;
 
             _openContent.Add(level.Name);
@@ -194,7 +195,7 @@ namespace Treefrog.Presentation
             propList.Provider = level;
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -224,12 +225,12 @@ namespace Treefrog.Presentation
             _project.Modified += ProjectModifiedHandler;
 
             _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter>();
+            _levels = new Dictionary<string, LevelPresenter2>();
 
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
-                LevelPresenter pres = new LevelPresenter(this, level);
+                LevelPresenter2 pres = new LevelPresenter2(this, level);
                 _levels[level.Name] = pres;
 
                 _openContent.Add(level.Name);
@@ -243,7 +244,7 @@ namespace Treefrog.Presentation
             _project.ObjectPoolManager.CreatePool("Default");
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -252,7 +253,7 @@ namespace Treefrog.Presentation
             RefreshEditor();
 
             if (CurrentLevel != null) {
-                CurrentLevel.RefreshLayerList();
+                //CurrentLevel.RefreshLayerList();
             }
         }
 
@@ -270,12 +271,12 @@ namespace Treefrog.Presentation
             _currentLevel = null;
 
             _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter>();
+            _levels = new Dictionary<string, LevelPresenter2>();
 
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
-                LevelPresenter pres = new LevelPresenter(this, level);
+                LevelPresenter2 pres = new LevelPresenter2(this, level);
                 _levels[level.Name] = pres;
 
                 _openContent.Add(level.Name);
@@ -287,7 +288,7 @@ namespace Treefrog.Presentation
             }
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -296,7 +297,7 @@ namespace Treefrog.Presentation
             RefreshEditor();
 
             if (CurrentLevel != null) {
-                CurrentLevel.RefreshLayerList();
+                //CurrentLevel.RefreshLayerList();
             }
         }
 
@@ -324,7 +325,7 @@ namespace Treefrog.Presentation
             get { return _project; }
         }
 
-        public LevelPresenter CurrentLevel
+        public LevelPresenter2 CurrentLevel
         {
             get
             {
@@ -394,7 +395,7 @@ namespace Treefrog.Presentation
             }
         }
 
-        public IEnumerable<ILevelPresenter> OpenContent
+        public IEnumerable<LevelPresenter2> OpenContent
         {
             get 
             {
@@ -620,7 +621,7 @@ namespace Treefrog.Presentation
             if (CommandCanAddLevel()) {
                 NewLevel form = new NewLevel(_project);
                 if (form.ShowDialog() == DialogResult.OK) {
-                    LevelPresenter pres = new LevelPresenter(this, form.Level);
+                    LevelPresenter2 pres = new LevelPresenter2(this, form.Level);
                     _levels[form.Level.Name] = pres;
 
                     _openContent.Add(form.Level.Name);
@@ -644,7 +645,7 @@ namespace Treefrog.Presentation
         private void SelectLevel (string level)
         {
             Level prev = _project.Levels.Contains(level) ? _project.Levels[level] : null;
-            LevelPresenter prevLevel = _currentLevelRef;
+            LevelPresenter2 prevLevel = _currentLevelRef;
             
             if (_currentLevel == level) {
                 return;
@@ -670,9 +671,9 @@ namespace Treefrog.Presentation
                 }
 
                 ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-                info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+                //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
-                CurrentLevel.InfoPresenter.RefreshContentInfo();
+                //CurrentLevel.InfoPresenter.RefreshContentInfo();
             }
             else {
                 ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
@@ -681,7 +682,7 @@ namespace Treefrog.Presentation
 
             CommandManager.Invalidate(CommandKey.ViewGrid);
 
-            OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
+            //OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
             OnSyncContentView(EventArgs.Empty);
         }
     }

@@ -12,14 +12,15 @@ namespace Treefrog.Windows.Controls
         event ScrollEventHandler Scroll;
         event EventHandler VirtualSizeChanged;
         event EventHandler ScrollPropertyChanged;
+        event EventHandler ZoomChanged;
 
         Control Control { get; }
         Rectangle VirtualSize { get; }
         float Zoom { get; }
 
         int GetScrollValue (ScrollOrientation orientation);
-        int GetScrollSmallChange (ScrollOrientation orientation);
-        int GetScrollLargeChange (ScrollOrientation orientation);
+        //int GetScrollSmallChange (ScrollOrientation orientation);
+        //int GetScrollLargeChange (ScrollOrientation orientation);
 
         bool GetScrollEnabled (ScrollOrientation orientation);
 
@@ -58,6 +59,7 @@ namespace Treefrog.Windows.Controls
                     _control.ScrollPropertyChanged -= ControlVirtualSizeChangedHandler;
                     _control.VirtualSizeChanged -= ControlVirtualSizeChangedHandler;
                     _control.Control.Resize -= ControlSizeChangedHandler;
+                    _control.ZoomChanged -= ControlZoomChangedHandler;
                 }
 
                 _control = value;
@@ -70,6 +72,7 @@ namespace Treefrog.Windows.Controls
                     _control.ScrollPropertyChanged += ControlVirtualSizeChangedHandler;
                     _control.VirtualSizeChanged += ControlVirtualSizeChangedHandler;
                     _control.Control.Resize += ControlSizeChangedHandler;
+                    _control.ZoomChanged += ControlZoomChangedHandler;
 
                     RecalcScrollBars();
                 }
@@ -133,16 +136,21 @@ namespace Treefrog.Windows.Controls
             RecalcScrollBars();
         }
 
+        private void ControlZoomChangedHandler (object sender, EventArgs e)
+        {
+            RecalcScrollBars();
+        }
+
         private void RecalcScrollBars ()
         {
             Rectangle vsize = _control.VirtualSize;
             float zoom = _control.Zoom;
 
-            int hLargeChange = _control.GetScrollLargeChange(ScrollOrientation.HorizontalScroll);
-            int vLargeChange = _control.GetScrollLargeChange(ScrollOrientation.VerticalScroll);
+            //int hLargeChange = _control.GetScrollLargeChange(ScrollOrientation.HorizontalScroll);
+            //int vLargeChange = _control.GetScrollLargeChange(ScrollOrientation.VerticalScroll);
 
-            int hSmallChange = _control.GetScrollSmallChange(ScrollOrientation.HorizontalScroll);
-            int vSmallChange = _control.GetScrollSmallChange(ScrollOrientation.VerticalScroll);
+            //int hSmallChange = _control.GetScrollSmallChange(ScrollOrientation.HorizontalScroll);
+            //int vSmallChange = _control.GetScrollSmallChange(ScrollOrientation.VerticalScroll);
 
             bool hEnabled = _control.GetScrollEnabled(ScrollOrientation.HorizontalScroll);
             bool vEnabled = _control.GetScrollEnabled(ScrollOrientation.VerticalScroll);
@@ -202,10 +210,10 @@ namespace Treefrog.Windows.Controls
 
             // Update scrollbar properties
 
-            hSmallChange = width / 10;
-            vSmallChange = height / 10;
-            hLargeChange = (int)(width / 1.5);
-            vLargeChange = (int)(height / 1.5);
+            int hSmallChange = width / 10;
+            int vSmallChange = height / 10;
+            int hLargeChange = (int)(width / 1.5);
+            int vLargeChange = (int)(height / 1.5);
 
             _hScrollBar.Minimum = 0;
             _vScrollBar.Minimum = 0;

@@ -19,11 +19,16 @@ namespace Treefrog.Windows.Layers
         }
 
         private SpriteBatch _spriteBatch;
+        private DrawBatch _drawBatch;
+        private RasterizerState _rasterState;
         private RenderTarget2D _target;
 
         public RenderLayer ()
         {
             Mode = RenderMode.Sprite;
+            Scissor = true;
+
+            _rasterState = new RasterizerState();
         }
 
         protected override void DisposeManaged ()
@@ -32,6 +37,8 @@ namespace Treefrog.Windows.Layers
                 _spriteBatch.Dispose();
             if (_target != null)
                 _target.Dispose();
+            if (_rasterState != null)
+                _rasterState.Dispose();
 
             base.DisposeManaged();
         }
@@ -39,6 +46,8 @@ namespace Treefrog.Windows.Layers
         public RenderLayerPresenter Model { get; set; }
 
         protected RenderMode Mode { get; set; }
+
+        protected bool Scissor { get; set; }
 
         private float LayerOpacity 
         {
@@ -53,6 +62,17 @@ namespace Treefrog.Windows.Layers
 
                 RenderCore(_spriteBatch);
             }
+
+            if (Mode.HasFlag(RenderMode.Drawing)) {
+                if (_drawBatch == null || _drawBatch.GraphicsDevice != device) {
+                    Brushes.Initialize(device);
+                    Pens.Initialize(device);
+
+                    _drawBatch = new DrawBatch(device);
+                }
+
+                RenderCore(_drawBatch);
+            }
         }
 
         protected virtual void RenderCore (SpriteBatch spriteBatch)
@@ -64,77 +84,43 @@ namespace Treefrog.Windows.Layers
 
         protected virtual void RenderCore (DrawBatch drawBatch)
         {
-
+            Vector2 offset = BeginDraw(drawBatch);
+            RenderContent(drawBatch);
+            EndDraw(drawBatch, offset);
         }
 
         protected virtual void RenderContent (SpriteBatch spriteBatch)
         {
-            if (Model != null)
-                RenderCommands(spriteBatch, Model.RenderCommands);
+            if (Model != null && TextureCache != null)
+                RenderCommands(spriteBatch, TextureCache, Model.RenderCommands);
         }
 
-        protected virtual void RenderCommands (SpriteBatch spriteBatch, IEnumerable<DrawCommand> drawList)
+        protected virtual void RenderContent (DrawBatch drawBatch)
+        { }
+
+        protected virtual void RenderCommands (SpriteBatch spriteBatch, TextureCache textureCache, IEnumerable<DrawCommand> drawList)
         {
             foreach (DrawCommand command in drawList) {
-                Texture2D texture;
-                if (_xnaTextures.TryGetValue(command.Texture, out texture)) {
-                    if (texture == null) {
-                        TextureResource texRef = _textures[command.Texture];
-                        texture = texRef.CreateTexture(spriteBatch.GraphicsDevice);
-                        _xnaTextures[command.Texture] = texture;
-                    }
-                    spriteBatch.Draw(texture, ToXnaRectangle(command.DestRect), ToXnaRectangle(command.SourceRect), ToXnaColor(command.BlendColor));
-                }
+                Texture2D texture = textureCache.Resolve(command.Texture);
+                if (texture != null)
+                    spriteBatch.Draw(texture, command.DestRect.ToXnaRectangle(), command.SourceRect.ToXnaRectangle(), command.BlendColor.ToXnaColor());
             }
         }
 
         protected Vector2 BeginDraw (SpriteBatch spriteBatch)
         {
-            return BeginDraw(spriteBatch, null);
+            return BeginDraw(spriteBatch, SamplerState.PointClamp);
         }
 
-        protected Vector2 BeginDraw (SpriteBatch spriteBatch, Effect effect)
+        protected Vector2 BeginDraw (SpriteBatch spriteBatch, SamplerState samplerState)
         {
-            _target = null;
-            if (LayerOpacity < 1f) {
-                if (_target == null
-                    || _target.GraphicsDevice != spriteBatch.GraphicsDevice
-                    || _target.Width != spriteBatch.GraphicsDevice.Viewport.Width
-                    || _target.Height != spriteBatch.GraphicsDevice.Viewport.Height) {
-                    _target = new RenderTarget2D(spriteBatch.GraphicsDevice,
-                        spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height,
-                        false, SurfaceFormat.Color, DepthFormat.None);
-                }
-
-                spriteBatch.GraphicsDevice.SetRenderTarget(_target);
-                spriteBatch.GraphicsDevice.Clear(Color.Transparent);
-            }
-
-            return BeginDrawInner(spriteBatch, effect);
+            return BeginDraw(spriteBatch, samplerState, null);
         }
 
-        private Vector2 BeginDrawInner (SpriteBatch spriteBatch, Effect effect)
+        protected Vector2 BeginDraw (SpriteBatch spriteBatch, SamplerState samplerState, Effect effect)
         {
-            Vector2 offset = Vector2.Zero;
-            RasterizerState rasterState = null;
-
-            if (LevelGeometry != null) {
-                offset = LevelGeometry.CanvasBounds.Location.ToXnaVector2();
-
-                spriteBatch.GraphicsDevice.ScissorRectangle = LevelGeometry.ViewportBounds.ToXnaRectangle();
-                RasterizerState state = new RasterizerState() {
-                    ScissorTestEnable = true,
-                };
-
-                if (spriteBatch.GraphicsDevice.ScissorRectangle.IsEmpty)
-                    state.ScissorTestEnable = false;
-            }
-
-            Matrix transform = Matrix.CreateTranslation(offset.X, offset.Y, 0);
-
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, null, rasterState, effect, transform);
-
-            return offset;
+            SetupRenderTarget(spriteBatch.GraphicsDevice);
+            return BeginDrawInner(spriteBatch, samplerState, effect);
         }
 
         protected void EndDraw (SpriteBatch spriteBatch, Vector2 offset)
@@ -144,15 +130,112 @@ namespace Treefrog.Windows.Layers
             if (_target != null) {
                 spriteBatch.GraphicsDevice.SetRenderTarget(null);
 
-                BeginDrawInner(spriteBatch, null);
-                spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, LayerOpacity));
-                EndDrawInner(spriteBatch);
+                BeginDrawInner(_spriteBatch, SamplerState.PointClamp, null);
+                _spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, LayerOpacity));
+                EndDrawInner(_spriteBatch);
             }
+        }
+
+        private Vector2 BeginDrawInner (SpriteBatch spriteBatch, SamplerState samplerState, Effect effect)
+        {
+            SetupRasterizerState(spriteBatch.GraphicsDevice);
+
+            Vector2 offset = GetOffset();
+            Matrix transform = Matrix.CreateTranslation(offset.X, offset.Y, 0);
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, samplerState, null, _rasterState, effect, transform);
+
+            return offset;
         }
 
         private void EndDrawInner (SpriteBatch spriteBatch)
         {
             spriteBatch.End();
+        }
+
+        private Vector2 BeginDraw (DrawBatch drawBatch)
+        {
+            return BeginDraw(drawBatch, SamplerState.PointWrap);
+        }
+
+        private Vector2 BeginDraw (DrawBatch drawBatch, SamplerState samplerState)
+        {
+            SetupRenderTarget(drawBatch.GraphicsDevice);
+            return BeginDrawInner(drawBatch, samplerState);
+        }
+
+        private void EndDraw (DrawBatch drawBatch, Vector2 offset)
+        {
+            EndDrawInner(drawBatch);
+
+            if (_target != null) {
+                drawBatch.GraphicsDevice.SetRenderTarget(null);
+
+                BeginDrawInner(_spriteBatch, SamplerState.PointClamp, null);
+                _spriteBatch.Draw(_target, new Vector2((float)-offset.X, (float)-offset.Y), new Color(1f, 1f, 1f, LayerOpacity));
+                EndDrawInner(_spriteBatch);
+            }
+        }
+
+        private Vector2 BeginDrawInner (DrawBatch drawBatch, SamplerState samplerState)
+        {
+            SetupRasterizerState(drawBatch.GraphicsDevice);
+
+            Vector2 offset = GetOffset();
+            Matrix transform = Matrix.CreateTranslation(offset.X, offset.Y, 0);
+
+            drawBatch.Begin(BlendState.NonPremultiplied, samplerState, null, _rasterState, transform);
+
+            return offset;
+        }
+
+        private void EndDrawInner (DrawBatch drawBatch)
+        {
+            drawBatch.End();
+        }
+
+        private void SetupRenderTarget (GraphicsDevice device)
+        {
+            if (LayerOpacity < 1f) {
+                if (_target == null
+                    || _target.GraphicsDevice != device
+                    || _target.Width != device.Viewport.Width
+                    || _target.Height != device.Viewport.Height) {
+                        _target = new RenderTarget2D(device,
+                        device.Viewport.Width, device.Viewport.Height,
+                        false, SurfaceFormat.Color, DepthFormat.None);
+                }
+
+                device.SetRenderTarget(_target);
+                device.Clear(Color.Transparent);
+            }
+        }
+
+        private void SetupRasterizerState (GraphicsDevice device)
+        {
+            if (Scissor && LevelGeometry != null) {
+                device.ScissorRectangle = LevelGeometry.CanvasBounds.ToXnaRectangle();
+
+                bool areaEmpty = device.ScissorRectangle.IsEmpty;
+                if (_rasterState == null || _rasterState.ScissorTestEnable == areaEmpty)
+                    _rasterState = new RasterizerState() {
+                        ScissorTestEnable = !areaEmpty
+                    };
+            }
+            else
+                _rasterState = null;
+        }
+
+        private Vector2 GetOffset ()
+        {
+            Vector2 offset = Vector2.Zero;
+
+            if (LevelGeometry != null) {
+                offset = LevelGeometry.CanvasBounds.Location.ToXnaVector2();
+                offset -= LevelGeometry.VisibleBounds.Location.ToXnaVector2() * LevelGeometry.ZoomFactor;
+            }
+
+            return offset;
         }
     }
 }

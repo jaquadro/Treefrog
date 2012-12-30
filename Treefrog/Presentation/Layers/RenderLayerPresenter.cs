@@ -8,7 +8,7 @@ namespace Treefrog.Presentation.Layers
 {
     public struct DrawCommand
     {
-        public string Texture { get; set; }
+        public int Texture { get; set; }
         public Rectangle SourceRect { get; set; }
         public Rectangle DestRect { get; set; }
         public Color BlendColor { get; set; }

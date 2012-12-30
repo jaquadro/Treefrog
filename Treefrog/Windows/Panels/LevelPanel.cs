@@ -2,6 +2,8 @@
 using System.Windows.Forms;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Layers;
+using Treefrog.Windows.Controls;
+using Treefrog.Windows.Layers;
 
 namespace Treefrog.Windows
 {
@@ -9,7 +11,10 @@ namespace Treefrog.Windows
     {
         #region Fields
 
-        private ILevelPresenter _controller;
+        //private ILevelPresenter _controller;
+        private LevelPresenter2 _controller;
+        private LayerGraphicsControl _layerControl;
+        private GroupLayer _root;
 
         #endregion
 
@@ -18,39 +23,35 @@ namespace Treefrog.Windows
         public LevelPanel ()
         {
             InitializeComponent();
+
+            _layerControl = new LayerGraphicsControl();
+            _layerControl.Dock = DockStyle.Fill;
+
+            _viewportControl.Control = _layerControl;
         }
 
         #endregion
 
-        public void BindController (ILevelPresenter controller)
+        public void BindController (LevelPresenter2 controller)
         {
             _controller = controller;
 
-            viewportControl1.ContentPanel.Controls.Clear();
+            _root = new GroupLayer() {
+                IsRendered = true,
+                Model = controller.RootLayer,
+            };
 
-            if (_controller != null && _controller.LayerControl != null) {
-                _controller.LayerControl.Dock = DockStyle.Fill;
+            _layerControl.RootLayer = _root;
+            _layerControl.TextureCache.SourcePool = controller.TexturePool;
 
-                viewportControl1.Control = _controller.LayerControl;
-            }
+            _layerControl.ReferenceOriginX = controller.Level.OriginX;
+            _layerControl.ReferenceOriginY = controller.Level.OriginY;
+            _layerControl.ReferenceWidth = controller.Level.Width;
+            _layerControl.ReferenceHeight = controller.Level.Height;
         }
 
         private void ResetComponent ()
         {
-            viewportControl1.ContentPanel.Controls.Clear();
         }
-
-        #region Properties
-
-        #endregion
-
-        #region Event Handlers
-
-        private void LayerControlTileMouseMove (object sender, TileMouseEventArgs e)
-        {
-
-        }
-
-        #endregion
     }
 }

@@ -159,9 +159,13 @@
     <Compile Include="Presentation\Layers\CanvasLayer.cs" />
     <Compile Include="Presentation\Layers\GroupLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\LayerPresenter.cs" />
+    <Compile Include="Presentation\Layers\LevelLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
     <Compile Include="Presentation\Layers\RenderLayerPresenter.cs" />
+    <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
+    <Compile Include="Presentation\LevelPresenter2.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
+    <Compile Include="Presentation\TextureResourceRegistry.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
     <Compile Include="Presentation\Tools\ITileToolCollection.cs" />
     <Compile Include="Presentation\Tools\IToolCollection.cs" />
@@ -171,6 +175,13 @@
     <Compile Include="Presentation\Tools\PointerTool.cs" />
     <Compile Include="Presentation\Tools\RubberBand2.cs" />
     <Compile Include="Presentation\Tools\Selection.cs" />
+    <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Layers\LayerFactory.cs" />
+    <Compile Include="Windows\Layers\WorkspaceLayer.cs" />
+    <Compile Include="Windows\TextureCache.cs" />
+    <Compile Include="Windows\XnaInterop.cs" />
     <None Include="Presentation\Tools\SelectTool.cs" />
     <Compile Include="Presentation\ContentInfoPresenter.cs" />
     <Compile Include="Presentation\EditorPresenter.cs" />
@@ -302,6 +313,7 @@
     <None Include="Windows\GraphicsDeviceServiceGL.cs" />
     <Compile Include="Windows\Layers\CanvasLayer.cs" />
     <Compile Include="Windows\Layers\GroupLayer.cs" />
+    <Compile Include="Windows\Layers\RenderLayer.cs" />
     <Compile Include="Windows\Panels\EventArgs.cs" />
     <Compile Include="Windows\Panels\LayerPane.cs">
       <SubType>UserControl</SubType>

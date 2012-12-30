@@ -49,7 +49,7 @@ namespace Treefrog.Windows.Forms
         {
             tabControlEx1.TabPages.Clear();
 
-            foreach (ILevelPresenter lp in _editor.OpenContent) {
+            foreach (LevelPresenter2 lp in _editor.OpenContent) {
                 TabPage page = new TabPage(lp.Level.Name);
                 tabControlEx1.TabPages.Add(page);
 
@@ -63,7 +63,7 @@ namespace Treefrog.Windows.Forms
 
         private void SyncContentViewHandler (object sender, EventArgs e)
         {
-            ILevelPresenter lp = _editor.CurrentLevel;
+            /*ILevelPresenter lp = _editor.CurrentLevel;
 
             if (lp != null) {
                 foreach (TabPage page in tabControlEx1.TabPages) {
@@ -71,13 +71,13 @@ namespace Treefrog.Windows.Forms
                         tabControlEx1.SelectedTab = page;
                     }
                 }
-            }
+            }*/
 
             if (_editor.CanShowProjectPanel)
                 projectPanel1.BindController(_editor);
 
-            if (_editor.CanShowLayerPanel)
-                layerPane1.BindController(_editor.Presentation.LayerList);
+            //if (_editor.CanShowLayerPanel)
+            //    layerPane1.BindController(_editor.Presentation.LayerList);
 
             if (_editor.CanShowTilePoolPanel)
                 tilePoolPane1.BindController(_editor.Presentation.TilePoolList);

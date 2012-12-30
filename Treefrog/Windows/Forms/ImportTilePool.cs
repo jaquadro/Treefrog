@@ -23,6 +23,7 @@ namespace Treefrog.Windows.Forms
         TileSetControlLayer _tileLayer;
 
         //TileRegistry _localRegistry;
+        TexturePool _localTexturePool;
         TilePoolManager _localManager;
         Stream _fileStream;
 
@@ -56,7 +57,8 @@ namespace Treefrog.Windows.Forms
 
             GraphicsDeviceService gds = GraphicsDeviceService.AddRef(Handle, 128, 128);
             //_localRegistry = new TileRegistry(gds.GraphicsDevice);
-            _localManager = new TilePoolManager();
+            _localTexturePool = new TexturePool();
+            _localManager = new TilePoolManager(_localTexturePool);
 
             _message.Text = "";
 

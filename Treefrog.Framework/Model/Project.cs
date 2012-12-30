@@ -57,15 +57,16 @@ namespace Treefrog.Framework.Model
         public Project () 
         {
             _services = new ServiceContainer();
+            _texturePool = new TexturePool();
 
             //_tilePools = new NamedResourceCollection<TilePool>();
-            _tilePools = new TilePoolManager();
-            _objectPools = new ObjectPoolManager();
+            _tilePools = new TilePoolManager(_texturePool);
+            _objectPools = new ObjectPoolManager(_texturePool);
             _tileBrushes = new TileBrushManager();
             //_objectPools = new NamedResourceCollection<ObjectPool>();
             //_tileSets = new NamedResourceCollection<TileSet2D>();
             _levels = new NamedResourceCollection<Level>();
-            _texturePool = new TexturePool();
+            
 
             _tilePools.Pools.Modified += TilePoolsModifiedHandler;
             _objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
@@ -107,6 +108,11 @@ namespace Treefrog.Framework.Model
         public TileBrushManager TileBrushManager
         {
             get { return _tileBrushes; }
+        }
+
+        public TexturePool TexturePool
+        {
+            get { return _texturePool; }
         }
 
         /*public NamedResourceCollection<TileSet2D> TileSets
@@ -235,11 +241,11 @@ namespace Treefrog.Framework.Model
 
             project._objectPools = ObjectPoolManager.FromXmlProxy(proxy.ObjectPools, project._texturePool);
             if (project._objectPools == null)
-                project._objectPools = new ObjectPoolManager();
+                project._objectPools = new ObjectPoolManager(project._texturePool);
 
-            project._tilePools = TilePoolManager.FromXmlProxy(proxy.TilePools);
+            project._tilePools = TilePoolManager.FromXmlProxy(proxy.TilePools, project._texturePool);
             if (project._tilePools == null)
-                project._tilePools = new TilePoolManager();
+                project._tilePools = new TilePoolManager(project._texturePool);
 
             project._tileBrushes = TileBrushManager.FromXmlProxy(proxy.TileBrushes, project._tilePools, Project.DynamicBrushClassRegistry);
             if (project._tileBrushes == null)
