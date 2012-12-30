@@ -76,8 +76,8 @@ namespace Treefrog.Windows.Forms
             if (_editor.CanShowProjectPanel)
                 projectPanel1.BindController(_editor);
 
-            //if (_editor.CanShowLayerPanel)
-            //    layerPane1.BindController(_editor.Presentation.LayerList);
+            if (_editor.CanShowLayerPanel)
+                layerPane1.BindController(_editor.Presentation.LayerList);
 
             if (_editor.CanShowTilePoolPanel)
                 tilePoolPane1.BindController(_editor.Presentation.TilePoolList);

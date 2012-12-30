@@ -25,7 +25,7 @@ namespace Treefrog.Presentation.Layers
 
         private ITilePoolListPresenter _tilePoolController;
         private ITileBrushManagerPresenter _tileBrushController;
-        //private TileSourceType _sourceType = TileSourceType.Tile;
+        private TileSourceType _sourceType = TileSourceType.Tile;
 
         public TileLayerPresenter (LevelPresenter2 levelPresenter, TileLayer layer)
             : base(levelPresenter, layer)
@@ -35,7 +35,7 @@ namespace Treefrog.Presentation.Layers
             InitializeCommandManager();
         }
 
-        public void BindObjectController (ITilePoolListPresenter tilePoolController)
+        public void BindTilePoolController (ITilePoolListPresenter tilePoolController)
         {
             if (_tilePoolController != null) {
                 _tilePoolController.TileSelectionChanged -= TileSelectionChangedHandler;
@@ -78,7 +78,7 @@ namespace Treefrog.Presentation.Layers
 
         private void TileSelectionChangedHandler (object sender, EventArgs e)
         {
-            //_sourceType = TileSourceType.Tile;
+            _sourceType = TileSourceType.Tile;
 
             switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
                 case CommandKey.TileToolErase:
@@ -90,7 +90,7 @@ namespace Treefrog.Presentation.Layers
 
         private void TileBrushSelectedHandler (object sender, EventArgs e)
         {
-            //_sourceType = TileSourceType.Brush;
+            _sourceType = TileSourceType.Brush;
 
             switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
                 case CommandKey.TileToolErase:
@@ -362,9 +362,9 @@ namespace Treefrog.Presentation.Layers
                 clip.CopyToClipboard();
 
                 CompoundCommand command = new CompoundCommand();
-            //    if (!_selection.Floating)
-            //        command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
-            //    command.AddCommand(new DeleteTileSelectionCommand(this));
+                if (!_selection.Floating)
+                    command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
 
                 LevelPresenter.History.Execute(command);
 
@@ -410,15 +410,15 @@ namespace Treefrog.Presentation.Layers
 
                 if (_selection != null) {
                     CompoundCommand command = new CompoundCommand();
-                //    if (_selection.Floating)
-                //        command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
-                //    command.AddCommand(new DeleteTileSelectionCommand(this));
+                    if (_selection.Floating)
+                        command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                    command.AddCommand(new DeleteTileSelectionCommand(this));
 
                     LevelPresenter.History.Execute(command);
                 }
 
-                //Command pasteCommand = new PasteFloatingSelectionCommand(this, selection, GetCenterTileOffset());
-                //_levelController.History.Execute(pasteCommand);
+                Command pasteCommand = new PasteFloatingSelectionCommand(this, selection, GetCenterTileOffset());
+                LevelPresenter.History.Execute(pasteCommand);
 
                 if (!(_currentTool is TileSelectTool)) {
                     CommandManager.Perform(CommandKey.TileToolSelect);
@@ -450,9 +450,9 @@ namespace Treefrog.Presentation.Layers
         {
             if (CommandCanDelete()) {
                 CompoundCommand command = new CompoundCommand();
-            //    if (!_selection.Floating)
-            //        command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
-            //    command.AddCommand(new DeleteTileSelectionCommand(this));
+                if (!_selection.Floating)
+                    command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
 
                 LevelPresenter.History.Execute(command);
 
@@ -476,11 +476,11 @@ namespace Treefrog.Presentation.Layers
         private void CommandFloat ()
         {
             if (CommandCanFloat()) {
-                //Command command = new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this);
+                Command command = new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this);
 
-                //if (LevelPresenter != null)
-                //    LevelPresenter.History.Execute(command);
-                //else
+                if (LevelPresenter != null)
+                    LevelPresenter.History.Execute(command);
+                else
                     FloatSelection();
             }
         }
@@ -502,9 +502,9 @@ namespace Treefrog.Presentation.Layers
         {
             if (CommandCanDefloat()) {
                 CompoundCommand command = new CompoundCommand();
-                //if (TileSelection.Floating)
-                //    command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
-                //command.AddCommand(new DeleteTileSelectionCommand(this));
+                if (TileSelection.Floating)
+                    command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
+                command.AddCommand(new DeleteTileSelectionCommand(this));
 
                 if (LevelPresenter != null)
                     LevelPresenter.History.Execute(command);
@@ -625,10 +625,10 @@ namespace Treefrog.Presentation.Layers
                     _currentTool = new TileEraseTool(LevelPresenter.History, Layer as MultiTileGridLayer, LevelPresenter.Annotations);
                     break;
                 case TileTool.Fill:
-                    //TileFillTool fillTool = new TileFillTool(LevelPresenter.History, Layer as MultiTileGridLayer, _sourceType);
-                    //fillTool.BindTilePoolController(_tilePoolController);
-                    //fillTool.BindTileBrushManager(_tileBrushController);
-                    //_currentTool = fillTool;
+                    TileFillTool fillTool = new TileFillTool(LevelPresenter.History, Layer as MultiTileGridLayer, _sourceType);
+                    fillTool.BindTilePoolController(_tilePoolController);
+                    fillTool.BindTileBrushManager(_tileBrushController);
+                    _currentTool = fillTool;
                     break;
                 default:
                     _currentTool = null;

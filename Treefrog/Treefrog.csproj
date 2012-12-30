@@ -163,6 +163,7 @@
     <Compile Include="Presentation\Layers\LayerPresenter.cs" />
     <Compile Include="Presentation\Layers\LevelLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
+    <Compile Include="Presentation\Layers\ObjectLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\RenderLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\TileLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />

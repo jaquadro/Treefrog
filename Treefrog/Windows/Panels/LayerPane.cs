@@ -6,6 +6,7 @@ using Treefrog.Framework.Model;
 using Treefrog.Presentation;
 using Treefrog.Windows.Controllers;
 using Treefrog.Presentation.Commands;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows
 {
@@ -69,7 +70,6 @@ namespace Treefrog.Windows
             }
 
             if (_controller != null) {
-                _controller.SyncLayerActions -= SyncLayerActionsHandler;
                 _controller.SyncLayerList -= SyncLayerListHandler;
                 _controller.SyncLayerSelection -= SyncLayerSelectionHandler;
             }
@@ -77,13 +77,13 @@ namespace Treefrog.Windows
             _controller = controller;
 
             if (_controller != null) {
-                _controller.SyncLayerActions += SyncLayerActionsHandler;
                 _controller.SyncLayerList += SyncLayerListHandler;
                 _controller.SyncLayerSelection += SyncLayerSelectionHandler;
 
                 _commandController.BindCommandManager(_controller.CommandManager);
 
-                _controller.RefreshLayerList();
+                SyncLayerList();
+                SyncLayerSelection();
             }
             else {
                 _commandController.BindCommandManager(null);
@@ -96,8 +96,8 @@ namespace Treefrog.Windows
 
         public void ShowPropertiesClickedHandler (object sender, EventArgs e)
         {
-            if (_controller != null)
-                _controller.ActionShowSelectedLayerProperties();
+            //if (_controller != null)
+            //    _controller.ActionShowSelectedLayerProperties();
         }
 
         private void SelectedItemChangedHandler (object sender, ListViewItemSelectionChangedEventArgs e)
@@ -118,14 +118,7 @@ namespace Treefrog.Windows
             }
         }
 
-        public void SyncLayerActionsHandler (object sender, EventArgs e)
-        {
-            if (_controller != null) {
-                _buttonProperties.Enabled = _controller.CanShowSelectedLayerProperties;
-            }
-        }
-
-        public void SyncLayerListHandler (object sender, EventArgs e)
+        private void SyncLayerList ()
         {
             _listControl.ItemSelectionChanged -= SelectedItemChangedHandler;
 
@@ -134,13 +127,13 @@ namespace Treefrog.Windows
             if (_controller != null) {
                 Stack<ListViewItem> items = new Stack<ListViewItem>();
 
-                foreach (Layer layer in _controller.LayerList) {
-                    ListViewItem layerItem = new ListViewItem(layer.Name, 0) {
-                        Name = layer.Name,
+                foreach (LevelLayerPresenter layer in _controller.LayerList) {
+                    ListViewItem layerItem = new ListViewItem(layer.LayerName, 0) {
+                        Name = layer.LayerName,
                         Checked = true,
                     };
 
-                    if (layer is ObjectLayer)
+                    if (layer is ObjectLayerPresenter)
                         layerItem.ImageIndex = 1;
 
                     if (layer == _controller.SelectedLayer) {
@@ -158,12 +151,12 @@ namespace Treefrog.Windows
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
         }
 
-        public void SyncLayerSelectionHandler (object sender, EventArgs e)
+        private void SyncLayerSelection ()
         {
             _listControl.ItemSelectionChanged -= SelectedItemChangedHandler;
 
             foreach (ListViewItem item in _listControl.Items) {
-                if (_controller.SelectedLayer == null || item.Name != _controller.SelectedLayer.Name) {
+                if (_controller.SelectedLayer == null || item.Name != _controller.SelectedLayer.LayerName) {
                     item.Selected = false;
                 }
                 else {
@@ -172,6 +165,16 @@ namespace Treefrog.Windows
             }
 
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
+        }
+
+        private void SyncLayerListHandler (object sender, EventArgs e)
+        {
+            SyncLayerList();
+        }
+
+        private void SyncLayerSelectionHandler (object sender, EventArgs e)
+        {
+            SyncLayerSelection();
         }
 
         #endregion

@@ -233,9 +233,50 @@ namespace Treefrog.Presentation
         }
 
         #endregion
+
+        IContentInfoPresenter ILevelPresenter.InfoPresenter
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        LayerControl ILevelPresenter.LayerControl
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        CommandHistory ILevelPresenter.History
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        ObservableCollection<Annotation> ILevelPresenter.Annotations
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        Level ILevelPresenter.Level
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        event EventHandler<SyncLayerEventArgs> ILevelPresenter.SyncCurrentLayer
+        {
+            add { throw new NotImplementedException(); }
+            remove { throw new NotImplementedException(); }
+        }
+
+        IEditToolResponder ILevelPresenter.EditToolResponder
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        CommandManager ICommandSubscriber.CommandManager
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 
-    public partial class LevelPresenter : ILayerListPresenter
+    public partial class LevelPresenter
     {
         #region Fields
 

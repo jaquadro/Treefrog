@@ -29,7 +29,7 @@ namespace Treefrog.Presentation.Layers
             get { return _levelPresenter; }
         }
 
-        protected Layer Layer
+        public Layer Layer
         {
             get { return _layer; }
         }
