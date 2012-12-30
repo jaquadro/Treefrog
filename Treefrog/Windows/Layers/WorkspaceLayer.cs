@@ -50,34 +50,7 @@ namespace Treefrog.Windows.Layers
 
             Rectangle dest = LevelGeometry.VisibleBounds.ToXnaRectangle();
 
-            /*Rectangle dest = new Rectangle(
-                (int)(region.X * Control.Zoom),
-                (int)(region.Y * Control.Zoom),
-                (int)(region.Width * Control.Zoom),
-                (int)(region.Height * Control.Zoom)
-                );*/
-
-            //Rectangle dest = new Rectangle(0, 0, (int)(Control.VirtualWidth * Control.Zoom), (int)(Control.VirtualHeight * Control.Zoom));
-
             spriteBatch.Draw(_pattern, dest, dest, Color.White);
-
-            /*BeginDrawLines(spriteBatch);
-
-            Vector2 surfaceOffset = Control.VirtualSurfaceOffset;
-            Rectangle bounds = new Rectangle(
-                (int)Math.Ceiling((Control.OriginX * Control.Zoom)),
-                (int)Math.Ceiling((Control.OriginY * Control.Zoom)),
-                (int)(Control.ReferenceWidth * Control.Zoom),
-                (int)(Control.ReferenceHeight * Control.Zoom)
-                );
-            _drawBatch.DrawRectangle(bounds, Pens.Black);
-
-            if (Control.OriginX != 0)
-                _drawBatch.DrawLine(new Point(0, bounds.Top), new Point(0, bounds.Bottom), Pens.Gray);
-            if (Control.OriginY != 0)
-                _drawBatch.DrawLine(new Point(bounds.Left, 0), new Point(bounds.Right, 0), Pens.Gray);
-
-            EndDrawLines(spriteBatch);*/
         }
 
         protected override void RenderContent (DrawBatch drawBatch)

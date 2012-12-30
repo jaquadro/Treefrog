@@ -70,9 +70,9 @@ namespace Treefrog.Presentation.Tools
         //private static Pen SelectedAnnotOutline = new Pen(new StippleBrush(StipplePattern2px, new Color(96, 0, 255, 255)));
 
         private ObservableCollection<Annotation> _annots;
-        private IViewport _viewport;
+        private ILevelGeometry _viewport;
 
-        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, IViewport viewport)
+        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ILevelGeometry viewport)
             : base(history, layer, gridSize)
         {
             _annots = annots;
@@ -86,7 +86,7 @@ namespace Treefrog.Presentation.Tools
             ClearSelected();
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -100,7 +100,7 @@ namespace Treefrog.Presentation.Tools
             UpdatePointerSequence(info, viewport);
         }
 
-        protected override void UpdatePointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void UpdatePointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -109,7 +109,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected override void EndPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void EndPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -118,7 +118,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected override void PointerPositionCore (PointerEventInfo info, IViewport viewport)
+        protected override void PointerPositionCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             SelectObjectPosition(info, viewport);
         }
@@ -263,8 +263,8 @@ namespace Treefrog.Presentation.Tools
         {
             Rectangle collectionBounds = ObjectCollectionBounds(objects);
 
-            int centerViewX = (int)(_viewport.VisibleRegion.Left + (_viewport.VisibleRegion.Right - _viewport.VisibleRegion.Left) / 2);
-            int centerViewY = (int)(_viewport.VisibleRegion.Top + (_viewport.VisibleRegion.Bottom - _viewport.VisibleRegion.Top) / 2);
+            int centerViewX = (int)(_viewport.VisibleBounds.Left + (_viewport.VisibleBounds.Right - _viewport.VisibleBounds.Left) / 2);
+            int centerViewY = (int)(_viewport.VisibleBounds.Top + (_viewport.VisibleBounds.Bottom - _viewport.VisibleBounds.Top) / 2);
 
             int diffX = centerViewX - collectionBounds.Center.X;
             int diffY = centerViewY - collectionBounds.Center.Y;
@@ -317,7 +317,7 @@ namespace Treefrog.Presentation.Tools
         private SnappingManager _selectSnapManager;
         private UpdateAction _action;
 
-        private void StartSelectObjectSequence (PointerEventInfo info, IViewport viewport)
+        private void StartSelectObjectSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             ObjectInstance hitObject = TopObject(CoarseHitTest((int)info.X, (int)info.Y));
             bool controlKey = Control.ModifierKeys.HasFlag(Keys.Control); // Keyboard.Modifiers.HasFlag(ModifierKeys.Control);
@@ -349,7 +349,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        private void UpdateSelectObjectSequence (PointerEventInfo info, IViewport viewport)
+        private void UpdateSelectObjectSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (_action) {
                 case UpdateAction.Move:
@@ -361,7 +361,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        private void EndSelectObjectSequence (PointerEventInfo info, IViewport viewport)
+        private void EndSelectObjectSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (_action) {
                 case UpdateAction.Move:
@@ -373,7 +373,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        private void SelectObjectPosition (PointerEventInfo info, IViewport viewport)
+        private void SelectObjectPosition (PointerEventInfo info, ILevelGeometry viewport)
         {
             foreach (SelectedObjectRecord record in _selectedObjects) {
                 if (record.Instance.ImageBounds.Contains(new Point((int)info.X, (int)info.Y))) {
@@ -388,13 +388,13 @@ namespace Treefrog.Presentation.Tools
 
         #region Move Actions
 
-        private void StartClickNew (PointerEventInfo info, IViewport viewport, ObjectInstance obj)
+        private void StartClickNew (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
         {
             ClearSelected();
             StartClickAdd(info, viewport, obj);
         }
 
-        private void StartClickAdd (PointerEventInfo info, IViewport viewport, ObjectInstance obj)
+        private void StartClickAdd (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
         {
             if (obj == null)
                 return;
@@ -410,7 +410,7 @@ namespace Treefrog.Presentation.Tools
             StartAutoScroll(info, viewport);
         }
 
-        private void StartClickRemove (PointerEventInfo info, IViewport viewport, ObjectInstance obj)
+        private void StartClickRemove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
         {
             if (obj == null)
                 return;
@@ -422,7 +422,7 @@ namespace Treefrog.Presentation.Tools
             StartAutoScroll(info, viewport);
         }
 
-        private void StartClickMove (PointerEventInfo info, IViewport viewport, ObjectInstance obj)
+        private void StartClickMove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
         {
             if (obj == null)
                 return;
@@ -436,13 +436,13 @@ namespace Treefrog.Presentation.Tools
             StartAutoScroll(info, viewport);
         }
 
-        private void UpdateMove (PointerEventInfo info, IViewport viewport)
+        private void UpdateMove (PointerEventInfo info, ILevelGeometry viewport)
         {
             UpdateMoveCommon(info, viewport);
             UpdateAutoScroll(info, viewport);
         }
 
-        private void UpdateMoveCommon (PointerEventInfo info, IViewport viewport)
+        private void UpdateMoveCommon (PointerEventInfo info, ILevelGeometry viewport)
         {
             int diffx = (int)info.X - _initialLocation.X;
             int diffy = (int)info.Y - _initialLocation.Y;
@@ -465,7 +465,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        private void EndMove (PointerEventInfo info, IViewport viewport)
+        private void EndMove (PointerEventInfo info, ILevelGeometry viewport)
         {
             ObjectMoveCommand command = new ObjectMoveCommand(this);
 
@@ -487,13 +487,13 @@ namespace Treefrog.Presentation.Tools
         RubberBand2 _band;
         SelectionAnnot _selection;
 
-        private void StartDrag (PointerEventInfo info, IViewport viewport)
+        private void StartDrag (PointerEventInfo info, ILevelGeometry viewport)
         {
             ClearSelected();
             StartDragAdd(info, viewport);
         }
 
-        private void StartDragAdd (PointerEventInfo info, IViewport viewport)
+        private void StartDragAdd (PointerEventInfo info, ILevelGeometry viewport)
         {
             _band = new RubberBand2(new Point((int)info.X, (int)info.Y));
             _selection = new SelectionAnnot(new Point((int)info.X, (int)info.Y)) {
@@ -508,13 +508,13 @@ namespace Treefrog.Presentation.Tools
             StartAutoScroll(info, viewport);
         }
 
-        private void UpdateDrag (PointerEventInfo info, IViewport viewport)
+        private void UpdateDrag (PointerEventInfo info, ILevelGeometry viewport)
         {
             UpdateDragCommon(info, viewport);
             UpdateAutoScroll(info, viewport);
         }
 
-        private void UpdateDragCommon (PointerEventInfo info, IViewport viewport)
+        private void UpdateDragCommon (PointerEventInfo info, ILevelGeometry viewport)
         {
             _band.End = new Point((int)info.X, (int)info.Y);
             Rectangle selection = _band.Selection;
@@ -523,7 +523,7 @@ namespace Treefrog.Presentation.Tools
             _selection.End = new Point(selection.Right, selection.Bottom);
         }
 
-        private void EndDrag (PointerEventInfo info, IViewport viewport)
+        private void EndDrag (PointerEventInfo info, ILevelGeometry viewport)
         {
             _annots.Remove(_selection);
 

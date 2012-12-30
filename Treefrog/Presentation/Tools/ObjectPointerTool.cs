@@ -32,12 +32,12 @@ namespace Treefrog.Presentation.Tools
             _objectPool = controller;
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             _snapManager = new SnappingManager(GetSnappingSourceOrigin(), GetSnappingSourceBounds(), GridSize);
         }
 
-        protected override void PointerPositionCore (PointerEventInfo info, IViewport viewport)
+        protected override void PointerPositionCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             if (_snapManager == null)
                 _snapManager = new SnappingManager(GetSnappingSourceOrigin(), GetSnappingSourceBounds(), GridSize);

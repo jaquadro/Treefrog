@@ -191,7 +191,7 @@ namespace Treefrog.Presentation.Layers
         private ObjectSelectTool NewSelectTool ()
         {
             Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
-            ObjectSelectTool tool = new ObjectSelectTool(_levelController.History, Layer, gridSize, _levelController.Annotations, new LayerControlViewport(Control));
+            ObjectSelectTool tool = new ObjectSelectTool(_levelController.History, Layer, gridSize, _levelController.Annotations, null);
             tool.BindObjectSourceController(_objectController);
 
             return tool;
@@ -240,20 +240,20 @@ namespace Treefrog.Presentation.Layers
 
         public void HandleStartPointerSequence (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.StartPointerSequence(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.StartPointerSequence(info, new LayerControlViewport(Control));
         }
 
         public void HandleUpdatePointerSequence (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.UpdatePointerSequence(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.UpdatePointerSequence(info, new LayerControlViewport(Control));
         }
 
         public void HandleEndPointerSequence (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.EndPointerSequence(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.EndPointerSequence(info, new LayerControlViewport(Control));
 
             if (_currentTool is ObjectDrawTool && _currentTool.IsCancelled)
                 SetCurrentTool(NewSelectTool());
@@ -261,8 +261,8 @@ namespace Treefrog.Presentation.Layers
 
         public void HandlePointerPosition (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.PointerPosition(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.PointerPosition(info, new LayerControlViewport(Control));
 
             if (ContentInfo != null)
                 ContentInfo.ActionUpdateCoordinates(info.X + ", " + info.Y);

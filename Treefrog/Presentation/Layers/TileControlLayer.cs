@@ -516,26 +516,26 @@ namespace Treefrog.Presentation.Layers
 
         public void HandleStartPointerSequence (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.StartPointerSequence(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.StartPointerSequence(info, new LayerControlViewport(Control));
         }
 
         public void HandleUpdatePointerSequence (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.UpdatePointerSequence(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.UpdatePointerSequence(info, new LayerControlViewport(Control));
         }
 
         public void HandleEndPointerSequence (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.EndPointerSequence(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.EndPointerSequence(info, new LayerControlViewport(Control));
         }
 
         public void HandlePointerPosition (PointerEventInfo info)
         {
-            if (_currentTool != null)
-                _currentTool.PointerPosition(info, new LayerControlViewport(Control));
+            //if (_currentTool != null)
+            //    _currentTool.PointerPosition(info, new LayerControlViewport(Control));
 
             if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
                 TileCoord coords = MouseToTileCoords(new Point((int)info.X, (int)info.Y));

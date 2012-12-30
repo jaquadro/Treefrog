@@ -28,7 +28,7 @@ namespace Treefrog.Presentation.Tools
             HidePreviewMarker();
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -42,7 +42,7 @@ namespace Treefrog.Presentation.Tools
             UpdatePointerSequence(info, viewport);
         }
 
-        protected override void PointerPositionCore (PointerEventInfo info, IViewport viewport)
+        protected override void PointerPositionCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             base.PointerPositionCore(info, viewport);
             ShowPreviewMarker(info);

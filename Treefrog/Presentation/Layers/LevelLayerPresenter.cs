@@ -39,7 +39,7 @@ namespace Treefrog.Presentation.Layers
             get { yield break; }
         }
 
-        public IPointerResponder PointerEventResponder
+        public virtual IPointerResponder PointerEventResponder
         {
             get { return null; }
         }

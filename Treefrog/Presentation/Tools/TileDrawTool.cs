@@ -23,7 +23,7 @@ namespace Treefrog.Presentation.Tools
             _annots = annots;
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -37,7 +37,7 @@ namespace Treefrog.Presentation.Tools
             UpdatePointerSequence(info, viewport);
         }
 
-        protected override void UpdatePointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void UpdatePointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -49,7 +49,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected override void EndPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void EndPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -61,7 +61,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected override void PointerPositionCore (PointerEventInfo info, IViewport viewport)
+        protected override void PointerPositionCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             TileCoord location = TileLocation(info);
             if (!TileInRange(location)) {
@@ -233,7 +233,7 @@ namespace Treefrog.Presentation.Tools
         private RubberBand2 _band;
         private SelectionAnnot _selectionAnnot;
 
-        private void StartDrag (PointerEventInfo info, IViewport viewport)
+        private void StartDrag (PointerEventInfo info, ILevelGeometry viewport)
         {
             ClearPreviewMarker();
             _activeBrush = null;
@@ -253,7 +253,7 @@ namespace Treefrog.Presentation.Tools
             //StartAutoScroll(info, viewport);
         }
 
-        private void UpdateDrag (PointerEventInfo info, IViewport viewport)
+        private void UpdateDrag (PointerEventInfo info, ILevelGeometry viewport)
         {
             TileCoord location = TileLocation(info);
 
@@ -266,7 +266,7 @@ namespace Treefrog.Presentation.Tools
             //UpdateAutoScroll(info, viewport);
         }
 
-        private void EndDrag (PointerEventInfo info, IViewport viewport)
+        private void EndDrag (PointerEventInfo info, ILevelGeometry viewport)
         {
             Rectangle selection = ClampSelection(_band.Selection);
 

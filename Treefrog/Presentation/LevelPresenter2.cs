@@ -5,6 +5,8 @@ using Treefrog.Presentation.Controllers;
 using System;
 using System.Collections.Generic;
 using Treefrog.Framework;
+using Treefrog.Presentation.Annotations;
+using System.Collections.ObjectModel;
 
 namespace Treefrog.Presentation
 {
@@ -24,6 +26,7 @@ namespace Treefrog.Presentation
         private Dictionary<string, LevelLayerPresenter> _layerPresenters;
 
         private CommandHistory _history;
+        private ObservableCollection<Annotation> _annotations;
 
         public LevelPresenter2 (EditorPresenter editor, Level level)
         {
@@ -31,6 +34,9 @@ namespace Treefrog.Presentation
             _level = level;
 
             _layerPresenters = new Dictionary<string, LevelLayerPresenter>();
+
+            _history = new CommandHistory();
+            _annotations = new ObservableCollection<Annotation>();
 
             InitializeLayerHierarchy();
             InitializeLayers();
@@ -89,6 +95,13 @@ namespace Treefrog.Presentation
             get { return _history; }
         }
 
+        public ObservableCollection<Annotation> Annotations
+        {
+            get { return _annotations; }
+        }
+
+        public ILevelGeometry LevelGeometry { get; set; }
+
         public IPointerResponder PointerEventResponder
         {
             get
@@ -127,7 +140,11 @@ namespace Treefrog.Presentation
 
         private void AddLayer (Layer layer)
         {
-            LevelLayerPresenter layerp = new LevelLayerPresenter(this, layer);
+            LevelLayerPresenter layerp;
+            if (layer is TileLayer)
+                layerp = new TileLayerPresenter(this, layer as TileLayer);
+            else
+                layerp = new LevelLayerPresenter(this, layer);
 
             _layerPresenters[layer.Name] = layerp;
             _rootContentLayer.Layers.Add(layerp);
@@ -150,7 +167,16 @@ namespace Treefrog.Presentation
             if (_selectedLayer == layerName)
                 return;
 
-            UnbindSelectedLayerEvents(_selectedLayerRef);
+            if (_selectedLayerRef != null) {
+                UnbindSelectedLayerEvents(_selectedLayerRef);
+
+                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
+                if (comLayer != null) {
+                    _commandManager.RemoveCommandSubscriber(comLayer);
+                }
+
+                _selectedLayerRef.Deactivate();
+            }
 
             if (layerName == null || !_layerPresenters.ContainsKey(layerName)) {
                 _selectedLayer = null;
@@ -163,7 +189,16 @@ namespace Treefrog.Presentation
             _selectedLayer = layerName;
             _selectedLayerRef = _layerPresenters[_selectedLayer];
 
-            BindSelectedLayerEvents(_selectedLayerRef);
+            if (_selectedLayerRef != null) {
+                BindSelectedLayerEvents(_selectedLayerRef);
+
+                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
+                if (comLayer != null) {
+                    _commandManager.AddCommandSubscriber(comLayer);
+                }
+
+                _selectedLayerRef.Activate();
+            }
 
             OnPointerEventResponderChanged(EventArgs.Empty);
         }

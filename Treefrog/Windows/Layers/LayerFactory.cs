@@ -94,6 +94,9 @@ namespace Treefrog.Windows.Layers
             Register<LevelLayerPresenter, RenderLayer>(layer => {
                 return new RenderLayer() { Model = layer as LevelLayerPresenter };
             });
+            Register<TileLayerPresenter, RenderLayer>(layer => {
+                return new RenderLayer() { Model = layer as LevelLayerPresenter };
+            });
         }
     }
 }

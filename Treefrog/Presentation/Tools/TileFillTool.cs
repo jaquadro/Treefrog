@@ -20,7 +20,7 @@ namespace Treefrog.Presentation.Tools
             : base(history, layer, sourceType)
         { }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:

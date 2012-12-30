@@ -78,6 +78,11 @@ namespace Treefrog.Windows.Controls
             }
         }
 
+        public ILevelGeometry LevelGeometry
+        {
+            get { return _geometry; }
+        }
+
         public int ReferenceOriginX { get; set; }
 
         public int ReferenceOriginY { get; set; }
@@ -332,6 +337,16 @@ namespace Treefrog.Windows.Controls
         public LayerGraphicsControlGeometry (LayerGraphicsControl control)
         {
             _control = control;
+        }
+
+        public TFImaging.Point ScrollPosition
+        {
+            get
+            {
+                int scrollH = _control.GetScrollValue(ScrollOrientation.HorizontalScroll);
+                int scrollV = _control.GetScrollValue(ScrollOrientation.VerticalScroll);
+                return new TFImaging.Point(scrollH, scrollV);
+            }
         }
 
         public TFImaging.Rectangle LevelBounds

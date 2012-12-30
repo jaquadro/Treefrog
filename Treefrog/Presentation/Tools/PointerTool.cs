@@ -30,28 +30,28 @@ namespace Treefrog.Presentation.Tools
 
     public abstract class PointerTool : IDisposable
     {
-        public void StartPointerSequence (PointerEventInfo info, IViewport viewport)
+        public void StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             if (IsCancelled)
                 return;
             StartPointerSequenceCore(info, viewport);
         }
 
-        public void UpdatePointerSequence (PointerEventInfo info, IViewport viewport)
+        public void UpdatePointerSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             if (IsCancelled)
                 return;
             UpdatePointerSequenceCore(info, viewport);
         }
 
-        public void EndPointerSequence (PointerEventInfo info, IViewport viewport)
+        public void EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             if (IsCancelled)
                 return;
             EndPointerSequenceCore(info, viewport);
         }
 
-        public void PointerPosition (PointerEventInfo info, IViewport viewport)
+        public void PointerPosition (PointerEventInfo info, ILevelGeometry viewport)
         {
             if (IsCancelled)
                 return;
@@ -72,19 +72,19 @@ namespace Treefrog.Presentation.Tools
             PointerLeaveFieldCore();
         }
 
-        protected virtual void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected virtual void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
         }
 
-        protected virtual void UpdatePointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected virtual void UpdatePointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
         }
 
-        protected virtual void EndPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected virtual void EndPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
         }
 
-        protected virtual void PointerPositionCore (PointerEventInfo info, IViewport viewport)
+        protected virtual void PointerPositionCore (PointerEventInfo info, ILevelGeometry viewport)
         {
         }
 
@@ -97,14 +97,14 @@ namespace Treefrog.Presentation.Tools
         }
 
         private Timer _scrollTimer = new Timer();
-        private IViewport _scrollViewport;
+        private ILevelGeometry _scrollViewport;
 
         private double _prevX;
         private double _prevY;
         private double _xRate;
         private double _yRate;
 
-        protected void StartAutoScroll (PointerEventInfo info, IViewport viewport)
+        protected void StartAutoScroll (PointerEventInfo info, ILevelGeometry viewport)
         {
             _prevX = info.X;
             _prevY = info.Y;
@@ -117,15 +117,15 @@ namespace Treefrog.Presentation.Tools
             _scrollTimer.Enabled = true;
         }
 
-        protected void UpdateAutoScroll (PointerEventInfo info, IViewport viewport)
+        protected void UpdateAutoScroll (PointerEventInfo info, ILevelGeometry viewport)
         {
             double deltaX = info.X - _prevX;
             double deltaY = info.Y - _prevY;
 
-            double diffLeft = info.X - viewport.VisibleRegion.Left;
-            double diffRight = viewport.VisibleRegion.Right - info.X;
-            double diffTop = info.Y - viewport.VisibleRegion.Top;
-            double diffBottom = viewport.VisibleRegion.Bottom - info.Y;
+            double diffLeft = info.X - viewport.VisibleBounds.Left;
+            double diffRight = viewport.VisibleBounds.Right - info.X;
+            double diffTop = info.Y - viewport.VisibleBounds.Top;
+            double diffBottom = viewport.VisibleBounds.Bottom - info.Y;
 
             double threshold = 50 / viewport.ZoomFactor;
             double multiplier = 5;
@@ -154,7 +154,7 @@ namespace Treefrog.Presentation.Tools
             _scrollViewport = viewport;
         }
 
-        protected void EndAutoScroll (PointerEventInfo info, IViewport viewport)
+        protected void EndAutoScroll (PointerEventInfo info, ILevelGeometry viewport)
         {
             _scrollViewport = null;
             _scrollTimer.Enabled = false;
@@ -163,17 +163,17 @@ namespace Treefrog.Presentation.Tools
         private void ScrollTick (object sender, EventArgs e)
         {
             if (_scrollViewport != null) {
-                if (_scrollViewport.Offset.X + _xRate < 0)
-                    _xRate = Math.Max(0, _scrollViewport.Offset.X + _xRate);
-                if (_scrollViewport.Offset.Y + _yRate < 0)
-                    _yRate = Math.Max(0, _scrollViewport.Offset.Y + _yRate);
+                if (_scrollViewport.ScrollPosition.X + _xRate < 0)
+                    _xRate = Math.Max(0, _scrollViewport.ScrollPosition.X + _xRate);
+                if (_scrollViewport.ScrollPosition.Y + _yRate < 0)
+                    _yRate = Math.Max(0, _scrollViewport.ScrollPosition.Y + _yRate);
 
-                if (_scrollViewport.VisibleRegion.Right + _xRate >= _scrollViewport.Limit.Width)
-                    _xRate = Math.Max(0, Math.Min(_scrollViewport.Limit.Width - _scrollViewport.VisibleRegion.Right, _xRate));
-                if (_scrollViewport.VisibleRegion.Bottom + _yRate >= _scrollViewport.Limit.Height)
-                    _yRate = Math.Max(0, Math.Min(_scrollViewport.Limit.Height - _scrollViewport.VisibleRegion.Bottom, _yRate));
+                if (_scrollViewport.VisibleBounds.Right + _xRate >= _scrollViewport.LevelBounds.Width)
+                    _xRate = Math.Max(0, Math.Min(_scrollViewport.LevelBounds.Width - _scrollViewport.VisibleBounds.Right, _xRate));
+                if (_scrollViewport.VisibleBounds.Bottom + _yRate >= _scrollViewport.LevelBounds.Height)
+                    _yRate = Math.Max(0, Math.Min(_scrollViewport.LevelBounds.Height - _scrollViewport.VisibleBounds.Bottom, _yRate));
 
-                _scrollViewport.Offset = new Point(_scrollViewport.Offset.X + (int)_xRate, _scrollViewport.Offset.Y + (int)_yRate);
+                //_scrollViewport.Offset = new Point(_scrollViewport.ScrollPosition.X + (int)_xRate, _scrollViewport.ScrollPosition.Y + (int)_yRate);
 
                 _prevX = _prevX + _xRate;
                 _prevY = _prevY + _yRate;
@@ -182,7 +182,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected virtual void AutoScrollTick (PointerEventInfo info, IViewport viewport)
+        protected virtual void AutoScrollTick (PointerEventInfo info, ILevelGeometry viewport)
         {
         }
 

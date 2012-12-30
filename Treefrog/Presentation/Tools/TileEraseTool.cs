@@ -28,7 +28,7 @@ namespace Treefrog.Presentation.Tools
             _annots.Add(_previewMarker);
         }
 
-        protected override void StartPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -42,7 +42,7 @@ namespace Treefrog.Presentation.Tools
             UpdatePointerSequence(info, viewport);
         }
 
-        protected override void UpdatePointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void UpdatePointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -54,7 +54,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected override void EndPointerSequenceCore (PointerEventInfo info, IViewport viewport)
+        protected override void EndPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
                 case PointerEventType.Primary:
@@ -66,7 +66,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected override void PointerPositionCore (PointerEventInfo info, IViewport viewport)
+        protected override void PointerPositionCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             TileCoord location = TileLocation(info);
             if (!TileInRange(location) || _inAreaSequence) {
@@ -82,7 +82,7 @@ namespace Treefrog.Presentation.Tools
             HidePreviewMarker();
         }
 
-        /*protected override void AutoScrollTick (PointerEventInfo info, IViewport viewport)
+        /*protected override void AutoScrollTick (PointerEventInfo info, ILevelGeometry viewport)
         {
             UpdateEraseAreaSequenceCommon(info, viewport);
         }*/
@@ -152,7 +152,7 @@ namespace Treefrog.Presentation.Tools
         private RubberBand2 _band;
         private SelectionAnnot _selection;
 
-        private void StartEraseAreaSequence (PointerEventInfo info, IViewport viewport)
+        private void StartEraseAreaSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             HidePreviewMarker();
 
@@ -174,13 +174,13 @@ namespace Treefrog.Presentation.Tools
             StartAutoScroll(info, viewport);
         }
 
-        private void UpdateEraseAreaSequence (PointerEventInfo info, IViewport viewport)
+        private void UpdateEraseAreaSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             UpdateEraseAreaSequenceCommon(info, viewport);
             UpdateAutoScroll(info, viewport);
         }
 
-        private void UpdateEraseAreaSequenceCommon (PointerEventInfo info, IViewport viewport)
+        private void UpdateEraseAreaSequenceCommon (PointerEventInfo info, ILevelGeometry viewport)
         {
             TileCoord location = TileLocation(info);
 
@@ -194,7 +194,7 @@ namespace Treefrog.Presentation.Tools
             _selection.End = new Point(selection.Right * Layer.TileWidth, selection.Bottom * Layer.TileHeight);
         }
 
-        private void EndEraseAreaSequence (PointerEventInfo info, IViewport viewport)
+        private void EndEraseAreaSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             Rectangle selection = _band.Selection;
 

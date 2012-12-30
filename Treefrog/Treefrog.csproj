@@ -162,6 +162,7 @@
     <Compile Include="Presentation\Layers\LevelLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\ObjectControlLayer.cs" />
     <Compile Include="Presentation\Layers\RenderLayerPresenter.cs" />
+    <Compile Include="Presentation\Layers\TileLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter2.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />

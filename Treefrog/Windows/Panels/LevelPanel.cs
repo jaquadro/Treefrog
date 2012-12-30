@@ -35,6 +35,7 @@ namespace Treefrog.Windows
         public void BindController (LevelPresenter2 controller)
         {
             _controller = controller;
+            _controller.LevelGeometry = _layerControl.LevelGeometry;
 
             _root = new GroupLayer() {
                 IsRendered = true,
