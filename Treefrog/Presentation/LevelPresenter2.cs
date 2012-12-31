@@ -170,8 +170,8 @@ namespace Treefrog.Presentation
         private void AddLayer (Layer layer)
         {
             LevelLayerPresenter layerp;
-            if (layer is TileLayer)
-                layerp = new TileLayerPresenter(this, layer as TileLayer);
+            if (layer is TileGridLayer)
+                layerp = new TileGridLayerPresenter(this, layer as TileGridLayer);
             else if (layer is ObjectLayer)
                 layerp = new ObjectLayerPresenter(this, layer as ObjectLayer);
             else

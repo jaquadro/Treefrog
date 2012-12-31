@@ -87,5 +87,27 @@ namespace Treefrog.Windows.Layers
                     break;
             }
         }
+
+        public override int DependentHeight
+        {
+            get
+            {
+                int height = 0;
+                foreach (CanvasLayer layer in Layers)
+                    height = Math.Max(height, layer.DependentHeight);
+                return height;
+            }
+        }
+
+        public override int DependentWidth
+        {
+            get
+            {
+                int width = 0;
+                foreach (CanvasLayer layer in Layers)
+                    width = Math.Max(width, layer.DependentWidth);
+                return width;
+            }
+        }
     }
 }

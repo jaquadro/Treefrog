@@ -66,7 +66,7 @@ namespace Treefrog.Presentation
     {
         private EditorPresenter _editor;
 
-        private TilePoolListPresenter _tilePoolList;
+        private TilePoolListPresenter2 _tilePoolList;
         private ObjectPoolCollectionPresenter _objectPoolCollection;
         private TileBrushManagerPresenter _tileBrushManager;
         private PropertyListPresenter _propertyList;
@@ -83,7 +83,7 @@ namespace Treefrog.Presentation
             _docTools = new DocumentToolsPresenter(_editor);
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
 
-            _tilePoolList = new TilePoolListPresenter(_editor);
+            _tilePoolList = new TilePoolListPresenter2(_editor);
             _objectPoolCollection = new ObjectPoolCollectionPresenter(_editor);
             _tileBrushManager = new TileBrushManagerPresenter(_editor);
             _propertyList = new PropertyListPresenter();

@@ -277,45 +277,6 @@ namespace Treefrog.Windows.Controls.Composite
                     _statusZoomText.Text = _controller.Zoom.ZoomText;
                 }
             }
-
-            /*switch (_trackBarZoom.Value) {
-                case 0:
-                    _statusZoomText.Text = "25%";
-                    zoom = 0.25f;
-                    break;
-                case 1:
-                    _statusZoomText.Text = "50%";
-                    zoom = 0.5f;
-                    break;
-                case 2:
-                    _statusZoomText.Text = "100%";
-                    zoom = 1f;
-                    break;
-                case 3:
-                    _statusZoomText.Text = "200%";
-                    zoom = 2f;
-                    break;
-                case 4:
-                    _statusZoomText.Text = "300%";
-                    zoom = 3f;
-                    break;
-                case 5:
-                    _statusZoomText.Text = "400%";
-                    zoom = 4f;
-                    break;
-                case 6:
-                    _statusZoomText.Text = "600%";
-                    zoom = 6f;
-                    break;
-                case 7:
-                    _statusZoomText.Text = "800%";
-                    zoom = 8f;
-                    break;
-            }
-
-            if (_controller != null && _controller.Zoom != zoom) {
-                _controller.ActionZoom(zoom);
-            }*/
         }
 
         private void UpdateZoomState (ZoomState zoom)
@@ -325,26 +286,5 @@ namespace Treefrog.Windows.Controls.Composite
                 _statusZoomText.Text = zoom.ZoomText;
             }
         }
-
-        /*private void UpdateZoomState (float zoom)
-        {
-            List<float> valid = new List<float> { .25f, .5f, 1f, 2f, 3f, 4f, 6f, 8f };
-            List<string> text = new List<string> { "25%", "50%", "100%", "200%", "300%", "400%", "600%", "800%" };
-
-            if (!valid.Contains(zoom)) {
-                foreach (float f in valid) {
-                    if (zoom >= f) {
-                        zoom = f;
-                    }
-                }
-            }
-
-            int index = valid.FindIndex((f) => { return f == zoom; });
-            if (_trackBarZoom != null) {
-                _trackBarZoom.Value = index;
-            }
-        }*/
     }
-
-    
 }

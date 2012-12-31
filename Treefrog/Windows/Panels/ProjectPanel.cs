@@ -128,8 +128,8 @@ namespace Treefrog.Windows.Panels
 
             _tileNode.Nodes.Clear();
 
-            foreach (TilePool pool in _controller.Presentation.TilePoolList.TilePoolList) {
-                TreeNode node = new TreeNode(pool.Name, IconIndex.TileGroup, IconIndex.TileGroup);
+            foreach (TilePoolPresenter pool in _controller.Presentation.TilePoolList.TilePoolList) {
+                TreeNode node = new TreeNode(pool.TilePool.Name, IconIndex.TileGroup, IconIndex.TileGroup);
 
                 _tileNode.Nodes.Add(node);
             }

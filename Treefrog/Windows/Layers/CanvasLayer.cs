@@ -104,5 +104,15 @@ namespace Treefrog.Windows.Layers
 
         protected virtual void RenderCore (GraphicsDevice device)
         { }
+
+        public virtual int DependentWidth
+        {
+            get { return 0; }
+        }
+
+        public virtual int DependentHeight
+        {
+            get { return 0; }
+        }
     }
 }

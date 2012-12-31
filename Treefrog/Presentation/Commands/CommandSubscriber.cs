@@ -54,6 +54,9 @@ namespace Treefrog.Presentation.Commands
 
         TilePoolExport,
         TilePoolImportOver,
+        TilePoolImport,
+        TilePoolDelete,
+        TilePoolProperties,
 
         NewStaticTileBrush,
         NewDynamicTileBrush,

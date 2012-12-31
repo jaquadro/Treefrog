@@ -278,11 +278,11 @@ namespace Treefrog.Windows.Forms
             _availableSizes.Clear();
 
             if (_tileController != null) {
-                foreach (TilePool pool in _tileController.TilePoolList) {
-                    if (_availableSizes.Exists(sz => { return sz.Width == pool.TileWidth && sz.Height == pool.TileHeight; }))
+                foreach (TilePoolPresenter pool in _tileController.TilePoolList) {
+                    if (_availableSizes.Exists(sz => { return sz.Width == pool.TilePool.TileWidth && sz.Height == pool.TilePool.TileHeight; }))
                         continue;
 
-                    TileSize size = new TileSize(pool.TileWidth, pool.TileHeight);
+                    TileSize size = new TileSize(pool.TilePool.TileWidth, pool.TilePool.TileHeight);
                     _availableSizes.Add(size);
                     _tileSizeList.Items.Add(size);
                 }

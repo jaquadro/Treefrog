@@ -32,7 +32,7 @@ namespace Treefrog.Windows
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TilePoolPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.viewportControl1 = new Treefrog.Windows.Controls.ViewportControl();
-            this._tileControl = new Treefrog.Windows.Controls.LayerControl();
+            this._layerControl = new Treefrog.Windows.Controls.LayerGraphicsControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this._buttonAdd = new System.Windows.Forms.ToolStripDropDownButton();
             this.createEmptyPoolToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,7 +68,7 @@ namespace Treefrog.Windows
             // viewportControl1
             // 
             this.viewportControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.viewportControl1.Control = this._tileControl;
+            this.viewportControl1.Control = this._layerControl;
             this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.viewportControl1.Location = new System.Drawing.Point(0, 0);
             this.viewportControl1.Margin = new System.Windows.Forms.Padding(0);
@@ -78,18 +78,14 @@ namespace Treefrog.Windows
             // 
             // _tileControl
             // 
-            this._tileControl.Alignment = Treefrog.Windows.Controls.LayerControlAlignment.Center;
-            this._tileControl.AnnotationLayer = null;
-            this._tileControl.CanAutoScroll = false;
-            this._tileControl.CanvasLayer = null;
-            this._tileControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._tileControl.HeightSynced = false;
-            this._tileControl.Location = new System.Drawing.Point(0, 0);
-            this._tileControl.Name = "_tileControl";
-            this._tileControl.Size = new System.Drawing.Size(271, 429);
-            this._tileControl.TabIndex = 0;
-            this._tileControl.Text = "tileControl1D1";
-            this._tileControl.WidthSynced = false;
+            this._layerControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._layerControl.HeightSynced = false;
+            this._layerControl.Location = new System.Drawing.Point(0, 0);
+            this._layerControl.Name = "_tileControl";
+            this._layerControl.Size = new System.Drawing.Size(271, 429);
+            this._layerControl.TabIndex = 0;
+            this._layerControl.Text = "tileControl1D1";
+            this._layerControl.WidthSynced = false;
             // 
             // toolStrip1
             // 
@@ -181,7 +177,7 @@ namespace Treefrog.Windows
 
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private ViewportControl viewportControl1;
-        private LayerControl _tileControl;
+        private LayerGraphicsControl _layerControl;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripComboBox _poolComboBox;
         private System.Windows.Forms.ToolStripButton _buttonRemove;

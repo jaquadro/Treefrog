@@ -126,12 +126,26 @@ namespace Treefrog.Windows.Controls
 
         public int VirtualWidth
         {
-            get { return _widthSynced ? Width : ReferenceWidth; }
+            get
+            {
+                if (_widthSynced)
+                    return Width;
+                if (_heightSynced && RootLayer != null)
+                    return RootLayer.DependentWidth;
+                return ReferenceWidth;
+            }
         }
 
         public int VirtualHeight
         {
-            get { return _heightSynced ? Height : ReferenceHeight; }
+            get
+            {
+                if (_heightSynced)
+                    return Height;
+                if (_widthSynced && RootLayer != null)
+                    return RootLayer.DependentHeight;
+                return ReferenceHeight;
+            }
         }
 
         public bool WidthSynced

@@ -108,17 +108,6 @@ namespace Treefrog.Presentation.Tools
         {
             get
             {
-                /*if (_poolManager == null) {
-                    _poolManager = ServiceContainer.Default.GetService<TilePoolManagerService>();
-                    if (_poolManager == null)
-                        return null;
-                }
-
-                TilePoolItemVM activeTile = _poolManager.ActiveTile;
-                if (activeTile == null)
-                    return null;
-                return activeTile.Tile;*/
-
                 if (_tilePool == null)
                     return null;
 

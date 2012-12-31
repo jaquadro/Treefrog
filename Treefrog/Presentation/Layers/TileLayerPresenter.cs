@@ -16,9 +16,227 @@ using Treefrog.Aux;
 using SysDrawing = System.Drawing;
 using SysImaging = System.Drawing.Imaging;
 using SysDrawing2D = System.Drawing.Drawing2D;
+using Treefrog.Model;
 
 namespace Treefrog.Presentation.Layers
 {
+    public class TileGridLayerPresenter : TileLayerPresenter
+    {
+        private TileGridLayer _layer;
+
+        public TileGridLayerPresenter (LevelPresenter2 levelPresenter, TileGridLayer layer)
+            : base(levelPresenter, layer)
+        {
+            _layer = layer;
+        }
+
+        protected new TileGridLayer Layer
+        {
+            get { return _layer; }
+        }
+
+        public override IEnumerable<DrawCommand> RenderCommands
+        {
+            get
+            {
+                if (Layer == null || LevelPresenter.LevelGeometry == null)
+                    yield break;
+
+                ILevelGeometry geometry = LevelPresenter.LevelGeometry;
+
+                Rectangle tileRegion = ComputeTileRegion();
+                foreach (LocatedTile tile in Layer.TilesAt(tileRegion)) {
+                    TileCoord scoord = tile.Tile.Pool.GetTileLocation(tile.Tile.Id);
+
+                    yield return new DrawCommand() {
+                        Texture = tile.Tile.Pool.TextureId,
+                        SourceRect = new Rectangle(scoord.X * tile.Tile.Width, scoord.Y * tile.Tile.Height, tile.Tile.Width, tile.Tile.Height),
+                        DestRect = new Rectangle(
+                            (int)(tile.X * tile.Tile.Width * geometry.ZoomFactor),
+                            (int)(tile.Y * tile.Tile.Height * geometry.ZoomFactor),
+                            (int)(tile.Tile.Width * geometry.ZoomFactor),
+                            (int)(tile.Tile.Height * geometry.ZoomFactor)),
+                        BlendColor = Colors.White,
+                    };
+                }
+
+                if (TileSelection != null && TileSelection.Floating) {
+                    foreach (KeyValuePair<TileCoord, TileStack> item in TileSelection.Tiles) {
+                        foreach (Tile tile in item.Value) {
+                            TileCoord scoord = tile.Pool.GetTileLocation(tile.Id);
+                            TileCoord dcoord = item.Key;
+
+                            yield return new DrawCommand() {
+                                Texture = tile.Pool.TextureId,
+                                SourceRect = new Rectangle(scoord.X * tile.Width, scoord.Y * tile.Height, tile.Width, tile.Height),
+                                DestRect = new Rectangle(
+                                    (int)((dcoord.X + TileSelection.Offset.X) * tile.Width * geometry.ZoomFactor),
+                                    (int)((dcoord.Y + TileSelection.Offset.Y) * tile.Height * geometry.ZoomFactor),
+                                    (int)(tile.Width * geometry.ZoomFactor),
+                                    (int)(tile.Height * geometry.ZoomFactor)),
+                                BlendColor = Colors.White,
+                            };
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public class TileSetLayerPresenter : RenderLayerPresenter, IPointerResponder
+    {
+        private TileSetLayer _layer;
+
+        public TileSetLayerPresenter (TileSetLayer layer)
+        {
+            _layer = layer;
+        }
+
+        public ILevelGeometry LevelGeometry { get; set; }
+
+        public new TileSetLayer Layer
+        {
+            get { return _layer; }
+        }
+
+        public int TileWidth
+        {
+            get { return _layer.TileWidth; }
+        }
+
+        public int TileHeight
+        {
+            get { return _layer.TileHeight; }
+        }
+
+
+
+        public override IEnumerable<DrawCommand> RenderCommands
+        {
+            get
+            {
+                if (Layer == null || LevelGeometry == null)
+                    yield break;
+
+                ILevelGeometry geometry = LevelGeometry;
+                int tilesWide = TilesWide;
+
+                int pointX = 0;
+                int pointY = 0;
+
+                foreach (Tile tile in _layer.Tiles) {
+                    TileCoord tileLoc = tile.Pool.GetTileLocation(tile.Id);
+
+                    yield return new DrawCommand() {
+                        Texture = tile.Pool.TextureId,
+                        SourceRect = new Rectangle(tileLoc.X * tile.Width, tileLoc.Y * tile.Height, tile.Width, tile.Height),
+                        DestRect = new Rectangle(
+                            pointX * (int)(_layer.TileWidth * geometry.ZoomFactor),
+                            pointY * (int)(_layer.TileHeight * geometry.ZoomFactor),
+                            (int)(_layer.TileWidth * geometry.ZoomFactor),
+                            (int)(_layer.TileHeight * geometry.ZoomFactor)),
+                        BlendColor = Colors.White,
+                    };
+
+                    if (++pointX >= tilesWide) {
+                        pointX = 0;
+                        pointY++;
+                    }
+                }
+            }
+        }
+
+        public TileCoord TileToCoord (Tile tile)
+        {
+            int tilesWide = TilesWide;
+
+            int pointX = 0;
+            int pointY = 0;
+
+            foreach (Tile t in _layer.Tiles) {
+                if (tile == t) {
+                    return new TileCoord(pointX, pointY);
+                }
+
+                if (++pointX >= tilesWide) {
+                    pointX = 0;
+                    pointY++;
+                }
+            }
+
+            throw new ArgumentException("The tile does not exist in the layer.", "tile");
+        }
+
+        private int CoordToIndex (int x, int y)
+        {
+            return y * TilesWide + x;
+
+            throw new InvalidOperationException("Can't convert tileset coordinate to index if width not synced");
+        }
+
+        private int TilesWide
+        {
+            get { return LevelGeometry.ViewportBounds.Width / _layer.TileWidth; }
+        }
+
+        /*protected override Tile GetTile (TileCoord coord)
+        {
+            try {
+                int index = CoordToIndex(coord.X, coord.Y);
+                return _layer[index];
+            }
+            catch (Exception) {
+                return null;
+            }
+        }*/
+        
+        /*protected override Func<int, int, bool> TileInRegionPredicate (Rectangle tileRegion)
+        {
+            int tilesWide = TilesWide;
+            int subW = (LevelPresenter.LevelGeometry.ViewportBounds.Width % _layer.TileWidth) > 0 ? 1 : 0;
+            int subH = 0; // (Control.Height % _layer.TileHeight) > 0 ? 1 : 0;
+
+            return (int x, int y) => {
+                return (x >= tileRegion.X) && (x < tileRegion.X + tileRegion.Width - subW) &&
+                    (y >= tileRegion.Y) && (y < tileRegion.Y + tileRegion.Height - subH) &&
+                    (y * tilesWide + x < _layer.Count);
+            };
+        }*/
+
+        public void HandleStartPointerSequence (PointerEventInfo info)
+        {
+            int tileX = (int)Math.Floor(info.X / Layer.TileWidth);
+            int tileY = (int)Math.Floor(info.Y / Layer.TileHeight);
+
+            int index = CoordToIndex(tileX, tileY);
+            if (index >= 0 && index < _layer.Count) {
+                Tile tile = _layer[index];
+                OnTileSelected(new TileEventArgs(new TileCoord(tileX, tileY), tile));
+            }
+        }
+
+        public void HandleEndPointerSequence (PointerEventInfo info)
+        { }
+
+        public void HandleUpdatePointerSequence (PointerEventInfo info)
+        { }
+
+        public void HandlePointerPosition (PointerEventInfo info)
+        { }
+
+        public void HandlePointerLeaveField ()
+        { }
+
+        public event EventHandler<TileEventArgs> TileSelected;
+
+        protected virtual void OnTileSelected (TileEventArgs e)
+        {
+            var ev = TileSelected;
+            if (ev != null)
+                ev(this, e);
+        }
+    }
+
     public class TileLayerPresenter : LevelLayerPresenter, ICommandSubscriber, IPointerResponder, ITileSelectionLayer
     {
         private TileLayer _layer;
@@ -100,59 +318,12 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
-        protected new TileGridLayer Layer
+        protected new TileLayer Layer
         {
-            get { return _layer as TileGridLayer; }
+            get { return _layer; }
         }
 
-        public override IEnumerable<DrawCommand> RenderCommands
-        {
-            get
-            {
-                if (Layer == null || LevelPresenter.LevelGeometry == null)
-                    yield break;
-
-                ILevelGeometry geometry = LevelPresenter.LevelGeometry;
-
-                Rectangle tileRegion = ComputeTileRegion();
-                foreach (LocatedTile tile in Layer.TilesAt(tileRegion)) {
-                    TileCoord scoord = tile.Tile.Pool.GetTileLocation(tile.Tile.Id);
-
-                    yield return new DrawCommand() {
-                        Texture = tile.Tile.Pool.TextureId,
-                        SourceRect = new Rectangle(scoord.X * tile.Tile.Width, scoord.Y * tile.Tile.Height, tile.Tile.Width, tile.Tile.Height),
-                        DestRect = new Rectangle(
-                            (int)(tile.X * tile.Tile.Width * geometry.ZoomFactor),
-                            (int)(tile.Y * tile.Tile.Height * geometry.ZoomFactor),
-                            (int)(tile.Tile.Width * geometry.ZoomFactor),
-                            (int)(tile.Tile.Height * geometry.ZoomFactor)),
-                        BlendColor = Colors.White,
-                    };
-                }
-
-                if (_selection != null && _selection.Floating) {
-                    foreach (KeyValuePair<TileCoord, TileStack> item in _selection.Tiles) {
-                        foreach (Tile tile in item.Value) {
-                            TileCoord scoord = tile.Pool.GetTileLocation(tile.Id);
-                            TileCoord dcoord = item.Key;
-
-                            yield return new DrawCommand() {
-                                Texture = tile.Pool.TextureId,
-                                SourceRect = new Rectangle(scoord.X * tile.Width, scoord.Y * tile.Height, tile.Width, tile.Height),
-                                DestRect = new Rectangle(
-                                    (int)((dcoord.X + _selection.Offset.X) * tile.Width * geometry.ZoomFactor),
-                                    (int)((dcoord.Y + _selection.Offset.Y) * tile.Height * geometry.ZoomFactor),
-                                    (int)(tile.Width * geometry.ZoomFactor),
-                                    (int)(tile.Height * geometry.ZoomFactor)),
-                                BlendColor = Colors.White,
-                            };
-                        }
-                    }
-                }
-            }
-        }
-
-        private Rectangle ComputeTileRegion ()
+        protected Rectangle ComputeTileRegion ()
         {
             ILevelGeometry geometry = LevelPresenter.LevelGeometry;
 

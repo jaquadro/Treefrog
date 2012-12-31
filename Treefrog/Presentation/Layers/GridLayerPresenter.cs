@@ -8,6 +8,11 @@ namespace Treefrog.Presentation.Layers
 {
     public class GridLayerPresenter : LayerPresenter
     {
+        public GridLayerPresenter ()
+        {
+            GridColor = new Color(0, 0, 0, 128);
+        }
+
         public int GridSpacingX { get; set; }
         public int GridSpacingY { get; set; }
 
