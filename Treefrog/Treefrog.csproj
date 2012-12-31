@@ -174,13 +174,11 @@
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\TextureResourceRegistry.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
-    <None Include="Presentation\Tools\ITileToolCollection.cs" />
-    <None Include="Presentation\Tools\IToolCollection.cs" />
     <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />
     <Compile Include="Presentation\Tools\ObjectPointerTool.cs" />
     <Compile Include="Presentation\Tools\ObjectSelectTool.cs" />
     <Compile Include="Presentation\Tools\PointerTool.cs" />
-    <Compile Include="Presentation\Tools\RubberBand2.cs" />
+    <Compile Include="Presentation\Tools\RubberBand.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -200,7 +198,6 @@
     <Compile Include="Presentation\PresentationInterface.cs" />
     <Compile Include="Presentation\Commands\Command.cs" />
     <Compile Include="ContentBuilder.cs" />
-    <Compile Include="Presentation\Tools\RubberBand.cs" />
     <Compile Include="Presentation\Layers\BaseControlLayer.cs" />
     <Compile Include="Presentation\Layers\ControlEventArgs.cs" />
     <Compile Include="Presentation\Layers\ControlLayerFactory.cs" />

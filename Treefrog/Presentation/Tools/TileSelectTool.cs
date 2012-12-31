@@ -206,7 +206,7 @@ namespace Treefrog.Presentation.Tools
             Remove,
         }
 
-        private RubberBand2 _band;
+        private RubberBand _band;
         private SelectionAnnot _selectionAnnot;
         private MergeAction _mergeAction;
 
@@ -246,7 +246,7 @@ namespace Treefrog.Presentation.Tools
             int x = (int)(location.X * Layer.TileWidth);
             int y = (int)(location.Y * Layer.TileHeight);
 
-            _band = new RubberBand2(new Point(location.X, location.Y));
+            _band = new RubberBand(new Point(location.X, location.Y));
             _selectionAnnot = new SelectionAnnot(new Point((int)info.X, (int)info.Y))
             {
                 Fill = new SolidColorBrush(new Color(76, 178, 255, 128)),

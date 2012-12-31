@@ -149,7 +149,7 @@ namespace Treefrog.Presentation.Tools
         #region Erase Area Sequence
 
         private bool _inAreaSequence;
-        private RubberBand2 _band;
+        private RubberBand _band;
         private SelectionAnnot _selection;
 
         private void StartEraseAreaSequence (PointerEventInfo info, ILevelGeometry viewport)
@@ -161,7 +161,7 @@ namespace Treefrog.Presentation.Tools
             int x = (int)(location.X * Layer.TileWidth);
             int y = (int)(location.Y * Layer.TileHeight);
 
-            _band = new RubberBand2(new Point(location.X, location.Y));
+            _band = new RubberBand(new Point(location.X, location.Y));
             _selection = new SelectionAnnot(new Point(x, y))
             {
                 Fill = new SolidColorBrush(new Color(192, 0, 0, 128)),

@@ -484,7 +484,7 @@ namespace Treefrog.Presentation.Tools
 
         #region Select Box Action
 
-        RubberBand2 _band;
+        RubberBand _band;
         SelectionAnnot _selection;
 
         private void StartDrag (PointerEventInfo info, ILevelGeometry viewport)
@@ -495,7 +495,7 @@ namespace Treefrog.Presentation.Tools
 
         private void StartDragAdd (PointerEventInfo info, ILevelGeometry viewport)
         {
-            _band = new RubberBand2(new Point((int)info.X, (int)info.Y));
+            _band = new RubberBand(new Point((int)info.X, (int)info.Y));
             _selection = new SelectionAnnot(new Point((int)info.X, (int)info.Y)) {
                 Fill = SelectionAnnotFill,
                 Outline = SelectionAnnotOutline,
