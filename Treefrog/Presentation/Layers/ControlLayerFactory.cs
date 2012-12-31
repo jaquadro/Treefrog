@@ -70,12 +70,12 @@ namespace Treefrog.Presentation.Layers
 
         static ControlLayerFactory ()
         {
-            _registry[typeof(Layer)] = typeof(BaseControlLayer);
-            _registry[typeof(TileLayer)] = typeof(TileControlLayer);
-            _registry[typeof(TileGridLayer)] = typeof(TileControlLayer);
-            _registry[typeof(MultiTileGridLayer)] = typeof(MultiTileControlLayer);
+            //_registry[typeof(Layer)] = typeof(BaseControlLayer);
+            //_registry[typeof(TileLayer)] = typeof(TileControlLayer);
+            //_registry[typeof(TileGridLayer)] = typeof(TileControlLayer);
+            //_registry[typeof(MultiTileGridLayer)] = typeof(MultiTileControlLayer);
             //_registry[typeof(TileSetLayer)] = typeof(TileSetControlLayer);
-            _registry[typeof(ObjectLayer)] = typeof(ObjectControlLayer);
+            //_registry[typeof(ObjectLayer)] = typeof(ObjectControlLayer);
         }
     }
 

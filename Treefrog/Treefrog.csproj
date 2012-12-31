@@ -174,14 +174,13 @@
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\TextureResourceRegistry.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
-    <Compile Include="Presentation\Tools\ITileToolCollection.cs" />
-    <Compile Include="Presentation\Tools\IToolCollection.cs" />
+    <None Include="Presentation\Tools\ITileToolCollection.cs" />
+    <None Include="Presentation\Tools\IToolCollection.cs" />
     <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />
     <Compile Include="Presentation\Tools\ObjectPointerTool.cs" />
     <Compile Include="Presentation\Tools\ObjectSelectTool.cs" />
     <Compile Include="Presentation\Tools\PointerTool.cs" />
     <Compile Include="Presentation\Tools\RubberBand2.cs" />
-    <None Include="Presentation\Tools\Selection.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -192,7 +191,6 @@
     <Compile Include="Windows\Layers\WorkspaceLayer.cs" />
     <Compile Include="Windows\TextureCache.cs" />
     <Compile Include="Windows\XnaInterop.cs" />
-    <None Include="Presentation\Tools\SelectTool.cs" />
     <Compile Include="Presentation\ContentInfoPresenter.cs" />
     <Compile Include="Presentation\EditorPresenter.cs" />
     <Compile Include="Presentation\ILayerListPresenter.cs" />
@@ -210,10 +208,6 @@
     <Compile Include="Presentation\Layers\TileControlLayer.cs" />
     <None Include="Presentation\Layers\TileSetControlLayer.cs" />
     <Compile Include="Model\TileSetLayer.cs" />
-    <None Include="Presentation\Tools\DrawTool.cs" />
-    <None Include="Presentation\Tools\EraseTool.cs" />
-    <None Include="Presentation\Tools\FillTool.cs" />
-    <None Include="Presentation\Tools\MouseTool.cs" />
     <Compile Include="Presentation\Tools\SnappingManager.cs" />
     <Compile Include="Presentation\Tools\TileDrawTool.cs" />
     <Compile Include="Presentation\Tools\TileEraseTool.cs" />

@@ -16,6 +16,14 @@ using SysImaging = System.Drawing.Imaging;
 
 namespace Treefrog.Presentation.Layers
 {
+    public enum TileTool
+    {
+        Select,
+        Draw,
+        Erase,
+        Fill,
+    }
+
     public class TileLayerPresenter : LevelLayerPresenter, ICommandSubscriber, IPointerResponder, ITileSelectionLayer
     {
         private TileLayer _layer;
