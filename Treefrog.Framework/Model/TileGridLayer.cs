@@ -21,14 +21,10 @@ namespace Treefrog.Framework.Model
 
     public abstract class TileGridLayer : TileLayer
     {
-        #region Fields
-
         private int _tileOriginX;
         private int _tileOriginY;
         private int _tilesWide;
         private int _tilesHigh;
-
-        #endregion
 
         #region Constructors
 
@@ -65,8 +61,6 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        #region Properties
-
         public int TileOriginX
         {
             get { return _tileOriginX; }
@@ -86,8 +80,6 @@ namespace Treefrog.Framework.Model
         {
             get { return _tilesWide; }
         }
-
-        #endregion
 
         #region Public API
 

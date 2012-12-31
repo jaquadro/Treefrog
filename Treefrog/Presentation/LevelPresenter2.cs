@@ -13,8 +13,14 @@ using System.Windows.Forms;
 
 namespace Treefrog.Presentation
 {
+    public interface ILayerContext
+    {
+        ILevelGeometry Geometry { get; }
+        CommandHistory History { get; }
+        ObservableCollection<Annotation> Annotations { get; }
+    }
 
-    public class LevelPresenter2 : IDisposable, IPointerResponderProvider, ICommandSubscriber, ILayerListPresenter
+    public class LevelPresenter2 : IDisposable, ILayerContext, IPointerResponderProvider, ICommandSubscriber, ILayerListPresenter
     {
         private bool _disposed;
         private EditorPresenter _editor;
@@ -122,6 +128,11 @@ namespace Treefrog.Presentation
         }
 
         public ILevelGeometry LevelGeometry { get; set; }
+
+        public ILevelGeometry Geometry
+        {
+            get { return LevelGeometry; }
+        }
 
         public IPointerResponder PointerEventResponder
         {

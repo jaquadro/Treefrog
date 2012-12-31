@@ -15,8 +15,8 @@ namespace Treefrog.Presentation.Layers
         private ObjectLayer _layer;
         private IObjectPoolCollectionPresenter _objectController;
 
-        public ObjectLayerPresenter (LevelPresenter2 levelPresenter, ObjectLayer layer)
-            : base(levelPresenter, layer)
+        public ObjectLayerPresenter (ILayerContext layerContext, ObjectLayer layer)
+            : base(layerContext, layer)
         {
             _layer = layer;
 
@@ -55,10 +55,10 @@ namespace Treefrog.Presentation.Layers
         {
             get
             {
-                if (Layer == null || LevelPresenter.LevelGeometry == null)
+                if (Layer == null || LayerContext.Geometry == null)
                     yield break;
 
-                ILevelGeometry geometry = LevelPresenter.LevelGeometry;
+                ILevelGeometry geometry = LayerContext.Geometry;
 
                 Rectangle region = geometry.VisibleBounds;
                 foreach (ObjectInstance inst in Layer.ObjectsInRegion(region, ObjectRegionTest.PartialImage)) {
@@ -141,7 +141,7 @@ namespace Treefrog.Presentation.Layers
         private ObjectSelectTool NewSelectTool ()
         {
             Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
-            ObjectSelectTool tool = new ObjectSelectTool(LevelPresenter.History, Layer, gridSize, LevelPresenter.Annotations, null);
+            ObjectSelectTool tool = new ObjectSelectTool(LayerContext.History, Layer, gridSize, LayerContext.Annotations, null);
             tool.BindObjectSourceController(_objectController);
 
             return tool;
@@ -150,7 +150,7 @@ namespace Treefrog.Presentation.Layers
         private ObjectDrawTool NewDrawTool ()
         {
             Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
-            ObjectDrawTool tool = new ObjectDrawTool(LevelPresenter.History, Layer, gridSize, LevelPresenter.Annotations);
+            ObjectDrawTool tool = new ObjectDrawTool(LayerContext.History, Layer, gridSize, LayerContext.Annotations);
             tool.BindObjectSourceController(_objectController);
 
             return tool;
@@ -164,13 +164,13 @@ namespace Treefrog.Presentation.Layers
         public void HandleStartPointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.StartPointerSequence(info, LevelPresenter.LevelGeometry);
+                _currentTool.StartPointerSequence(info, LayerContext.Geometry);
         }
 
         public void HandleEndPointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.EndPointerSequence(info, LevelPresenter.LevelGeometry);
+                _currentTool.EndPointerSequence(info, LayerContext.Geometry);
 
             if (_currentTool is ObjectDrawTool && _currentTool.IsCancelled)
                 SetCurrentTool(NewSelectTool());
@@ -179,13 +179,13 @@ namespace Treefrog.Presentation.Layers
         public void HandleUpdatePointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.UpdatePointerSequence(info, LevelPresenter.LevelGeometry);
+                _currentTool.UpdatePointerSequence(info, LayerContext.Geometry);
         }
 
         public void HandlePointerPosition (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.PointerPosition(info, LevelPresenter.LevelGeometry);
+                _currentTool.PointerPosition(info, LayerContext.Geometry);
 
             //if (ContentInfo != null)
             //    ContentInfo.ActionUpdateCoordinates(info.X + ", " + info.Y);

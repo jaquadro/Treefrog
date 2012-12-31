@@ -10,8 +10,8 @@ namespace Treefrog.Presentation.Layers
     {
         private TileGridLayer _layer;
 
-        public TileGridLayerPresenter (LevelPresenter2 levelPresenter, TileGridLayer layer)
-            : base(levelPresenter, layer)
+        public TileGridLayerPresenter (ILayerContext layerContext, TileGridLayer layer)
+            : base(layerContext, layer)
         {
             _layer = layer;
         }
@@ -25,10 +25,10 @@ namespace Treefrog.Presentation.Layers
         {
             get
             {
-                if (Layer == null || LevelPresenter.LevelGeometry == null)
+                if (Layer == null || LayerContext.Geometry == null)
                     yield break;
 
-                ILevelGeometry geometry = LevelPresenter.LevelGeometry;
+                ILevelGeometry geometry = LayerContext.Geometry;
 
                 Rectangle tileRegion = ComputeTileRegion();
                 foreach (LocatedTile tile in Layer.TilesAt(tileRegion)) {

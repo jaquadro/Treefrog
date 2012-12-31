@@ -9,12 +9,12 @@ namespace Treefrog.Presentation.Layers
 {
     public class LevelLayerPresenter : RenderLayerPresenter, IPointerResponderProvider
     {
-        private LevelPresenter2 _levelPresenter;
+        private ILayerContext _layerContext;
         private Layer _layer;
 
-        public LevelLayerPresenter (LevelPresenter2 levelPresenter, Layer layer)
+        public LevelLayerPresenter (ILayerContext layerContext, Layer layer)
         {
-            _levelPresenter = levelPresenter;
+            _layerContext = layerContext;
             _layer = layer;
         }
 
@@ -24,9 +24,9 @@ namespace Treefrog.Presentation.Layers
         public virtual void Deactivate ()
         { }
 
-        protected LevelPresenter2 LevelPresenter
+        protected ILayerContext LayerContext
         {
-            get { return _levelPresenter; }
+            get { return _layerContext; }
         }
 
         public Layer Layer

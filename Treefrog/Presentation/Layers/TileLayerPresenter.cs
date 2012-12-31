@@ -32,8 +32,8 @@ namespace Treefrog.Presentation.Layers
         private ITileBrushManagerPresenter _tileBrushController;
         private TileSourceType _sourceType = TileSourceType.Tile;
 
-        public TileLayerPresenter (LevelPresenter2 levelPresenter, TileLayer layer)
-            : base(levelPresenter, layer)
+        public TileLayerPresenter (ILayerContext layerContext, TileLayer layer)
+            : base(layerContext, layer)
         {
             _layer = layer;
 
@@ -68,16 +68,16 @@ namespace Treefrog.Presentation.Layers
 
         public override void Activate ()
         {
-            if (_selection != null && LevelPresenter != null) {
-                LevelPresenter.Annotations.Remove(_selection.SelectionAnnotation);
-                LevelPresenter.Annotations.Add(_selection.SelectionAnnotation);
+            if (_selection != null && LayerContext != null) {
+                LayerContext.Annotations.Remove(_selection.SelectionAnnotation);
+                LayerContext.Annotations.Add(_selection.SelectionAnnotation);
             }
         }
 
         public override void Deactivate ()
         {
-            if (_selection != null && LevelPresenter != null) {
-                LevelPresenter.Annotations.Remove(_selection.SelectionAnnotation);
+            if (_selection != null && LayerContext != null) {
+                LayerContext.Annotations.Remove(_selection.SelectionAnnotation);
             }
         }
 
@@ -112,7 +112,7 @@ namespace Treefrog.Presentation.Layers
 
         protected Rectangle ComputeTileRegion ()
         {
-            ILevelGeometry geometry = LevelPresenter.LevelGeometry;
+            ILevelGeometry geometry = LayerContext.Geometry;
 
             int zoomTileWidth = (int)(Layer.TileWidth * geometry.ZoomFactor);
             int zoomTileHeight = (int)(Layer.TileHeight * geometry.ZoomFactor);
@@ -145,7 +145,7 @@ namespace Treefrog.Presentation.Layers
             if (!(_currentTool is TileSelectTool))
                 _selection.Deactivate();
 
-            LevelPresenter.Annotations.Add(_selection.SelectionAnnotation);
+            LayerContext.Annotations.Add(_selection.SelectionAnnotation);
 
             CommandManager.Invalidate(CommandKey.Cut);
             CommandManager.Invalidate(CommandKey.Copy);
@@ -167,7 +167,7 @@ namespace Treefrog.Presentation.Layers
         public void DeleteTileSelection ()
         {
             if (_selection != null) {
-                LevelPresenter.Annotations.Remove(_selection.SelectionAnnotation);
+                LayerContext.Annotations.Remove(_selection.SelectionAnnotation);
                 _selection = null;
 
                 CommandManager.Invalidate(CommandKey.Cut);
@@ -184,7 +184,7 @@ namespace Treefrog.Presentation.Layers
                 DeleteTileSelection();
 
             _selection = new TileSelection(selection);
-            LevelPresenter.Annotations.Add(_selection.SelectionAnnotation);
+            LayerContext.Annotations.Add(_selection.SelectionAnnotation);
         }
 
         public void ClearTileSelection ()
@@ -324,7 +324,7 @@ namespace Treefrog.Presentation.Layers
                     command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
                 command.AddCommand(new DeleteTileSelectionCommand(this));
 
-                LevelPresenter.History.Execute(command);
+                LayerContext.History.Execute(command);
 
                 CommandManager.Invalidate(CommandKey.Paste);
             }
@@ -372,11 +372,11 @@ namespace Treefrog.Presentation.Layers
                         command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
                     command.AddCommand(new DeleteTileSelectionCommand(this));
 
-                    LevelPresenter.History.Execute(command);
+                    LayerContext.History.Execute(command);
                 }
 
                 Command pasteCommand = new PasteFloatingSelectionCommand(this, selection, GetCenterTileOffset());
-                LevelPresenter.History.Execute(pasteCommand);
+                LayerContext.History.Execute(pasteCommand);
 
                 if (!(_currentTool is TileSelectTool)) {
                     CommandManager.Perform(CommandKey.TileToolSelect);
@@ -388,7 +388,7 @@ namespace Treefrog.Presentation.Layers
 
         private TileCoord GetCenterTileOffset ()
         {
-            Rectangle region = LevelPresenter.LevelGeometry.VisibleBounds;
+            Rectangle region = LayerContext.Geometry.VisibleBounds;
             int centerViewX = (int)(region.Left + (region.Right - region.Left) / 2);
             int centerViewY = (int)(region.Top + (region.Bottom - region.Top) / 2);
 
@@ -412,7 +412,7 @@ namespace Treefrog.Presentation.Layers
                     command.AddCommand(new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
                 command.AddCommand(new DeleteTileSelectionCommand(this));
 
-                LevelPresenter.History.Execute(command);
+                LayerContext.History.Execute(command);
 
                 CommandManager.Invalidate(CommandKey.Paste);
             }
@@ -436,8 +436,8 @@ namespace Treefrog.Presentation.Layers
             if (CommandCanFloat()) {
                 Command command = new FloatTileSelectionCommand(Layer as MultiTileGridLayer, this);
 
-                if (LevelPresenter != null)
-                    LevelPresenter.History.Execute(command);
+                if (LayerContext != null)
+                    LayerContext.History.Execute(command);
                 else
                     FloatSelection();
             }
@@ -464,8 +464,8 @@ namespace Treefrog.Presentation.Layers
                     command.AddCommand(new DefloatTileSelectionCommand(Layer as MultiTileGridLayer, this));
                 command.AddCommand(new DeleteTileSelectionCommand(this));
 
-                if (LevelPresenter != null)
-                    LevelPresenter.History.Execute(command);
+                if (LayerContext != null)
+                    LayerContext.History.Execute(command);
                 else
                     DefloatSelection();
             }
@@ -518,7 +518,7 @@ namespace Treefrog.Presentation.Layers
                 return;
 
             TileGridLayer layer = Layer as TileGridLayer;
-            Rectangle levelBounds = LevelPresenter.LevelGeometry.LevelBounds;
+            Rectangle levelBounds = LayerContext.Geometry.LevelBounds;
 
             try {
                 using (SysDrawing.Bitmap raster = new SysDrawing.Bitmap(levelBounds.Width, levelBounds.Height, SysImaging.PixelFormat.Format32bppArgb)) {
@@ -541,7 +541,7 @@ namespace Treefrog.Presentation.Layers
 
         private void RasterizeTile (SysDrawing.Graphics surface, LocatedTile tile)
         {
-            Rectangle levelBounds = LevelPresenter.LevelGeometry.LevelBounds;
+            Rectangle levelBounds = LayerContext.Geometry.LevelBounds;
 
             using (SysDrawing.Bitmap tileBmp = tile.Tile.Pool.GetTileTexture(tile.Tile.Id).CreateBitmap()) {
                 SysDrawing.Point location = new SysDrawing.Point(tile.X * Layer.TileWidth - levelBounds.X, tile.Y * Layer.TileHeight - levelBounds.Y);
@@ -558,7 +558,7 @@ namespace Treefrog.Presentation.Layers
         // TODO: MultiTileGridLayer stuff should move into appropriate class
         public void SetTool (TileTool tool)
         {
-            if (LevelPresenter == null)
+            if (LayerContext == null)
                 return;
 
             if (_selection != null && tool == TileTool.Select)
@@ -571,19 +571,19 @@ namespace Treefrog.Presentation.Layers
 
             switch (tool) {
                 case TileTool.Select:
-                    _currentTool = new TileSelectTool(LevelPresenter.History, Layer as MultiTileGridLayer, LevelPresenter.Annotations, this);
+                    _currentTool = new TileSelectTool(LayerContext.History, Layer as MultiTileGridLayer, LayerContext.Annotations, this);
                     break;
                 case TileTool.Draw:
-                    TileDrawTool drawTool = new TileDrawTool(LevelPresenter.History, Layer as MultiTileGridLayer, LevelPresenter.Annotations);
+                    TileDrawTool drawTool = new TileDrawTool(LayerContext.History, Layer as MultiTileGridLayer, LayerContext.Annotations);
                     drawTool.BindTilePoolController(_tilePoolController);
                     drawTool.BindTileBrushManager(_tileBrushController);
                     _currentTool = drawTool;
                     break;
                 case TileTool.Erase:
-                    _currentTool = new TileEraseTool(LevelPresenter.History, Layer as MultiTileGridLayer, LevelPresenter.Annotations);
+                    _currentTool = new TileEraseTool(LayerContext.History, Layer as MultiTileGridLayer, LayerContext.Annotations);
                     break;
                 case TileTool.Fill:
-                    TileFillTool fillTool = new TileFillTool(LevelPresenter.History, Layer as MultiTileGridLayer, _sourceType);
+                    TileFillTool fillTool = new TileFillTool(LayerContext.History, Layer as MultiTileGridLayer, _sourceType);
                     fillTool.BindTilePoolController(_tilePoolController);
                     fillTool.BindTileBrushManager(_tileBrushController);
                     _currentTool = fillTool;
@@ -602,25 +602,25 @@ namespace Treefrog.Presentation.Layers
         public void HandleStartPointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-            _currentTool.StartPointerSequence(info, LevelPresenter.LevelGeometry);
+            _currentTool.StartPointerSequence(info, LayerContext.Geometry);
         }
 
         public void HandleEndPointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.EndPointerSequence(info, LevelPresenter.LevelGeometry);
+                _currentTool.EndPointerSequence(info, LayerContext.Geometry);
         }
 
         public void HandleUpdatePointerSequence (PointerEventInfo info)
         {
             if (_currentTool != null)
-                _currentTool.UpdatePointerSequence(info, LevelPresenter.LevelGeometry);
+                _currentTool.UpdatePointerSequence(info, LayerContext.Geometry);
         }
 
         public void HandlePointerPosition (PointerEventInfo info)
         {
              if (_currentTool != null)
-                 _currentTool.PointerPosition(info, LevelPresenter.LevelGeometry);
+                 _currentTool.PointerPosition(info, LayerContext.Geometry);
 
              //if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
              //    TileCoord coords = MouseToTileCoords(new Point((int)info.X, (int)info.Y));

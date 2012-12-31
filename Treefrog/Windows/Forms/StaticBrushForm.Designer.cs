@@ -26,7 +26,7 @@
             this._toggleDraw = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this._ViewportControl = new Treefrog.Windows.Controls.ViewportControl();
-            this._layerControl = new Treefrog.Windows.Controls.LayerControl();
+            this._layerControl = new Treefrog.Windows.Controls.LayerGraphicsControl();
             this.label3 = new System.Windows.Forms.Label();
             this._tileSizeList = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -166,19 +166,13 @@
             // 
             // _layerControl
             // 
-            this._layerControl.Alignment = Treefrog.Windows.Controls.LayerControlAlignment.Center;
-            this._layerControl.AnnotationLayer = null;
-            this._layerControl.CanAutoScroll = false;
-            this._layerControl.CanvasLayer = null;
+            this._layerControl.CanvasAlignment = Treefrog.Presentation.CanvasAlignment.Center;
             this._layerControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._layerControl.HeightSynced = false;
             this._layerControl.Location = new System.Drawing.Point(0, 0);
             this._layerControl.Name = "_layerControl";
-            this._layerControl.OriginX = 0;
-            this._layerControl.OriginY = 0;
             this._layerControl.ReferenceHeight = 0;
             this._layerControl.ReferenceWidth = 0;
-            this._layerControl.ShowGrid = false;
             this._layerControl.Size = new System.Drawing.Size(504, 360);
             this._layerControl.TabIndex = 0;
             this._layerControl.Text = "layerControl1";
@@ -244,7 +238,7 @@
 
         #endregion
 
-        private Controls.LayerControl _layerControl;
+        private Controls.LayerGraphicsControl _layerControl;
         private System.Windows.Forms.Button _buttonCancel;
         private System.Windows.Forms.Button _buttonOk;
         private System.Windows.Forms.SplitContainer splitContainer1;

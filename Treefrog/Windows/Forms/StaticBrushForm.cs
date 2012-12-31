@@ -17,6 +17,10 @@ using Treefrog.Framework;
 using Treefrog.Framework.Model.Support;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Windows.Controllers;
+using Treefrog.Presentation.Commands;
+using System.Collections.ObjectModel;
+using Treefrog.Presentation.Annotations;
+using Treefrog.Windows.Layers;
 
 namespace Treefrog.Windows.Forms
 {
@@ -81,15 +85,44 @@ namespace Treefrog.Windows.Forms
             }
         }
 
+        private class LocalLayerContext : ILayerContext
+        {
+            private StaticBrushForm _form;
+            private CommandHistory _history;
+            private ObservableCollection<Annotation> _annots;
+
+            public LocalLayerContext (StaticBrushForm form)
+            {
+                _form = form;
+                _history = new CommandHistory();
+                _annots = new ObservableCollection<Annotation>();
+            }
+
+            public ILevelGeometry Geometry
+            {
+                get { return _form._layerControl.LevelGeometry; }
+            }
+
+            public Presentation.Commands.CommandHistory History
+            {
+                get { return _history; }
+            }
+
+            public System.Collections.ObjectModel.ObservableCollection<Presentation.Annotations.Annotation> Annotations
+            {
+                get { return _annots; }
+            }
+        }
+
         private ITilePoolListPresenter _tileController;
-        private ITileBrushManagerPresenter _brushController;
 
         private StaticTileBrush _brush;
         private PointerEventController _pointerController;
         private LocalPointerEventResponder _pointerResponder;
+        private LocalLayerContext _layerContext;
 
+        private GroupLayerPresenter _rootLayer;
         private MultiTileGridLayer _layer;
-        private MultiTileControlLayer _clayer;
 
         private ValidationController _validateController;
 
@@ -129,6 +162,8 @@ namespace Treefrog.Windows.Forms
 
             _validateController.RegisterValidationFunc(ValidateTileSize);
 
+            _layerContext = new LocalLayerContext(this);
+
             InitializeLayers();
         }
 
@@ -144,12 +179,6 @@ namespace Treefrog.Windows.Forms
             base.Dispose(disposing);
         }
 
-        private void LayerControlInitialized (object sender, EventArgs e)
-        {
-            TilePoolTextureService poolService = new TilePoolTextureService(_tileController.TilePoolManager, _layerControl.GraphicsDeviceService);
-            _layerControl.Services.AddService<TilePoolTextureService>(poolService);
-        }
-
         public void BindTileController (ITilePoolListPresenter controller)
         {
             if (_tileController != null) {
@@ -161,6 +190,10 @@ namespace Treefrog.Windows.Forms
 
             if (_tileController != null) {
                 _tileController.SyncTilePoolList += SyncTilePoolListHandler;
+                _layerControl.TextureCache.SourcePool = _tileController.TilePoolManager.TexturePool;
+            }
+            else {
+                _layerControl.TextureCache.SourcePool = null;
             }
 
             InitializeTileSizeList();
@@ -213,15 +246,19 @@ namespace Treefrog.Windows.Forms
 
         private void InitializeLayers ()
         {
-            _layerControl.ShowGrid = true;
             _layerControl.Zoom = 2f;
-            _layerControl.ControlInitialized += LayerControlInitialized;
 
             _pointerController = new PointerEventController(_layerControl);
             _layerControl.MouseClick += _pointerController.TargetMouseClick;
 
             _pointerResponder = new LocalPointerEventResponder(this);
             _pointerController.Responder = _pointerResponder;
+
+            _rootLayer = new GroupLayerPresenter();
+            _layerControl.RootLayer = new GroupLayer() {
+                IsRendered = true,
+                Model = _rootLayer,
+            };
         }
 
         private void InitializeBrush (StaticTileBrush brush)
@@ -238,13 +275,12 @@ namespace Treefrog.Windows.Forms
                     _layer.AddTile(tile.X, tile.Y, tile.Tile);
             }
 
-            if (_clayer != null)
-                _layerControl.RemoveLayer(_clayer);
-
-            _clayer = new MultiTileControlLayer(_layerControl, _layer);
-            _clayer.ShouldDrawContent = LayerCondition.Always;
-            _clayer.ShouldDrawGrid = LayerCondition.Always;
-            _clayer.ShouldRespondToInput = LayerCondition.Always;
+            _rootLayer.Layers.Clear();
+            _rootLayer.Layers.Add(new TileGridLayerPresenter(_layerContext, _layer));
+            _rootLayer.Layers.Add(new GridLayerPresenter() {
+                GridSpacingX = brush.TileWidth,
+                GridSpacingY = brush.TileHeight,
+            });
 
             _nameField.Text = brush.Name;
 
