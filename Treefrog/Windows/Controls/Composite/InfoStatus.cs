@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Presentation;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation.Layers;
+using Treefrog.Presentation.Controllers;
 
 namespace Treefrog.Windows.Controls.Composite
 {
@@ -197,12 +199,12 @@ namespace Treefrog.Windows.Controls.Composite
                 _statusCoord.Text = _controller.CoordinateString;
 
                 _statusLayer.Text = (_controller.CurrentLayer != null)
-                    ? _controller.CurrentLayer.Name : "No Layers";
+                    ? _controller.CurrentLayer.LayerName : "No Layers";
 
                 System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                if (_controller.CurrentLayer is MultiTileGridLayer)
+                if (_controller.CurrentLayer is TileLayerPresenter)
                     _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
-                else if (_controller.CurrentLayer is ObjectLayer)
+                else if (_controller.CurrentLayer is ObjectLayerPresenter)
                     _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
                 else
                     _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.selection.png"));
@@ -268,9 +270,15 @@ namespace Treefrog.Windows.Controls.Composite
 
         private void trackBarZoom_ValueChanged (object sender, EventArgs e)
         {
-            float zoom = 1f;
+            if (_controller != null) {
+                int index = _trackBarZoom.Value;
+                if (index != _controller.Zoom.ZoomIndex) {
+                    _controller.Zoom.ZoomIndex = index;
+                    _statusZoomText.Text = _controller.Zoom.ZoomText;
+                }
+            }
 
-            switch (_trackBarZoom.Value) {
+            /*switch (_trackBarZoom.Value) {
                 case 0:
                     _statusZoomText.Text = "25%";
                     zoom = 0.25f;
@@ -307,10 +315,18 @@ namespace Treefrog.Windows.Controls.Composite
 
             if (_controller != null && _controller.Zoom != zoom) {
                 _controller.ActionZoom(zoom);
+            }*/
+        }
+
+        private void UpdateZoomState (ZoomState zoom)
+        {
+            if (_trackBarZoom != null && _trackBarZoom.Value != zoom.ZoomIndex) {
+                _trackBarZoom.Value = zoom.ZoomIndex;
+                _statusZoomText.Text = zoom.ZoomText;
             }
         }
 
-        private void UpdateZoomState (float zoom)
+        /*private void UpdateZoomState (float zoom)
         {
             List<float> valid = new List<float> { .25f, .5f, 1f, 2f, 3f, 4f, 6f, 8f };
             List<string> text = new List<string> { "25%", "50%", "100%", "200%", "300%", "400%", "600%", "800%" };
@@ -327,6 +343,8 @@ namespace Treefrog.Windows.Controls.Composite
             if (_trackBarZoom != null) {
                 _trackBarZoom.Value = index;
             }
-        }
+        }*/
     }
+
+    
 }

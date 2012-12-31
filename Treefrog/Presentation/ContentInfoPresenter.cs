@@ -1,5 +1,7 @@
 ﻿using System;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation.Layers;
+using Treefrog.Presentation.Controllers;
 
 namespace Treefrog.Presentation
 {
@@ -7,13 +9,14 @@ namespace Treefrog.Presentation
     {
         bool CanZoom { get; }
 
-        float Zoom { get; }
+        //float Zoom { get; }
         string CoordinateString { get; }
+        ZoomState Zoom { get; }
 
-        void ActionZoom (float zoom);
+        //void ActionZoom (float zoom);
         void ActionUpdateCoordinates (string coords);
 
-        Layer CurrentLayer { get; }
+        LevelLayerPresenter CurrentLayer { get; }
 
         event EventHandler SyncContentInfoActions;
         event EventHandler SyncZoomLevel;
@@ -56,9 +59,9 @@ namespace Treefrog.Presentation
             get { return (_curPresenter != null) ? _curPresenter.CanZoom : false; }
         }
 
-        public float Zoom
+        public ZoomState Zoom
         {
-            get { return (_curPresenter != null) ? _curPresenter.Zoom : 1f; }
+            get { return (_curPresenter != null) ? _curPresenter.Zoom : null; }
         }
 
         public string CoordinateString
@@ -66,16 +69,16 @@ namespace Treefrog.Presentation
             get { return (_curPresenter != null) ? _curPresenter.CoordinateString : ""; }
         }
 
-        public Layer CurrentLayer
+        public LevelLayerPresenter CurrentLayer
         {
             get { return (_curPresenter != null) ? _curPresenter.CurrentLayer : null; }
         }
 
-        public void ActionZoom (float zoom)
+        /*public void ActionZoom (float zoom)
         {
             if (_curPresenter != null)
                 _curPresenter.ActionZoom(zoom);
-        }
+        }*/
 
         public void ActionUpdateCoordinates (string coords)
         {
@@ -142,13 +145,19 @@ namespace Treefrog.Presentation
 
     class LevelInfoPresenter : IContentInfoPresenter
     {
-        private LevelPresenter _level;
+        private LevelPresenter2 _level;
 
         private string _coordinates = "";
 
-        public LevelInfoPresenter (LevelPresenter level)
+        public LevelInfoPresenter (LevelPresenter2 level)
         {
             _level = level;
+            _level.Zoom.ZoomLevelChanged += ZoomStateChanged;
+        }
+
+        private void ZoomStateChanged (object sender, EventArgs e)
+        {
+            OnSyncZoomLevel(EventArgs.Empty);
         }
 
         #region IContentInfoPresenter Members
@@ -158,9 +167,9 @@ namespace Treefrog.Presentation
             get { return true; }
         }
 
-        public float Zoom
+        public ZoomState Zoom
         {
-            get { return _level.LayerControl.Zoom; }
+            get { return _level.Zoom; }
         }
 
         public string CoordinateString
@@ -168,17 +177,17 @@ namespace Treefrog.Presentation
             get { return _coordinates; }
         }
 
-        public Layer CurrentLayer
+        public LevelLayerPresenter CurrentLayer
         {
-            get { return _level.SelectedLayer; }
+            get { return _level.SelectedLayer ; }
         }
 
-        public void ActionZoom (float zoom)
+        /*public void ActionZoom (float zoom)
         {
-            _level.LayerControl.Zoom = zoom;
+            //_level.LayerControl.Zoom = zoom;
 
             OnSyncZoomLevel(EventArgs.Empty);
-        }
+        }*/
 
         public void ActionUpdateCoordinates (string text)
         {

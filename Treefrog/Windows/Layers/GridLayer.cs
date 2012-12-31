@@ -19,6 +19,10 @@ namespace Treefrog.Windows.Layers
         private int _tileBrushWidth;
         private int _tileBrushHeight;
 
+        private float _effectiveZoom;
+        private int _effectiveSpacingX;
+        private int _effectiveSpacingY;
+
         protected override void DisposeManaged ()
         {
             DisposeTextures();
@@ -30,7 +34,7 @@ namespace Treefrog.Windows.Layers
             if (Model == null || LevelGeometry == null)
                 return;
 
-            if (_tileGridBrush == null)
+            if (_tileGridBrush == null || ShouldRebuildTileBrush())
                 BuildTileBrush(spriteBatch.GraphicsDevice);
 
             Rectangle region = LevelGeometry.VisibleBounds.ToXnaRectangle();
@@ -61,6 +65,16 @@ namespace Treefrog.Windows.Layers
             get { return LevelGeometry != null ? LevelGeometry.ZoomFactor : 1f; }
         }
 
+        private bool ShouldRebuildTileBrush ()
+        {
+            if (_effectiveZoom != ZoomFactor ||
+                _effectiveSpacingX != Model.GridSpacingX ||
+                _effectiveSpacingY != Model.GridSpacingY)
+                return true;
+
+            return false;
+        }
+
         private int CalcBrushDimension (int tileDim, int maxDim, double zoomFactor)
         {
             if (tileDim == 0 || zoomFactor == 0)
@@ -76,6 +90,12 @@ namespace Treefrog.Windows.Layers
 
         private void BuildTileBrush (GraphicsDevice device)
         {
+            DisposeTextures();
+
+            _effectiveZoom = ZoomFactor;
+            _effectiveSpacingX = Model.GridSpacingX;
+            _effectiveSpacingY = Model.GridSpacingY;
+
             int tilesAcross = CalcBrushDimension(Model.GridSpacingX, MaxBrushSize, ZoomFactor);
             int tilesDown = CalcBrushDimension(Model.GridSpacingY, MaxBrushSize, ZoomFactor);
 

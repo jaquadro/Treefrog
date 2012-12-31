@@ -11,9 +11,9 @@ namespace Treefrog.Presentation
     public class SyncLevelEventArgs : EventArgs
     {
         public Level PreviousLevel { get; private set; }
-        public LevelPresenter PreviousLevelPresenter { get; private set; }
+        public LevelPresenter2 PreviousLevelPresenter { get; private set; }
 
-        public SyncLevelEventArgs (Level level, LevelPresenter controller)
+        public SyncLevelEventArgs (Level level, LevelPresenter2 controller)
         {
             PreviousLevel = level;
             PreviousLevelPresenter = controller;
@@ -195,7 +195,7 @@ namespace Treefrog.Presentation
             propList.Provider = level;
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-            //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -244,7 +244,7 @@ namespace Treefrog.Presentation
             _project.ObjectPoolManager.CreatePool("Default");
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-            //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -288,7 +288,7 @@ namespace Treefrog.Presentation
             }
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-            //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
 
@@ -671,9 +671,9 @@ namespace Treefrog.Presentation
                 }
 
                 ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-                //info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+                info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
-                //CurrentLevel.InfoPresenter.RefreshContentInfo();
+                CurrentLevel.InfoPresenter.RefreshContentInfo();
             }
             else {
                 ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
@@ -682,7 +682,7 @@ namespace Treefrog.Presentation
 
             CommandManager.Invalidate(CommandKey.ViewGrid);
 
-            //OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
+            OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
             OnSyncContentView(EventArgs.Empty);
         }
     }

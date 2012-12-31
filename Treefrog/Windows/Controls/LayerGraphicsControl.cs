@@ -430,6 +430,7 @@ namespace Treefrog.Windows.Controls
         public float ZoomFactor
         {
             get { return _control.Zoom; }
+            set { _control.Zoom = value; }
         }
 
         private int VirtualOffsetX ()

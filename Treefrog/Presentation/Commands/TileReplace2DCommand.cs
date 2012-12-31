@@ -7,42 +7,6 @@ using Treefrog.Framework.Model.Support;
 
 namespace Treefrog.Presentation.Commands
 {
-    public class CreateFloatingSelectionCommand : Command
-    {
-        private MultiTileGridLayer _tileSource;
-        private FloatingTileSelectionOld _selection;
-
-        public CreateFloatingSelectionCommand (MultiTileGridLayer source, FloatingTileSelectionOld selection)
-        {
-            _tileSource = source;
-            _selection = selection;
-        }
-
-        public override void Execute ()
-        {
-            foreach (LocatedTileStack kv in _selection) {
-                if (_tileSource.InRange(kv.Location))
-                    _tileSource[kv.Location] = null;
-            }
-        }
-
-        public override void Undo ()
-        {
-            foreach (LocatedTileStack kv in _selection) {
-                if (_tileSource.InRange(kv.Location))
-                    _tileSource[kv.Location] = kv.Stack != null ? new TileStack(kv.Stack) : null;
-            }
-        }
-
-        public override void Redo ()
-        {
-            foreach (LocatedTileStack kv in _selection) {
-                if (_tileSource.InRange(kv.Location))
-                    _tileSource[kv.Location] = null;
-            }
-        }
-    }
-
     public class TileReplace2DCommand : Command
     {
         private struct TileRecord

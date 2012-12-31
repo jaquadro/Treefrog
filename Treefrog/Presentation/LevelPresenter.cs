@@ -27,11 +27,6 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface ITileLayerPresenter
-    {
-
-    }
-
     public interface ILevelPresenter : ICommandSubscriber
     {
         IContentInfoPresenter InfoPresenter { get; }
@@ -67,7 +62,7 @@ namespace Treefrog.Presentation
             _editor = editor;
             _level = level;
 
-            _info = new LevelInfoPresenter(this);
+            //_info = new LevelInfoPresenter(this);
 
             _layerControl = new LayerControl() {
                 OriginX = _level.OriginX,

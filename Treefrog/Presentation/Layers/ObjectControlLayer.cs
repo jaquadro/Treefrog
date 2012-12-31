@@ -167,7 +167,7 @@ namespace Treefrog.Presentation.Layers
 
         #region Tool Management
 
-        private ILevelPresenter _levelController;
+        //private ILevelPresenter _levelController;
         private IObjectPoolCollectionPresenter _objectController;
         private PointerTool _currentTool;
 
@@ -190,27 +190,29 @@ namespace Treefrog.Presentation.Layers
 
         private ObjectSelectTool NewSelectTool ()
         {
-            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
+            /*Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
             ObjectSelectTool tool = new ObjectSelectTool(_levelController.History, Layer, gridSize, _levelController.Annotations, null);
             tool.BindObjectSourceController(_objectController);
 
-            return tool;
+            return tool;*/
+            return null;
         }
 
         private ObjectDrawTool NewDrawTool ()
         {
-            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
+            /*Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
             ObjectDrawTool tool = new ObjectDrawTool(_levelController.History, Layer, gridSize, _levelController.Annotations);
             tool.BindObjectSourceController(_objectController);
 
-            return tool;
+            return tool;*/
+            return null;
         }
 
         #endregion
 
         public void BindLevelController (ILevelPresenter levelController)
         {
-            _levelController = levelController;
+            //_levelController = levelController;
             SetCurrentTool(NewSelectTool());
         }
 
@@ -323,10 +325,5 @@ namespace Treefrog.Presentation.Layers
 
         event EventHandler CanSelectAllChanged;
         event EventHandler CanSelectNoneChanged;
-    }
-
-    public interface IEditCommandResponder
-    {
-        void BindLevelController (ILevelPresenter controller);
     }
 }

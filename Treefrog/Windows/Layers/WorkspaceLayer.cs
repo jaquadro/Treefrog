@@ -42,13 +42,18 @@ namespace Treefrog.Windows.Layers
 
         protected override void RenderContent (SpriteBatch spriteBatch)
         {
-            if (IsRendered == false)
-                return;
-
             if (_pattern == null)
                 _pattern = BuildCanvasPattern(spriteBatch.GraphicsDevice);
 
-            Rectangle dest = LevelGeometry.VisibleBounds.ToXnaRectangle();
+            ILevelGeometry geometry = LevelGeometry;
+            Rectangle bounds = geometry.VisibleBounds.ToXnaRectangle();
+
+            Rectangle dest = new Rectangle(
+                (int)Math.Ceiling(bounds.X * geometry.ZoomFactor),
+                (int)Math.Ceiling(bounds.Y * geometry.ZoomFactor),
+                (int)(bounds.Width * geometry.ZoomFactor),
+                (int)(bounds.Height * geometry.ZoomFactor)
+                );
 
             spriteBatch.Draw(_pattern, dest, dest, Color.White);
         }

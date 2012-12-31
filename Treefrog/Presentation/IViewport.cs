@@ -61,6 +61,6 @@ namespace Treefrog.Presentation
         /// <summary>
         /// Zoom factor currently in effect.
         /// </summary>
-        float ZoomFactor { get; }
+        float ZoomFactor { get; set; }
     }
 }

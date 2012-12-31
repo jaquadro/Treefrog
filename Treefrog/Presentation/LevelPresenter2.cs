@@ -19,6 +19,8 @@ namespace Treefrog.Presentation
         private bool _disposed;
         private EditorPresenter _editor;
         private Level _level;
+        private LevelInfoPresenter _info;
+        private ZoomState _zoom;
 
         private GroupLayerPresenter _rootLayer;
         private GroupLayerPresenter _rootContentLayer;
@@ -35,6 +37,11 @@ namespace Treefrog.Presentation
         {
             _editor = editor;
             _level = level;
+
+            _zoom = new ZoomState();
+            _zoom.ZoomLevelChanged += ZoomStateLevelChanged;
+
+            _info = new LevelInfoPresenter(this);
 
             _layerPresenters = new Dictionary<string, LevelLayerPresenter>();
 
@@ -72,6 +79,16 @@ namespace Treefrog.Presentation
         public Level Level
         {
             get { return _level; }
+        }
+
+        public IContentInfoPresenter InfoPresenter
+        {
+            get { return _info; }
+        }
+
+        public ZoomState Zoom
+        {
+            get { return _zoom; }
         }
 
         public GroupLayerPresenter RootLayer
@@ -227,6 +244,8 @@ namespace Treefrog.Presentation
             _selectedLayer = layerName;
             _selectedLayerRef = _layerPresenters[_selectedLayer];
 
+            _info.ActionUpdateCoordinates("");
+
             if (_selectedLayerRef != null) {
                 BindSelectedLayerEvents(_selectedLayerRef);
 
@@ -239,6 +258,8 @@ namespace Treefrog.Presentation
             }
 
             OnPointerEventResponderChanged(EventArgs.Empty);
+
+            _info.RefreshContentInfo();
         }
 
         private void BindLayerEvents (Layer layer)
@@ -302,6 +323,9 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
             _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
             _commandManager.Register(CommandKey.LevelResize, CommandCanResize, CommandResize);
+            _commandManager.Register(CommandKey.ViewZoomIn, CommandCanZoomIn, CommandZoomIn);
+            _commandManager.Register(CommandKey.ViewZoomOut, CommandCanZoomOut, CommandZoomOut);
+            _commandManager.Register(CommandKey.ViewZoomNormal, CommandCanZoomNormal, CommandZoomNormal);
 
             _commandManager.Register(CommandKey.NewTileLayer, CommandCanAddTileLayer, CommandAddTileLayer);
             _commandManager.Register(CommandKey.NewObjectLayer, CommandCanAddObjectLayer, CommandAddObjectLayer);
@@ -334,7 +358,9 @@ namespace Treefrog.Presentation
 
         private void CommandUndo ()
         {
-            History.Undo();
+            if (CommandCanUndo()) {
+                History.Undo();
+            }
         }
 
         private bool CommandCanRedo ()
@@ -344,7 +370,9 @@ namespace Treefrog.Presentation
 
         private void CommandRedo ()
         {
-            History.Redo();
+            if (CommandCanRedo()) {
+                History.Redo();
+            }
         }
 
         private bool CommandCanToggleGrid ()
@@ -377,6 +405,45 @@ namespace Treefrog.Presentation
                         _history.Clear();
                     }
                 }
+            }
+        }
+
+        private bool CommandCanZoomIn ()
+        {
+            return _zoom.CanZoomIn;
+        }
+
+        private void CommandZoomIn ()
+        {
+            if (CommandCanZoomIn()) {
+                _zoom.ZoomIn();
+                InvalidateZoomCommands();
+            }
+        }
+
+        private bool CommandCanZoomOut ()
+        {
+            return _zoom.CanZoomOut;
+        }
+
+        private void CommandZoomOut ()
+        {
+            if (CommandCanZoomOut()) {
+                _zoom.ZoomOut();
+                InvalidateZoomCommands();
+            }
+        }
+
+        private bool CommandCanZoomNormal ()
+        {
+            return true;
+        }
+
+        private void CommandZoomNormal ()
+        {
+            if (CommandCanZoomNormal()) {
+                _zoom.ZoomLevel = 1f;
+                InvalidateZoomCommands();
             }
         }
 
@@ -563,7 +630,19 @@ namespace Treefrog.Presentation
             CommandManager.Invalidate(CommandKey.LayerMoveBottom);
         }
 
+        private void InvalidateZoomCommands ()
+        {
+            CommandManager.Invalidate(CommandKey.ViewZoomIn);
+            CommandManager.Invalidate(CommandKey.ViewZoomOut);
+        }
+
         #endregion
+
+        private void ZoomStateLevelChanged (object sender, EventArgs e)
+        {
+            if (LevelGeometry != null)
+                LevelGeometry.ZoomFactor = _zoom.ZoomLevel;
+        }
 
         private string FindDefaultLayerName (string baseName)
         {
