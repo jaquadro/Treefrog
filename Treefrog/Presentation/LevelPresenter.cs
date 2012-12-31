@@ -43,7 +43,7 @@ namespace Treefrog.Presentation
         IEditToolResponder EditToolResponder { get; }
     }
 
-    public partial class LevelPresenter : ILevelPresenter
+    /*public partial class LevelPresenter : ILevelPresenter
     {
         private EditorPresenter _editor;
 
@@ -832,5 +832,5 @@ namespace Treefrog.Presentation
                 return name;
             }
         }
-    }
+    }*/
 }

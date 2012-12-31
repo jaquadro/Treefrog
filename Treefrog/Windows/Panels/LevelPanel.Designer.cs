@@ -18,7 +18,7 @@ namespace Treefrog.Windows
         private void InitializeComponent ()
         {
             this._viewportControl = new ViewportControl();
-            this.layerControl1 = new LayerControl();
+            this.layerControl1 = new LayerGraphicsControl();
             this.SuspendLayout();
             // 
             // viewportControl1
@@ -33,8 +33,6 @@ namespace Treefrog.Windows
             // 
             // layerControl1
             // 
-            this.layerControl1.Alignment = LayerControlAlignment.Center;
-            this.layerControl1.CanAutoScroll = false;
             this.layerControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layerControl1.HeightSynced = false;
             this.layerControl1.Location = new System.Drawing.Point(0, 0);
@@ -60,6 +58,6 @@ namespace Treefrog.Windows
         #endregion
 
         private ViewportControl _viewportControl;
-        private LayerControl layerControl1;
+        private LayerGraphicsControl layerControl1;
     }
 }
