@@ -17,6 +17,10 @@ using Treefrog.Framework;
 using Treefrog.Framework.Model.Support;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Windows.Controllers;
+using Treefrog.Presentation.Commands;
+using System.Collections.ObjectModel;
+using Treefrog.Presentation.Annotations;
+using Treefrog.Windows.Layers;
 
 namespace Treefrog.Windows.Forms
 {
@@ -80,15 +84,77 @@ namespace Treefrog.Windows.Forms
             }
         }
 
+        private class LocalLayerContext : ILayerContext
+        {
+            private DynamicBrushForm _form;
+            private CommandHistory _history;
+            private ObservableCollection<Annotation> _annots;
+
+            public LocalLayerContext (DynamicBrushForm form)
+            {
+                _form = form;
+                _history = new CommandHistory();
+                _annots = new ObservableCollection<Annotation>();
+            }
+
+            public ILevelGeometry Geometry
+            {
+                get { return _form._layerControl.LevelGeometry; }
+            }
+
+            public Presentation.Commands.CommandHistory History
+            {
+                get { return _history; }
+            }
+
+            public System.Collections.ObjectModel.ObservableCollection<Presentation.Annotations.Annotation> Annotations
+            {
+                get { return _annots; }
+            }
+        }
+
+        private class OverlayRenderCore : LocalRenderCore
+        {
+            private DynamicBrushForm _form;
+
+            public OverlayRenderCore (DynamicBrushForm form)
+            {
+                _form = form;
+            }
+
+            public override void RenderContent (RenderLayer renderContext, SpriteBatch spriteBatch)
+            {
+                Dictionary<string, Texture2D> brushClassOverlays = _form._brushClassOverlays;
+                DynamicTileBrush brush = _form._brush;
+
+                if (!brushClassOverlays.ContainsKey(brush.BrushClass.ClassName)) {
+                    System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    brushClassOverlays.Add(brush.BrushClass.ClassName,
+                        Texture2D.FromStream(spriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.DynBrushOverlays." + brush.BrushClass.ClassName + ".png")));
+                }
+
+                Texture2D overlay = brushClassOverlays[brush.BrushClass.ClassName];
+
+                int width = (int)(overlay.Width * renderContext.LevelGeometry.ZoomFactor * (brush.TileWidth / 16.0));
+                int height = (int)(overlay.Height * renderContext.LevelGeometry.ZoomFactor * (brush.TileHeight / 16.0));
+
+                Microsoft.Xna.Framework.Rectangle dstRect = new Microsoft.Xna.Framework.Rectangle(0, 0, width, height);
+                spriteBatch.Draw(overlay, dstRect, new Microsoft.Xna.Framework.Color(1f, 1f, 1f, .5f));
+            }
+        }
+
+        // TODO: Overlays need a separate registry if planning plugin support
+        private Dictionary<string, Texture2D> _brushClassOverlays = new Dictionary<string, Texture2D>();
+
         private ITilePoolListPresenter _tileController;
-        private ITileBrushManagerPresenter _brushController;
 
         private DynamicTileBrush _brush;
         private PointerEventController _pointerController;
         private LocalPointerEventResponder _pointerResponder;
+        private LocalLayerContext _layerContext;
 
+        private GroupLayerPresenter _rootLayer;
         private MultiTileGridLayer _layer;
-        private MultiTileControlLayer _clayer;
 
         private ValidationController _validateController;
 
@@ -132,6 +198,8 @@ namespace Treefrog.Windows.Forms
             _validateController.RegisterValidationFunc(ValidatePrototype);
             _validateController.RegisterValidationFunc(ValidateTileSize);
 
+            _layerContext = new LocalLayerContext(this);
+
             InitializePrototypeList();
             InitializeLayers();
         }
@@ -148,12 +216,6 @@ namespace Treefrog.Windows.Forms
             base.Dispose(disposing);
         }
 
-        private void LayerControlInitialized (object sender, EventArgs e)
-        {
-            TilePoolTextureService poolService = new TilePoolTextureService(_tileController.TilePoolManager, _layerControl.GraphicsDeviceService);
-            _layerControl.Services.AddService<TilePoolTextureService>(poolService);
-        }
-
         public void BindTileController (ITilePoolListPresenter controller)
         {
             if (_tileController != null) {
@@ -165,6 +227,10 @@ namespace Treefrog.Windows.Forms
 
             if (_tileController != null) {
                 _tileController.SyncTilePoolList += SyncTilePoolListHandler;
+                _layerControl.TextureCache.SourcePool = _tileController.TilePoolManager.TexturePool;
+            }
+            else {
+                _layerControl.TextureCache.SourcePool = null;
             }
 
             InitializeTileSizeList();
@@ -211,37 +277,21 @@ namespace Treefrog.Windows.Forms
             get { return _brush; }
         }
 
-        // TODO: Overlays need a separate registry if planning plugin support
-        private Dictionary<string, Texture2D> _brushClassOverlays = new Dictionary<string, Texture2D>();
-
-        private void DrawOverlay (object sender, DrawLayerEventArgs e)
-        {
-            if (!_brushClassOverlays.ContainsKey(_brush.BrushClass.ClassName)) {
-                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                _brushClassOverlays.Add(_brush.BrushClass.ClassName,
-                    Texture2D.FromStream(e.SpriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.DynBrushOverlays." + _brush.BrushClass.ClassName + ".png")));
-            }
-
-            Texture2D overlay = _brushClassOverlays[_brush.BrushClass.ClassName];
-
-            int width = (int)(overlay.Width * e.Zoom * (_brush.TileWidth / 16.0));
-            int height = (int)(overlay.Height * e.Zoom * (_brush.TileHeight / 16.0));
-
-            Microsoft.Xna.Framework.Rectangle dstRect = new Microsoft.Xna.Framework.Rectangle(0, 0, width, height);
-            e.SpriteBatch.Draw(overlay, dstRect, new Microsoft.Xna.Framework.Color(1f, 1f, 1f, .5f));
-        }
-
         private void InitializeLayers ()
         {
-            _layerControl.ShowGrid = true;
             _layerControl.Zoom = 2f;
-            _layerControl.ControlInitialized += LayerControlInitialized;
 
             _pointerController = new PointerEventController(_layerControl);
             _layerControl.MouseClick += _pointerController.TargetMouseClick;
 
             _pointerResponder = new LocalPointerEventResponder(this);
             _pointerController.Responder = _pointerResponder;
+
+            _rootLayer = new GroupLayerPresenter();
+            _layerControl.RootLayer = new GroupLayer() {
+                IsRendered = true,
+                Model = _rootLayer,
+            };
         }
 
         private void InitializeBrush (DynamicTileBrush brush)
@@ -256,14 +306,13 @@ namespace Treefrog.Windows.Forms
                     _layer.AddTile(tile.X, tile.Y, tile.Tile);
             }
 
-            if (_clayer != null)
-                _layerControl.RemoveLayer(_clayer);
-
-            _clayer = new MultiTileControlLayer(_layerControl, _layer);
-            _clayer.ShouldDrawContent = LayerCondition.Always;
-            _clayer.ShouldDrawGrid = LayerCondition.Always;
-            _clayer.ShouldRespondToInput = LayerCondition.Always;
-            _clayer.PreDrawContent += DrawOverlay;
+            _rootLayer.Layers.Clear();
+            _rootLayer.Layers.Add(new TileGridLayerPresenter(_layerContext, _layer));
+            _rootLayer.Layers.Add(new LocalRenderLayerPresenter(new OverlayRenderCore(this)));
+            _rootLayer.Layers.Add(new GridLayerPresenter() {
+                GridSpacingX = brush.TileWidth,
+                GridSpacingY = brush.TileHeight,
+            });
 
             _nameField.Text = brush.Name;
 

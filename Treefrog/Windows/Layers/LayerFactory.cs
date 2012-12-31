@@ -91,6 +91,9 @@ namespace Treefrog.Windows.Layers
             Register<GroupLayerPresenter, GroupLayer>(layer => {
                 return new GroupLayer() { Model = layer as GroupLayerPresenter };
             });
+            Register<LocalRenderLayerPresenter, LocalRenderLayer>(layer => {
+                return new LocalRenderLayer() { Model = layer as LocalRenderLayerPresenter };
+            });
             Register<LevelLayerPresenter, RenderLayer>(layer => {
                 return new RenderLayer() { Model = layer as LevelLayerPresenter };
             });

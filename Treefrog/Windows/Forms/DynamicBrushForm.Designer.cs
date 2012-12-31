@@ -31,7 +31,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this._prototypeList = new System.Windows.Forms.ComboBox();
             this._nameField = new System.Windows.Forms.TextBox();
-            this._layerControl = new Treefrog.Windows.Controls.LayerControl();
+            this._layerControl = new Treefrog.Windows.Controls.LayerGraphicsControl();
             this._ViewportControl = new Treefrog.Windows.Controls.ViewportControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -216,10 +216,7 @@
             // 
             // _layerControl
             // 
-            this._layerControl.Alignment = Treefrog.Windows.Controls.LayerControlAlignment.Center;
-            this._layerControl.AnnotationLayer = null;
-            this._layerControl.CanAutoScroll = false;
-            this._layerControl.CanvasLayer = null;
+            this._layerControl.CanvasAlignment = Treefrog.Presentation.CanvasAlignment.Center;
             this._layerControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._layerControl.HeightSynced = false;
             this._layerControl.Location = new System.Drawing.Point(0, 0);
@@ -262,7 +259,7 @@
 
         #endregion
 
-        private Controls.LayerControl _layerControl;
+        private Controls.LayerGraphicsControl _layerControl;
         private System.Windows.Forms.Button _buttonCancel;
         private System.Windows.Forms.Button _buttonOk;
         private System.Windows.Forms.SplitContainer splitContainer1;

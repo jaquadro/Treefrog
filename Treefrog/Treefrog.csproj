@@ -183,6 +183,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Layers\AnnotationLayer.cs" />
+    <Compile Include="Windows\Layers\LocalRenderLayer.cs" />
     <Compile Include="Windows\Layers\TileSetLayer.cs" />
     <Compile Include="Windows\Layers\GridLayer.cs" />
     <Compile Include="Windows\Layers\LayerFactory.cs" />
