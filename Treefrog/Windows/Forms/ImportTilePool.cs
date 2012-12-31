@@ -20,7 +20,7 @@ namespace Treefrog.Windows.Forms
         Project _project;
 
         LayerControl _layerControl;
-        TileSetControlLayer _tileLayer;
+        //TileSetControlLayer _tileLayer;
 
         //TileRegistry _localRegistry;
         TexturePool _localTexturePool;
@@ -48,10 +48,10 @@ namespace Treefrog.Windows.Forms
             _layerControl.Alignment = LayerControlAlignment.UpperLeft;
             _layerControl.ControlInitialized += LayerControlInitializedHandler;
 
-            _tileLayer = new TileSetControlLayer(_layerControl);
-            _tileLayer.ShouldDrawContent = LayerCondition.Always;
-            _tileLayer.ShouldDrawGrid = LayerCondition.Always;
-            _tileLayer.ShouldRespondToInput = LayerCondition.Never;
+            //_tileLayer = new TileSetControlLayer(_layerControl);
+            //_tileLayer.ShouldDrawContent = LayerCondition.Always;
+            //_tileLayer.ShouldDrawGrid = LayerCondition.Always;
+            //_tileLayer.ShouldRespondToInput = LayerCondition.Never;
 
             _previewPanel.Controls.Add(_layerControl);
 
@@ -155,7 +155,7 @@ namespace Treefrog.Windows.Forms
                 _fileStream.Position = 0;
             }
 
-            _tileLayer.Layer = null;
+            //_tileLayer.Layer = null;
 
             _localManager.Reset();
 
@@ -183,9 +183,9 @@ namespace Treefrog.Windows.Forms
             if (_useTransColor)
                 SetTransparentColor();
 
-            _tileLayer.Layer = new TileSetLayer("Preview", _previewPool);
-            _tileLayer.ShouldDrawContent = LayerCondition.Always;
-            _tileLayer.ShouldDrawGrid = LayerCondition.Always;
+            //_tileLayer.Layer = new TileSetLayer("Preview", _previewPool);
+            //_tileLayer.ShouldDrawContent = LayerCondition.Always;
+            //_tileLayer.ShouldDrawGrid = LayerCondition.Always;
 
             // Update stats
 
@@ -256,13 +256,13 @@ namespace Treefrog.Windows.Forms
 
         private void PreviewControlClickHandler (object sender, MouseEventArgs e)
         {
-            XnaColor color = _tileLayer.Control.GetPixel(e.X, e.Y);
+            /*XnaColor color = _tileLayer.Control.GetPixel(e.X, e.Y);
 
             _buttonTransColor.Color = System.Drawing.Color.FromArgb(255, color.R, color.G, color.B);
             _transColor = new Color(color.R, color.G, color.B);
 
             if (_useTransColor)
-                SetTransparentColor();
+                SetTransparentColor();*/
         }
 
         private void _numTileHeight_ValueChanged (object sender, EventArgs e)

@@ -94,6 +94,8 @@ using Treefrog.Windows.Layers;
                 _controller.SyncTilePoolControl += SyncTilePoolControlHandler;
                 _controller.SelectedTilePoolChanged += SelectedTilePoolChangedHandler;
 
+                _commandController.BindCommandManager(_controller.CommandManager);
+
                 BindTilePoolManager(_controller.TilePoolManager);
                 BindTilePool(_controller.SelectedTilePool);
 
@@ -106,6 +108,8 @@ using Treefrog.Windows.Layers;
                 }*/
             }
             else {
+                _commandController.BindCommandManager(null);
+
                 BindTilePoolManager(null);
                 BindTilePool(null);
 

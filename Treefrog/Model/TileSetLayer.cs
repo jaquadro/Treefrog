@@ -6,7 +6,7 @@ using Treefrog.Framework.Model;
 
 namespace Treefrog.Model
 {
-    public class TileSetLayer : TileLayer
+    public class TileSetLayer : TileLayer, IDisposable
     {
         #region Fields
 
@@ -22,6 +22,9 @@ namespace Treefrog.Model
             : base(name, pool.TileWidth, pool.TileHeight)
         {
             _pool = pool;
+            _pool.TileAdded += TileAdded;
+            _pool.TileRemoved += TileRemoved;
+
             SyncIndex();
         }
 
@@ -29,10 +32,31 @@ namespace Treefrog.Model
             : base(name, layer)
         {
             _pool = layer._pool;
+            _pool.TileAdded += TileAdded;
+            _pool.TileRemoved += TileRemoved;
+
             SyncIndex();
         }
 
         #endregion
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (_pool != null) {
+                if (disposing) {
+                    _pool.TileAdded -= TileAdded;
+                    _pool.TileRemoved -= TileRemoved;
+                }
+
+                _pool = null;
+            }
+        }
 
         #region Properties
 
@@ -50,6 +74,9 @@ namespace Treefrog.Model
         {
             get
             {
+                if (_index == null)
+                    SyncIndex();
+
                 if (index < 0 || index >= _index.Count) {
                     throw new ArgumentOutOfRangeException("index");
                 }
@@ -76,6 +103,16 @@ namespace Treefrog.Model
             foreach (Tile t in _pool) {
                 _index.Add(t);
             }
+        }
+
+        private void TileAdded (object sender, EventArgs e)
+        {
+            _index = null;
+        }
+
+        private void TileRemoved (object sender, EventArgs e)
+        {
+            _index = null;
         }
 
         /*

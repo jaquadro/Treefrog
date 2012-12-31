@@ -58,7 +58,7 @@ namespace Treefrog.Presentation
         //void RefreshTilePoolList ();
     }
 
-    public class TilePoolPresenter : IPointerResponderProvider
+    public class TilePoolPresenter : IPointerResponderProvider, IDisposable
     {
         private TilePool _tilePool;
         private TileSetLayer _tileSet;
@@ -81,6 +81,23 @@ namespace Treefrog.Presentation
             _annotations = new ObservableCollection<Annotation>();
 
             InitializeLayerHierarchy();
+        }
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (_tilePool != null) {
+                if (disposing) {
+                    _tileSet.Dispose();
+                }
+
+                _tilePool = null;
+            }
         }
 
         public TilePool TilePool
@@ -240,6 +257,9 @@ namespace Treefrog.Presentation
 
         private void ClearPoolPresenters ()
         {
+            foreach (TilePoolPresenter presenter in _tilePoolPresenters.Values)
+                presenter.Dispose();
+
             _tilePoolPresenters.Clear();
             _selectedPool = null;
             _selectedPoolRef = null;
@@ -267,6 +287,10 @@ namespace Treefrog.Presentation
 
         private void RemovePoolPresenter (string name)
         {
+            TilePoolPresenter presenter;
+            if (_tilePoolPresenters.TryGetValue(name, out presenter))
+                presenter.Dispose();
+
             _tilePoolPresenters.Remove(name);
         }
 
