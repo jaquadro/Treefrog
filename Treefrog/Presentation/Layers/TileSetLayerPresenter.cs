@@ -111,7 +111,7 @@ namespace Treefrog.Presentation.Layers
             int index = CoordToIndex(tileX, tileY);
             if (index >= 0 && index < _layer.Count) {
                 Tile tile = _layer[index];
-                OnTileSelected(new TileEventArgs(new TileCoord(tileX, tileY), tile));
+                OnTileSelected(new TileEventArgs(tile));
             }
         }
 

@@ -149,12 +149,13 @@ namespace Treefrog.Presentation
             _rootLayer.Layers.Add(_annotLayer);
         }
 
-        private void TileSelected (object sender, Treefrog.Presentation.Layers.TileEventArgs e)
+        private void TileSelected (object sender, TileEventArgs e)
         {
             _selectedTile = e.Tile;
 
-            int x = e.Location.X * _tileSet.TileWidth;
-            int y = e.Location.Y * _tileSet.TileHeight;
+            TileCoord location = _tileLayer.TileToCoord(e.Tile);
+            int x = location.X * _tileSet.TileWidth;
+            int y = location.Y * _tileSet.TileHeight;
 
             SelectionAnnot annot = new SelectionAnnot() {
                 Start = new Treefrog.Framework.Imaging.Point(x, y),
