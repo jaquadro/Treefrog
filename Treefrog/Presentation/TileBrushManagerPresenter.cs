@@ -92,7 +92,7 @@ namespace Treefrog.Presentation
         {
             if (CommandCanCreateStaticBrush()) {
                 using (StaticBrushForm form = new StaticBrushForm()) {
-                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -121,7 +121,7 @@ namespace Treefrog.Presentation
         {
             if (CommandCanCreateDynamicBrush()) {
                 using (DynamicBrushForm form = new DynamicBrushForm()) {
-                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -259,7 +259,7 @@ namespace Treefrog.Presentation
 
             if (brush is DynamicTileBrush) {
                 using (DynamicBrushForm form = new DynamicBrushForm(brush as DynamicTileBrush)) {
-                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -277,7 +277,7 @@ namespace Treefrog.Presentation
             }
             else if (brush is StaticTileBrush) {
                 using (StaticBrushForm form = new StaticBrushForm(brush as StaticTileBrush)) {
-                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 

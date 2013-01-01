@@ -11,7 +11,7 @@ namespace Treefrog.Windows
     public partial class LevelPanel : UserControl
     {
         private ControlPointerEventController _pointerController;
-        private LevelPresenter2 _controller;
+        private LevelPresenter _controller;
         private LayerGraphicsControl _layerControl;
         private GroupLayer _root;
 
@@ -39,7 +39,7 @@ namespace Treefrog.Windows
             base.Dispose(disposing);
         }
 
-        public void BindController (LevelPresenter2 controller)
+        public void BindController (LevelPresenter controller)
         {
             if (_controller != null) {
                 _controller.LevelGeometry = null;

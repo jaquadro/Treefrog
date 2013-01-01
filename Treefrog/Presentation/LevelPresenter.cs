@@ -1,109 +1,94 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using Treefrog.Framework.Model;
-using Treefrog.Presentation.Commands;
-using Treefrog.Presentation.Layers;
-using Treefrog.Presentation.Tools;
-using Treefrog.Windows.Controls;
-using Treefrog.Framework;
-using System.Windows.Forms;
-using System.Drawing;
 using System.Collections.ObjectModel;
+using System.Windows.Forms;
+using Treefrog.Framework;
+using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Model;
 using Treefrog.Presentation.Annotations;
-using Treefrog.Windows.Forms;
+using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
+using Treefrog.Presentation.Layers;
+using Treefrog.Utility;
+using Treefrog.Windows.Forms;
 
 namespace Treefrog.Presentation
 {
-    public class SyncLayerEventArgs : EventArgs {
-        public Layer PreviousLayer { get; private set; }
-        public BaseControlLayer PreviousControlLayer { get; private set; }
-
-        public SyncLayerEventArgs (Layer layer, BaseControlLayer clayer)
-        {
-            PreviousLayer = layer;
-            PreviousControlLayer = clayer;
-        }
-    }
-
-    public interface ILevelPresenter : ICommandSubscriber
+    public interface ILayerContext
     {
-        IContentInfoPresenter InfoPresenter { get; }
-
-        LayerControl LayerControl { get; }
-
+        ILevelGeometry Geometry { get; }
         CommandHistory History { get; }
         ObservableCollection<Annotation> Annotations { get; }
-
-        Level Level { get; }
-
-        event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
-
-        IEditToolResponder EditToolResponder { get; }
     }
 
-    /*public partial class LevelPresenter : ILevelPresenter
+    public class LevelPresenter : IDisposable, ILayerContext, IPointerResponderProvider, ICommandSubscriber, ILayerListPresenter
     {
+        private bool _disposed;
         private EditorPresenter _editor;
-
         private Level _level;
-
-        private LayerControl _layerControl;
-        private PointerEventController _pointerController;
-
         private LevelInfoPresenter _info;
+        private ZoomState _zoom;
+
+        private GroupLayerPresenter _rootLayer;
+        private GroupLayerPresenter _rootContentLayer;
+
+        private string _selectedLayer;
+        private LevelLayerPresenter _selectedLayerRef;
+
+        private Dictionary<string, LevelLayerPresenter> _layerPresenters;
 
         private CommandHistory _history;
-        private ObservableCollection<Annotation> _annotations = new ObservableCollection<Annotation>();
+        private ObservableCollection<Annotation> _annotations;
 
         public LevelPresenter (EditorPresenter editor, Level level)
         {
             _editor = editor;
             _level = level;
 
-            //_info = new LevelInfoPresenter(this);
+            _zoom = new ZoomState();
+            _zoom.ZoomLevelChanged += ZoomStateLevelChanged;
 
-            _layerControl = new LayerControl() {
-                OriginX = _level.OriginX,
-                OriginY = _level.OriginY,
-                ReferenceWidth = _level.Width,
-                ReferenceHeight = _level.Height,
-            };
-            _layerControl.MouseLeave += LayerControlMouseLeaveHandler;
-            _layerControl.ControlInitialized += LayerControlInitialized;
+            _info = new LevelInfoPresenter(this);
 
-            _pointerController = new PointerEventController(_layerControl);
-            _layerControl.MouseDown += _pointerController.TargetMouseDown;
-            _layerControl.MouseUp += _pointerController.TargetMouseUp;
-            _layerControl.MouseMove += _pointerController.TargetMouseMove;
-            _layerControl.MouseLeave += _pointerController.TargetMouseLeave;
-
-            _layerControl.CanvasLayer = new CanvasLayer(_layerControl);
-            _layerControl.AnnotationLayer = new AnnotationLayer(_layerControl);
-            _layerControl.AnnotationLayer.Annotations = _annotations;
+            _layerPresenters = new Dictionary<string, LevelLayerPresenter>();
 
             _history = new CommandHistory();
             _history.HistoryChanged += HistoryChangedHandler;
 
+            _annotations = new ObservableCollection<Annotation>();
+
             InitializeCommandManager();
-            InitializeLayerListPresenter();
+            InitializeLayerHierarchy();
+            InitializeLayers();
         }
 
-        private void LayerControlInitialized (object sender, EventArgs e)
+        public void Dispose ()
         {
-            TilePoolTextureService poolService = new TilePoolTextureService(_editor.Project.TilePoolManager, _layerControl.GraphicsDeviceService);
-            _layerControl.Services.AddService<TilePoolTextureService>(poolService);
-
-            ObjectTextureService objPoolService = new ObjectTextureService(_editor.Project.ObjectPoolManager, _layerControl.GraphicsDeviceService);
-            _layerControl.Services.AddService<ObjectTextureService>(objPoolService);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        #region ILevelPResenter Members
-
-        public IContentInfoPresenter InfoPresenter
+        protected void Dispose (bool disposing)
         {
-            get { return _info; }
+            if (!_disposed) {
+                if (disposing) {
+                    foreach (LevelLayerPresenter layer in _layerPresenters.Values) {
+                        UnbindLayerEvents(layer);
+                        layer.Dispose();
+                    }
+
+                    foreach (Layer layer in _level.Layers)
+                        UnbindLayerEvents(layer);
+                }
+
+                _disposed = true;
+            }
+        }
+
+        private void HistoryChangedHandler (object sender, EventArgs e)
+        {
+            CommandManager.Invalidate(CommandKey.Undo);
+            CommandManager.Invalidate(CommandKey.Redo);
         }
 
         public Level Level
@@ -111,9 +96,34 @@ namespace Treefrog.Presentation
             get { return _level; }
         }
 
-        public LayerControl LayerControl
+        public IContentInfoPresenter InfoPresenter
         {
-            get { return _layerControl; }
+            get { return _info; }
+        }
+
+        public ZoomState Zoom
+        {
+            get { return _zoom; }
+        }
+
+        public GroupLayerPresenter RootLayer
+        {
+            get { return _rootLayer; }
+        }
+
+        public GroupLayerPresenter RootContentLayer
+        {
+            get { return _rootContentLayer; }
+        }
+
+        public LevelLayerPresenter SelectedLayer
+        {
+            get { return _selectedLayerRef; }
+        }
+
+        public TexturePool TexturePool
+        {
+            get { return _level.Project.TexturePool; }
         }
 
         public CommandHistory History
@@ -126,18 +136,191 @@ namespace Treefrog.Presentation
             get { return _annotations; }
         }
 
-        public event EventHandler<SyncLayerEventArgs> SyncCurrentLayer;
+        public ILevelGeometry LevelGeometry { get; set; }
 
-        protected virtual void OnSyncCurrentLayer (SyncLayerEventArgs e)
+        public ILevelGeometry Geometry
         {
-            if (SyncCurrentLayer != null) {
-                SyncCurrentLayer(this, e);
+            get { return LevelGeometry; }
+        }
+
+        public IPointerResponder PointerEventResponder
+        {
+            get
+            {
+                return _selectedLayerRef != null
+                    ? _selectedLayerRef.PointerEventResponder : null;
             }
         }
 
-        #endregion
+        public event EventHandler PointerEventResponderChanged;
 
-        #region Command Handling
+        protected virtual void OnPointerEventResponderChanged (EventArgs e)
+        {
+            var ev = PointerEventResponderChanged;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        private void InitializeLayerHierarchy ()
+        {
+            _rootContentLayer = new GroupLayerPresenter();
+
+            _rootLayer = new GroupLayerPresenter();
+            _rootLayer.Layers.Add(new WorkspaceLayerPresenter());
+            _rootLayer.Layers.Add(_rootContentLayer);
+            _rootLayer.Layers.Add(new GridLayerPresenter() {
+                GridSpacingX = 16,
+                GridSpacingY = 16,
+                GridColor = new Color(0, 0, 0, 128),
+            });
+            _rootLayer.Layers.Add(new AnnotationLayerPresenter() {
+                Annotations = _annotations,
+            });
+        }
+
+        private void InitializeLayers ()
+        {
+            foreach (Layer layer in _level.Layers) {
+                AddLayer(layer);
+            }
+
+            SelectLayer();
+        }
+
+        private void AddLayer (Layer layer)
+        {
+            LevelLayerPresenter layerp = LayerPresenterFactory.Default.Create(layer, this);
+
+            _layerPresenters[layer.Name] = layerp;
+            _rootContentLayer.Layers.Add(layerp);
+
+            BindingHelper.TryBind<ITilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
+            BindingHelper.TryBind<ITileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
+            BindingHelper.TryBind<IObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
+
+            BindLayerEvents(layer);
+        }
+
+        private void RemoveLayer (string layerName)
+        {
+            if (layerName == null || !_layerPresenters.ContainsKey(layerName))
+                return;
+
+            LevelLayerPresenter layerp = _layerPresenters[layerName];
+            _layerPresenters.Remove(layerName);
+            _rootContentLayer.Layers.Remove(layerp);
+
+            UnbindLayerEvents(layerp);
+            layerp.Dispose();
+        }
+
+        private void SelectLayer ()
+        {
+            SelectLayer(null);
+
+            foreach (Layer layer in _level.Layers) {
+                SelectLayer(layer.Name);
+                return;
+            }
+        }
+
+        private void SelectLayer (string layerName)
+        {
+            if (_selectedLayer == layerName)
+                return;
+
+            if (_selectedLayerRef != null) {
+                UnbindSelectedLayerEvents(_selectedLayerRef);
+
+                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
+                if (comLayer != null) {
+                    _commandManager.RemoveCommandSubscriber(comLayer);
+                }
+
+                _selectedLayerRef.Deactivate();
+            }
+
+            if (layerName == null || !_layerPresenters.ContainsKey(layerName)) {
+                _selectedLayer = null;
+                _selectedLayerRef = null;
+
+                InvalidateLayerCommands();
+                OnPointerEventResponderChanged(EventArgs.Empty);
+                return;
+            }
+
+            _selectedLayer = layerName;
+            _selectedLayerRef = _layerPresenters[_selectedLayer];
+
+            _info.ActionUpdateCoordinates("");
+
+            if (_selectedLayerRef != null) {
+                BindSelectedLayerEvents(_selectedLayerRef);
+
+                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
+                if (comLayer != null) {
+                    _commandManager.AddCommandSubscriber(comLayer);
+                }
+
+                _selectedLayerRef.Activate();
+            }
+
+            InvalidateLayerCommands();
+            OnPointerEventResponderChanged(EventArgs.Empty);
+
+            _info.RefreshContentInfo();
+        }
+
+        private void BindLayerEvents (Layer layer)
+        {
+            if (layer != null) {
+                layer.NameChanged += LayerNameChanged;
+            }
+        }
+
+        private void UnbindLayerEvents (Layer layer)
+        {
+            if (layer != null) {
+                layer.NameChanged -= LayerNameChanged;
+            }
+        }
+
+        private void UnbindLayerEvents (LevelLayerPresenter layer)
+        {
+            UnbindSelectedLayerEvents(layer);
+        }
+
+        private void BindSelectedLayerEvents (LevelLayerPresenter layer)
+        {
+            if (layer != null) {
+                layer.PointerEventResponderChanged += SelectedLayerPointerEventResponderChanged;
+            }
+        }
+
+        private void UnbindSelectedLayerEvents (LevelLayerPresenter layer)
+        {
+            if (layer != null) {
+                layer.PointerEventResponderChanged -= SelectedLayerPointerEventResponderChanged;
+            }
+        }
+
+        private void SelectedLayerPointerEventResponderChanged (object sender, EventArgs e)
+        {
+            OnPointerEventResponderChanged(EventArgs.Empty);
+        }
+
+        private void LayerNameChanged (object sender, NameChangedEventArgs e)
+        {
+            if (_layerPresenters.ContainsKey(e.OldName)) {
+                _layerPresenters[e.NewName] = _layerPresenters[e.OldName];
+                _layerPresenters.Remove(e.OldName);
+            }
+
+            if (_selectedLayer == e.OldName)
+                _selectedLayer = e.NewName;
+        }
+
+        #region Commands
 
         private ForwardingCommandManager _commandManager;
 
@@ -149,6 +332,9 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
             _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
             _commandManager.Register(CommandKey.LevelResize, CommandCanResize, CommandResize);
+            _commandManager.Register(CommandKey.ViewZoomIn, CommandCanZoomIn, CommandZoomIn);
+            _commandManager.Register(CommandKey.ViewZoomOut, CommandCanZoomOut, CommandZoomOut);
+            _commandManager.Register(CommandKey.ViewZoomNormal, CommandCanZoomNormal, CommandZoomNormal);
 
             _commandManager.Register(CommandKey.NewTileLayer, CommandCanAddTileLayer, CommandAddTileLayer);
             _commandManager.Register(CommandKey.NewObjectLayer, CommandCanAddObjectLayer, CommandAddObjectLayer);
@@ -181,7 +367,9 @@ namespace Treefrog.Presentation
 
         private void CommandUndo ()
         {
-            History.Undo();
+            if (CommandCanUndo()) {
+                History.Undo();
+            }
         }
 
         private bool CommandCanRedo ()
@@ -191,7 +379,9 @@ namespace Treefrog.Presentation
 
         private void CommandRedo ()
         {
-            History.Redo();
+            if (CommandCanRedo()) {
+                History.Redo();
+            }
         }
 
         private bool CommandCanToggleGrid ()
@@ -201,7 +391,7 @@ namespace Treefrog.Presentation
 
         private void CommandToggleGrid ()
         {
-            _layerControl.ShowGrid = _commandManager.IsSelected(CommandKey.ViewGrid);
+            //_layerControl.ShowGrid = _commandManager.IsSelected(CommandKey.ViewGrid);
         }
 
         private bool CommandCanResize ()
@@ -214,12 +404,12 @@ namespace Treefrog.Presentation
             if (CommandCanResize()) {
                 using (ResizeLevelForm form = new ResizeLevelForm(_level)) {
                     if (form.ShowDialog() == DialogResult.OK) {
-                        _level.Resize(form.NewOriginX, form.NewOriginY, form.NewWidth, form.NewHeight);
+                        //_level.Resize(form.NewOriginX, form.NewOriginY, form.NewWidth, form.NewHeight);
 
-                        _layerControl.OriginX = _level.OriginX;
-                        _layerControl.OriginY = _level.OriginY;
-                        _layerControl.ReferenceWidth = _level.Width;
-                        _layerControl.ReferenceHeight = _level.Height;
+                        //_layerControl.OriginX = _level.OriginX;
+                        //_layerControl.OriginY = _level.OriginY;
+                        //_layerControl.ReferenceWidth = _level.Width;
+                        //_layerControl.ReferenceHeight = _level.Height;
 
                         _history.Clear();
                     }
@@ -227,111 +417,42 @@ namespace Treefrog.Presentation
             }
         }
 
-        #endregion
-
-        IContentInfoPresenter ILevelPresenter.InfoPresenter
+        private bool CommandCanZoomIn ()
         {
-            get { throw new NotImplementedException(); }
+            return _zoom.CanZoomIn;
         }
 
-        LayerControl ILevelPresenter.LayerControl
+        private void CommandZoomIn ()
         {
-            get { throw new NotImplementedException(); }
-        }
-
-        CommandHistory ILevelPresenter.History
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        ObservableCollection<Annotation> ILevelPresenter.Annotations
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        Level ILevelPresenter.Level
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        event EventHandler<SyncLayerEventArgs> ILevelPresenter.SyncCurrentLayer
-        {
-            add { throw new NotImplementedException(); }
-            remove { throw new NotImplementedException(); }
-        }
-
-        IEditToolResponder ILevelPresenter.EditToolResponder
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        CommandManager ICommandSubscriber.CommandManager
-        {
-            get { throw new NotImplementedException(); }
-        }
-    }
-
-    public partial class LevelPresenter
-    {
-        #region Fields
-
-        private string _selectedLayer;
-        private BaseControlLayer _selectedLayerRef;
-
-        private Dictionary<string, BaseControlLayer> _controlLayers;
-
-        #endregion
-
-        private void InitializeLayerListPresenter ()
-        {
-            _controlLayers = new Dictionary<string, BaseControlLayer>();
-
-            foreach (Layer layer in _level.Layers) {
-                //MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, layer);
-                Type controlType = ControlLayerFactory.Lookup(layer.GetType());
-                if (controlType == null)
-                    continue;
-
-                BaseControlLayer clayer = Activator.CreateInstance(controlType, _layerControl, layer) as BaseControlLayer;
-                clayer.ShouldDrawContent = LayerCondition.Always;
-                clayer.ShouldDrawGrid = LayerCondition.Selected;
-                clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-                clayer.BindContentInfoController(_info);
-
-                IPointerToolResponder pointerLayer = clayer as IPointerToolResponder;
-                if (pointerLayer != null)
-                    pointerLayer.BindLevelController(this);
-
-                ObjectControlLayer objLayer = clayer as ObjectControlLayer;
-                if (objLayer != null)
-                    objLayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
-
-                TileControlLayer tileLayer = clayer as TileControlLayer;
-                if (tileLayer != null) {
-                    tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
-                    tileLayer.BindTileBrushManager(_editor.Presentation.TileBrushes);
-                }
-
-                _controlLayers[layer.Name] = clayer;
-
-                BindLayerEvents(layer);
-            }
-
-            SelectLayer();
-        }
-
-        private void BindLayerEvents (Layer layer)
-        {
-            if (layer != null) {
-                layer.NameChanged += Layer_NameChanged;
+            if (CommandCanZoomIn()) {
+                _zoom.ZoomIn();
+                InvalidateZoomCommands();
             }
         }
 
-        private void UnbindLayerEvents (Layer layer)
+        private bool CommandCanZoomOut ()
         {
-            if (layer != null) {
-                layer.NameChanged -= Layer_NameChanged;
+            return _zoom.CanZoomOut;
+        }
+
+        private void CommandZoomOut ()
+        {
+            if (CommandCanZoomOut()) {
+                _zoom.ZoomOut();
+                InvalidateZoomCommands();
+            }
+        }
+
+        private bool CommandCanZoomNormal ()
+        {
+            return true;
+        }
+
+        private void CommandZoomNormal ()
+        {
+            if (CommandCanZoomNormal()) {
+                _zoom.ZoomLevel = 1f;
+                InvalidateZoomCommands();
             }
         }
 
@@ -342,40 +463,24 @@ namespace Treefrog.Presentation
 
         private void CommandAddTileLayer ()
         {
-            string name = FindDefaultLayerName("Tile Layer");
+            if (CommandCanAddTileLayer()) {
+                string name = FindDefaultLayerName("Tile Layer");
 
-            using (TileLayerForm form = new TileLayerForm(_level, name)) {
-                foreach (Layer layer in _level.Layers)
-                    form.ReservedNames.Add(layer.Name);
+                using (TileLayerForm form = new TileLayerForm(_level, name)) {
+                    foreach (Layer layer in _level.Layers)
+                        form.ReservedNames.Add(layer.Name);
 
-                if (form.ShowDialog() == DialogResult.OK) {
-                    BindLayerEvents(form.Layer);
-                    _level.Layers.Add(form.Layer);
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        _level.Layers.Add(form.Layer);
 
-                    MultiTileControlLayer clayer = new MultiTileControlLayer(_layerControl, form.Layer);
-                    clayer.ShouldDrawContent = LayerCondition.Always;
-                    clayer.ShouldDrawGrid = LayerCondition.Selected;
-                    clayer.ShouldRespondToInput = LayerCondition.Selected;
+                        // Intercept event instead
+                        AddLayer(form.Layer);
 
-                    clayer.BindContentInfoController(_info);
+                        SelectLayer(name);
 
-                    IPointerToolResponder pointerLayer = clayer as IPointerToolResponder;
-                    if (pointerLayer != null)
-                        pointerLayer.BindLevelController(this);
-
-                    TileControlLayer tileLayer = clayer as TileControlLayer;
-                    if (tileLayer != null) {
-                        tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
-                        tileLayer.BindTileBrushManager(_editor.Presentation.TileBrushes);
+                        OnSyncLayerList(EventArgs.Empty);
+                        OnSyncLayerSelection(EventArgs.Empty);
                     }
-
-                    _controlLayers[name] = clayer;
-
-                    SelectLayer(name);
-
-                    OnSyncLayerActions(EventArgs.Empty);
-                    OnSyncLayerList(EventArgs.Empty);
-                    OnSyncLayerSelection(EventArgs.Empty);
                 }
             }
         }
@@ -387,31 +492,20 @@ namespace Treefrog.Presentation
 
         private void CommandAddObjectLayer ()
         {
-            string name = FindDefaultLayerName("Object Layer");
+            if (CommandCanAddObjectLayer()) {
+                string name = FindDefaultLayerName("Object Layer");
 
-            ObjectLayer layer = new ObjectLayer(name, _level);
+                ObjectLayer layer = new ObjectLayer(name, _level);
+                _level.Layers.Add(layer);
 
-            BindLayerEvents(layer);
+                // Intercept event instead
+                AddLayer(layer);
 
-            _level.Layers.Add(layer);
+                SelectLayer(name);
 
-            ObjectControlLayer clayer = new ObjectControlLayer(_layerControl, layer);
-            clayer.ShouldDrawContent = LayerCondition.Always;
-            clayer.ShouldDrawGrid = LayerCondition.Selected;
-            clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-            clayer.BindContentInfoController(_info);
-
-            clayer.BindLevelController(this);
-            clayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
-
-            _controlLayers[name] = clayer;
-
-            SelectLayer(name);
-
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
-            OnSyncLayerSelection(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerSelection(EventArgs.Empty);
+            }
         }
 
         private bool CommandCanCloneLayer ()
@@ -421,52 +515,24 @@ namespace Treefrog.Presentation
 
         private void CommandCloneLayer ()
         {
-            if (CommandCanCloneLayer() && _controlLayers.ContainsKey(_selectedLayer)) {
-                string name = FindCloneLayerName(SelectedLayer.Name);
+            if (CommandCanCloneLayer() && _layerPresenters.ContainsKey(_selectedLayer)) {
+                string name = FindCloneLayerName(_selectedLayer);
 
                 Layer layer = null;
-                if (_selectedLayerRef is MultiTileControlLayer)
-                    layer = new MultiTileGridLayer(name, SelectedLayer as MultiTileGridLayer);
-                else if (_selectedLayerRef is ObjectControlLayer)
-                    layer = new ObjectLayer(name, SelectedLayer as ObjectLayer);
+                if (_selectedLayerRef is TileLayerPresenter)
+                    layer = new MultiTileGridLayer(name, SelectedLayer.Layer as MultiTileGridLayer);
+                else if (_selectedLayerRef is ObjectLayerPresenter)
+                    layer = new ObjectLayer(name, SelectedLayer.Layer as ObjectLayer);
                 else
                     return;
 
-                BindLayerEvents(layer);
-
                 _level.Layers.Add(layer);
 
-                BaseControlLayer clayer = null;
-                if (layer is MultiTileGridLayer)
-                    clayer = new MultiTileControlLayer(_layerControl, layer as MultiTileGridLayer);
-                else if (layer is ObjectLayer)
-                    clayer = new ObjectControlLayer(_layerControl, layer as ObjectLayer);
-
-                clayer.ShouldDrawContent = LayerCondition.Always;
-                clayer.ShouldDrawGrid = LayerCondition.Selected;
-                clayer.ShouldRespondToInput = LayerCondition.Selected;
-
-                clayer.BindContentInfoController(_info);
-
-                IPointerToolResponder pointerLayer = clayer as IPointerToolResponder;
-                if (pointerLayer != null)
-                    pointerLayer.BindLevelController(this);
-
-                TileControlLayer tileLayer = clayer as TileControlLayer;
-                if (tileLayer != null) {
-                    tileLayer.BindObjectController(_editor.Presentation.TilePoolList);
-                    tileLayer.BindTileBrushManager(_editor.Presentation.TileBrushes);
-                }
-
-                ObjectControlLayer objectLayer = clayer as ObjectControlLayer;
-                if (objectLayer != null)
-                    objectLayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
-
-                _controlLayers[name] = clayer;
+                // Intercept event instead
+                AddLayer(layer);
 
                 SelectLayer(name);
 
-                OnSyncLayerActions(EventArgs.Empty);
                 OnSyncLayerList(EventArgs.Empty);
                 OnSyncLayerSelection(EventArgs.Empty);
             }
@@ -479,19 +545,17 @@ namespace Treefrog.Presentation
 
         private void CommandDeleteLayer ()
         {
-            if (CommandCanDeleteLayer() && _controlLayers.ContainsKey(_selectedLayer)) {
-                UnbindLayerEvents(_level.Layers[_selectedLayer]);
-
+            if (CommandCanDeleteLayer() && _layerPresenters.ContainsKey(_selectedLayer)) {
                 _level.Layers.Remove(_selectedLayer);
-                _layerControl.RemoveLayer(_controlLayers[_selectedLayer]);
-                _controlLayers.Remove(_selectedLayer);
+
+                // Intercept event instead
+                RemoveLayer(_selectedLayer);
 
                 SelectLayer();
-            }
 
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
-            OnSyncLayerSelection(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerSelection(EventArgs.Empty);
+            }
         }
 
         private bool CommandCanMoveLayerTop ()
@@ -504,51 +568,57 @@ namespace Treefrog.Presentation
             if (CommandCanMoveLayerTop()) {
                 int index = _level.Layers.IndexOf(_selectedLayer);
                 int count = _level.Layers.Count - 1;
-
                 _level.Layers.ChangeIndexRelative(_selectedLayer, count - index);
-                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], count - index);
+
+                int pindex = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(pindex, _rootContentLayer.Layers.Count - 1);
 
                 InvalidateLayerViewCommands();
-            }
 
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+            }
         }
 
         private bool CommandCanMoveLayerUp ()
         {
-            return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) < _level.Layers.Count - 1);
+            return (SelectedLayer != null 
+                && _level.Layers.Contains(_selectedLayer) 
+                && _level.Layers.IndexOf(_selectedLayer) < _level.Layers.Count - 1);
         }
 
         private void CommandMoveLayerUp ()
         {
             if (CommandCanMoveLayerUp()) {
                 _level.Layers.ChangeIndexRelative(_selectedLayer, 1);
-                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], 1);
+
+                int index = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(index, index + 1);
 
                 InvalidateLayerViewCommands();
-            }
 
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+            }
         }
 
         private bool CommandCanMoveLayerDown ()
         {
-            return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) > 0);
+            return (SelectedLayer != null 
+                && _level.Layers.Contains(_selectedLayer)
+                && _level.Layers.IndexOf(_selectedLayer) > 0);
         }
 
         private void CommandMoveLayerDown ()
         {
             if (CommandCanMoveLayerDown()) {
                 _level.Layers.ChangeIndexRelative(_selectedLayer, -1);
-                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], -1);
+
+                int index = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(index, index - 1);
 
                 InvalidateLayerViewCommands();
-            }
 
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+            }
         }
 
         private bool CommandCanMoveLayerBottom ()
@@ -560,15 +630,15 @@ namespace Treefrog.Presentation
         {
             if (CommandCanMoveLayerBottom()) {
                 int index = _level.Layers.IndexOf(_selectedLayer);
-
                 _level.Layers.ChangeIndexRelative(_selectedLayer, 0 - index);
-                _layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], 0 - index);
+
+                int pindex = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(pindex, 0);
 
                 InvalidateLayerViewCommands();
-            }
 
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
+                OnSyncLayerList(EventArgs.Empty);
+            }
         }
 
         private void InvalidateLayerViewCommands ()
@@ -579,224 +649,28 @@ namespace Treefrog.Presentation
             CommandManager.Invalidate(CommandKey.LayerMoveBottom);
         }
 
-        #region Properties
-
-        public bool CanShowSelectedLayerProperties
+        private void InvalidateLayerCommands ()
         {
-            get { return SelectedLayer != null; }
+            InvalidateLayerViewCommands();
+
+            CommandManager.Invalidate(CommandKey.LayerClone);
+            CommandManager.Invalidate(CommandKey.LayerDelete);
+            CommandManager.Invalidate(CommandKey.LayerExportRaster);
+            CommandManager.Invalidate(CommandKey.LevelResize);
         }
 
-        public IEnumerable<Layer> LayerList
+        private void InvalidateZoomCommands ()
         {
-            get { return _level.Layers; }
-        }
-
-        public Layer SelectedLayer
-        {
-            get
-            {
-                return (_selectedLayer != null && _level.Layers.Contains(_selectedLayer))
-                    ? _level.Layers[_selectedLayer]
-                    : null;
-            }
-        }
-
-        public BaseControlLayer SelectedControlLayer
-        {
-            get
-            {
-                return (SelectedLayer != null && _controlLayers.ContainsKey(_selectedLayer))
-                    ? _controlLayers[_selectedLayer]
-                    : null;
-            }
-        }
-
-        public IEditToolResponder EditToolResponder
-        {
-            get
-            {
-                return (SelectedControlLayer != null)
-                    ? SelectedControlLayer.EditToolResponder
-                    : null;
-            }
+            CommandManager.Invalidate(CommandKey.ViewZoomIn);
+            CommandManager.Invalidate(CommandKey.ViewZoomOut);
         }
 
         #endregion
 
-        #region Events
-
-        public event EventHandler SyncLayerActions;
-
-        public event EventHandler SyncLayerList;
-
-        public event EventHandler SyncLayerSelection;
-
-        #endregion
-
-        #region Event Dispatchers
-
-        protected void OnSyncLayerActions (EventArgs e)
+        private void ZoomStateLevelChanged (object sender, EventArgs e)
         {
-            if (SyncLayerActions != null) {
-                SyncLayerActions(this, e);
-            }
-        }
-
-        protected void OnSyncLayerList (EventArgs e)
-        {
-            if (SyncLayerList != null) {
-                SyncLayerList(this, e);
-            }
-        }
-
-        protected void OnSyncLayerSelection (EventArgs e)
-        {
-            if (SyncLayerSelection != null) {
-                SyncLayerSelection(this, e);
-            }
-
-            //_editor.Presentation.LevelTools.RefreshLevelTools();
-        }
-
-        #endregion
-
-        private void Layer_NameChanged (object sender, NameChangedEventArgs e) 
-        {
-            if (_controlLayers.ContainsKey(e.OldName)) {
-                _controlLayers[e.NewName] = _controlLayers[e.OldName];
-                _controlLayers.Remove(e.OldName);
-            }
-
-            if (_selectedLayer == e.OldName)
-                _selectedLayer = e.NewName;
-
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
-            OnSyncLayerSelection(EventArgs.Empty);
-        }
-
-        #region View Action API
-
-        public void ActionSelectLayer (string name)
-        {
-            SelectLayer(name);
-
-            _editor.Presentation.PropertyList.Provider = SelectedLayer;
-
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerSelection(EventArgs.Empty);
-        }
-
-        public void ActionShowSelectedLayerProperties ()
-        {
-            if (CanShowSelectedLayerProperties) {
-                _editor.Presentation.PropertyList.Provider = SelectedLayer;
-            }
-        }
-
-        public void ActionShowHideLayer (string name, LayerVisibility visibility)
-        {
-            if (name != null && _controlLayers.ContainsKey(name)) {
-                BaseControlLayer layer = _controlLayers[name];
-                layer.Visible = (visibility == LayerVisibility.Show);
-            }
-        }
-
-        #endregion
-
-        private void SelectLayer ()
-        {
-            SelectLayer(null);
-
-            foreach (Layer layer in _level.Layers) {
-                SelectLayer(layer.Name);
-                return;
-            }
-        }
-
-        private void SelectLayer (string layer)
-        {
-            Layer prevLayer = SelectedLayer;
-            BaseControlLayer prevControlLayer = SelectedControlLayer;
-
-            if (_selectedLayer == layer) {
-                return;
-            }
-
-            // Unbind previously selected layer if necessary
-            if (_selectedLayerRef != null) {
-                _selectedLayerRef.Deactivate();
-                _selectedLayerRef.Selected = false;
-
-                TileControlLayer tileLayer = _selectedLayerRef as TileControlLayer;
-                if (tileLayer != null) {
-                    tileLayer.MouseTileMove -= LayerMouseMoveHandler;
-                }
-
-                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
-                if (comLayer != null) {
-                    _commandManager.RemoveCommandSubscriber(comLayer);
-                }
-            }
-
-            _selectedLayer = null;
-            _selectedLayerRef = null;
-            _pointerController.Responder = null;
-
-            _info.ActionUpdateCoordinates("");
-
-            // Bind new layer
-            if (layer != null && _controlLayers.ContainsKey(layer)) {
-                _selectedLayer = layer;
-                _selectedLayerRef = _controlLayers[layer];
-
-                _selectedLayerRef.Activate();
-                _selectedLayerRef.Selected = true;
-                _selectedLayerRef.ApplyScrollAttributes();
-
-                TileControlLayer tileLayer = _selectedLayerRef as TileControlLayer;
-                if (tileLayer != null) {
-                    tileLayer.MouseTileMove += LayerMouseMoveHandler;
-                }
-
-                ICommandSubscriber comLayer = _selectedLayerRef as ICommandSubscriber;
-                if (comLayer != null) {
-                    _commandManager.AddCommandSubscriber(comLayer);
-                }
-
-                if (!_level.Layers.Contains(layer)) {
-                    throw new InvalidOperationException("Selected a ControlLayer with no corresponding model Layer!  Selected name: " + layer);
-                }
-
-                _pointerController.Responder = SelectedControlLayer as IPointerToolResponder;
-            }
-
-            OnSyncCurrentLayer(new SyncLayerEventArgs(prevLayer, prevControlLayer));
-
-            _info.RefreshContentInfo();
-        }
-
-        private void LayerMouseMoveHandler (object sender, TileMouseEventArgs e)
-        {
-            _info.ActionUpdateCoordinates(e.TileLocation.X + ", " + e.TileLocation.Y);
-        }
-
-        private void LayerControlMouseLeaveHandler (object sender, EventArgs e)
-        {
-            _info.ActionUpdateCoordinates("");
-        }
-
-        private void HistoryChangedHandler (object sender, EventArgs e)
-        {
-            //_editor.Presentation.DocumentTools.RefreshDocumentTools();
-            CommandManager.Invalidate(CommandKey.Undo);
-            CommandManager.Invalidate(CommandKey.Redo);
-        }
-
-        public void RefreshLayerList ()
-        {
-            OnSyncLayerActions(EventArgs.Empty);
-            OnSyncLayerList(EventArgs.Empty);
+            if (LevelGeometry != null)
+                LevelGeometry.ZoomFactor = _zoom.ZoomLevel;
         }
 
         private string FindDefaultLayerName (string baseName)
@@ -832,5 +706,51 @@ namespace Treefrog.Presentation
                 return name;
             }
         }
-    }*/
+
+
+
+
+        public IEnumerable<LevelLayerPresenter> LayerList
+        {
+            get
+            {
+                foreach (LevelLayerPresenter layer in _rootContentLayer.Layers) {
+                    if (layer != null)
+                        yield return layer;
+                }
+            }
+        }
+
+        public event EventHandler SyncLayerList;
+        public event EventHandler SyncLayerSelection;
+
+        protected virtual void OnSyncLayerList (EventArgs e)
+        {
+            var ev = SyncLayerList;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnSyncLayerSelection (EventArgs e)
+        {
+            var ev = SyncLayerSelection;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        public void ActionSelectLayer (string name)
+        {
+            SelectLayer(name);
+
+            if (SelectedLayer != null)
+                _editor.Presentation.PropertyList.Provider = SelectedLayer.Layer;
+
+            OnSyncLayerSelection(EventArgs.Empty);
+        }
+
+        public void ActionShowHideLayer (string name, LayerVisibility visibility)
+        {
+
+        }
+    }
 }

@@ -145,11 +145,11 @@ namespace Treefrog.Presentation
 
     class LevelInfoPresenter : IContentInfoPresenter
     {
-        private LevelPresenter2 _level;
+        private LevelPresenter _level;
 
         private string _coordinates = "";
 
-        public LevelInfoPresenter (LevelPresenter2 level)
+        public LevelInfoPresenter (LevelPresenter level)
         {
             _level = level;
             _level.Zoom.ZoomLevelChanged += ZoomStateChanged;

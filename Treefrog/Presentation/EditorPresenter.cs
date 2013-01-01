@@ -11,9 +11,9 @@ namespace Treefrog.Presentation
     public class SyncLevelEventArgs : EventArgs
     {
         public Level PreviousLevel { get; private set; }
-        public LevelPresenter2 PreviousLevelPresenter { get; private set; }
+        public LevelPresenter PreviousLevelPresenter { get; private set; }
 
-        public SyncLevelEventArgs (Level level, LevelPresenter2 controller)
+        public SyncLevelEventArgs (Level level, LevelPresenter controller)
         {
             PreviousLevel = level;
             PreviousLevelPresenter = controller;
@@ -47,7 +47,7 @@ namespace Treefrog.Presentation
 
         Presentation Presentation { get; }
 
-        IEnumerable<LevelPresenter2> OpenContent { get; }
+        IEnumerable<LevelPresenter> OpenContent { get; }
 
         void ActionSelectContent (string name);
 
@@ -66,7 +66,7 @@ namespace Treefrog.Presentation
     {
         private EditorPresenter _editor;
 
-        private TilePoolListPresenter2 _tilePoolList;
+        private TilePoolListPresenter _tilePoolList;
         private ObjectPoolCollectionPresenter _objectPoolCollection;
         private TileBrushManagerPresenter _tileBrushManager;
         private PropertyListPresenter _propertyList;
@@ -83,7 +83,7 @@ namespace Treefrog.Presentation
             _docTools = new DocumentToolsPresenter(_editor);
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
 
-            _tilePoolList = new TilePoolListPresenter2(_editor);
+            _tilePoolList = new TilePoolListPresenter(_editor);
             _objectPoolCollection = new ObjectPoolCollectionPresenter(_editor);
             _tileBrushManager = new TileBrushManagerPresenter(_editor);
             _propertyList = new PropertyListPresenter();
@@ -99,12 +99,12 @@ namespace Treefrog.Presentation
             get { return _docTools; }
         }
 
-        public LevelPresenter2 LayerList
+        public LevelPresenter LayerList
         {
             get { return _editor.CurrentLevel; }
         }
 
-        public LevelPresenter2 Level
+        public LevelPresenter Level
         {
             get { return _editor.CurrentLevel; }
         }
@@ -144,9 +144,9 @@ namespace Treefrog.Presentation
     {
         private Project _project;
 
-        private Dictionary<string, LevelPresenter2> _levels;
+        private Dictionary<string, LevelPresenter> _levels;
         private string _currentLevel;
-        private LevelPresenter2 _currentLevelRef;
+        private LevelPresenter _currentLevelRef;
 
         private Presentation _presentation;
 
@@ -176,13 +176,13 @@ namespace Treefrog.Presentation
             _project.Modified += ProjectModifiedHandler;
 
             _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter2>();
+            _levels = new Dictionary<string, LevelPresenter>();
 
             Level level = new Level("Level 1", 0, 0, 800, 480);
             level.Project = _project;
             level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
 
-            LevelPresenter2 pres = new LevelPresenter2(this, level);
+            LevelPresenter pres = new LevelPresenter(this, level);
             _levels[level.Name] = pres;
 
             _openContent.Add(level.Name);
@@ -225,12 +225,12 @@ namespace Treefrog.Presentation
             _project.Modified += ProjectModifiedHandler;
 
             _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter2>();
+            _levels = new Dictionary<string, LevelPresenter>();
 
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
-                LevelPresenter2 pres = new LevelPresenter2(this, level);
+                LevelPresenter pres = new LevelPresenter(this, level);
                 _levels[level.Name] = pres;
 
                 _openContent.Add(level.Name);
@@ -271,12 +271,12 @@ namespace Treefrog.Presentation
             _currentLevel = null;
 
             _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter2>();
+            _levels = new Dictionary<string, LevelPresenter>();
 
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
-                LevelPresenter2 pres = new LevelPresenter2(this, level);
+                LevelPresenter pres = new LevelPresenter(this, level);
                 _levels[level.Name] = pres;
 
                 _openContent.Add(level.Name);
@@ -325,7 +325,7 @@ namespace Treefrog.Presentation
             get { return _project; }
         }
 
-        public LevelPresenter2 CurrentLevel
+        public LevelPresenter CurrentLevel
         {
             get
             {
@@ -395,7 +395,7 @@ namespace Treefrog.Presentation
             }
         }
 
-        public IEnumerable<LevelPresenter2> OpenContent
+        public IEnumerable<LevelPresenter> OpenContent
         {
             get 
             {
@@ -621,7 +621,7 @@ namespace Treefrog.Presentation
             if (CommandCanAddLevel()) {
                 NewLevel form = new NewLevel(_project);
                 if (form.ShowDialog() == DialogResult.OK) {
-                    LevelPresenter2 pres = new LevelPresenter2(this, form.Level);
+                    LevelPresenter pres = new LevelPresenter(this, form.Level);
                     _levels[form.Level.Name] = pres;
 
                     _openContent.Add(form.Level.Name);
@@ -645,7 +645,7 @@ namespace Treefrog.Presentation
         private void SelectLevel (string level)
         {
             Level prev = _project.Levels.Contains(level) ? _project.Levels[level] : null;
-            LevelPresenter2 prevLevel = _currentLevelRef;
+            LevelPresenter prevLevel = _currentLevelRef;
             
             if (_currentLevel == level) {
                 return;

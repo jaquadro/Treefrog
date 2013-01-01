@@ -1,25 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Treefrog.Framework;
 using Treefrog.Framework.Model;
-using Amphibian.Drawing;
-using Treefrog.Model;
 using Treefrog.Presentation;
-using Treefrog.Presentation.Layers;
-using Treefrog.Windows.Controls;
+using Treefrog.Presentation.Commands;
+using Treefrog.Presentation.Controllers;
+using Treefrog.Windows.Controllers;
+using Treefrog.Windows.Layers;
 
 namespace Treefrog.Windows
 {
-    using XColor = Microsoft.Xna.Framework.Color;
-    using XRectangle = Microsoft.Xna.Framework.Rectangle;
-    using Treefrog.Presentation.Commands;
-    using Treefrog.Windows.Controllers;
-    using System.Collections.Generic;
-using Treefrog.Windows.Layers;
-    using Treefrog.Presentation.Controllers;
-    
-
     public partial class TilePoolPane : UserControl
     {
         private ITilePoolListPresenter _controller;

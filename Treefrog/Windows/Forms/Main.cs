@@ -49,7 +49,7 @@ namespace Treefrog.Windows.Forms
         {
             tabControlEx1.TabPages.Clear();
 
-            foreach (LevelPresenter2 lp in _editor.OpenContent) {
+            foreach (LevelPresenter lp in _editor.OpenContent) {
                 TabPage page = new TabPage(lp.Level.Name);
                 tabControlEx1.TabPages.Add(page);
 

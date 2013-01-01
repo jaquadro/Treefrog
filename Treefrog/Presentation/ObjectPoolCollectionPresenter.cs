@@ -104,6 +104,8 @@ namespace Treefrog.Presentation
             OnSyncObjectPoolActions(EventArgs.Empty);
             OnSyncObjectPoolCollection(EventArgs.Empty);
             OnSyncObjectPoolControl(EventArgs.Empty);
+
+            InvalidateObjectProtoCommands();
         }
 
         #region Command Handling
@@ -186,8 +188,17 @@ namespace Treefrog.Presentation
                 SelectedObjectPool.RemoveObject(SelectedObject.Name);
 
                 RefreshObjectPoolCollection();
+                InvalidateObjectProtoCommands();
                 OnSyncObjectPoolManager(EventArgs.Empty);
             }
+        }
+
+        private void InvalidateObjectProtoCommands ()
+        {
+            CommandManager.Invalidate(CommandKey.ObjectProtoImport);
+            CommandManager.Invalidate(CommandKey.ObjectProtoClone);
+            CommandManager.Invalidate(CommandKey.ObjectProtoDelete);
+            CommandManager.Invalidate(CommandKey.ObjectProtoProperties);
         }
 
         #endregion
@@ -404,9 +415,11 @@ namespace Treefrog.Presentation
             if (SelectedObject != null && SelectedObjectPool.Objects.Contains(SelectedObject)) {
                 SelectedObjectPool.Objects.Remove(SelectedObject);
                 _selectedObjects.Remove(_selectedPool);
+
+                InvalidateObjectProtoCommands();
             }
 
-            SelectObject(_selectedPool);
+            //SelectObject(_selectedPool);
 
             OnSyncObjectPoolActions(EventArgs.Empty);
             OnSyncObjectPoolCollection(EventArgs.Empty);
@@ -432,6 +445,8 @@ namespace Treefrog.Presentation
 
                 //_editor.Presentation.PropertyList.Provider = SelectedObjectPool.Objects[objectClass];
             }
+
+            InvalidateObjectProtoCommands();
         }
 
         public void RefreshObjectPoolCollection ()
@@ -469,6 +484,8 @@ namespace Treefrog.Presentation
                 _selectedPoolRef = _editor.Project.ObjectPoolManager.Pools[objectPool];
             }
 
+            InvalidateObjectProtoCommands();
+
             OnSyncCurrentObjectPool(new SyncObjectPoolEventArgs(prevPool));
         }
 
@@ -501,6 +518,8 @@ namespace Treefrog.Presentation
             {
                 _selectedObjects[objectPool] = _editor.Project.ObjectPoolManager.Pools[objectPool].Objects[objectClass];
             }
+
+            InvalidateObjectProtoCommands();
 
             OnSyncCurrentObject(new SyncObjectEventArgs(prevClass));
         }
