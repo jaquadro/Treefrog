@@ -54,8 +54,11 @@ namespace Treefrog.Framework.Model
 
         public void RemoveResource (int id)
         {
-            if (_resources.Remove(id))
+            if (_resources.Remove(id)) {
+                if (id == _lastId)
+                    _lastId--;
                 OnResourceRemoved(new ResourceEventArgs(id));
+            }
         }
 
         internal void ReplaceResource (int id, TextureResource resource)

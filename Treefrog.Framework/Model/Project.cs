@@ -271,6 +271,7 @@ namespace Treefrog.Framework.Model
 
             return new ProjectXmlProxy()
             {
+                TexturePool = TexturePool.ToXmlProxy(project.TexturePool),
                 ObjectPools = ObjectPoolManager.ToXmlProxy(project.ObjectPoolManager),
                 TilePools = TilePoolManager.ToXmlProxy(project.TilePoolManager),
                 TileBrushes = TileBrushManager.ToXmlProxy(project.TileBrushManager),
