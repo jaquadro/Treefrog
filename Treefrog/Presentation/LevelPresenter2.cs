@@ -180,13 +180,13 @@ namespace Treefrog.Presentation
 
         private void AddLayer (Layer layer)
         {
-            LevelLayerPresenter layerp;
-            if (layer is TileGridLayer)
-                layerp = new TileGridLayerPresenter(this, layer as TileGridLayer);
-            else if (layer is ObjectLayer)
-                layerp = new ObjectLayerPresenter(this, layer as ObjectLayer);
-            else
-                layerp = new LevelLayerPresenter(this, layer);
+            LevelLayerPresenter layerp = LayerPresenterFactory.Default.Create(layer, this);
+            //if (layer is TileGridLayer)
+            //    layerp = new TileGridLayerPresenter(this, layer as TileGridLayer);
+            //else if (layer is ObjectLayer)
+            //    layerp = new ObjectLayerPresenter(this, layer as ObjectLayer);
+            //else
+            //    layerp = new LevelLayerPresenter(this, layer);
 
             _layerPresenters[layer.Name] = layerp;
             _rootContentLayer.Layers.Add(layerp);
