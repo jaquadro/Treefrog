@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace Treefrog.Windows.Layers
 {
-    public class GridLayer : RenderLayer
+    public class GridRenderLayer : RenderLayer
     {
         private const int MaxBrushSize = 256;
 
@@ -23,7 +23,7 @@ namespace Treefrog.Windows.Layers
         private int _effectiveSpacingX;
         private int _effectiveSpacingY;
 
-        public GridLayer (GridLayerPresenter model)
+        public GridRenderLayer (GridLayerPresenter model)
             : base(model)
         { }
 

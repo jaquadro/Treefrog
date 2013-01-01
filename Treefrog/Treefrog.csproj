@@ -183,12 +183,13 @@
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Layers\AnnotationLayer.cs" />
+    <Compile Include="Windows\Layers\AnnotationRenderLayer.cs" />
+    <Compile Include="Windows\Layers\LevelRenderLayer.cs" />
     <Compile Include="Windows\Layers\LocalRenderLayer.cs" />
-    <Compile Include="Windows\Layers\TileSetLayer.cs" />
-    <Compile Include="Windows\Layers\GridLayer.cs" />
+    <Compile Include="Windows\Layers\TileSetRenderLayer.cs" />
+    <Compile Include="Windows\Layers\GridRenderLayer.cs" />
     <Compile Include="Windows\Layers\LayerFactory.cs" />
-    <Compile Include="Windows\Layers\WorkspaceLayer.cs" />
+    <Compile Include="Windows\Layers\WorkspaceRenderLayer.cs" />
     <Compile Include="Windows\TextureCache.cs" />
     <Compile Include="Windows\XnaInterop.cs" />
     <Compile Include="Presentation\ContentInfoPresenter.cs" />

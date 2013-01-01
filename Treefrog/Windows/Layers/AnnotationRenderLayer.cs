@@ -11,9 +11,9 @@ using System.Collections.Specialized;
 
 namespace Treefrog.Windows.Layers
 {
-    public class AnnotationLayer : RenderLayer
+    public class AnnotationRenderLayer : RenderLayer
     {
-        public AnnotationLayer (AnnotationLayerPresenter model)
+        public AnnotationRenderLayer (AnnotationLayerPresenter model)
             : base(model)
         {
             if (model != null) {

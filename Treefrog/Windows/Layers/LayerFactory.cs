@@ -16,8 +16,8 @@ namespace Treefrog.Windows.Layers
             Default = new LayerFactory();
 
             Default.Register<LayerPresenter, CanvasLayer>();
-            Default.Register<WorkspaceLayerPresenter, WorkspaceLayer>(layer => {
-                return new WorkspaceLayer(layer as WorkspaceLayerPresenter);
+            Default.Register<WorkspaceLayerPresenter, WorkspaceRenderLayer>(layer => {
+                return new WorkspaceRenderLayer(layer as WorkspaceLayerPresenter);
             });
             Default.Register<GroupLayerPresenter, GroupLayer>(layer => {
                 return new GroupLayer(layer as GroupLayerPresenter);
@@ -31,8 +31,8 @@ namespace Treefrog.Windows.Layers
             Default.Register<TileLayerPresenter, LevelRenderLayer>(layer => {
                 return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
-            Default.Register<TileSetLayerPresenter, TileSetLayer>(layer => {
-                return new TileSetLayer(layer as TileSetLayerPresenter);
+            Default.Register<TileSetLayerPresenter, TileSetRenderLayer>(layer => {
+                return new TileSetRenderLayer(layer as TileSetLayerPresenter);
             });
             Default.Register<TileGridLayerPresenter, LevelRenderLayer>(layer => {
                 return new LevelRenderLayer(layer as LevelLayerPresenter);
@@ -40,11 +40,11 @@ namespace Treefrog.Windows.Layers
             Default.Register<ObjectLayerPresenter, LevelRenderLayer>(layer => {
                 return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
-            Default.Register<AnnotationLayerPresenter, AnnotationLayer>(layer => {
-                return new AnnotationLayer(layer as AnnotationLayerPresenter);
+            Default.Register<AnnotationLayerPresenter, AnnotationRenderLayer>(layer => {
+                return new AnnotationRenderLayer(layer as AnnotationLayerPresenter);
             });
-            Default.Register<GridLayerPresenter, GridLayer>(layer => {
-                return new GridLayer(layer as GridLayerPresenter);
+            Default.Register<GridLayerPresenter, GridRenderLayer>(layer => {
+                return new GridRenderLayer(layer as GridLayerPresenter);
             });
         }
     }

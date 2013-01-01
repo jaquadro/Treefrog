@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
 using Amphibian.Drawing;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows.Layers
 {
-    public class WorkspaceLayer : RenderLayer
+    public class WorkspaceRenderLayer : RenderLayer
     {
         private Texture2D _pattern;
 
-        public WorkspaceLayer (WorkspaceLayerPresenter model)
+        public WorkspaceRenderLayer (WorkspaceLayerPresenter model)
             : base(model)
         {
             Mode = RenderMode.Sprite | RenderMode.Drawing;

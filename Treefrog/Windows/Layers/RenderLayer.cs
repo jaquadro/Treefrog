@@ -1,32 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using Treefrog.Presentation.Layers;
 using Amphibian.Drawing;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows.Layers
 {
-    public class LevelRenderLayer : RenderLayer
-    {
-        public LevelRenderLayer (LevelLayerPresenter model)
-            : base(model)
-        { }
-
-        protected new LevelLayerPresenter Model
-        {
-            get { return ModelCore as LevelLayerPresenter; }
-        }
-
-        protected override void RenderContent (SpriteBatch spriteBatch)
-        {
-            if (Model != null && TextureCache != null)
-                RenderCommands(spriteBatch, TextureCache, Model.RenderCommands);
-        }
-    }
-
     public class RenderLayer : CanvasLayer
     {
         [Flags]
@@ -36,7 +16,6 @@ namespace Treefrog.Windows.Layers
             Drawing,
         }
 
-        private RenderLayerPresenter _model;
         private SpriteBatch _spriteBatch;
         private DrawBatch _drawBatch;
         private RasterizerState _rasterState;

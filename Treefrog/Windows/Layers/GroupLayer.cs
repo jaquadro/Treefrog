@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections.ObjectModel;
-using Microsoft.Xna.Framework.Graphics;
-using Treefrog.Utility;
-using Treefrog.Presentation.Layers;
 using System.Collections.Specialized;
+using Microsoft.Xna.Framework.Graphics;
+using Treefrog.Presentation.Layers;
+using Treefrog.Utility;
 
 namespace Treefrog.Windows.Layers
 {

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Presentation.Layers;
 using Microsoft.Xna.Framework.Graphics;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows.Layers
 {
-    public class TileSetLayer : RenderLayer
+    public class TileSetRenderLayer : RenderLayer
     {
-        public TileSetLayer (TileSetLayerPresenter model)
+        public TileSetRenderLayer (TileSetLayerPresenter model)
             : base(model)
         { }
 

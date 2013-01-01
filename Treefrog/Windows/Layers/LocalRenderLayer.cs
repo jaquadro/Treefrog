@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Graphics;
-using Treefrog.Presentation.Layers;
 using System.Reflection;
 using Amphibian.Drawing;
-using Treefrog.Presentation;
+using Microsoft.Xna.Framework.Graphics;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows.Layers
 {
@@ -86,18 +82,6 @@ namespace Treefrog.Windows.Layers
         {
             get { return ModelCore as LocalRenderLayerPresenter; }
         }
-
-        //private LocalRenderLayerPresenter _model;
-
-        /*public new LocalRenderLayerPresenter Model
-        {
-            get { return _model; }
-            set
-            {
-                _model = value;
-                base.Model = value;
-            }
-        }*/
 
         protected override void RenderCore (SpriteBatch spriteBatch)
         {
