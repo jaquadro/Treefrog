@@ -20,7 +20,7 @@ namespace Treefrog.Presentation.Layers
 
         public ILevelGeometry LevelGeometry { get; set; }
 
-        public new TileSetLayer Layer
+        public TileSetLayer Layer
         {
             get { return _layer; }
         }

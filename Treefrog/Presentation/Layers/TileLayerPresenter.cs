@@ -13,6 +13,7 @@ using Treefrog.Prseentation.Tools;
 using SysDrawing = System.Drawing;
 using SysDrawing2D = System.Drawing.Drawing2D;
 using SysImaging = System.Drawing.Imaging;
+using Treefrog.Utility;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -24,7 +25,8 @@ namespace Treefrog.Presentation.Layers
         Fill,
     }
 
-    public class TileLayerPresenter : LevelLayerPresenter, ICommandSubscriber, IPointerResponder, ITileSelectionLayer
+    public class TileLayerPresenter : LevelLayerPresenter, ICommandSubscriber, IPointerResponder, ITileSelectionLayer, 
+        IBindable<ITilePoolListPresenter>, IBindable<ITileBrushManagerPresenter>
     {
         private TileLayer _layer;
 
@@ -40,26 +42,34 @@ namespace Treefrog.Presentation.Layers
             InitializeCommandManager();
         }
 
-        public void BindTilePoolController (ITilePoolListPresenter tilePoolController)
+        protected override void DisposeManaged ()
+        {
+            Bind((ITilePoolListPresenter)null);
+            Bind((ITileBrushManagerPresenter)null);
+
+            base.DisposeManaged();
+        }
+
+        public void Bind (ITilePoolListPresenter controller)
         {
             if (_tilePoolController != null) {
                 _tilePoolController.TileSelectionChanged -= TileSelectionChangedHandler;
             }
 
-            _tilePoolController = tilePoolController;
+            _tilePoolController = controller;
 
             if (_tilePoolController != null) {
                 _tilePoolController.TileSelectionChanged += TileSelectionChangedHandler;
             }
         }
 
-        public void BindTileBrushManager (ITileBrushManagerPresenter tileBrushController)
+        public void Bind (ITileBrushManagerPresenter controller)
         {
             if (_tileBrushController != null) {
                 _tileBrushController.TileBrushSelected -= TileBrushSelectedHandler;
             }
 
-            _tileBrushController = tileBrushController;
+            _tileBrushController = controller;
 
             if (_tileBrushController != null) {
                 _tileBrushController.TileBrushSelected += TileBrushSelectedHandler;

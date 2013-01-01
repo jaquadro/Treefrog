@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using Treefrog.Framework.Imaging;
 using Treefrog.Windows.Forms;
 using System.Windows.Forms;
+using Treefrog.Utility;
 
 namespace Treefrog.Presentation
 {
@@ -181,26 +182,13 @@ namespace Treefrog.Presentation
         private void AddLayer (Layer layer)
         {
             LevelLayerPresenter layerp = LayerPresenterFactory.Default.Create(layer, this);
-            //if (layer is TileGridLayer)
-            //    layerp = new TileGridLayerPresenter(this, layer as TileGridLayer);
-            //else if (layer is ObjectLayer)
-            //    layerp = new ObjectLayerPresenter(this, layer as ObjectLayer);
-            //else
-            //    layerp = new LevelLayerPresenter(this, layer);
 
             _layerPresenters[layer.Name] = layerp;
             _rootContentLayer.Layers.Add(layerp);
 
-            TileLayerPresenter tileLayer = layerp as TileLayerPresenter;
-            if (tileLayer != null) {
-                tileLayer.BindTilePoolController(_editor.Presentation.TilePoolList);
-                tileLayer.BindTileBrushManager(_editor.Presentation.TileBrushes);
-            }
-
-            ObjectLayerPresenter objectLayer = layerp as ObjectLayerPresenter;
-            if (objectLayer != null) {
-                objectLayer.BindObjectController(_editor.Presentation.ObjectPoolCollection);
-            }
+            BindingHelper.TryBind<ITilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
+            BindingHelper.TryBind<ITileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
+            BindingHelper.TryBind<IObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
 
             BindLayerEvents(layer);
         }

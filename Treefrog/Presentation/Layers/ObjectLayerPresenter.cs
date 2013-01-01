@@ -7,10 +7,12 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Tools;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Framework.Imaging;
+using Treefrog.Utility;
 
 namespace Treefrog.Presentation.Layers
 {
-    public class ObjectLayerPresenter : LevelLayerPresenter, IPointerResponder
+    public class ObjectLayerPresenter : LevelLayerPresenter, IPointerResponder, 
+        IBindable<IObjectPoolCollectionPresenter>
     {
         private ObjectLayer _layer;
         private IObjectPoolCollectionPresenter _objectController;
@@ -24,24 +26,31 @@ namespace Treefrog.Presentation.Layers
             SetCurrentTool(NewSelectTool());
         }
 
-        protected new ObjectLayer Layer
+        protected override void DisposeManaged ()
         {
-            get { return _layer; }
+            Bind((IObjectPoolCollectionPresenter)null);
+
+            base.DisposeManaged();
         }
 
-        public void BindObjectController (IObjectPoolCollectionPresenter objectController)
+        public void Bind (IObjectPoolCollectionPresenter controller)
         {
             if (_objectController != null) {
                 _objectController.ObjectSelectionChanged -= HandleSelectedObjectChanged;
             }
 
-            _objectController = objectController;
+            _objectController = controller;
 
             if (_objectController != null) {
                 _objectController.ObjectSelectionChanged += HandleSelectedObjectChanged;
             }
 
             SetCurrentTool(NewSelectTool());
+        }
+
+        protected new ObjectLayer Layer
+        {
+            get { return _layer; }
         }
 
         private void HandleSelectedObjectChanged (object sender, EventArgs e)
