@@ -53,6 +53,8 @@ namespace Treefrog.Presentation
             _layerPresenters = new Dictionary<string, LevelLayerPresenter>();
 
             _history = new CommandHistory();
+            _history.HistoryChanged += HistoryChangedHandler;
+
             _annotations = new ObservableCollection<Annotation>();
 
             InitializeCommandManager();
@@ -81,6 +83,12 @@ namespace Treefrog.Presentation
 
                 _disposed = true;
             }
+        }
+
+        private void HistoryChangedHandler (object sender, EventArgs e)
+        {
+            CommandManager.Invalidate(CommandKey.Undo);
+            CommandManager.Invalidate(CommandKey.Redo);
         }
 
         public Level Level

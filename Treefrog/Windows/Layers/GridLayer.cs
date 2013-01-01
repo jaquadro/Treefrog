@@ -37,13 +37,16 @@ namespace Treefrog.Windows.Layers
             if (_tileGridBrush == null || ShouldRebuildTileBrush())
                 BuildTileBrush(spriteBatch.GraphicsDevice);
 
+            Rectangle levelBounds = LevelGeometry.LevelBounds.ToXnaRectangle();
             Rectangle region = LevelGeometry.VisibleBounds.ToXnaRectangle();
             Rectangle tileRegion = new Rectangle(
-                (int)(region.X / Model.GridSpacingX),
-                (int)(region.Y / Model.GridSpacingY),
-                (int)(region.Width + region.X % Model.GridSpacingX + Model.GridSpacingX - 1) / Model.GridSpacingX,
-                (int)(region.Height + region.Y % Model.GridSpacingY + Model.GridSpacingY - 1) / Model.GridSpacingY
+                (int)Math.Floor(region.X * 1.0 / Model.GridSpacingX),
+                (int)Math.Floor(region.Y * 1.0 / Model.GridSpacingY),
+                (int)(region.Width + region.X % Model.GridSpacingX + Model.GridSpacingX * 3 - 1) / Model.GridSpacingX,
+                (int)(region.Height + region.Y % Model.GridSpacingY + Model.GridSpacingY * 3 - 1) / Model.GridSpacingY
                 );
+            tileRegion.Width = Math.Min(tileRegion.Width, (int)Math.Ceiling(levelBounds.Width * 1.0 / Model.GridSpacingX));
+            tileRegion.Height = Math.Min(tileRegion.Height, (int)Math.Ceiling(levelBounds.Height * 1.0 / Model.GridSpacingY));
 
             for (int x = tileRegion.Left; x < tileRegion.Right; x += _tileBrushWidth) {
                 for (int y = tileRegion.Top; y < tileRegion.Bottom; y += _tileBrushHeight) {

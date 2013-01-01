@@ -29,13 +29,6 @@ using Treefrog.Windows.Layers;
 
         private UICommandController _commandController;
 
-        //private TileSetControlLayer _tileLayer;
-        //private LayerGraphicsControl _layerControl;
-
-        //private TileCoord _selectedTileCoord;
-
-        //private Amphibian.Drawing.Brush _selectBrush;
-
         public TilePoolPane ()
         {
             InitializeComponent();
@@ -82,8 +75,6 @@ using Treefrog.Windows.Layers;
                 _controller.SyncTilePoolList -= SyncTilePoolListHandler;
                 _controller.SyncTilePoolControl -= SyncTilePoolControlHandler;
                 _controller.SelectedTilePoolChanged -= SelectedTilePoolChangedHandler;
-
-                //_layerControl.Services.RemoveService<TilePoolTextureService>();
             }
 
             _controller = controller;
@@ -98,14 +89,6 @@ using Treefrog.Windows.Layers;
 
                 BindTilePoolManager(_controller.TilePoolManager);
                 BindTilePool(_controller.SelectedTilePool);
-
-                /*if (_layerControl.Initialized) {
-                    TilePoolTextureService poolService = new TilePoolTextureService(_controller.TilePoolManager, _layerControl.GraphicsDeviceService);
-                    _layerControl.Services.AddService<TilePoolTextureService>(poolService);
-                }
-                else {
-                    _layerControl.ControlInitialized += TileControlInitializedHandler;
-                }*/
             }
             else {
                 _commandController.BindCommandManager(null);
@@ -160,14 +143,6 @@ using Treefrog.Windows.Layers;
             BindTilePool(_controller.SelectedTilePool);
         }
 
-        /*private void TileControlInitializedHandler (object sender, EventArgs e)
-        {
-            _layerControl.ControlInitialized -= TileControlInitializedHandler;
-
-            TilePoolTextureService poolService = new TilePoolTextureService(_controller.TilePoolManager, _layerControl.GraphicsDeviceService);
-            _layerControl.Services.AddService<TilePoolTextureService>(poolService);
-        }*/
-
         #region Event Dispatchers
 
         protected override void OnSizeChanged (EventArgs e)
@@ -196,29 +171,9 @@ using Treefrog.Windows.Layers;
                 _controller.ActionSelectTilePool((string)_poolComboBox.SelectedItem);
         }
 
-        /*private void TileControlMouseDownHandler (object sender, TileMouseEventArgs e)
-        {
-            if (_controller != null) {
-                _controller.ActionSelectTile(e.Tile);
-            }
-        }*/
-
         private void SyncTilePoolManagerHandler (object sender, EventArgs e)
         {
             BindTilePoolManager(_controller.TilePoolManager);
-
-            /*if (_controller != null) {
-                TilePoolTextureService poolService = _layerControl.Services.GetService<TilePoolTextureService>();
-                if (poolService != null) {
-                    poolService.Dispose();
-                    _layerControl.Services.RemoveService<TilePoolTextureService>();
-                }
-
-                if (_layerControl.GraphicsDeviceService != null) {
-                    poolService = new TilePoolTextureService(_controller.TilePoolManager, _layerControl.GraphicsDeviceService);
-                    _layerControl.Services.AddService<TilePoolTextureService>(poolService);
-                }
-            }*/
         }
 
         private void SyncTilePoolListHandler (object sender, EventArgs e)
@@ -226,71 +181,27 @@ using Treefrog.Windows.Layers;
             _poolComboBox.Items.Clear();
             _poolComboBox.Text = "";
 
-            //_tileLayer.Layer = null;
-
             foreach (TilePoolPresenter pool in _controller.TilePoolList) {
                 _poolComboBox.Items.Add(pool.TilePool.Name);
 
                 if (pool == _controller.SelectedTilePool) {
                     _poolComboBox.SelectedItem = pool.TilePool.Name;
-
-                    //_tileLayer.Layer = new TileSetLayer(pool.Name, pool);
                 }
             }
         }
 
         private void SyncTilePoolControlHandler (object sender, EventArgs e)
-        {
-            //Tile selected = _controller.SelectedTile;
-            //if (selected != null) {
-            //    _selectedTileCoord = _tileLayer.TileToCoord(selected);
-            //}
-        }
+        { }
 
         private void TileLayerResized (object sender, EventArgs e)
-        {
-            //if (_controller != null && _tileLayer.Layer != null) {
-            //    Tile selected = _controller.SelectedTile;
-            //    if (selected != null) {
-            //        _selectedTileCoord = _tileLayer.TileToCoord(selected);
-            //    }
-            //}
-        }
+        { }
 
         #endregion
-
-        /*private void DrawSelectedTileIndicators (object sender, DrawLayerEventArgs e)
-        {
-            if (_controller == null) {
-                return;
-            }
-
-            Tile selectedTile = _controller.SelectedTile;
-            if (_layerControl != null && _tileLayer != null && selectedTile != null) {
-                if (_selectBrush == null) {
-                    _selectBrush = _layerControl.CreateSolidColorBrush(new XColor(0.1f, 0.5f, 1f, 0.75f));
-                }
-
-                int x = _selectedTileCoord.X;
-                int y = _selectedTileCoord.Y;
-
-                Draw2D.FillRectangle(e.SpriteBatch, new XRectangle(
-                    (int)(_selectedTileCoord.X * selectedTile.Width * _layerControl.Zoom),
-                    (int)(_selectedTileCoord.Y * selectedTile.Height * _layerControl.Zoom),
-                    (int)(selectedTile.Width * _layerControl.Zoom),
-                    (int)(selectedTile.Height * _layerControl.Zoom)),
-                    _selectBrush);
-            }
-        }*/
 
         private void ResetComponent ()
         {
             _poolComboBox.Items.Clear();
             _poolComboBox.Text = "";
-
-            //if (_tileLayer != null) {
-            //    _tileLayer.Layer = null;
-            //}
         }
     }
 }

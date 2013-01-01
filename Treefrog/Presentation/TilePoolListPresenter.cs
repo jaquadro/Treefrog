@@ -186,7 +186,7 @@ namespace Treefrog.Presentation
         public event EventHandler PointerEventResponderChanged;
     }
 
-    public class TilePoolListPresenter2 : ITilePoolListPresenter, ICommandSubscriber
+    public class TilePoolListPresenter2 : IDisposable, ITilePoolListPresenter, ICommandSubscriber
     {
         private IEditorPresenter _editor;
         private TilePoolManager _poolManager;
@@ -205,6 +205,24 @@ namespace Treefrog.Presentation
             InitializeCommandManager();
         }
 
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (_editor != null) {
+                if (disposing) {
+                    BindTilePoolManager(null);
+                    _editor.SyncCurrentProject -= EditorSyncCurrentProject;
+                }
+
+                _editor = null;
+            }
+        }
+
         private void EditorSyncCurrentProject (object sender, SyncProjectEventArgs e)
         {
             if (_editor.Project != null)
@@ -213,7 +231,7 @@ namespace Treefrog.Presentation
                 BindTilePoolManager(null);
         }
 
-        private void BindTilePoolManager (TilePoolManager manager)
+        public void BindTilePoolManager (TilePoolManager manager)
         {
             if (_poolManager != null) {
                 _poolManager.Pools.ResourceAdded -= TilePoolAdded;

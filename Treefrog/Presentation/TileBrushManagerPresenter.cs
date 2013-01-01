@@ -92,17 +92,21 @@ namespace Treefrog.Presentation
         {
             if (CommandCanCreateStaticBrush()) {
                 using (StaticBrushForm form = new StaticBrushForm()) {
-                    form.BindTileController(_editor.Presentation.TilePoolList);
-                    foreach (TileBrush item in TileBrushManager.Brushes)
-                        form.ReservedNames.Add(item.Name);
+                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                        tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
+                        form.BindTileController(tilePoolList);
 
-                    if (form.ShowDialog() == DialogResult.OK) {
-                        if (TileBrushManager.StaticBrushes.GetBrush(form.Brush.Id) == null)
-                            TileBrushManager.StaticBrushes.AddBrush(form.Brush);
+                        foreach (TileBrush item in TileBrushManager.Brushes)
+                            form.ReservedNames.Add(item.Name);
 
-                        OnSyncTileBrushCollection(EventArgs.Empty);
-                        SelectBrush(form.Brush.Id);
-                        OnTileBrushSelected(EventArgs.Empty);
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            if (TileBrushManager.StaticBrushes.GetBrush(form.Brush.Id) == null)
+                                TileBrushManager.StaticBrushes.AddBrush(form.Brush);
+
+                            OnSyncTileBrushCollection(EventArgs.Empty);
+                            SelectBrush(form.Brush.Id);
+                            OnTileBrushSelected(EventArgs.Empty);
+                        }
                     }
                 }
             }
@@ -117,17 +121,21 @@ namespace Treefrog.Presentation
         {
             if (CommandCanCreateDynamicBrush()) {
                 using (DynamicBrushForm form = new DynamicBrushForm()) {
-                    form.BindTileController(_editor.Presentation.TilePoolList);
-                    foreach (TileBrush item in TileBrushManager.Brushes)
-                        form.ReservedNames.Add(item.Name);
+                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                        tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
+                        form.BindTileController(tilePoolList);
 
-                    if (form.ShowDialog() == DialogResult.OK) {
-                        if (TileBrushManager.DynamicBrushes.GetBrush(form.Brush.Id) == null)
-                            TileBrushManager.DynamicBrushes.AddBrush(form.Brush);
+                        foreach (TileBrush item in TileBrushManager.Brushes)
+                            form.ReservedNames.Add(item.Name);
 
-                        OnSyncTileBrushCollection(EventArgs.Empty);
-                        SelectBrush(form.Brush.Id);
-                        OnTileBrushSelected(EventArgs.Empty);
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            if (TileBrushManager.DynamicBrushes.GetBrush(form.Brush.Id) == null)
+                                TileBrushManager.DynamicBrushes.AddBrush(form.Brush);
+
+                            OnSyncTileBrushCollection(EventArgs.Empty);
+                            SelectBrush(form.Brush.Id);
+                            OnTileBrushSelected(EventArgs.Empty);
+                        }
                     }
                 }
             }
@@ -251,29 +259,37 @@ namespace Treefrog.Presentation
 
             if (brush is DynamicTileBrush) {
                 using (DynamicBrushForm form = new DynamicBrushForm(brush as DynamicTileBrush)) {
-                    form.BindTileController(_editor.Presentation.TilePoolList);
-                    foreach (TileBrush item in TileBrushManager.Brushes)
-                        if (item.Name != brush.Name)
-                            form.ReservedNames.Add(item.Name);
+                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                        tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
+                        form.BindTileController(tilePoolList);
 
-                    if (form.ShowDialog() == DialogResult.OK) {
-                        OnSyncTileBrushCollection(EventArgs.Empty);
-                        SelectBrush(form.Brush.Id);
-                        OnTileBrushSelected(EventArgs.Empty);
+                        foreach (TileBrush item in TileBrushManager.Brushes)
+                            if (item.Name != brush.Name)
+                                form.ReservedNames.Add(item.Name);
+
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            OnSyncTileBrushCollection(EventArgs.Empty);
+                            SelectBrush(form.Brush.Id);
+                            OnTileBrushSelected(EventArgs.Empty);
+                        }
                     }
                 }
             }
             else if (brush is StaticTileBrush) {
                 using (StaticBrushForm form = new StaticBrushForm(brush as StaticTileBrush)) {
-                    form.BindTileController(_editor.Presentation.TilePoolList);
-                    foreach (TileBrush item in TileBrushManager.Brushes)
-                        if (item.Name != brush.Name)
-                            form.ReservedNames.Add(item.Name);
+                    using (TilePoolListPresenter2 tilePoolList = new TilePoolListPresenter2(_editor)) {
+                        tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
+                        form.BindTileController(tilePoolList);
 
-                    if (form.ShowDialog() == DialogResult.OK) {
-                        OnSyncTileBrushCollection(EventArgs.Empty);
-                        SelectBrush(form.Brush.Id);
-                        OnTileBrushSelected(EventArgs.Empty);
+                        foreach (TileBrush item in TileBrushManager.Brushes)
+                            if (item.Name != brush.Name)
+                                form.ReservedNames.Add(item.Name);
+
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            OnSyncTileBrushCollection(EventArgs.Empty);
+                            SelectBrush(form.Brush.Id);
+                            OnTileBrushSelected(EventArgs.Empty);
+                        }
                     }
                 }
             }
