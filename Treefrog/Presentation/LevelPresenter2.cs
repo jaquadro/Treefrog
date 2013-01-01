@@ -236,6 +236,7 @@ namespace Treefrog.Presentation
                 _selectedLayer = null;
                 _selectedLayerRef = null;
 
+                InvalidateLayerCommands();
                 OnPointerEventResponderChanged(EventArgs.Empty);
                 return;
             }
@@ -256,6 +257,7 @@ namespace Treefrog.Presentation
                 _selectedLayerRef.Activate();
             }
 
+            InvalidateLayerCommands();
             OnPointerEventResponderChanged(EventArgs.Empty);
 
             _info.RefreshContentInfo();
@@ -558,9 +560,10 @@ namespace Treefrog.Presentation
             if (CommandCanMoveLayerTop()) {
                 int index = _level.Layers.IndexOf(_selectedLayer);
                 int count = _level.Layers.Count - 1;
-
                 _level.Layers.ChangeIndexRelative(_selectedLayer, count - index);
-                //_layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], count - index);
+
+                int pindex = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(pindex, _rootContentLayer.Layers.Count - 1);
 
                 InvalidateLayerViewCommands();
 
@@ -570,14 +573,18 @@ namespace Treefrog.Presentation
 
         private bool CommandCanMoveLayerUp ()
         {
-            return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) < _level.Layers.Count - 1);
+            return (SelectedLayer != null 
+                && _level.Layers.Contains(_selectedLayer) 
+                && _level.Layers.IndexOf(_selectedLayer) < _level.Layers.Count - 1);
         }
 
         private void CommandMoveLayerUp ()
         {
             if (CommandCanMoveLayerUp()) {
                 _level.Layers.ChangeIndexRelative(_selectedLayer, 1);
-                //_layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], 1);
+
+                int index = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(index, index + 1);
 
                 InvalidateLayerViewCommands();
 
@@ -587,14 +594,18 @@ namespace Treefrog.Presentation
 
         private bool CommandCanMoveLayerDown ()
         {
-            return (SelectedLayer != null && _level.Layers.IndexOf(_selectedLayer) > 0);
+            return (SelectedLayer != null 
+                && _level.Layers.Contains(_selectedLayer)
+                && _level.Layers.IndexOf(_selectedLayer) > 0);
         }
 
         private void CommandMoveLayerDown ()
         {
             if (CommandCanMoveLayerDown()) {
                 _level.Layers.ChangeIndexRelative(_selectedLayer, -1);
-                //_layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], -1);
+
+                int index = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(index, index - 1);
 
                 InvalidateLayerViewCommands();
 
@@ -611,9 +622,10 @@ namespace Treefrog.Presentation
         {
             if (CommandCanMoveLayerBottom()) {
                 int index = _level.Layers.IndexOf(_selectedLayer);
-
                 _level.Layers.ChangeIndexRelative(_selectedLayer, 0 - index);
-                //_layerControl.ChangeLayerOrderRelative(_controlLayers[_selectedLayer], 0 - index);
+
+                int pindex = _rootContentLayer.Layers.IndexOf(_selectedLayerRef);
+                _rootContentLayer.Layers.Move(pindex, 0);
 
                 InvalidateLayerViewCommands();
 
@@ -627,6 +639,16 @@ namespace Treefrog.Presentation
             CommandManager.Invalidate(CommandKey.LayerMoveUp);
             CommandManager.Invalidate(CommandKey.LayerMoveDown);
             CommandManager.Invalidate(CommandKey.LayerMoveBottom);
+        }
+
+        private void InvalidateLayerCommands ()
+        {
+            InvalidateLayerViewCommands();
+
+            CommandManager.Invalidate(CommandKey.LayerClone);
+            CommandManager.Invalidate(CommandKey.LayerDelete);
+            CommandManager.Invalidate(CommandKey.LayerExportRaster);
+            CommandManager.Invalidate(CommandKey.LevelResize);
         }
 
         private void InvalidateZoomCommands ()
