@@ -16,33 +16,35 @@ namespace Treefrog.Windows.Layers
             Default = new LayerFactory();
 
             Default.Register<LayerPresenter, CanvasLayer>();
-            Default.Register<WorkspaceLayerPresenter, WorkspaceLayer>();
+            Default.Register<WorkspaceLayerPresenter, WorkspaceLayer>(layer => {
+                return new WorkspaceLayer(layer as WorkspaceLayerPresenter);
+            });
             Default.Register<GroupLayerPresenter, GroupLayer>(layer => {
-                return new GroupLayer() { Model = layer as GroupLayerPresenter };
+                return new GroupLayer(layer as GroupLayerPresenter);
             });
             Default.Register<LocalRenderLayerPresenter, LocalRenderLayer>(layer => {
-                return new LocalRenderLayer() { Model = layer as LocalRenderLayerPresenter };
+                return new LocalRenderLayer(layer as LocalRenderLayerPresenter);
             });
-            Default.Register<LevelLayerPresenter, RenderLayer>(layer => {
-                return new RenderLayer() { Model = layer as LevelLayerPresenter };
+            Default.Register<LevelLayerPresenter, LevelRenderLayer>(layer => {
+                return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
-            Default.Register<TileLayerPresenter, RenderLayer>(layer => {
-                return new RenderLayer() { Model = layer as LevelLayerPresenter };
+            Default.Register<TileLayerPresenter, LevelRenderLayer>(layer => {
+                return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
             Default.Register<TileSetLayerPresenter, TileSetLayer>(layer => {
-                return new TileSetLayer() { Model = layer as TileSetLayerPresenter };
+                return new TileSetLayer(layer as TileSetLayerPresenter);
             });
-            Default.Register<TileGridLayerPresenter, RenderLayer>(layer => {
-                return new RenderLayer() { Model = layer as LevelLayerPresenter };
+            Default.Register<TileGridLayerPresenter, LevelRenderLayer>(layer => {
+                return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
-            Default.Register<ObjectLayerPresenter, RenderLayer>(layer => {
-                return new RenderLayer() { Model = layer as LevelLayerPresenter };
+            Default.Register<ObjectLayerPresenter, LevelRenderLayer>(layer => {
+                return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
             Default.Register<AnnotationLayerPresenter, AnnotationLayer>(layer => {
-                return new AnnotationLayer() { Model = layer as AnnotationLayerPresenter };
+                return new AnnotationLayer(layer as AnnotationLayerPresenter);
             });
             Default.Register<GridLayerPresenter, GridLayer>(layer => {
-                return new GridLayer() { Model = layer as GridLayerPresenter };
+                return new GridLayer(layer as GridLayerPresenter);
             });
         }
     }

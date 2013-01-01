@@ -15,12 +15,16 @@ namespace Treefrog.Windows.Layers
         private ObservableCollectionAdapter<LayerPresenter, CanvasLayer> _adapter;
         private ReadOnlyObservableCollection<CanvasLayer> _dependent;
 
-        public GroupLayer ()
+        public GroupLayer (GroupLayerPresenter model)
+            : base(model)
         {
             _adapter = new ObservableCollectionAdapter<LayerPresenter, CanvasLayer>(layer => {
                 return LayerFactory.Default.Create(layer);
             });
             _adapter.Dependent.CollectionChanged += DependentCollectionChanged;
+
+            if (model != null)
+                _adapter.Primary = model.Layers;
 
             _dependent = new ReadOnlyObservableCollection<CanvasLayer>(_adapter.Dependent);
         }
@@ -37,25 +41,9 @@ namespace Treefrog.Windows.Layers
             base.DisposeManaged();
         }
 
-        private GroupLayerPresenter _model;
-
-        public GroupLayerPresenter Model
+        protected new GroupLayerPresenter Model
         {
-            get { return _model; }
-            set
-            {
-                if (_model != value) {
-                    foreach (CanvasLayer layer in Layers)
-                        if (layer != null)
-                            layer.ParentLayer = null;
-
-                    _model = value;
-                    if (_model != null)
-                        _adapter.Primary = _model.Layers;
-                    else
-                        _adapter.Primary = null;
-                }
-            }
+            get { return ModelCore as GroupLayerPresenter; }
         }
 
         public ReadOnlyObservableCollection<CanvasLayer> Layers

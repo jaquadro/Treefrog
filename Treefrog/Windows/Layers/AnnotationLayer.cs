@@ -13,14 +13,29 @@ namespace Treefrog.Windows.Layers
 {
     public class AnnotationLayer : RenderLayer
     {
-        private AnnotationLayerPresenter _model;
+        public AnnotationLayer (AnnotationLayerPresenter model)
+            : base(model)
+        {
+            if (model != null) {
+                model.AnnotationsCollectionChanged += ModelAnnotationsCollectionChanged;
+                BindAnnotations(model.Annotations);
+            }
+        }
 
         protected override void DisposeManaged ()
         {
-            ClearAnnotationCache();
-            Model = null;
+            if (Model != null) {
+                Model.AnnotationsCollectionChanged -= ModelAnnotationsCollectionChanged;
+            }
+
+            BindAnnotations(null);
 
             base.DisposeManaged();
+        }
+
+        protected new AnnotationLayerPresenter Model
+        {
+            get { return ModelCore as AnnotationLayerPresenter; }
         }
 
         protected override void RenderContent (SpriteBatch spriteBatch)
@@ -33,7 +48,7 @@ namespace Treefrog.Windows.Layers
                 renderer.Render(spriteBatch, zoom);
         }
 
-        public new AnnotationLayerPresenter Model
+        /*public new AnnotationLayerPresenter Model
         {
             get { return _model; }
             set 
@@ -51,11 +66,11 @@ namespace Treefrog.Windows.Layers
                     BindAnnotations(null);
                 }
             }
-        }
+        }*/
 
         private void ModelAnnotationsCollectionChanged (object sender, EventArgs e)
         {
-            BindAnnotations(_model.Annotations);
+            BindAnnotations(Model.Annotations);
         }
 
         private void BindAnnotations (ObservableCollection<Annotation> annotations)

@@ -53,10 +53,7 @@ namespace Treefrog.Windows
 
                 _pointerController.Responder = _controller.PointerEventResponder;
 
-                _root = new GroupLayer() {
-                    IsRendered = true,
-                    Model = controller.RootLayer,
-                };
+                _root = new GroupLayer(controller.RootLayer);
 
                 _layerControl.RootLayer = _root;
                 _layerControl.TextureCache.SourcePool = _controller.TexturePool;

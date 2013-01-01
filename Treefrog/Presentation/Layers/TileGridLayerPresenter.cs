@@ -16,7 +16,7 @@ namespace Treefrog.Presentation.Layers
             _layer = layer;
         }
 
-        protected new TileGridLayer Layer
+        public new TileGridLayer Layer
         {
             get { return _layer; }
         }

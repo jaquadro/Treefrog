@@ -9,6 +9,24 @@ using Microsoft.Xna.Framework;
 
 namespace Treefrog.Windows.Layers
 {
+    public class LevelRenderLayer : RenderLayer
+    {
+        public LevelRenderLayer (LevelLayerPresenter model)
+            : base(model)
+        { }
+
+        protected new LevelLayerPresenter Model
+        {
+            get { return ModelCore as LevelLayerPresenter; }
+        }
+
+        protected override void RenderContent (SpriteBatch spriteBatch)
+        {
+            if (Model != null && TextureCache != null)
+                RenderCommands(spriteBatch, TextureCache, Model.RenderCommands);
+        }
+    }
+
     public class RenderLayer : CanvasLayer
     {
         [Flags]
@@ -18,12 +36,18 @@ namespace Treefrog.Windows.Layers
             Drawing,
         }
 
+        private RenderLayerPresenter _model;
         private SpriteBatch _spriteBatch;
         private DrawBatch _drawBatch;
         private RasterizerState _rasterState;
         private RenderTarget2D _target;
 
         public RenderLayer ()
+            : this(null)
+        { }
+
+        public RenderLayer (RenderLayerPresenter model)
+            : base(model)
         {
             Mode = RenderMode.Sprite;
             Scissor = true;
@@ -43,7 +67,10 @@ namespace Treefrog.Windows.Layers
             base.DisposeManaged();
         }
 
-        public RenderLayerPresenter Model { get; set; }
+        protected new RenderLayerPresenter Model
+        {
+            get { return ModelCore as RenderLayerPresenter; }
+        }
 
         protected RenderMode Mode { get; set; }
 
@@ -90,10 +117,7 @@ namespace Treefrog.Windows.Layers
         }
 
         protected virtual void RenderContent (SpriteBatch spriteBatch)
-        {
-            if (Model != null && TextureCache != null)
-                RenderCommands(spriteBatch, TextureCache, Model.RenderCommands);
-        }
+        { }
 
         protected virtual void RenderContent (DrawBatch drawBatch)
         { }

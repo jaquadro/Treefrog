@@ -23,6 +23,10 @@ namespace Treefrog.Windows.Layers
         private int _effectiveSpacingX;
         private int _effectiveSpacingY;
 
+        public GridLayer (GridLayerPresenter model)
+            : base(model)
+        { }
+
         protected override void DisposeManaged ()
         {
             DisposeTextures();
@@ -61,7 +65,10 @@ namespace Treefrog.Windows.Layers
             }
         }
 
-        public new GridLayerPresenter Model { get; set; }
+        protected new GridLayerPresenter Model
+        {
+            get { return ModelCore as GridLayerPresenter; }
+        }
 
         private float ZoomFactor
         {

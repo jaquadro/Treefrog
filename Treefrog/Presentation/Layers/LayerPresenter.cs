@@ -8,6 +8,7 @@ namespace Treefrog.Presentation.Layers
     public abstract class LayerPresenter : IDisposable
     {
         private bool _disposed;
+        private bool _visible = true;
 
         public void Dispose ()
         {
@@ -36,5 +37,26 @@ namespace Treefrog.Presentation.Layers
 
         protected virtual void DisposeUnmanaged ()
         { }
+
+        public virtual bool IsVisible
+        {
+            get { return _visible; }
+            set
+            {
+                if (_visible != value) {
+                    _visible = value;
+                    OnVisibilityChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        public event EventHandler VisibilityChanged;
+
+        protected virtual void OnVisibilityChanged (EventArgs e)
+        {
+            var ev = VisibilityChanged;
+            if (ev != null)
+                ev(this, e);
+        }
     }
 }

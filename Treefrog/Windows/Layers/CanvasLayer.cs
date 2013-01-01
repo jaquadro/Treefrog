@@ -5,12 +5,30 @@ using System.Text;
 using Treefrog.Windows.Controls;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Presentation;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows.Layers
 {
+    public enum CanvasLayerOption
+    {
+        Default,
+        Always,
+        Never,
+    }
+
     public class CanvasLayer : IDisposable
     {
         private bool _disposed = false;
+        private LayerPresenter _model;
+
+        public CanvasLayer ()
+            : this(null)
+        { }
+
+        public CanvasLayer (LayerPresenter model)
+        {
+            _model = model;
+        }
 
         public void Dispose ()
         {
@@ -29,30 +47,48 @@ namespace Treefrog.Windows.Layers
         }
 
         protected virtual void DisposeManaged ()
-        {
-            //GraphicsDeviceControl = null;
-        }
+        { }
 
         protected virtual void DisposeUnmanaged ()
         { }
 
         public CanvasLayer ParentLayer { get; set; }
 
-        private bool _isRendered;
+        protected LayerPresenter Model
+        {
+            get { return ModelCore; }
+        }
+
+        protected virtual LayerPresenter ModelCore
+        {
+            get { return _model; }
+        }
 
         public bool IsRendered
         {
             get
             {
-                if (ParentLayer != null)
-                    return ParentLayer.IsRendered;
-                else
-                    return _isRendered;
+                switch (IsRenderedOption) {
+                    case CanvasLayerOption.Always:
+                        return true;
+                    case CanvasLayerOption.Never:
+                        return false;
+                    default:
+                        if (ParentLayer != null) {
+                            if (Model != null)
+                                return ParentLayer.IsRendered && Model.IsVisible;
+                            else
+                                return ParentLayer.IsRendered;
+                        }
+                        else if (Model != null)
+                            return Model.IsVisible;
+                        else
+                            return true;
+                }
             }
-            set { _isRendered = value; }
         }
 
-        //public GraphicsDeviceControl GraphicsDeviceControl { get; set; }
+        public CanvasLayerOption IsRenderedOption { get; set; }
 
         private ILevelGeometry _levelGeometry;
 

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Amphibian.Drawing;
 using Treefrog.Presentation;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows.Layers
 {
@@ -13,9 +14,15 @@ namespace Treefrog.Windows.Layers
     {
         private Texture2D _pattern;
 
-        public WorkspaceLayer ()
+        public WorkspaceLayer (WorkspaceLayerPresenter model)
+            : base(model)
         {
             Mode = RenderMode.Sprite | RenderMode.Drawing;
+        }
+
+        protected new WorkspaceLayerPresenter Model
+        {
+            get { return ModelCore as WorkspaceLayerPresenter; }
         }
 
         protected override void DisposeManaged ()

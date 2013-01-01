@@ -6,7 +6,7 @@ using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Presentation.Layers
 {
-    public class GridLayerPresenter : LayerPresenter
+    public class GridLayerPresenter : RenderLayerPresenter
     {
         public GridLayerPresenter ()
         {

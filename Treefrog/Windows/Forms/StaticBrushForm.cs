@@ -255,10 +255,7 @@ namespace Treefrog.Windows.Forms
             _pointerController.Responder = _pointerResponder;
 
             _rootLayer = new GroupLayerPresenter();
-            _layerControl.RootLayer = new GroupLayer() {
-                IsRendered = true,
-                Model = _rootLayer,
-            };
+            _layerControl.RootLayer = new GroupLayer(_rootLayer);
         }
 
         private void InitializeBrush (StaticTileBrush brush)

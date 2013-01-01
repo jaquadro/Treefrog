@@ -34,7 +34,7 @@ namespace Treefrog.Presentation.Layers
             get { return _layer; }
         }
 
-        public override IEnumerable<DrawCommand> RenderCommands
+        public virtual IEnumerable<DrawCommand> RenderCommands
         {
             get { yield break; }
         }

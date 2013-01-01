@@ -7,7 +7,7 @@ using Treefrog.Presentation.Annotations;
 
 namespace Treefrog.Presentation.Layers
 {
-    public class AnnotationLayerPresenter : LayerPresenter
+    public class AnnotationLayerPresenter : RenderLayerPresenter
     {
         private ObservableCollection<Annotation> _annotations;
 

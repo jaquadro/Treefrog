@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Treefrog.Presentation.Layers
 {
-    public class WorkspaceLayerPresenter : LayerPresenter
+    public class WorkspaceLayerPresenter : RenderLayerPresenter
     {
     }
 }

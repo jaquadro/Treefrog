@@ -74,18 +74,22 @@ namespace Treefrog.Windows.Layers
         {
             _renderCore.RenderContent(context, drawBatch);
         }
-
-        public override IEnumerable<DrawCommand> RenderCommands
-        {
-            get { yield break; }
-        }
     }
 
     public class LocalRenderLayer : RenderLayer
     {
-        private LocalRenderLayerPresenter _model;
+        public LocalRenderLayer (LocalRenderLayerPresenter model)
+            : base(model)
+        { }
 
-        public new LocalRenderLayerPresenter Model
+        protected new LocalRenderLayerPresenter Model
+        {
+            get { return ModelCore as LocalRenderLayerPresenter; }
+        }
+
+        //private LocalRenderLayerPresenter _model;
+
+        /*public new LocalRenderLayerPresenter Model
         {
             get { return _model; }
             set
@@ -93,36 +97,36 @@ namespace Treefrog.Windows.Layers
                 _model = value;
                 base.Model = value;
             }
-        }
+        }*/
 
         protected override void RenderCore (SpriteBatch spriteBatch)
         {
-            if (_model.ShouldRenderCoreS)
-                _model.RenderCore(this, spriteBatch);
+            if (Model.ShouldRenderCoreS)
+                Model.RenderCore(this, spriteBatch);
             else
                 base.RenderCore(spriteBatch);
         }
 
         protected override void RenderCore (DrawBatch drawBatch)
         {
-            if (_model.ShouldRenderCoreD)
-                _model.RenderCore(this, drawBatch);
+            if (Model.ShouldRenderCoreD)
+                Model.RenderCore(this, drawBatch);
             else
                 base.RenderCore(drawBatch);
         }
 
         protected override void RenderContent(SpriteBatch spriteBatch)
         {
-            if (_model.ShouldRenderContentS)
-                _model.RenderContent(this, spriteBatch);
+            if (Model.ShouldRenderContentS)
+                Model.RenderContent(this, spriteBatch);
             else
      	        base.RenderContent(spriteBatch);
         }
 
         protected override void RenderContent (DrawBatch drawBatch)
         {
-            if (_model.ShouldRenderContentD)
-                _model.RenderContent(this, drawBatch);
+            if (Model.ShouldRenderContentD)
+                Model.RenderContent(this, drawBatch);
             else
                 base.RenderContent(drawBatch);
         }

@@ -31,6 +31,7 @@ namespace Treefrog.Presentation
 
         private GroupLayerPresenter _rootLayer;
         private GroupLayerPresenter _rootContentLayer;
+        private GridLayerPresenter _gridLayer;
 
         private string _selectedLayer;
         private LevelLayerPresenter _selectedLayerRef;
@@ -164,15 +165,12 @@ namespace Treefrog.Presentation
         private void InitializeLayerHierarchy ()
         {
             _rootContentLayer = new GroupLayerPresenter();
+            _gridLayer = new GridLayerPresenter();
 
             _rootLayer = new GroupLayerPresenter();
             _rootLayer.Layers.Add(new WorkspaceLayerPresenter());
             _rootLayer.Layers.Add(_rootContentLayer);
-            _rootLayer.Layers.Add(new GridLayerPresenter() {
-                GridSpacingX = 16,
-                GridSpacingY = 16,
-                GridColor = new Color(0, 0, 0, 128),
-            });
+            _rootLayer.Layers.Add(_gridLayer);
             _rootLayer.Layers.Add(new AnnotationLayerPresenter() {
                 Annotations = _annotations,
             });
@@ -262,7 +260,18 @@ namespace Treefrog.Presentation
                     _commandManager.AddCommandSubscriber(comLayer);
                 }
 
+                if (_selectedLayerRef is TileGridLayerPresenter) {
+                    _gridLayer.IsVisible = true;
+                    _gridLayer.GridSpacingX = (_selectedLayerRef as TileGridLayerPresenter).Layer.TileWidth;
+                    _gridLayer.GridSpacingY = (_selectedLayerRef as TileGridLayerPresenter).Layer.TileHeight;
+                }
+                else
+                    _gridLayer.IsVisible = false;
+
                 _selectedLayerRef.Activate();
+            }
+            else {
+                _gridLayer.IsVisible = false;
             }
 
             InvalidateLayerCommands();

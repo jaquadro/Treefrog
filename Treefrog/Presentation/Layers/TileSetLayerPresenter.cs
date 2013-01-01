@@ -35,7 +35,7 @@ namespace Treefrog.Presentation.Layers
             get { return _layer.TileHeight; }
         }
 
-        public override IEnumerable<DrawCommand> RenderCommands
+        public virtual IEnumerable<DrawCommand> RenderCommands
         {
             get
             {

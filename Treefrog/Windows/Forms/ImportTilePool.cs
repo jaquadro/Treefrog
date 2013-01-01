@@ -49,10 +49,7 @@ namespace Treefrog.Windows.Forms
             _layerControl.TextureCache.SourcePool = _localManager.TexturePool;
 
             _rootLayer = new GroupLayerPresenter();
-            _layerControl.RootLayer = new GroupLayer() {
-                IsRendered = true,
-                Model = _rootLayer,
-            };
+            _layerControl.RootLayer = new GroupLayer(_rootLayer);
 
             _previewPanel.Controls.Add(_layerControl);
 

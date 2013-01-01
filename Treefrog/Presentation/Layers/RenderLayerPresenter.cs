@@ -16,6 +16,6 @@ namespace Treefrog.Presentation.Layers
 
     public abstract class RenderLayerPresenter : LayerPresenter
     {
-        public abstract IEnumerable<DrawCommand> RenderCommands { get; }
+        
     }
 }

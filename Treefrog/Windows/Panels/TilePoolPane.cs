@@ -115,10 +115,7 @@ namespace Treefrog.Windows
             if (_tilePool != null) {
                 _tilePool.LevelGeometry = _layerControl.LevelGeometry;
 
-                _root = new GroupLayer() {
-                    IsRendered = true,
-                    Model = tilePool.RootLayer,
-                };
+                _root = new GroupLayer(tilePool.RootLayer);
 
                 _layerControl.RootLayer = _root;
                 _pointerController.Responder = tilePool.PointerEventResponder;
