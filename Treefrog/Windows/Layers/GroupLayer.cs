@@ -18,7 +18,7 @@ namespace Treefrog.Windows.Layers
         public GroupLayer ()
         {
             _adapter = new ObservableCollectionAdapter<LayerPresenter, CanvasLayer>(layer => {
-                return LayerFactory.Create(layer);
+                return LayerFactory.Default.Create(layer);
             });
             _adapter.Dependent.CollectionChanged += DependentCollectionChanged;
 
