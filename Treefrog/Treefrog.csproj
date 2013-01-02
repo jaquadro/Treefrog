@@ -180,6 +180,7 @@
     <Compile Include="Presentation\Tools\TileSelectionClipboard.cs" />
     <Compile Include="Utility\DependentTypeFactory.cs" />
     <Compile Include="Utility\IBindable.cs" />
+    <Compile Include="Utility\NotificationExtensions.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>Component</SubType>
     </Compile>

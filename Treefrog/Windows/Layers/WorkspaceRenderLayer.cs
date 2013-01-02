@@ -4,17 +4,45 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Layers;
+using Treefrog.Utility;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Treefrog.Windows.Layers
 {
     public class WorkspaceRenderLayer : RenderLayer
     {
         private Texture2D _pattern;
+        private Pen _borderPen;
+        private Pen _guidePen;
+
+        private List<PropertyChangedEventHandler> _modelHandlers;
 
         public WorkspaceRenderLayer (WorkspaceLayerPresenter model)
             : base(model)
         {
             Mode = RenderMode.Sprite | RenderMode.Drawing;
+
+            _modelHandlers = new List<PropertyChangedEventHandler>() {
+                model.SubscribeToChange(() => model.BorderColor, BorderColorChanged),
+                model.SubscribeToChange(() => model.OriginGuideColor, OriginGuideColorChanged),
+                model.SubscribeToChange(() => model.PatternColor1, PatternColorChanged),
+                model.SubscribeToChange(() => model.PatternColor2, PatternColorChanged),
+            };
+        }
+
+        protected override void DisposeManaged ()
+        {
+            if (_pattern != null)
+                _pattern.Dispose();
+            if (_borderPen != null)
+                _borderPen.Dispose();
+            if (_guidePen != null)
+                _guidePen.Dispose();
+
+            Model.UnsubscribeFromChange(_modelHandlers);
+
+            base.DisposeManaged();
         }
 
         protected new WorkspaceLayerPresenter Model
@@ -22,12 +50,25 @@ namespace Treefrog.Windows.Layers
             get { return ModelCore as WorkspaceLayerPresenter; }
         }
 
-        protected override void DisposeManaged ()
+        private void BorderColorChanged (object sender)
+        {
+            if (_borderPen != null)
+                _borderPen.Dispose();
+            _borderPen = null;
+        }
+
+        private void OriginGuideColorChanged (object sender)
+        {
+            if (_guidePen != null)
+                _guidePen.Dispose();
+            _guidePen = null;
+        }
+
+        private void PatternColorChanged (object sender)
         {
             if (_pattern != null)
                 _pattern.Dispose();
-
-            base.DisposeManaged();
+            _pattern = null;
         }
 
         protected override void RenderCore (SpriteBatch spriteBatch)
@@ -48,6 +89,10 @@ namespace Treefrog.Windows.Layers
         {
             if (_pattern == null)
                 _pattern = BuildCanvasPattern(spriteBatch.GraphicsDevice);
+            if (_borderPen == null)
+                _borderPen = new Pen(new SolidColorBrush(spriteBatch.GraphicsDevice, Model.BorderColor.ToXnaColor()));
+            if (_guidePen == null)
+                _guidePen = new Pen(new SolidColorBrush(spriteBatch.GraphicsDevice, Model.OriginGuideColor.ToXnaColor()));
 
             ILevelGeometry geometry = LevelGeometry;
             Rectangle bounds = geometry.VisibleBounds.ToXnaRectangle();
@@ -73,18 +118,19 @@ namespace Treefrog.Windows.Layers
                 (int)(levelBounds.Width * geometry.ZoomFactor),
                 (int)(levelBounds.Height * geometry.ZoomFactor)
                 );
-            drawBatch.DrawRectangle(bounds, Pens.Black);
 
             if (levelBounds.X != 0)
                 drawBatch.DrawLine(new Point(0, bounds.Top), new Point(0, bounds.Bottom), Pens.Gray);
             if (levelBounds.Y != 0)
                 drawBatch.DrawLine(new Point(bounds.Left, 0), new Point(bounds.Right, 0), Pens.Gray);
+
+            drawBatch.DrawRectangle(bounds, Pens.Black);
         }
 
         private Texture2D BuildCanvasPattern (GraphicsDevice device)
         {
-            Color color1 = new Color(1f, 1f, 1f);
-            Color color2 = new Color(.95f, .95f, .95f);
+            Color color1 = Model.PatternColor1.ToXnaColor();
+            Color color2 = Model.PatternColor2.ToXnaColor();
 
             byte[] data = new byte[16 * 16 * 4];
             for (int y = 0; y < 8; y++) {
