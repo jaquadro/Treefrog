@@ -165,7 +165,9 @@ namespace Treefrog.Presentation
         private void InitializeLayerHierarchy ()
         {
             _rootContentLayer = new GroupLayerPresenter();
-            _gridLayer = new GridLayerPresenter();
+            _gridLayer = new GridLayerPresenter() {
+                IsVisible = false,
+            };
 
             _rootLayer = new GroupLayerPresenter();
             _rootLayer.Layers.Add(new WorkspaceLayerPresenter());
@@ -243,6 +245,7 @@ namespace Treefrog.Presentation
                 _selectedLayerRef = null;
 
                 InvalidateLayerCommands();
+                RefreshGridVisibility();
                 OnPointerEventResponderChanged(EventArgs.Empty);
                 return;
             }
@@ -396,9 +399,7 @@ namespace Treefrog.Presentation
 
         private void CommandToggleGrid ()
         {
-            if (_selectedLayerRef is TileGridLayerPresenter)
-                _gridLayer.IsVisible = CommandManager.IsSelected(CommandKey.ViewGrid);
-            //_layerControl.ShowGrid = _commandManager.IsSelected(CommandKey.ViewGrid);
+            RefreshGridVisibility();
         }
 
         private bool CommandCanResize ()
@@ -411,12 +412,13 @@ namespace Treefrog.Presentation
             if (CommandCanResize()) {
                 using (ResizeLevelForm form = new ResizeLevelForm(_level)) {
                     if (form.ShowDialog() == DialogResult.OK) {
-                        //_level.Resize(form.NewOriginX, form.NewOriginY, form.NewWidth, form.NewHeight);
+                        _level.Resize(form.NewOriginX, form.NewOriginY, form.NewWidth, form.NewHeight);
 
-                        //_layerControl.OriginX = _level.OriginX;
-                        //_layerControl.OriginY = _level.OriginY;
-                        //_layerControl.ReferenceWidth = _level.Width;
-                        //_layerControl.ReferenceHeight = _level.Height;
+                        //Intercept event instead
+                        if (LevelGeometry != null)
+                            LevelGeometry.LevelBounds = new Rectangle(
+                                form.NewOriginX, form.NewOriginY,
+                                form.NewWidth, form.NewHeight);
 
                         _history.Clear();
                     }
@@ -673,6 +675,16 @@ namespace Treefrog.Presentation
         }
 
         #endregion
+
+        private void RefreshGridVisibility ()
+        {
+            if (_gridLayer != null) {
+                if (_selectedLayerRef is TileGridLayerPresenter)
+                    _gridLayer.IsVisible = CommandManager.IsSelected(CommandKey.ViewGrid);
+                else
+                    _gridLayer.IsVisible = false;
+            }
+        }
 
         private void ZoomStateLevelChanged (object sender, EventArgs e)
         {

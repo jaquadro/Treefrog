@@ -404,6 +404,13 @@ namespace Treefrog.Windows.Controls
                 return new TFImaging.Rectangle(_control.VirtualOriginX, _control.VirtualOriginY,
                     _control.VirtualWidth, _control.VirtualHeight);
             }
+            set
+            {
+                _control.ReferenceOriginX = value.X;
+                _control.ReferenceOriginY = value.Y;
+                _control.ReferenceWidth = value.Width;
+                _control.ReferenceHeight = value.Height;
+            }
         }
 
         public TFImaging.Rectangle ViewportBounds

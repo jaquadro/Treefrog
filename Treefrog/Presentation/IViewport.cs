@@ -36,7 +36,7 @@ namespace Treefrog.Presentation
         /// <summary>
         /// Bounding rectangle of the level.
         /// </summary>
-        Treefrog.Framework.Imaging.Rectangle LevelBounds { get; }
+        Treefrog.Framework.Imaging.Rectangle LevelBounds { get; set; }
 
         /// <summary>
         /// Bounding rectangle of control viewport.

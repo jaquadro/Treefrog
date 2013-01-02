@@ -55,6 +55,7 @@ namespace Treefrog.Windows.Forms
             int levelHeight = (int)_levelHeight.Value;
 
             _level = new Level(_name.Text.Trim(), originX, originY, levelWidth, levelHeight);
+            _level.Project = _project;
             //_level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", originX, originY, levelWidth, levelHeight));
             _project.Levels.Add(_level);
         }
