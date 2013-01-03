@@ -143,7 +143,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    class LevelInfoPresenter : IContentInfoPresenter
+    public class LevelInfoPresenter : IContentInfoPresenter
     {
         private LevelPresenter _level;
 

@@ -632,16 +632,25 @@ namespace Treefrog.Presentation.Layers
              if (_currentTool != null)
                  _currentTool.PointerPosition(info, LayerContext.Geometry);
 
-             //if (CheckLayerCondition(ShouldRespondToInput) && _layer != null) {
-             //    TileCoord coords = MouseToTileCoords(new Point((int)info.X, (int)info.Y));
-             //    OnMouseTileMove(new TileMouseEventArgs(coords, GetTile(coords)));
-             //}
+            if (Info != null) {
+                TileCoord coords = MouseToTileCoords(new Point((int)info.X, (int)info.Y));
+                Info.ActionUpdateCoordinates(coords.X + ", " + coords.Y);
+            }
         }
 
         public void HandlePointerLeaveField ()
         {
             if (_currentTool != null)
                 _currentTool.PointerLeaveField();
+
+            if (Info != null)
+                Info.ActionUpdateCoordinates("");
+        }
+
+        private TileCoord MouseToTileCoords (Point mouse)
+        {
+            return new TileCoord((int)Math.Floor(mouse.X * 1.0 / Layer.TileWidth),
+                (int)Math.Floor(mouse.Y * 1.0 / Layer.TileHeight));
         }
 
         #endregion

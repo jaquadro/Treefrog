@@ -196,14 +196,17 @@ namespace Treefrog.Presentation.Layers
             if (_currentTool != null)
                 _currentTool.PointerPosition(info, LayerContext.Geometry);
 
-            //if (ContentInfo != null)
-            //    ContentInfo.ActionUpdateCoordinates(info.X + ", " + info.Y);
+            if (Info != null)
+                Info.ActionUpdateCoordinates(info.X + ", " + info.Y);
         }
 
         public void HandlePointerLeaveField ()
         {
             if (_currentTool != null)
                 _currentTool.PointerLeaveField();
+
+            if (Info != null)
+                Info.ActionUpdateCoordinates("");
         }
 
         #endregion

@@ -34,6 +34,8 @@ namespace Treefrog.Presentation.Layers
             get { return _layer; }
         }
 
+        public LevelInfoPresenter Info { get; set; }
+
         public virtual IEnumerable<DrawCommand> RenderCommands
         {
             get { yield break; }

@@ -190,6 +190,7 @@ namespace Treefrog.Presentation
         private void AddLayer (Layer layer)
         {
             LevelLayerPresenter layerp = LayerPresenterFactory.Default.Create(layer, this);
+            layerp.Info = _info;
 
             _layerPresenters[layer.Name] = layerp;
             _rootContentLayer.Layers.Add(layerp);
