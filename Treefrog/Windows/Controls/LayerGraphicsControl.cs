@@ -301,10 +301,18 @@ namespace Treefrog.Windows.Controls
         {
             switch (orientation) {
                 case ScrollOrientation.HorizontalScroll:
-                    _scrollH = value;
+                    if (_scrollH != value) {
+                        _scrollH = value;
+                        CheckScrollValue();
+                        OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, _scrollH, ScrollOrientation.HorizontalScroll));
+                    }
                     break;
                 case ScrollOrientation.VerticalScroll:
-                    _scrollV = value;
+                    if (_scrollV != value) {
+                        _scrollV = value;
+                        CheckScrollValue();
+                        OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, _scrollV, ScrollOrientation.VerticalScroll));
+                    }
                     break;
             }
 
@@ -394,6 +402,11 @@ namespace Treefrog.Windows.Controls
                 int scrollH = _control.GetScrollValue(ScrollOrientation.HorizontalScroll);
                 int scrollV = _control.GetScrollValue(ScrollOrientation.VerticalScroll);
                 return new TFImaging.Point(scrollH, scrollV);
+            }
+            set
+            {
+                _control.SetScrollValue(ScrollOrientation.HorizontalScroll, value.X);
+                _control.SetScrollValue(ScrollOrientation.VerticalScroll, value.Y);
             }
         }
 

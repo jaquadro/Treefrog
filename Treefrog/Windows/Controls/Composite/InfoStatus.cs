@@ -197,6 +197,7 @@ namespace Treefrog.Windows.Controls.Composite
         {
             if (_controller != null) {
                 _statusCoord.Text = _controller.CoordinateString;
+                _statusInfo.Text = _controller.InfoString;
 
                 _statusLayer.Text = (_controller.CurrentLayer != null)
                     ? _controller.CurrentLayer.LayerName : "No Layers";

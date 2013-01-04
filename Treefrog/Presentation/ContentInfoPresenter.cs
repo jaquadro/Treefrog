@@ -2,6 +2,7 @@
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Controllers;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Presentation
 {
@@ -12,6 +13,8 @@ namespace Treefrog.Presentation
         //float Zoom { get; }
         string CoordinateString { get; }
         ZoomState Zoom { get; }
+
+        string InfoString { get; set; }
 
         //void ActionZoom (float zoom);
         void ActionUpdateCoordinates (string coords);
@@ -72,6 +75,16 @@ namespace Treefrog.Presentation
         public LevelLayerPresenter CurrentLayer
         {
             get { return (_curPresenter != null) ? _curPresenter.CurrentLayer : null; }
+        }
+
+        public string InfoString
+        {
+            get { return (_curPresenter != null) ? _curPresenter.InfoString : ""; }
+            set
+            {
+                if (_curPresenter != null)
+                    _curPresenter.InfoString = value;
+            }
         }
 
         /*public void ActionZoom (float zoom)
@@ -148,6 +161,7 @@ namespace Treefrog.Presentation
         private LevelPresenter _level;
 
         private string _coordinates = "";
+        private string _info = "";
 
         public LevelInfoPresenter (LevelPresenter level)
         {
@@ -180,6 +194,16 @@ namespace Treefrog.Presentation
         public LevelLayerPresenter CurrentLayer
         {
             get { return _level.SelectedLayer ; }
+        }
+
+        public string InfoString
+        {
+            get { return _info; }
+            set
+            {
+                _info = value;
+                OnSyncStatusInfo(EventArgs.Empty);
+            }
         }
 
         /*public void ActionZoom (float zoom)

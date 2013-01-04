@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Drawing;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Presentation.Tools
 {
@@ -173,7 +173,7 @@ namespace Treefrog.Presentation.Tools
                 if (_scrollViewport.VisibleBounds.Bottom + _yRate >= _scrollViewport.LevelBounds.Height)
                     _yRate = Math.Max(0, Math.Min(_scrollViewport.LevelBounds.Height - _scrollViewport.VisibleBounds.Bottom, _yRate));
 
-                //_scrollViewport.Offset = new Point(_scrollViewport.ScrollPosition.X + (int)_xRate, _scrollViewport.ScrollPosition.Y + (int)_yRate);
+                _scrollViewport.ScrollPosition = new Point(_scrollViewport.ScrollPosition.X + (int)_xRate, _scrollViewport.ScrollPosition.Y + (int)_yRate);
 
                 _prevX = _prevX + _xRate;
                 _prevY = _prevY + _yRate;

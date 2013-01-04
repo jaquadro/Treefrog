@@ -585,6 +585,7 @@ namespace Treefrog.Presentation.Layers
                     break;
                 case TileTool.Draw:
                     TileDrawTool drawTool = new TileDrawTool(LayerContext.History, Layer as MultiTileGridLayer, LayerContext.Annotations);
+                    drawTool.Info = Info;
                     drawTool.BindTilePoolController(_tilePoolController);
                     drawTool.BindTileBrushManager(_tileBrushController);
                     _currentTool = drawTool;

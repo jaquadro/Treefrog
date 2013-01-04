@@ -23,6 +23,8 @@ namespace Treefrog.Presentation.Tools
             _annots = annots;
         }
 
+        public LevelInfoPresenter Info { get; set; }
+
         protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
@@ -84,7 +86,14 @@ namespace Treefrog.Presentation.Tools
 
             if (type == TileSourceType.Brush)
                 _activeBrush = ActiveBrush;
-            //_anonBrush = null;
+
+            if (Info != null) {
+                if (type == TileSourceType.Tile && ActiveTile != null)
+                    Info.InfoString = "Source: Tile " + ActiveTile.Id;
+                else if (type == TileSourceType.Brush && ActiveBrush != null)
+                    Info.InfoString = "Source: Brush " + ActiveBrush.Name;
+            }
+
         }
 
         #region Preview Marker

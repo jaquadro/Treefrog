@@ -31,7 +31,7 @@ namespace Treefrog.Presentation
 
     public interface ILevelGeometry
     {
-        Treefrog.Framework.Imaging.Point ScrollPosition { get; }
+        Treefrog.Framework.Imaging.Point ScrollPosition { get; set; }
 
         /// <summary>
         /// Bounding rectangle of the level.
