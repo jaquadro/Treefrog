@@ -8,17 +8,42 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Windows.Controllers;
 using Treefrog.Windows.Layers;
+using Treefrog.Presentation.Tools;
 
 namespace Treefrog.Windows
 {
     public partial class TilePoolPane : UserControl
     {
+        private class LocalPointerEventResponder : ChainedPointerEventResponder
+        {
+            private TilePoolPane _form;
+
+            public LocalPointerEventResponder (TilePoolPane form, IPointerResponder parentResponder)
+                : base(parentResponder)
+            {
+                _form = form;
+            }
+
+            public override void HandleStartPointerSequence (PointerEventInfo info)
+            {
+                base.HandleStartPointerSequence(info);
+
+                if (info.Type == PointerEventType.Secondary && _form._tilePool.SelectedTile != null) {
+                    Point position = _form._pointerController.UntranslatePosition(new Point((int)info.X, (int)info.Y));
+
+                    _form._tileContextMenu.Show(_form._layerControl, position);
+                }
+            }
+        }
+
         private ITilePoolListPresenter _controller;
         private TilePoolPresenter _tilePool;
         private ControlPointerEventController _pointerController;
         private GroupLayer _root;
 
         private UICommandController _commandController;
+
+        private ContextMenuStrip _tileContextMenu;
 
         public TilePoolPane ()
         {
@@ -34,12 +59,22 @@ namespace Treefrog.Windows
             _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus16.png"));
             _buttonProperties.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tags.png"));
 
+            ToolStripMenuItem tilePropertiesItem = new ToolStripMenuItem("Tile Properties") {
+                Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tags.png")),
+            };
+
+            _tileContextMenu = new ContextMenuStrip();
+            _tileContextMenu.Items.AddRange(new ToolStripItem[] {
+                tilePropertiesItem,
+            });
+
             _commandController = new UICommandController();
             _commandController.MapButtons(new Dictionary<CommandKey, ToolStripButton>() {
                 { CommandKey.TilePoolDelete, _buttonRemove },
             });
             _commandController.MapMenuItems(new Dictionary<CommandKey, ToolStripMenuItem>() {
                 { CommandKey.TilePoolImport, importNewToolStripMenuItem },
+                { CommandKey.TileProperties, tilePropertiesItem },
             });
 
             _pointerController = new ControlPointerEventController(_layerControl, _layerControl);
@@ -118,7 +153,8 @@ namespace Treefrog.Windows
                 _root = new GroupLayer(tilePool.RootLayer);
 
                 _layerControl.RootLayer = _root;
-                _pointerController.Responder = tilePool.PointerEventResponder;
+                //_pointerController.Responder = tilePool.PointerEventResponder;
+                _pointerController.Responder = new LocalPointerEventResponder(this, tilePool.PointerEventResponder);
             }
             else {
                 _root = null;

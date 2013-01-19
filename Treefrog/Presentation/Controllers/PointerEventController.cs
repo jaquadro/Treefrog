@@ -50,6 +50,46 @@ namespace Treefrog.Presentation.Controllers
         { }
     }
 
+    public class ChainedPointerEventResponder : IPointerResponder
+    {
+        private IPointerResponder _parent;
+
+        public ChainedPointerEventResponder (IPointerResponder parent)
+        {
+            _parent = parent;
+        }
+
+        public virtual void HandleStartPointerSequence (PointerEventInfo info)
+        {
+            if (_parent != null)
+                _parent.HandleStartPointerSequence(info);
+        }
+
+        public virtual void HandleEndPointerSequence (PointerEventInfo info)
+        {
+            if (_parent != null)
+                _parent.HandleEndPointerSequence(info);
+        }
+
+        public virtual void HandleUpdatePointerSequence (PointerEventInfo info)
+        {
+            if (_parent != null)
+                _parent.HandleUpdatePointerSequence(info);
+        }
+
+        public virtual void HandlePointerPosition (PointerEventInfo info)
+        {
+            if (_parent != null)
+                _parent.HandlePointerPosition(info);
+        }
+
+        public virtual void HandlePointerLeaveField ()
+        {
+            if (_parent != null)
+                _parent.HandlePointerLeaveField();
+        }
+    }
+
     public class PointerEventController
     {
         private IPointerTarget _target;
@@ -97,6 +137,23 @@ namespace Treefrog.Presentation.Controllers
             Point origin = _target.OriginOffset;
             position.X += origin.X;
             position.Y += origin.Y;
+
+            return position;
+        }
+
+        public Point UntranslatePosition (Point position)
+        {
+            Point origin = _target.OriginOffset;
+            position.X -= origin.X;
+            position.Y -= origin.Y;
+
+            Point scroll = _target.ScrollOffset;
+            position.X -= scroll.X;
+            position.Y -= scroll.Y;
+
+            Point offset = _target.InteriorOffset;
+            position.X = (int)(position.X * _target.Zoom + offset.X);
+            position.Y = (int)(position.Y * _target.Zoom + offset.Y);
 
             return position;
         }

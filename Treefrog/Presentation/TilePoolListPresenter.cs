@@ -153,18 +153,21 @@ namespace Treefrog.Presentation
         {
             _selectedTile = e.Tile;
 
-            TileCoord location = _tileLayer.TileToCoord(e.Tile);
-            int x = location.X * _tileSet.TileWidth;
-            int y = location.Y * _tileSet.TileHeight;
-
-            SelectionAnnot annot = new SelectionAnnot() {
-                Start = new Treefrog.Framework.Imaging.Point(x, y),
-                End = new Treefrog.Framework.Imaging.Point(x + _tileSet.TileWidth, y + _tileSet.TileHeight),
-                Fill = new SolidColorBrush(new Treefrog.Framework.Imaging.Color(192, 0, 0, 128)),
-            };
-
             _annotations.Clear();
-            _annotations.Add(annot);
+
+            if (_selectedTile != null) {
+                TileCoord location = _tileLayer.TileToCoord(e.Tile);
+                int x = location.X * _tileSet.TileWidth;
+                int y = location.Y * _tileSet.TileHeight;
+
+                SelectionAnnot annot = new SelectionAnnot() {
+                    Start = new Treefrog.Framework.Imaging.Point(x, y),
+                    End = new Treefrog.Framework.Imaging.Point(x + _tileSet.TileWidth, y + _tileSet.TileHeight),
+                    Fill = new SolidColorBrush(new Treefrog.Framework.Imaging.Color(192, 0, 0, 128)),
+                };
+
+                _annotations.Add(annot);
+            }
 
             OnSelectedTileChanged(EventArgs.Empty);
         }
@@ -322,8 +325,12 @@ namespace Treefrog.Presentation
 
         private void SelectedTileChanged (object sender, EventArgs e)
         {
-            if (sender == _selectedPoolRef)
+            if (sender == _selectedPoolRef) {
                 OnTileSelectionChanged(EventArgs.Empty);
+                _editor.Presentation.PropertyList.Provider = SelectedTile;
+
+                _commandManager.Invalidate(CommandKey.TileProperties);
+            }
         }
 
         private void SelectTilePool ()
@@ -383,6 +390,7 @@ namespace Treefrog.Presentation
         {
             _commandManager = new CommandManager();
 
+            _commandManager.Register(CommandKey.TileProperties, CommandCanTileProperties, CommandTileProperties);
             _commandManager.Register(CommandKey.TilePoolImport, CommandCanImport, CommandImport);
             _commandManager.Register(CommandKey.TilePoolDelete, CommandCanDelete, CommandDelete);
             _commandManager.Register(CommandKey.TilePoolExport, CommandCanExport, CommandExport);
@@ -392,6 +400,19 @@ namespace Treefrog.Presentation
         public CommandManager CommandManager
         {
             get { return _commandManager; }
+        }
+
+        private bool CommandCanTileProperties ()
+        {
+            return _selectedPoolRef != null && _selectedPoolRef.SelectedTile != null;
+        }
+
+        private void CommandTileProperties ()
+        {
+            if (CommandCanTileProperties()) {
+                _editor.Presentation.PropertyList.Provider = _selectedPoolRef.SelectedTile;
+                _editor.ActivatePropertyPanel();
+            }
         }
 
         private bool CommandCanImport ()

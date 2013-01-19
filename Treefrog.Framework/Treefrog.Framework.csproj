@@ -86,6 +86,7 @@
     <Compile Include="Imaging\Size.cs" />
     <Compile Include="Imaging\TextureResource.cs" />
     <Compile Include="KeyedObservableCollection.cs" />
+    <Compile Include="MathEx.cs" />
     <Compile Include="Model\Collections\EventArgs.cs" />
     <Compile Include="Model\Collections\PredefinedPropertyCollection.cs" />
     <Compile Include="Model\DynamicTileBrush.cs" />

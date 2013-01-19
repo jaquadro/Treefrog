@@ -30,6 +30,16 @@ namespace Treefrog.Presentation
         }
     }
 
+    public class PanelEventArgs : EventArgs
+    {
+        public object PanelPresenter { get; private set; }
+
+        public PanelEventArgs (object panelPresenter) 
+        {
+            PanelPresenter = panelPresenter;
+        }
+    }
+
     public interface IEditorPresenter
     {
         bool CanShowProjectPanel { get; }
@@ -59,7 +69,12 @@ namespace Treefrog.Presentation
 
         event EventHandler<SyncLevelEventArgs> SyncCurrentLevel;
 
+        event EventHandler<PanelEventArgs> PanelActivation;
+
         void RefreshEditor ();
+
+        // TODO: Change this to something more general
+        void ActivatePropertyPanel ();
     }
 
     public class Presentation
@@ -425,6 +440,8 @@ namespace Treefrog.Presentation
 
         public event EventHandler<SyncLevelEventArgs> SyncCurrentLevel;
 
+        public event EventHandler<PanelEventArgs> PanelActivation;
+
         protected virtual void OnSyncContentTabs (EventArgs e)
         {
             if (SyncContentTabs != null) {
@@ -460,11 +477,23 @@ namespace Treefrog.Presentation
             }
         }
 
+        protected virtual void OnPanelActivation (PanelEventArgs e)
+        {
+            var ev = PanelActivation;
+            if (ev != null)
+                ev(this, e);
+        }
+
         public void RefreshEditor ()
         {
             OnSyncContentTabs(EventArgs.Empty);
             OnSyncContentView(EventArgs.Empty);
             OnSyncModified(EventArgs.Empty);
+        }
+
+        public void ActivatePropertyPanel ()
+        {
+            OnPanelActivation(new PanelEventArgs(Presentation.PropertyList));
         }
 
         #endregion

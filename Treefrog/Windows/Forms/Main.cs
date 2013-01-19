@@ -39,6 +39,7 @@ namespace Treefrog.Windows.Forms
             _editor.SyncContentTabs += SyncContentTabsHandler;
             _editor.SyncContentView += SyncContentViewHandler;
             _editor.SyncModified += SyncProjectModified;
+            _editor.PanelActivation += PanelActivated;
 
             _editor.NewDefault();
 
@@ -109,6 +110,15 @@ namespace Treefrog.Windows.Forms
             }
             else {
                 base.Text = "Treefrog";
+            }
+        }
+
+        private void PanelActivated (object sender, PanelEventArgs e)
+        {
+            if (e.PanelPresenter is IPropertyListPresenter) {
+                TabControl control = _tabProperties.Parent as TabControl;
+                if (control != null)
+                    control.SelectedTab = _tabProperties;
             }
         }
 

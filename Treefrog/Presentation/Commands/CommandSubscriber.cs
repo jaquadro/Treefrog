@@ -52,6 +52,8 @@ namespace Treefrog.Presentation.Commands
         LayerShowNone,
         LayerExportRaster,
 
+        TileProperties,
+
         TilePoolExport,
         TilePoolImportOver,
         TilePoolImport,

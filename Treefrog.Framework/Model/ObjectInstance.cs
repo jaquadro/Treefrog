@@ -49,6 +49,7 @@ namespace Treefrog.Framework.Model
         public float Rotation
         {
             get { return _rotation; }
+            set { _rotation = value; }
         }
 
         public float ScaleX

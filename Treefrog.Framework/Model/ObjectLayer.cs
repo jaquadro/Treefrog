@@ -83,6 +83,7 @@ namespace Treefrog.Framework.Model
                         ObjectInstance inst = new ObjectInstance(objClass);
                         inst.X = Convert.ToInt32(coords[0]);
                         inst.Y = Convert.ToInt32(coords[1]);
+                        inst.Rotation = MathEx.DegToRad(objProxy.Rotation);
                         AddObject(inst);
                         break;
                     }

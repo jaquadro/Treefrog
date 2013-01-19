@@ -616,5 +616,8 @@ namespace Treefrog.Framework.Model
 
         [XmlAttribute]
         public string At { get; set; }
+
+        [XmlAttribute]
+        public int Rotation { get; set; }
     }
 }

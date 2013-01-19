@@ -113,6 +113,8 @@ namespace Treefrog.Presentation.Layers
                 Tile tile = _layer[index];
                 OnTileSelected(new TileEventArgs(tile));
             }
+            else
+                OnTileSelected(new TileEventArgs(null));
         }
 
         public void HandleEndPointerSequence (PointerEventInfo info)
