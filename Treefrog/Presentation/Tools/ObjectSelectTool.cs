@@ -20,7 +20,7 @@ namespace Treefrog.Presentation.Tools
     {
         public List<ObjectInstance> Objects;
 
-        public ObjectSelectionClipboard (List<ObjectInstance> objects)
+        public ObjectSelectionClipboard (IEnumerable<ObjectInstance> objects)
         {
             Objects = new List<ObjectInstance>();
             foreach (ObjectInstance inst in objects)
@@ -53,6 +53,24 @@ namespace Treefrog.Presentation.Tools
         }
     }
 
+    public interface IObjectSelectionLayer
+    {
+        bool HasSelectedObjects { get; }
+        IEnumerable<ObjectInstance> SelectedObjects { get; }
+
+        void AddObjectToSelection (ObjectInstance obj);
+        void AddObjectsToSelection (IEnumerable<ObjectInstance> objs);
+        void RemoveObjectFromSelection (ObjectInstance obj);
+        void RemoveObjectsFromSelection (IEnumerable<ObjectInstance> objs);
+        void ClearSelection ();
+
+        void MoveSelectedObjectsByOffset (Point offset);
+        void DeleteSelectedObjects ();
+
+        Rectangle SelectionBounds ();
+        Rectangle SelectionBounds (ObjectRegionTest test);
+    }
+
     public class ObjectSelectTool : ObjectPointerTool, ICommandSubscriber
     {
         private static bool[,] StipplePattern2px = new bool[,] {
@@ -72,18 +90,16 @@ namespace Treefrog.Presentation.Tools
         private ObservableCollection<Annotation> _annots;
         private ILevelGeometry _viewport;
 
-        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ILevelGeometry viewport)
+        private ObjectSelectionManager _selectionManager;
+
+        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ILevelGeometry viewport, ObjectSelectionManager selectionManager)
             : base(history, layer, gridSize)
         {
             _annots = annots;
             _viewport = viewport;
+            _selectionManager = selectionManager;
 
             InitializeCommandManager();
-        }
-
-        protected override void DisposeManaged ()
-        {
-            ClearSelected();
         }
 
         protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
@@ -93,7 +109,8 @@ namespace Treefrog.Presentation.Tools
                     StartSelectObjectSequence(info, viewport);
                     break;
                 case PointerEventType.Secondary:
-                    ClearSelected();
+                    _selectionManager.ClearSelection();
+                    //ClearSelected();
                     break;
             }
 
@@ -146,22 +163,12 @@ namespace Treefrog.Presentation.Tools
 
         private bool CommandCanDelete ()
         {
-            return _selectedObjects != null && _selectedObjects.Count > 0;
+            return _selectionManager.SelectedObjectCount > 0;
         }
 
         private void CommandDelete ()
         {
-            if (_selectedObjects != null) {
-                if (Layer != null) {
-                    ObjectRemoveCommand command = new ObjectRemoveCommand(Layer, this);
-                    foreach (SelectedObjectRecord inst in _selectedObjects)
-                        command.QueueRemove(inst.Instance);
-
-                    History.Execute(command);
-                }
-
-                ClearSelected();
-            }
+            _selectionManager.DeleteSelectedObjects();
         }
 
         private bool CommandCanSelectAll ()
@@ -172,45 +179,32 @@ namespace Treefrog.Presentation.Tools
         private void CommandSelectAll ()
         {
             if (Layer != null) {
-                foreach (ObjectInstance inst in Layer.Objects) {
-                    AddSelected(inst);
-                }
+                _selectionManager.AddObjectsToSelection(Layer.Objects);
             }
         }
 
         private bool CommandCanSelectNone ()
         {
-            return _selectedObjects != null && _selectedObjects.Count > 0;
+            return _selectionManager.SelectedObjectCount > 0;
         }
 
         private void CommandSelectNone ()
         {
-            if (_selectedObjects != null) {
-                ClearSelected();
-            }
+            _selectionManager.ClearSelection();
         }
 
         private bool CommandCanCut ()
         {
-            return _selectedObjects != null && _selectedObjects.Count > 0;
+            return _selectionManager.SelectedObjectCount > 0;
         }
 
         private void CommandCut ()
         {
-            if (_selectedObjects != null) {
-                List<ObjectInstance> objects = new List<ObjectInstance>();
-                foreach (SelectedObjectRecord record in _selectedObjects)
-                    objects.Add(record.Instance);
-
-                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(objects);
+            if (_selectionManager.SelectedObjectCount > 0) {
+                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(_selectionManager.SelectedObjects);
                 clip.CopyToClipboard();
 
-                ObjectRemoveCommand command = new ObjectRemoveCommand(Layer, this);
-                foreach (SelectedObjectRecord inst in _selectedObjects)
-                    command.QueueRemove(inst.Instance);
-                History.Execute(command);
-
-                ClearSelected();
+                _selectionManager.DeleteSelectedObjects();
 
                 CommandManager.Invalidate(CommandKey.Paste);
             }
@@ -218,17 +212,13 @@ namespace Treefrog.Presentation.Tools
 
         private bool CommandCanCopy ()
         {
-            return _selectedObjects != null && _selectedObjects.Count > 0;
+            return _selectionManager.SelectedObjectCount > 0;
         }
 
         private void CommandCopy ()
         {
-            if (_selectedObjects != null) {
-                List<ObjectInstance> objects = new List<ObjectInstance>();
-                foreach (SelectedObjectRecord record in _selectedObjects)
-                    objects.Add(record.Instance);
-
-                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(objects);
+            if (_selectionManager.SelectedObjectCount > 0) {
+                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(_selectionManager.SelectedObjects);
                 clip.CopyToClipboard();
 
                 CommandManager.Invalidate(CommandKey.Paste);
@@ -242,7 +232,7 @@ namespace Treefrog.Presentation.Tools
 
         private void CommandPaste ()
         {
-            ClearSelected();
+            _selectionManager.ClearSelection();
 
             ObjectSelectionClipboard clip = ObjectSelectionClipboard.CopyFromClipboard(Layer.Level.Project);
             if (clip == null)
@@ -250,12 +240,12 @@ namespace Treefrog.Presentation.Tools
 
             CenterObjectsInViewport(clip.Objects);
 
-            Command command = new ObjectAddCommand(Layer, clip.Objects, this);
+            Command command = new ObjectAddCommand(Layer, clip.Objects, _selectionManager);
             History.Execute(command);
 
             foreach (ObjectInstance inst in clip.Objects) {
                 Layer.AddObject(inst);
-                AddSelected(inst);
+                _selectionManager.AddObjectToSelection(inst);
             }
         }
 
@@ -296,13 +286,6 @@ namespace Treefrog.Presentation.Tools
 
         #region Select Object Sequence
 
-        private class SelectedObjectRecord
-        {
-            public ObjectInstance Instance { get; set; }
-            public SelectionAnnot Annot { get; set; }
-            public Point InitialLocation { get; set; }
-        }
-
         private enum UpdateAction
         {
             None,
@@ -312,7 +295,6 @@ namespace Treefrog.Presentation.Tools
 
         private Point _initialLocation;
         private Point _initialSnapLocation;
-        private List<SelectedObjectRecord> _selectedObjects = new List<SelectedObjectRecord>();
 
         private SnappingManager _selectSnapManager;
         private UpdateAction _action;
@@ -331,8 +313,8 @@ namespace Treefrog.Presentation.Tools
             }
 
             bool alreadySelected = false;
-            foreach (SelectedObjectRecord record in _selectedObjects)
-                if (record.Instance == hitObject)
+            foreach (var inst in _selectionManager.SelectedObjects)
+                if (inst == hitObject)
                     alreadySelected = true;
 
             if (alreadySelected) {
@@ -375,8 +357,8 @@ namespace Treefrog.Presentation.Tools
 
         private void SelectObjectPosition (PointerEventInfo info, ILevelGeometry viewport)
         {
-            foreach (SelectedObjectRecord record in _selectedObjects) {
-                if (record.Instance.ImageBounds.Contains(new Point((int)info.X, (int)info.Y))) {
+            foreach (var inst in _selectionManager.SelectedObjects) {
+                if (inst.ImageBounds.Contains(new Point((int)info.X, (int)info.Y))) {
                     Cursor.Current = Cursors.SizeAll;
                     return;
                 }
@@ -390,7 +372,7 @@ namespace Treefrog.Presentation.Tools
 
         private void StartClickNew (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
         {
-            ClearSelected();
+            _selectionManager.ClearSelection();
             StartClickAdd(info, viewport, obj);
         }
 
@@ -402,7 +384,7 @@ namespace Treefrog.Presentation.Tools
             _initialLocation = new Point((int)info.X, (int)info.Y);
             _selectSnapManager = GetSnappingManager(obj.ObjectClass);
 
-            AddSelected(obj);
+            _selectionManager.AddObjectToSelection(obj);
 
             _initialSnapLocation = new Point(obj.X, obj.Y);
             _action = UpdateAction.Move;
@@ -415,7 +397,7 @@ namespace Treefrog.Presentation.Tools
             if (obj == null)
                 return;
 
-            RemoveSelected(obj);
+            _selectionManager.RemoveObjectFromSelection(obj);
 
             _action = UpdateAction.None;
 
@@ -432,6 +414,8 @@ namespace Treefrog.Presentation.Tools
 
             _initialSnapLocation = new Point(obj.X, obj.Y);
             _action = UpdateAction.Move;
+
+            _selectionManager.RecordLocations();
 
             StartAutoScroll(info, viewport);
         }
@@ -454,28 +438,12 @@ namespace Treefrog.Presentation.Tools
             if (_selectSnapManager != null)
                 snapLoc = _selectSnapManager.Translate(snapLoc, SnappingTarget);
 
-            foreach (SelectedObjectRecord record in _selectedObjects) {
-                int snapDiffX = snapLoc.X - _initialSnapLocation.X;
-                int snapDiffY = snapLoc.Y - _initialSnapLocation.Y;
-                Point newLoc = new Point(record.InitialLocation.X + snapDiffX, record.InitialLocation.Y + snapDiffY);
-
-                record.Instance.X = newLoc.X;
-                record.Instance.Y = newLoc.Y;
-                record.Annot.MoveTo(record.Instance.ImageBounds.Location);
-            }
+            _selectionManager.MoveObjectsByOffsetRelative(new Point(snapLoc.X - _initialSnapLocation.X, snapLoc.Y - _initialSnapLocation.Y));
         }
 
         private void EndMove (PointerEventInfo info, ILevelGeometry viewport)
         {
-            ObjectMoveCommand command = new ObjectMoveCommand(this);
-
-            foreach (SelectedObjectRecord record in _selectedObjects) {
-                Point newLocation = new Point(record.Instance.X, record.Instance.Y);
-                command.QueueMove(record.Instance, record.InitialLocation, newLocation);
-                record.InitialLocation = newLocation;
-            }
-
-            History.Execute(command);
+            _selectionManager.CommitMoveFromRecordedLocations();
 
             EndAutoScroll(info, viewport);
         }
@@ -489,7 +457,7 @@ namespace Treefrog.Presentation.Tools
 
         private void StartDrag (PointerEventInfo info, ILevelGeometry viewport)
         {
-            ClearSelected();
+            _selectionManager.ClearSelection();
             StartDragAdd(info, viewport);
         }
 
@@ -527,100 +495,12 @@ namespace Treefrog.Presentation.Tools
         {
             _annots.Remove(_selection);
 
-            foreach (ObjectInstance inst in ObjectsInArea(_band.Selection)) {
-                AddSelected(inst);
-            }
+            _selectionManager.AddObjectsToSelection(ObjectsInArea(_band.Selection));
 
             EndAutoScroll(info, viewport);
         }
 
         #endregion
-
-        public void SelectObjects (List<ObjectInstance> objects)
-        {
-            ClearSelected();
-            AddObjectsToSelection(objects);
-        }
-
-        public void AddObjectsToSelection (List<ObjectInstance> objects)
-        {
-            if (objects == null)
-                return;
-
-            foreach (ObjectInstance inst in objects)
-                AddSelected(inst);
-        }
-
-        public void RemoveObjectsFromSelection (List<ObjectInstance> objects)
-        {
-            if (objects == null)
-                return;
-
-            foreach (ObjectInstance inst in objects)
-                RemoveSelected(inst);
-        }
-
-        private void AddSelected (ObjectInstance inst)
-        {
-            if (_selectedObjects == null)
-                return;
-
-            foreach (SelectedObjectRecord instRecord in _selectedObjects)
-                if (instRecord.Instance == inst)
-                    return;
-
-            SelectedObjectRecord record = new SelectedObjectRecord() {
-                Instance = inst,
-                Annot = new SelectionAnnot(inst.ImageBounds.Location) {
-                    End = new Point(inst.ImageBounds.Right, inst.ImageBounds.Bottom),
-                    Fill = SelectedAnnotFill,
-                    Outline = SelectedAnnotOutline,
-                },
-                InitialLocation = new Point(inst.X, inst.Y),
-            };
-
-            _selectedObjects.Add(record);
-            _annots.Add(record.Annot);
-
-            if (_selectedObjects.Count == 1) {
-                CommandManager.Invalidate(CommandKey.Delete);
-                CommandManager.Invalidate(CommandKey.SelectNone);
-            }
-        }
-
-        private void RemoveSelected (ObjectInstance inst)
-        {
-            if (_selectedObjects == null || _selectedObjects.Count == 0)
-                return;
-
-            foreach (SelectedObjectRecord record in _selectedObjects) {
-                if (record.Instance == inst) {
-                    _annots.Remove(record.Annot);
-                    _selectedObjects.Remove(record);
-                    break;
-                }
-            }
-
-            if (_selectedObjects.Count == 0) {
-                CommandManager.Invalidate(CommandKey.Delete);
-                CommandManager.Invalidate(CommandKey.SelectNone);
-            }
-        }
-
-        private void ClearSelected ()
-        {
-            if (_selectedObjects == null || _selectedObjects.Count == 0)
-                return;
-
-            foreach (SelectedObjectRecord record in _selectedObjects) {
-                _annots.Remove(record.Annot);
-            }
-
-            _selectedObjects.Clear();
-
-            CommandManager.Invalidate(CommandKey.Delete);
-            CommandManager.Invalidate(CommandKey.SelectNone);
-        }
 
         #endregion
 

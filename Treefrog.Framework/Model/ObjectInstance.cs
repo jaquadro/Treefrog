@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Model.Collections;
+using System.Collections.Generic;
 
 namespace Treefrog.Framework.Model
 {
@@ -98,9 +100,37 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
+        private static string[] _reservedPropertyNames = new string[] { "X", "Y", "Rotation" };
+
+        private PropertyCollection _properties;
+        private ObjectInstanceProperties _predefinedProperties;
+
+        private class ObjectInstanceProperties : PredefinedPropertyCollection
+        {
+            private ObjectInstance _parent;
+
+            public ObjectInstanceProperties (ObjectInstance parent)
+                : base(_reservedPropertyNames)
+            {
+                _parent = parent;
+            }
+
+            protected override IEnumerable<Property> PredefinedProperties ()
+            {
+                yield return _parent.LookupProperty("X");
+                yield return _parent.LookupProperty("Y");
+                yield return _parent.LookupProperty("Rotation");
+            }
+
+            protected override Property LookupProperty (string name)
+            {
+                return _parent.LookupProperty(name);
+            }
+        }
+
         public string PropertyProviderName
         {
-            get { throw new NotImplementedException(); }
+            get { return "Object#"; }
         }
 
         public event EventHandler<EventArgs> PropertyProviderNameChanged;
@@ -112,22 +142,65 @@ namespace Treefrog.Framework.Model
 
         public Collections.PropertyCollection CustomProperties
         {
-            get { throw new NotImplementedException(); }
+            get { return _properties; }
         }
 
         public Collections.PredefinedPropertyCollection PredefinedProperties
         {
-            get { throw new NotImplementedException(); }
+            get { return _predefinedProperties;  }
         }
 
         public PropertyCategory LookupPropertyCategory (string name)
         {
-            throw new NotImplementedException();
+            switch (name) {
+                case "X":
+                case "Y":
+                case "Rotation":
+                    return PropertyCategory.Predefined;
+                default:
+                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
+            }
         }
 
         public Property LookupProperty (string name)
         {
-            throw new NotImplementedException();
+            Property prop;
+
+            switch (name) {
+                case "X":
+                    prop = new NumberProperty("X", X);
+                    prop.ValueChanged += PropertyXChanged;
+                    return prop;
+                case "Y":
+                    prop = new NumberProperty("Y", Y);
+                    prop.ValueChanged += PropertyYChanged;
+                    return prop;
+                case "Rotation":
+                    prop = new NumberProperty("Rotation", Rotation);
+                    prop.ValueChanged += PropertyRotationChanged;
+                    return prop;
+
+                default:
+                    return _properties.Contains(name) ? _properties[name] : null;
+            }
+        }
+
+        private void PropertyXChanged (object sender, EventArgs e)
+        {
+            NumberProperty property = sender as NumberProperty;
+            X = (int)property.Value;
+        }
+
+        private void PropertyYChanged (object sender, EventArgs e)
+        {
+            NumberProperty property = sender as NumberProperty;
+            Y = (int)property.Value;
+        }
+
+        private void PropertyRotationChanged (object sender, EventArgs e)
+        {
+            NumberProperty property = sender as NumberProperty;
+            Rotation = property.Value;
         }
 
         #endregion

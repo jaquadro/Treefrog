@@ -31,7 +31,15 @@ namespace Treefrog.Windows.Controls.Composite
         private Image _imgPlusCircleClk;
         private Image _imgPlusCircleMo;
 
+        private Image _imgGrid;
+        private Image _imgGame;
+        private Image _imgSelection;
+
         private IContentInfoPresenter _controller;
+
+        private DateTime _infoRefreshLastTime;
+        private double _infoRefreshLimit = 0.05;
+        private double _infoRefreshTimeout = 0;
 
         public InfoStatus (StatusStrip statusBar)
         {
@@ -48,6 +56,10 @@ namespace Treefrog.Windows.Controls.Composite
             _imgPlusCircleClk = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle-clk16.png"));
             _imgPlusCircleMo = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle-mo16.png"));
 
+            _imgGrid = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
+            _imgGame = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
+            _imgSelection = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.selection.png"));
+
             // Coordinate
 
             _statusCoord = new ToolStripStatusLabel();
@@ -62,7 +74,7 @@ namespace Treefrog.Windows.Controls.Composite
 
             _statusLayer = new ToolStripStatusLabel();
             _statusLayer.AutoSize = true;
-            _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
+            _statusLayer.Image = _imgSelection;
             _statusLayer.ImageScaling = ToolStripItemImageScaling.None;
             _statusLayer.ImageAlign = ContentAlignment.MiddleLeft;
             _statusLayer.BorderSides = ToolStripStatusLabelBorderSides.Right;
@@ -195,20 +207,35 @@ namespace Treefrog.Windows.Controls.Composite
 
         private void SyncStatusInfoHandler (object Sender, EventArgs e)
         {
+            _infoRefreshTimeout -= (DateTime.Now - _infoRefreshLastTime).TotalMilliseconds / 1000.0;
+            _infoRefreshLastTime = DateTime.Now;
+
+            if (_infoRefreshTimeout > 0)
+                return;
+
+            _infoRefreshTimeout = _infoRefreshLimit;
+
             if (_controller != null) {
-                _statusCoord.Text = _controller.CoordinateString;
-                _statusInfo.Text = _controller.InfoString;
+                if (_statusCoord.Text != _controller.CoordinateString)
+                    _statusCoord.Text = _controller.CoordinateString;
+                if (_statusInfo.Text != _controller.InfoString)
+                    _statusInfo.Text = _controller.InfoString;
 
-                _statusLayer.Text = (_controller.CurrentLayer != null)
+                string layerText = (_controller.CurrentLayer != null)
                     ? _controller.CurrentLayer.LayerName : "No Layers";
+                if (_statusLayer.Text != layerText)
+                    _statusLayer.Text = layerText;
 
-                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                if (_controller.CurrentLayer is TileLayerPresenter)
-                    _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
-                else if (_controller.CurrentLayer is ObjectLayerPresenter)
-                    _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
-                else
-                    _statusLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.selection.png"));
+                if (_controller.CurrentLayer is TileLayerPresenter) {
+                    if (_statusLayer.Image != _imgGrid)
+                        _statusLayer.Image = _imgGrid;
+                }
+                else if (_controller.CurrentLayer is ObjectLayerPresenter) {
+                    if (_statusLayer.Image != _imgGame)
+                        _statusLayer.Image = _imgGame;
+                }
+                else if (_statusLayer.Image != _imgSelection)
+                    _statusLayer.Image = _imgSelection;
             }
         }
 

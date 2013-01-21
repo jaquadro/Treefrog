@@ -351,12 +351,15 @@ namespace Treefrog.Presentation
             if (poolName == null || !_tilePoolPresenters.ContainsKey(poolName)) {
                 _selectedPool = null;
                 _selectedPoolRef = null;
+                _commandManager.Invalidate(CommandKey.TilePoolProperties);
 
                 return;
             }
 
             _selectedPool = poolName;
             _selectedPoolRef = _tilePoolPresenters[poolName];
+
+            _commandManager.Invalidate(CommandKey.TilePoolProperties);
 
             OnSelectedTilePoolChanged(EventArgs.Empty);
         }
@@ -391,6 +394,7 @@ namespace Treefrog.Presentation
             _commandManager = new CommandManager();
 
             _commandManager.Register(CommandKey.TileProperties, CommandCanTileProperties, CommandTileProperties);
+            _commandManager.Register(CommandKey.TilePoolProperties, CommandCanTilePoolProperties, CommandTilePoolProperties);
             _commandManager.Register(CommandKey.TilePoolImport, CommandCanImport, CommandImport);
             _commandManager.Register(CommandKey.TilePoolDelete, CommandCanDelete, CommandDelete);
             _commandManager.Register(CommandKey.TilePoolExport, CommandCanExport, CommandExport);
@@ -411,6 +415,19 @@ namespace Treefrog.Presentation
         {
             if (CommandCanTileProperties()) {
                 _editor.Presentation.PropertyList.Provider = _selectedPoolRef.SelectedTile;
+                _editor.ActivatePropertyPanel();
+            }
+        }
+
+        private bool CommandCanTilePoolProperties ()
+        {
+            return _selectedPoolRef != null;
+        }
+
+        private void CommandTilePoolProperties ()
+        {
+            if (CommandCanTilePoolProperties()) {
+                _editor.Presentation.PropertyList.Provider = _selectedPoolRef.TilePool;
                 _editor.ActivatePropertyPanel();
             }
         }

@@ -119,6 +119,7 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.ObjectProtoImport, CommandCanImportObject, CommandImportObject);
             _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanRemoveObject, CommandRemoveObject);
+            _commandManager.Register(CommandKey.ObjectProtoProperties, CommandCanObjectProperties, CommandObjectProperties);
 
             _commandManager.RegisterToggleGroup(CommandToggleGroup.ObjectReference);
             _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceImage);
@@ -190,6 +191,19 @@ namespace Treefrog.Presentation
                 RefreshObjectPoolCollection();
                 InvalidateObjectProtoCommands();
                 OnSyncObjectPoolManager(EventArgs.Empty);
+            }
+        }
+
+        private bool CommandCanObjectProperties ()
+        {
+            return SelectedObjectPool != null && SelectedObject != null;
+        }
+
+        private void CommandObjectProperties ()
+        {
+            if (CommandCanObjectProperties()) {
+                _editor.Presentation.PropertyList.Provider = SelectedObject;
+                _editor.ActivatePropertyPanel();
             }
         }
 

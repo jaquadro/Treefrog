@@ -43,7 +43,7 @@ namespace Treefrog.Framework.Model
     /* INamedResource, IPropertyProvider */
     public class ObjectClass : IKeyProvider<string>, INotifyPropertyChanged, IPropertyProvider
     {
-        private static string[] _reservedPropertyNames = new string[] { "Name", "Width", "Height", "OriginX", "OriginY" };
+        private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
 
         private ObjectPool _pool;
         private int _id;
@@ -313,10 +313,10 @@ namespace Treefrog.Framework.Model
             protected override IEnumerable<Property> PredefinedProperties ()
             {
                 yield return _parent.LookupProperty("Name");
-                yield return _parent.LookupProperty("Width");
-                yield return _parent.LookupProperty("Height");
-                yield return _parent.LookupProperty("OriginX");
-                yield return _parent.LookupProperty("OriginY");
+                //yield return _parent.LookupProperty("Width");
+                //yield return _parent.LookupProperty("Height");
+                //yield return _parent.LookupProperty("OriginX");
+                //yield return _parent.LookupProperty("OriginY");
             }
 
             protected override Property LookupProperty (string name)
@@ -351,10 +351,10 @@ namespace Treefrog.Framework.Model
         {
             switch (name) {
                 case "Name":
-                case "Width":
-                case "Height":
-                case "OriginX":
-                case "OriginY":
+                //case "Width":
+                //case "Height":
+                //case "OriginX":
+                //case "OriginY":
                     return PropertyCategory.Predefined;
                 default:
                     return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;

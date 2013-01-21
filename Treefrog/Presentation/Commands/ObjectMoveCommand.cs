@@ -5,6 +5,7 @@ using System.Text;
 using Treefrog.Framework.Model;
 using Treefrog.Framework.Imaging;
 using Treefrog.Presentation.Tools;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation.Commands
 {
@@ -24,8 +25,8 @@ namespace Treefrog.Presentation.Commands
             _objects = new List<ObjectRecord>();
         }
 
-        public ObjectMoveCommand (ObjectSelectTool selectTool)
-            : base(selectTool)
+        public ObjectMoveCommand (ObjectSelectionManager selectionManager)
+            : base(selectionManager)
         {
             _objects = new List<ObjectRecord>();
         }

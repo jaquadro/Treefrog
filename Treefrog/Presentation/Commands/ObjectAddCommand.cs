@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Tools;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation.Commands
 {
@@ -18,8 +19,8 @@ namespace Treefrog.Presentation.Commands
             _objects = new List<ObjectInstance>();
         }
 
-        public ObjectAddCommand (ObjectLayer source, ObjectSelectTool selectTool)
-            : base(selectTool)
+        public ObjectAddCommand (ObjectLayer source, ObjectSelectionManager selectionManager)
+            : base(selectionManager)
         {
             _objectSource = source;
             _objects = new List<ObjectInstance>();
@@ -31,8 +32,8 @@ namespace Treefrog.Presentation.Commands
             _objects.Add(inst);
         }
 
-        public ObjectAddCommand (ObjectLayer source, ObjectInstance inst, ObjectSelectTool selectTool)
-            : this(source, selectTool)
+        public ObjectAddCommand (ObjectLayer source, ObjectInstance inst, ObjectSelectionManager selectionManager)
+            : this(source, selectionManager)
         {
             _objects.Add(inst);
         }
@@ -44,8 +45,8 @@ namespace Treefrog.Presentation.Commands
                 _objects.Add(inst);
         }
 
-        public ObjectAddCommand (ObjectLayer source, List<ObjectInstance> objects, ObjectSelectTool selectTool)
-            : this(source, selectTool)
+        public ObjectAddCommand (ObjectLayer source, List<ObjectInstance> objects, ObjectSelectionManager selectionManager)
+            : this(source, selectionManager)
         {
             foreach (ObjectInstance inst in objects)
                 _objects.Add(inst);

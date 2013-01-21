@@ -349,6 +349,7 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.NewObjectLayer, CommandCanAddObjectLayer, CommandAddObjectLayer);
             _commandManager.Register(CommandKey.LayerClone, CommandCanCloneLayer, CommandCloneLayer);
             _commandManager.Register(CommandKey.LayerDelete, CommandCanDeleteLayer, CommandDeleteLayer);
+            _commandManager.Register(CommandKey.LayerProperties, CommandCanLayerProperties, CommandLayerProperties);
             _commandManager.Register(CommandKey.LayerMoveTop, CommandCanMoveLayerTop, CommandMoveLayerTop);
             _commandManager.Register(CommandKey.LayerMoveUp, CommandCanMoveLayerUp, CommandMoveLayerUp);
             _commandManager.Register(CommandKey.LayerMoveDown, CommandCanMoveLayerDown, CommandMoveLayerDown);
@@ -568,6 +569,19 @@ namespace Treefrog.Presentation
             }
         }
 
+        private bool CommandCanLayerProperties ()
+        {
+            return SelectedLayer != null;
+        }
+
+        private void CommandLayerProperties ()
+        {
+            if (CommandCanLayerProperties()) {
+                _editor.Presentation.PropertyList.Provider = SelectedLayer.Layer;
+                _editor.ActivatePropertyPanel();
+            }
+        }
+
         private bool CommandCanMoveLayerTop ()
         {
             return CommandCanMoveLayerUp();
@@ -665,6 +679,7 @@ namespace Treefrog.Presentation
 
             CommandManager.Invalidate(CommandKey.LayerClone);
             CommandManager.Invalidate(CommandKey.LayerDelete);
+            CommandManager.Invalidate(CommandKey.LayerProperties);
             CommandManager.Invalidate(CommandKey.LayerExportRaster);
             CommandManager.Invalidate(CommandKey.LevelResize);
         }

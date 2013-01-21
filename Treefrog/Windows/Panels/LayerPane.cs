@@ -46,6 +46,7 @@ namespace Treefrog.Windows
             _commandController.MapButtons(new Dictionary<CommandKey, ToolStripButton>() {
                 { CommandKey.LayerDelete, _buttonRemove },
                 { CommandKey.LayerClone, _buttonCopy },
+                { CommandKey.LayerProperties, _buttonProperties },
                 { CommandKey.LayerMoveUp, _buttonUp },
                 { CommandKey.LayerMoveDown, _buttonDown },
             });
@@ -55,8 +56,6 @@ namespace Treefrog.Windows
             });
 
             // Wire events
-
-            _buttonProperties.Click += ShowPropertiesClickedHandler;
 
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
             _listControl.ItemChecked += ItemCheckedHandler;
@@ -93,12 +92,6 @@ namespace Treefrog.Windows
         }
 
         #region Event Handlers
-
-        public void ShowPropertiesClickedHandler (object sender, EventArgs e)
-        {
-            //if (_controller != null)
-            //    _controller.ActionShowSelectedLayerProperties();
-        }
 
         private void SelectedItemChangedHandler (object sender, ListViewItemSelectionChangedEventArgs e)
         {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Tools;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation.Commands
 {
@@ -18,8 +19,8 @@ namespace Treefrog.Presentation.Commands
             _objects = new List<ObjectInstance>();
         }
 
-        public ObjectRemoveCommand (ObjectLayer source, ObjectSelectTool selectTool)
-            : base(selectTool)
+        public ObjectRemoveCommand (ObjectLayer source, ObjectSelectionManager selectionManager)
+            : base(selectionManager)
         {
             _objectSource = source;
             _objects = new List<ObjectInstance>();

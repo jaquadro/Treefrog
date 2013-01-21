@@ -71,6 +71,7 @@ namespace Treefrog.Windows
             _commandController = new UICommandController();
             _commandController.MapButtons(new Dictionary<CommandKey, ToolStripButton>() {
                 { CommandKey.TilePoolDelete, _buttonRemove },
+                { CommandKey.TilePoolProperties, _buttonProperties },
             });
             _commandController.MapMenuItems(new Dictionary<CommandKey, ToolStripMenuItem>() {
                 { CommandKey.TilePoolImport, importNewToolStripMenuItem },
