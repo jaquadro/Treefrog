@@ -170,6 +170,7 @@
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
+    <Compile Include="Presentation\ObjectSelectionManager.cs" />
     <Compile Include="Presentation\TextureResourceRegistry.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
     <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />

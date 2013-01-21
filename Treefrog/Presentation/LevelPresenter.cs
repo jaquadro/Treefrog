@@ -19,6 +19,8 @@ namespace Treefrog.Presentation
         ILevelGeometry Geometry { get; }
         CommandHistory History { get; }
         ObservableCollection<Annotation> Annotations { get; }
+
+        void SetPropertyProvider (IPropertyProvider provider);
     }
 
     public class LevelPresenter : IDisposable, ILayerContext, IPointerResponderProvider, ICommandSubscriber, ILayerListPresenter
@@ -786,6 +788,11 @@ namespace Treefrog.Presentation
         public void ActionShowHideLayer (string name, LayerVisibility visibility)
         {
 
+        }
+
+        public void SetPropertyProvider (IPropertyProvider provider)
+        {
+            _editor.Presentation.PropertyList.Provider = provider;
         }
     }
 }

@@ -26,6 +26,9 @@ namespace Treefrog.Framework.Model
             _rotation = 0;
             _scaleX = 1f;
             _scaleY = 1f;
+
+            _properties = new PropertyCollection(_reservedPropertyNames);
+            _predefinedProperties = new ObjectInstanceProperties(this);
         }
 
         public ObjectInstance (ObjectClass objClass)
@@ -34,13 +37,15 @@ namespace Treefrog.Framework.Model
         }
 
         public ObjectInstance (ObjectInstance inst)
+            : this(inst._class, inst._posX, inst._posY)
         {
-            _class = inst._class;
-            _posX = inst._posX;
-            _posY = inst._posY;
             _rotation = inst._rotation;
             _scaleX = inst._scaleX;
             _scaleY = inst._scaleY;
+
+            foreach (Property prop in inst._properties) {
+                _properties.Add(prop.Clone() as Property);
+            }
         }
 
         public ObjectClass ObjectClass
@@ -51,7 +56,13 @@ namespace Treefrog.Framework.Model
         public float Rotation
         {
             get { return _rotation; }
-            set { _rotation = value; }
+            set
+            {
+                if (_rotation != value) {
+                    _rotation = value;
+                    OnRotationChanged(EventArgs.Empty);
+                }
+            }
         }
 
         public float ScaleX
@@ -67,13 +78,37 @@ namespace Treefrog.Framework.Model
         public int X
         {
             get { return _posX; }
-            set { _posX = value; }
+            set
+            {
+                if (_posX != value) {
+                    _posX = value;
+                    OnPositionChanged(EventArgs.Empty);
+                }
+            }
         }
 
         public int Y
         {
             get { return _posY; }
-            set { _posY = value; }
+            set {
+                if (_posY != value) {
+                    _posY = value;
+                    OnPositionChanged(EventArgs.Empty);
+                }            
+            }
+        }
+
+        public Point Position
+        {
+            get { return new Point(_posX, _posY); }
+            set
+            {
+                if (value.X != _posX || value.Y != _posY) {
+                    _posX = value.X;
+                    _posY = value.Y;
+                    OnPositionChanged(EventArgs.Empty);
+                }
+            }
         }
 
         public Rectangle ImageBounds
@@ -96,6 +131,23 @@ namespace Treefrog.Framework.Model
                     _posY - _class.Origin.Y + _class.MaskBounds.Top,
                     _class.MaskBounds.Width, _class.MaskBounds.Height);
             }
+        }
+
+        public event EventHandler PositionChanged;
+        public event EventHandler RotationChanged;
+
+        protected virtual void OnPositionChanged (EventArgs e)
+        {
+            var ev = PositionChanged;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnRotationChanged (EventArgs e)
+        {
+            var ev = RotationChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         #region IPropertyProvider Members

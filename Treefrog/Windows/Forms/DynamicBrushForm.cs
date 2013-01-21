@@ -111,6 +111,9 @@ namespace Treefrog.Windows.Forms
             {
                 get { return _annots; }
             }
+
+            public void SetPropertyProvider (IPropertyProvider provider)
+            { }
         }
 
         private class OverlayRenderCore : LocalRenderCore

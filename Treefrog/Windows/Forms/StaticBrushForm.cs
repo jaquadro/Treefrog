@@ -112,6 +112,9 @@ namespace Treefrog.Windows.Forms
             {
                 get { return _annots; }
             }
+
+            public void SetPropertyProvider (IPropertyProvider provider)
+            { }
         }
 
         private ITilePoolListPresenter _tileController;

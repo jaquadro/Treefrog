@@ -53,24 +53,6 @@ namespace Treefrog.Presentation.Tools
         }
     }
 
-    public interface IObjectSelectionLayer
-    {
-        bool HasSelectedObjects { get; }
-        IEnumerable<ObjectInstance> SelectedObjects { get; }
-
-        void AddObjectToSelection (ObjectInstance obj);
-        void AddObjectsToSelection (IEnumerable<ObjectInstance> objs);
-        void RemoveObjectFromSelection (ObjectInstance obj);
-        void RemoveObjectsFromSelection (IEnumerable<ObjectInstance> objs);
-        void ClearSelection ();
-
-        void MoveSelectedObjectsByOffset (Point offset);
-        void DeleteSelectedObjects ();
-
-        Rectangle SelectionBounds ();
-        Rectangle SelectionBounds (ObjectRegionTest test);
-    }
-
     public class ObjectSelectTool : ObjectPointerTool, ICommandSubscriber
     {
         private static bool[,] StipplePattern2px = new bool[,] {
@@ -91,13 +73,15 @@ namespace Treefrog.Presentation.Tools
         private ILevelGeometry _viewport;
 
         private ObjectSelectionManager _selectionManager;
+        private ILayerContext _layerContext;
 
-        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ILevelGeometry viewport, ObjectSelectionManager selectionManager)
+        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ILevelGeometry viewport, ObjectSelectionManager selectionManager, ILayerContext layerContext)
             : base(history, layer, gridSize)
         {
             _annots = annots;
             _viewport = viewport;
             _selectionManager = selectionManager;
+            _layerContext = layerContext;
 
             InitializeCommandManager();
         }
@@ -110,7 +94,7 @@ namespace Treefrog.Presentation.Tools
                     break;
                 case PointerEventType.Secondary:
                     _selectionManager.ClearSelection();
-                    //ClearSelected();
+                    UpdatePropertyProvider();
                     break;
             }
 
@@ -153,44 +137,9 @@ namespace Treefrog.Presentation.Tools
         {
             _commandManager = new CommandManager();
 
-            _commandManager.Register(CommandKey.Delete, CommandCanDelete, CommandDelete);
-            _commandManager.Register(CommandKey.SelectAll, CommandCanSelectAll, CommandSelectAll);
-            _commandManager.Register(CommandKey.SelectNone, CommandCanSelectNone, CommandSelectNone);
             _commandManager.Register(CommandKey.Cut, CommandCanCut, CommandCut);
             _commandManager.Register(CommandKey.Copy, CommandCanCopy, CommandCopy);
             _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
-        }
-
-        private bool CommandCanDelete ()
-        {
-            return _selectionManager.SelectedObjectCount > 0;
-        }
-
-        private void CommandDelete ()
-        {
-            _selectionManager.DeleteSelectedObjects();
-        }
-
-        private bool CommandCanSelectAll ()
-        {
-            return true;
-        }
-
-        private void CommandSelectAll ()
-        {
-            if (Layer != null) {
-                _selectionManager.AddObjectsToSelection(Layer.Objects);
-            }
-        }
-
-        private bool CommandCanSelectNone ()
-        {
-            return _selectionManager.SelectedObjectCount > 0;
-        }
-
-        private void CommandSelectNone ()
-        {
-            _selectionManager.ClearSelection();
         }
 
         private bool CommandCanCut ()
@@ -390,6 +339,7 @@ namespace Treefrog.Presentation.Tools
             _action = UpdateAction.Move;
 
             StartAutoScroll(info, viewport);
+            UpdatePropertyProvider();
         }
 
         private void StartClickRemove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
@@ -402,6 +352,7 @@ namespace Treefrog.Presentation.Tools
             _action = UpdateAction.None;
 
             StartAutoScroll(info, viewport);
+            UpdatePropertyProvider();
         }
 
         private void StartClickMove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
@@ -446,6 +397,7 @@ namespace Treefrog.Presentation.Tools
             _selectionManager.CommitMoveFromRecordedLocations();
 
             EndAutoScroll(info, viewport);
+            UpdatePropertyProvider();
         }
 
         #endregion
@@ -498,11 +450,24 @@ namespace Treefrog.Presentation.Tools
             _selectionManager.AddObjectsToSelection(ObjectsInArea(_band.Selection));
 
             EndAutoScroll(info, viewport);
+            UpdatePropertyProvider();
         }
 
         #endregion
 
         #endregion
+
+        private void UpdatePropertyProvider ()
+        {
+            if (_selectionManager.SelectedObjectCount == 1) {
+                foreach (ObjectInstance inst in _selectionManager.SelectedObjects) {
+                    _layerContext.SetPropertyProvider(inst);
+                }
+            }
+            else {
+                _layerContext.SetPropertyProvider(null);
+            }
+        }
 
         private List<ObjectInstance> CoarseHitTest (int x, int y)
         {
