@@ -64,12 +64,20 @@ namespace Treefrog.Presentation
                 InitialLocation = new Point(obj.X, obj.Y),
             };
 
+            CircleAnnot circle = new CircleAnnot() {
+                Outline = SelectedAnnotOutline,
+            };
+            circle.SizeToBound(obj.ImageBounds);
+            circle.Radius += 5;
+
             obj.PositionChanged += InstancePositionChanged;
             obj.RotationChanged += InstanceRotationChanged;
 
             _selectedObjects.Add(record);
             if (Annotations != null)
                 Annotations.Add(record.Annot);
+
+            Annotations.Add(circle);
 
             //if (_selectedObjects.Count == 1) {
             //    CommandManager.Invalidate(CommandKey.Delete);

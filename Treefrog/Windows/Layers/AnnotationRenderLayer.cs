@@ -119,7 +119,7 @@ namespace Treefrog.Windows.Layers
             if (_annotCache.ContainsKey(key))
                 RemoveFromAnnotationCache(key);
 
-            _annotCache.Add(key, AnnotationRendererFactory.Create(key));
+            _annotCache.Add(key, AnnotationRendererFactory.Default.Create(key));
         }
 
         private void RemoveFromAnnotationCache (Annotation key)

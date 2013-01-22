@@ -142,6 +142,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\TreefrogAux.cs" />
+    <Compile Include="Presentation\Annotations\Annotation.cs" />
+    <Compile Include="Presentation\Annotations\CircleAnnot.cs" />
+    <Compile Include="Presentation\Annotations\MultiTileSelectionAnnot.cs" />
     <Compile Include="Presentation\Annotations\SelectionAnnot.cs" />
     <Compile Include="Presentation\Commands\CommandHistory.cs" />
     <Compile Include="Presentation\Commands\CommandSubscriber.cs" />
@@ -182,6 +185,8 @@
     <Compile Include="Utility\DependentTypeFactory.cs" />
     <Compile Include="Utility\IBindable.cs" />
     <Compile Include="Utility\NotificationExtensions.cs" />
+    <Compile Include="Windows\Annotations\CircleAnnotationRenderer.cs" />
+    <Compile Include="Windows\Annotations\MultiTileSelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>Component</SubType>
     </Compile>
