@@ -137,5 +137,10 @@ namespace Treefrog.Framework.Imaging
         }
 
         public static readonly Rectangle Empty = new Rectangle(0, 0, 0, 0);
+
+        public static Rectangle operator + (Rectangle rect, Size sz)
+        {
+            return new Rectangle(rect.Location, rect.Size + sz);
+        }
     }
 }

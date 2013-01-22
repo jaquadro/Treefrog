@@ -31,6 +31,9 @@ namespace Treefrog.Presentation.Annotations
         public Brush Fill { get; set; }
         public Pen Outline { get; set; }
 
+        public float Rotation { get; set; }
+        public Point Origin { get; set; }
+
         public void Normalize ()
         {
             Point newStart = new Point(Math.Min(Start.X, End.X), Math.Min(Start.Y, End.Y));

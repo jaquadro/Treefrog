@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using Treefrog.Presentation.Annotations;
 using Treefrog.Windows.Annotations;
 using System.Collections.Specialized;
+using Amphibian.Drawing;
 
 namespace Treefrog.Windows.Layers
 {
@@ -16,6 +17,8 @@ namespace Treefrog.Windows.Layers
         public AnnotationRenderLayer (AnnotationLayerPresenter model)
             : base(model)
         {
+            base.Mode = RenderMode.Sprite | RenderMode.Drawing;
+
             if (model != null) {
                 model.AnnotationsCollectionChanged += ModelAnnotationsCollectionChanged;
                 BindAnnotations(model.Annotations);
@@ -46,6 +49,16 @@ namespace Treefrog.Windows.Layers
 
             foreach (AnnotationRenderer renderer in _annotCache.Values)
                 renderer.Render(spriteBatch, zoom);
+        }
+
+        protected override void RenderContent (DrawBatch drawBatch)
+        {
+            float zoom = 1f;
+            if (LevelGeometry != null)
+                zoom = LevelGeometry.ZoomFactor;
+
+            foreach (AnnotationRenderer renderer in _annotCache.Values)
+                renderer.Render(drawBatch, zoom);
         }
 
         /*public new AnnotationLayerPresenter Model

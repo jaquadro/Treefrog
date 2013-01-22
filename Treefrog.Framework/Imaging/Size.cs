@@ -57,5 +57,10 @@ namespace Treefrog.Framework.Imaging
                 Width.ToString(culture), Height.ToString(culture)
             });
         }
+
+        public static Size operator + (Size a, Size b)
+        {
+            return new Size(a.Width + b.Width, a.Height + b.Height);
+        }
     }
 }

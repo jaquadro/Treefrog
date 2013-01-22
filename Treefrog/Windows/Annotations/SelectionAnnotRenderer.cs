@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Treefrog.Framework;
 using Treefrog.Presentation.Annotations;
+using Amphibian.Drawing;
 
 namespace Treefrog.Windows.Annotations
 {
@@ -20,7 +21,16 @@ namespace Treefrog.Windows.Annotations
             Render(spriteBatch, 1f);
         }
 
-        public abstract void Render (SpriteBatch spriteBatch, float zoomFactor);
+        public void Render (DrawBatch drawBatch)
+        {
+            Render(drawBatch, 1f);
+        }
+
+        public virtual void Render (SpriteBatch spriteBatch, float zoomFactor)
+        { }
+
+        public virtual void Render (DrawBatch drawBatch, float zoomFactor)
+        { }
 
         #region Dispose
 
@@ -82,15 +92,15 @@ namespace Treefrog.Windows.Annotations
             base.DisposeManaged();
         }
 
-        public override void Render (SpriteBatch spriteBatch, float zoomFactor)
+        public override void Render (DrawBatch drawBatch, float zoomFactor)
         {
             if (IsDisposed)
                 return;
 
             if (_fillBrush == null && _data.Fill != null)
-                _fillBrush = BrushFactory.Create(spriteBatch.GraphicsDevice, _data.Fill);
+                _fillBrush = BrushFactory.Create(drawBatch.GraphicsDevice, _data.Fill);
             if (_outlinePen == null && _data.Outline != null)
-                _outlinePen = PenFactory.Create(spriteBatch.GraphicsDevice, _data.Outline);
+                _outlinePen = PenFactory.Create(drawBatch.GraphicsDevice, _data.Outline);
 
             Rectangle rect = new Rectangle(
                 (int)(Math.Min(_data.Start.X, _data.End.X) * zoomFactor),
@@ -100,9 +110,11 @@ namespace Treefrog.Windows.Annotations
                 );
 
             if (_fillBrush != null)
-                XnaDrawing.Draw2D.FillRectangle(spriteBatch, rect, _fillBrush);
+                drawBatch.FillRectangle(rect, _fillBrush);
+                //XnaDrawing.Draw2D.FillRectangle(spriteBatch, rect, _fillBrush);
             if (_outlinePen != null)
-                XnaDrawing.Draw2D.DrawRectangle(spriteBatch, rect, _outlinePen);
+                drawBatch.DrawRectangle(rect, _outlinePen);
+                //XnaDrawing.Draw2D.DrawRectangle(spriteBatch, rect, _outlinePen);
         }
     }
 

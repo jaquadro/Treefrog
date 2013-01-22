@@ -78,16 +78,19 @@ namespace Treefrog.Presentation.Layers
                 Rectangle region = geometry.VisibleBounds;
                 foreach (ObjectInstance inst in Layer.ObjectsInRegion(region, ObjectRegionTest.PartialImage)) {
                     Rectangle srcRect = inst.ObjectClass.ImageBounds;
-                    Rectangle dstRect = inst.ImageBounds;
+                    Rectangle dstRect = inst.ObjectClass.ImageBounds;
                     yield return new DrawCommand() {
                         Texture = inst.ObjectClass.ImageId,
                         SourceRect = new Rectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height),
                         DestRect = new Rectangle(
-                            (int)(dstRect.X * geometry.ZoomFactor),
-                            (int)(dstRect.Y * geometry.ZoomFactor),
+                            (int)((inst.Position.X + dstRect.X) * geometry.ZoomFactor),
+                            (int)((inst.Position.Y + dstRect.Y) * geometry.ZoomFactor),
                             (int)(dstRect.Width * geometry.ZoomFactor),
                             (int)(dstRect.Height * geometry.ZoomFactor)),
                         BlendColor = Colors.White,
+                        Rotation = inst.Rotation,
+                        OriginX = inst.ObjectClass.Origin.X,
+                        OriginY = inst.ObjectClass.Origin.Y,
                     };
                 }
             }

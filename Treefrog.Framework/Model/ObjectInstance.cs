@@ -18,6 +18,9 @@ namespace Treefrog.Framework.Model
         private float _scaleX;
         private float _scaleY;
 
+        private Rectangle _maskRotatedBounds;
+        private Rectangle _imageRotatedBounds;
+
         public ObjectInstance (ObjectClass objClass, int posX, int posY)
         {
             _class = objClass;
@@ -29,6 +32,8 @@ namespace Treefrog.Framework.Model
 
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectInstanceProperties(this);
+
+            UpdateBounds();
         }
 
         public ObjectInstance (ObjectClass objClass)
@@ -60,6 +65,8 @@ namespace Treefrog.Framework.Model
             {
                 if (_rotation != value) {
                     _rotation = value;
+
+                    UpdateBounds();
                     OnRotationChanged(EventArgs.Empty);
                 }
             }
@@ -116,9 +123,9 @@ namespace Treefrog.Framework.Model
             get
             {
                 return new Rectangle(
-                    _posX - _class.Origin.X + _class.ImageBounds.Left,
-                    _posY - _class.Origin.Y + _class.ImageBounds.Top,
-                    _class.ImageBounds.Width, _class.ImageBounds.Height);
+                    _posX + _imageRotatedBounds.Left,
+                    _posY + _imageRotatedBounds.Top,
+                    _imageRotatedBounds.Width, _imageRotatedBounds.Height);
             }
         }
 
@@ -127,9 +134,9 @@ namespace Treefrog.Framework.Model
             get
             {
                 return new Rectangle(
-                    _posX - _class.Origin.X + _class.MaskBounds.Left,
-                    _posY - _class.Origin.Y + _class.MaskBounds.Top,
-                    _class.MaskBounds.Width, _class.MaskBounds.Height);
+                    _posX + _maskRotatedBounds.Left,
+                    _posY + _maskRotatedBounds.Top,
+                    _maskRotatedBounds.Width, _maskRotatedBounds.Height);
             }
         }
 
@@ -148,6 +155,39 @@ namespace Treefrog.Framework.Model
             var ev = RotationChanged;
             if (ev != null)
                 ev(this, e);
+        }
+
+        private void UpdateBounds ()
+        {
+            _imageRotatedBounds = CalculateRectangleBounds(new Rectangle(
+                _class.ImageBounds.Left - _class.Origin.X, _class.ImageBounds.Top - _class.Origin.Y,
+                _class.ImageBounds.Width, _class.ImageBounds.Height), _rotation);
+
+            _maskRotatedBounds = CalculateRectangleBounds(new Rectangle(
+                _class.MaskBounds.Left - _class.Origin.X, _class.MaskBounds.Top - _class.Origin.Y,
+                _class.MaskBounds.Width, _class.MaskBounds.Height), _rotation);
+        }
+
+        private static Rectangle CalculateRectangleBounds (Rectangle rect, float angle)
+        {
+            float st = (float)Math.Sin(angle);
+            float ct = (float)Math.Cos(angle);
+
+            float x1 = rect.Left * ct - rect.Top * st;
+            float y1 = rect.Left * st + rect.Top * ct;
+            float x2 = rect.Right * ct - rect.Top * st;
+            float y2 = rect.Right * st + rect.Top * ct;
+            float x3 = rect.Left * ct - rect.Bottom * st;
+            float y3 = rect.Left * st + rect.Bottom * ct;
+            float x4 = rect.Right * ct - rect.Bottom * st;
+            float y4 = rect.Right * st + rect.Bottom * ct;
+
+            int xmin = (int)Math.Floor(Math.Min(x1, Math.Min(x2, Math.Min(x3, x4))));
+            int xmax = (int)Math.Ceiling(Math.Max(x1, Math.Max(x2, Math.Max(x3, x4))));
+            int ymin = (int)Math.Floor(Math.Min(y1, Math.Min(y2, Math.Min(y3, y4))));
+            int ymax = (int)Math.Ceiling(Math.Max(y1, Math.Max(y2, Math.Max(y3, y4))));
+
+            return new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
         }
 
         #region IPropertyProvider Members

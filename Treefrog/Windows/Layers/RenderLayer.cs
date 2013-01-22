@@ -106,7 +106,9 @@ namespace Treefrog.Windows.Layers
             foreach (DrawCommand command in drawList) {
                 Texture2D texture = textureCache.Resolve(command.Texture);
                 if (texture != null)
-                    spriteBatch.Draw(texture, command.DestRect.ToXnaRectangle(), command.SourceRect.ToXnaRectangle(), command.BlendColor.ToXnaColor());
+                    spriteBatch.Draw(texture, command.DestRect.ToXnaRectangle(), command.SourceRect.ToXnaRectangle(), 
+                        command.BlendColor.ToXnaColor(), command.Rotation, new Vector2(command.OriginX, command.OriginY), 
+                        SpriteEffects.None, 0f);
             }
         }
 

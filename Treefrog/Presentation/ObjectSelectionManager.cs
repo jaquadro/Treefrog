@@ -65,6 +65,7 @@ namespace Treefrog.Presentation
             };
 
             obj.PositionChanged += InstancePositionChanged;
+            obj.RotationChanged += InstanceRotationChanged;
 
             _selectedObjects.Add(record);
             if (Annotations != null)
@@ -91,6 +92,7 @@ namespace Treefrog.Presentation
                     _selectedObjects.Remove(record);
 
                     obj.PositionChanged -= InstancePositionChanged;
+                    obj.RotationChanged -= InstanceRotationChanged;
                     break;
                 }
             }
@@ -114,6 +116,7 @@ namespace Treefrog.Presentation
                     Annotations.Remove(record.Annot);
 
                 record.Instance.PositionChanged -= InstancePositionChanged;
+                record.Instance.RotationChanged -= InstanceRotationChanged;
             }
 
             _selectedObjects.Clear();
@@ -129,6 +132,20 @@ namespace Treefrog.Presentation
                 foreach (var record in _selectedObjects) {
                     if (record.Instance == inst) {
                         record.Annot.MoveTo(inst.ImageBounds.Location);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void InstanceRotationChanged (object sender, EventArgs e)
+        {
+            ObjectInstance inst = sender as ObjectInstance;
+            if (inst != null) {
+                foreach (var record in _selectedObjects) {
+                    if (record.Instance == inst) {
+                        record.Annot.Start = inst.ImageBounds.Location;
+                        record.Annot.End = new Point(inst.ImageBounds.Right, inst.ImageBounds.Bottom);
                         break;
                     }
                 }

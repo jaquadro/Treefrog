@@ -12,6 +12,9 @@ namespace Treefrog.Presentation.Layers
         public Rectangle SourceRect { get; set; }
         public Rectangle DestRect { get; set; }
         public Color BlendColor { get; set; }
+        public float Rotation { get; set; }
+        public float OriginX { get; set; }
+        public float OriginY { get; set; }
     }
 
     public abstract class RenderLayerPresenter : LayerPresenter
