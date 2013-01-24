@@ -18,10 +18,18 @@ namespace Treefrog.Presentation
             public Point InitialLocation { get; set; }
         }
 
+        private static bool[,] StipplePattern2px = new bool[,] {
+            { true, true, false, false },
+            { true, true, false, false },
+            { false, false, true, true },
+            { false, false, true, true },
+        };
+
         private List<SelectedObjectRecord> _selectedObjects;
 
         private static Brush SelectedAnnotFill = new SolidColorBrush(new Color(128, 77, 255, 96));
         private static Pen SelectedAnnotOutline = new Pen(new SolidColorBrush(new Color(96, 0, 255, 255)), 1);
+        //private static Pen SelectedAnnotOutline = new Pen(new StippleBrush(StipplePattern2px, new Color(96, 0, 255, 255)));
 
         public ObjectSelectionManager ()
         {
@@ -64,11 +72,12 @@ namespace Treefrog.Presentation
                 InitialLocation = new Point(obj.X, obj.Y),
             };
 
-            CircleAnnot circle = new CircleAnnot() {
+            /*CircleAnnot circle = new CircleAnnot() {
                 Outline = SelectedAnnotOutline,
             };
             circle.SizeToBound(obj.ImageBounds);
             circle.Radius += 5;
+            */
 
             obj.PositionChanged += InstancePositionChanged;
             obj.RotationChanged += InstanceRotationChanged;
@@ -77,7 +86,7 @@ namespace Treefrog.Presentation
             if (Annotations != null)
                 Annotations.Add(record.Annot);
 
-            Annotations.Add(circle);
+            //Annotations.Add(circle);
 
             //if (_selectedObjects.Count == 1) {
             //    CommandManager.Invalidate(CommandKey.Delete);
@@ -131,6 +140,16 @@ namespace Treefrog.Presentation
 
             //CommandManager.Invalidate(CommandKey.Delete);
             //CommandManager.Invalidate(CommandKey.SelectNone);
+        }
+
+        public bool IsObjectSelected (ObjectInstance obj)
+        {
+            foreach (SelectedObjectRecord record in _selectedObjects) {
+                if (record.Instance == obj)
+                    return true;
+            }
+
+            return false;
         }
 
         private void InstancePositionChanged (object sender, EventArgs e)

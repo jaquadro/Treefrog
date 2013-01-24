@@ -75,6 +75,8 @@ namespace Treefrog.Presentation.Tools
         private ObjectSelectionManager _selectionManager;
         private ILayerContext _layerContext;
 
+        private ToolState _state;
+
         public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ILevelGeometry viewport, ObjectSelectionManager selectionManager, ILayerContext layerContext)
             : base(history, layer, gridSize)
         {
@@ -84,39 +86,51 @@ namespace Treefrog.Presentation.Tools
             _layerContext = layerContext;
 
             InitializeCommandManager();
+
+            _state = new SelectionStandbyToolState(this);
         }
 
         protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
-            switch (info.Type) {
+            _state = _state.StartPointerSequence(info, viewport);
+
+            /*switch (info.Type) {
                 case PointerEventType.Primary:
                     StartSelectObjectSequence(info, viewport);
                     break;
                 case PointerEventType.Secondary:
                     _selectionManager.ClearSelection();
+                    if (_rotationAnnot != null) {
+                        _annots.Remove(_rotationAnnot);
+                        _rotationAnnot = null;
+                    }
                     UpdatePropertyProvider();
                     break;
-            }
+            }*/
 
             UpdatePointerSequence(info, viewport);
         }
 
         protected override void UpdatePointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
-            switch (info.Type) {
+            _state = _state.UpdatePointerSequence(info, viewport);
+
+            /*switch (info.Type) {
                 case PointerEventType.Primary:
                     UpdateSelectObjectSequence(info, viewport);
                     break;
-            }
+            }*/
         }
 
         protected override void EndPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
-            switch (info.Type) {
+            _state = _state.EndPointerSequence(info, viewport);
+
+            /*switch (info.Type) {
                 case PointerEventType.Primary:
                     EndSelectObjectSequence(info, viewport);
                     break;
-            }
+            }*/
         }
 
         protected override void PointerPositionCore (PointerEventInfo info, ILevelGeometry viewport)
@@ -240,7 +254,11 @@ namespace Treefrog.Presentation.Tools
             None,
             Move,
             Box,
+            Timeout,
         }
+
+        private DateTime _timeout;
+        private const int _timeoutLimit = 500;
 
         private Point _initialLocation;
         private Point _initialSnapLocation;
@@ -248,10 +266,13 @@ namespace Treefrog.Presentation.Tools
         private SnappingManager _selectSnapManager;
         private UpdateAction _action;
 
+        private CircleAnnot _rotationAnnot;
+        private ObjectInstance _rotationObj;
+
         private void StartSelectObjectSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             ObjectInstance hitObject = TopObject(CoarseHitTest((int)info.X, (int)info.Y));
-            bool controlKey = Control.ModifierKeys.HasFlag(Keys.Control); // Keyboard.Modifiers.HasFlag(ModifierKeys.Control);
+            bool controlKey = Control.ModifierKeys.HasFlag(Keys.Control);
 
             if (hitObject == null) {
                 if (controlKey)
@@ -270,7 +291,7 @@ namespace Treefrog.Presentation.Tools
                 if (controlKey)
                     StartClickRemove(info, viewport, hitObject);
                 else
-                    StartClickMove(info, viewport, hitObject);
+                    StartClickTimeout(info, viewport, hitObject);
             }
             else {
                 if (controlKey)
@@ -289,6 +310,9 @@ namespace Treefrog.Presentation.Tools
                 case UpdateAction.Box:
                     UpdateDrag(info, viewport);
                     break;
+                case UpdateAction.Timeout:
+                    UpdateTimeout(info, viewport);
+                    break;
             }
         }
 
@@ -300,6 +324,9 @@ namespace Treefrog.Presentation.Tools
                     break;
                 case UpdateAction.Box:
                     EndDrag(info, viewport);
+                    break;
+                case UpdateAction.Timeout:
+                    EndTimeout(info, viewport);
                     break;
             }
         }
@@ -322,6 +349,11 @@ namespace Treefrog.Presentation.Tools
         private void StartClickNew (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
         {
             _selectionManager.ClearSelection();
+            if (_rotationAnnot != null) {
+                _annots.Remove(_rotationAnnot);
+                _rotationAnnot = null;
+            }
+
             StartClickAdd(info, viewport, obj);
         }
 
@@ -353,6 +385,44 @@ namespace Treefrog.Presentation.Tools
 
             StartAutoScroll(info, viewport);
             UpdatePropertyProvider();
+        }
+
+        private void StartClickTimeout (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
+        {
+            if (obj == null)
+                return;
+
+            if (_rotationAnnot != null) {
+                _annots.Remove(_rotationAnnot);
+                _rotationAnnot = null;
+            }
+
+            _initialLocation = new Point((int)info.X, (int)info.Y);
+
+            _timeout = DateTime.Now;
+            _action = UpdateAction.Timeout;
+            _rotationObj = obj;
+        }
+
+        private void UpdateTimeout (PointerEventInfo info, ILevelGeometry viewport)
+        {
+            if (_initialLocation.X != info.X || _initialLocation.Y != info.Y)
+                StartClickMove(info, viewport, _rotationObj);
+        }
+
+        private void EndTimeout (PointerEventInfo info, ILevelGeometry viewport)
+        {
+            if ((DateTime.Now - _timeout).TotalMilliseconds < _timeoutLimit) {
+                if (true) {
+                    _rotationAnnot = new CircleAnnot(_rotationObj.ImageBounds.Center, _rotationObj.ImageBounds.Width + 10);
+                    _rotationAnnot.Outline = SelectedAnnotOutline;
+                    _annots.Add(_rotationAnnot);
+                }
+                _action = UpdateAction.None;
+            }
+            else {
+                StartClickMove(info, viewport, _rotationObj);
+            }
         }
 
         private void StartClickMove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
@@ -495,6 +565,326 @@ namespace Treefrog.Presentation.Tools
                 return null;
 
             return objects[objects.Count - 1];
+        }
+
+
+
+        private abstract class ToolState
+        {
+            protected ObjectSelectTool Tool { get; private set; }
+
+            protected ToolState (ObjectSelectTool tool)
+            {
+                Tool = tool;
+            }
+
+            public virtual ToolState StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                return this;
+            }
+
+            public virtual ToolState UpdatePointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                return this;
+            }
+
+            public virtual ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                return this;
+            }
+        }
+
+        private class SelectionStandbyToolState : ToolState
+        {
+            public SelectionStandbyToolState (ObjectSelectTool tool) : base(tool) { }
+
+            public override ToolState StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                switch (info.Type) {
+                    case PointerEventType.Primary:
+                        return StartPrimaryPointerSequence(info, viewport);
+                    case PointerEventType.Secondary:
+                        return new ReleaseToolState(Tool).StartPointerSequence(info, viewport);
+                    default:
+                        return base.StartPointerSequence(info, viewport);
+                }
+            }
+
+            private ToolState StartPrimaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                ObjectInstance hitObject = Tool.TopObject(Tool.CoarseHitTest((int)info.X, (int)info.Y));
+                bool controlKey = Control.ModifierKeys.HasFlag(Keys.Control);
+
+                if (hitObject == null) {
+                    if (controlKey)
+                        return StartDragAdd(info, viewport);
+                    else
+                        return StartDrag(info, viewport);
+                }
+
+                if (Tool._selectionManager.IsObjectSelected(hitObject)) {
+                    if (controlKey)
+                        return StartClickRemove(info, viewport, hitObject);
+                    else
+                        return StartTimeoutSequence(info, viewport, hitObject);
+                }
+                else {
+                    if (controlKey)
+                        return StartClickAdd(info, viewport, hitObject);
+                    else
+                        return StartClickNew(info, viewport, hitObject);
+                }
+            }
+
+            private ToolState StartTimeoutSequence (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
+            {
+                return new SelectionTimeoutToolState(Tool) {
+                    HitObject = obj
+                }.StartPointerSequence(info, viewport);
+            }
+
+            private ToolState StartClickNew (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
+            {
+                Tool._selectionManager.ClearSelection();
+                return StartClickAdd(info, viewport, obj);
+            }
+
+            private ToolState StartClickAdd (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
+            {
+                Tool._selectionManager.AddObjectToSelection(obj);
+
+                Tool.StartAutoScroll(info, viewport);
+                Tool.UpdatePropertyProvider();
+
+                return new SelectionMovingToolState(Tool) {
+                    InitialLocation = new Point((int)info.X, (int)info.Y),
+                    InitialSnapLocation = new Point(obj.X, obj.Y),
+                    SnapManager = Tool.GetSnappingManager(obj.ObjectClass),
+
+                }.StartPointerSequence(info, viewport);
+            }
+
+            private ToolState StartClickRemove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
+            {
+                Tool._selectionManager.RemoveObjectFromSelection(obj);
+
+                Tool.StartAutoScroll(info, viewport);
+                Tool.UpdatePropertyProvider();
+
+                return new SelectionStandbyToolState(Tool).StartPointerSequence(info, viewport);
+            }
+
+            private ToolState StartDrag (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Tool._selectionManager.ClearSelection();
+                return StartDragAdd(info, viewport);
+            }
+
+            private ToolState StartDragAdd (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                return new SelectionAreaToolState(Tool).StartPointerSequence(info, viewport);
+            }
+        }
+
+        private class RotationStandbyToolState : ToolState
+        {
+            public RotationStandbyToolState (ObjectSelectTool tool) : base(tool) { }
+
+            public ObjectInstance HitObject { get; set; }
+
+            private CircleAnnot Annot { get; set; }
+
+            public override ToolState StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                switch (info.Type) {
+                    case PointerEventType.Primary:
+                        return StartPrimaryPointerSequence(info, viewport);
+                    case PointerEventType.Secondary:
+                        return StartSecondaryPointerSequence(info, viewport);
+                    default:
+                        return base.StartPointerSequence(info, viewport);
+                }
+            }
+
+            public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Annot = new CircleAnnot(HitObject.ImageBounds.Center, HitObject.ImageBounds.Width + 10);
+                Annot.Outline = SelectedAnnotOutline;
+                Tool._annots.Add(Annot);
+
+                return this;
+            }
+
+            private ToolState StartPrimaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                ObjectInstance hitObject = Tool.TopObject(Tool.CoarseHitTest((int)info.X, (int)info.Y));
+
+                if (Tool._selectionManager.IsObjectSelected(hitObject)) {
+                    ClearAnnot();
+                    return new SelectionStandbyToolState(Tool).StartPointerSequence(info, viewport);
+                }
+                else {
+                    ClearAnnot();
+                    return new SelectionStandbyToolState(Tool).StartPointerSequence(info, viewport);
+                }
+
+                //return this;
+            }
+
+            private ToolState StartSecondaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                ClearAnnot();
+                return new ReleaseToolState(Tool).StartPointerSequence(info, viewport);
+            }
+
+            private void ClearAnnot ()
+            {
+                if (Annot != null)
+                    Tool._annots.Remove(Annot);
+            }
+        }
+
+        private class ReleaseToolState : ToolState
+        {
+            public ReleaseToolState (ObjectSelectTool tool) : base(tool) { }
+
+            public override ToolState StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Tool._selectionManager.ClearSelection();
+                Tool.UpdatePropertyProvider();
+
+                return this;
+            }
+
+            public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                return new SelectionStandbyToolState(Tool).EndPointerSequence(info, viewport);
+            }
+        }
+
+        private class SelectionAreaToolState : ToolState
+        {
+            public SelectionAreaToolState (ObjectSelectTool tool) : base(tool) { }
+
+            private RubberBand Band { get; set; }
+            private SelectionAnnot Annot { get; set; }
+
+            public override ToolState StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Band = new RubberBand(new Point((int)info.X, (int)info.Y));
+                Annot = new SelectionAnnot(new Point((int)info.X, (int)info.Y)) {
+                    Fill = SelectionAnnotFill,
+                    Outline = SelectionAnnotOutline,
+                };
+
+                Tool._annots.Add(Annot);
+                Tool.StartAutoScroll(info, viewport);
+
+                return this;
+            }
+
+            public override ToolState UpdatePointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Band.End = new Point((int)info.X, (int)info.Y);
+                Rectangle selection = Band.Selection;
+
+                Annot.Start = new Point(selection.Left, selection.Top);
+                Annot.End = new Point(selection.Right, selection.Bottom);
+
+                Tool.UpdateAutoScroll(info, viewport);
+
+                return this;
+            }
+
+            public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Tool._annots.Remove(Annot);
+
+                Tool._selectionManager.AddObjectsToSelection(Tool.ObjectsInArea(Band.Selection));
+
+                Tool.EndAutoScroll(info, viewport);
+                Tool.UpdatePropertyProvider();
+
+                return new ReleaseToolState(Tool).EndPointerSequence(info, viewport);
+            }
+        }
+
+        // TODO: Register timeout callback
+        private class SelectionTimeoutToolState : ToolState
+        {
+            public SelectionTimeoutToolState (ObjectSelectTool tool) : base(tool) { }
+
+            private const int _timeoutThreshold = 500;
+
+            public ObjectInstance HitObject { get; set; }
+
+            private Point InitialLocation { get; set; }
+            private DateTime Timeout { get; set; }
+
+            public override ToolState StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                InitialLocation = new Point((int)info.X, (int)info.Y);
+                Timeout = DateTime.Now;
+
+                return this;
+            }
+
+            public override ToolState UpdatePointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                if (info.X == InitialLocation.X && info.Y == InitialLocation.Y)
+                    return this;
+
+                return new SelectionMovingToolState(Tool) {
+                    InitialLocation = InitialLocation,
+                    InitialSnapLocation = new Point(HitObject.X, HitObject.Y),
+                    SnapManager = Tool.GetSnappingManager(HitObject.ObjectClass),
+                }.UpdatePointerSequence(info, viewport);
+            }
+
+            public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                if ((DateTime.Now - Timeout).TotalMilliseconds < _timeoutThreshold)
+                    return new RotationStandbyToolState(Tool) {
+                        HitObject = HitObject
+                    }.EndPointerSequence(info, viewport);
+                else
+                    return new SelectionStandbyToolState(Tool).EndPointerSequence(info, viewport);
+            }
+        }
+
+        private class SelectionMovingToolState : ToolState
+        {
+            public SelectionMovingToolState(ObjectSelectTool tool) : base(tool) { }
+
+            public Point InitialLocation { get; set; }
+            public Point InitialSnapLocation { get; set; }
+            public SnappingManager SnapManager { get; set; }
+
+            public override ToolState UpdatePointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                int diffx = (int)info.X - InitialLocation.X;
+                int diffy = (int)info.Y - InitialLocation.Y;
+
+                if (diffx != 0 || diffy != 0) {
+                    Point snapLoc = new Point(InitialSnapLocation.X + diffx, InitialSnapLocation.Y + diffy);
+                    if (SnapManager != null)
+                        snapLoc = SnapManager.Translate(snapLoc, Tool.SnappingTarget);
+
+                    Tool._selectionManager.MoveObjectsByOffsetRelative(new Point(snapLoc.X - InitialSnapLocation.X, snapLoc.Y - InitialSnapLocation.Y));
+                }
+
+                return this;
+            }
+
+            public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Tool._selectionManager.CommitMoveFromRecordedLocations();
+
+                Tool.EndAutoScroll(info, viewport);
+                Tool.UpdatePropertyProvider();
+
+                return new SelectionStandbyToolState(Tool).EndPointerSequence(info, viewport);
+            }
         }
     }
 }
