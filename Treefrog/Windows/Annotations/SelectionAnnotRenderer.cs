@@ -193,6 +193,10 @@ namespace Treefrog.Windows.Annotations
                 XnaDrawing.Brush brush = BrushFactory.Create(device, pen.Brush);
                 return new XnaDrawing.Pen(brush, (int)pen.Width);
             }
+            else if (pen.GetType() == typeof(Drawing.PrimitivePen)) {
+                Drawing.SolidColorBrush brush = pen.Brush as Drawing.SolidColorBrush;
+                return new XnaDrawing.PrimitivePen(brush.Color.ToXnaColor());
+            }
 
             return null;
         }

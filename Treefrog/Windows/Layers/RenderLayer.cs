@@ -16,6 +16,18 @@ namespace Treefrog.Windows.Layers
             Drawing,
         }
 
+        protected enum SampleMode
+        {
+            Point,
+            Linear,
+        }
+
+        protected enum WrapMode
+        {
+            Clamp,
+            Wrap,
+        }
+
         private SpriteBatch _spriteBatch;
         private DrawBatch _drawBatch;
         private RasterizerState _rasterState;
@@ -55,9 +67,30 @@ namespace Treefrog.Windows.Layers
 
         protected bool Scissor { get; set; }
 
+        protected virtual SampleMode LayerSampleMode
+        {
+            get { return SampleMode.Point; }
+        }
+
         private float LayerOpacity 
         {
             get { return 1f; }
+        }
+
+        private SamplerState GetSamplerState (WrapMode wrapMode)
+        {
+            if (wrapMode == WrapMode.Clamp) {
+                if (LayerSampleMode == SampleMode.Point)
+                    return SamplerState.PointClamp;
+                else
+                    return SamplerState.LinearClamp;
+            }
+            else {
+                if (LayerSampleMode == SampleMode.Point)
+                    return SamplerState.PointWrap;
+                else
+                    return SamplerState.LinearWrap;
+            }
         }
 
         protected override void RenderCore (GraphicsDevice device)
@@ -114,7 +147,7 @@ namespace Treefrog.Windows.Layers
 
         protected Vector2 BeginDraw (SpriteBatch spriteBatch)
         {
-            return BeginDraw(spriteBatch, SamplerState.PointClamp);
+            return BeginDraw(spriteBatch, GetSamplerState(WrapMode.Clamp));
         }
 
         protected Vector2 BeginDraw (SpriteBatch spriteBatch, SamplerState samplerState)
@@ -160,7 +193,7 @@ namespace Treefrog.Windows.Layers
 
         private Vector2 BeginDraw (DrawBatch drawBatch)
         {
-            return BeginDraw(drawBatch, SamplerState.PointWrap);
+            return BeginDraw(drawBatch, GetSamplerState(WrapMode.Wrap));
         }
 
         private Vector2 BeginDraw (DrawBatch drawBatch, SamplerState samplerState)

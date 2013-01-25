@@ -573,6 +573,10 @@ namespace Treefrog.Framework.Model
         [DefaultValue(true)]
         public bool Visible { get; set; }
 
+        [XmlAttribute]
+        [DefaultValue(typeof(RasterMode), "Point")]
+        public RasterMode RasterMode { get; set; }
+
         [XmlArray]
         [XmlArrayItem("Property")]
         public List<PropertyXmlProxy> Properties { get; set; }

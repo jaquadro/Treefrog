@@ -71,6 +71,7 @@ namespace Treefrog.Framework.Model
         {
             Opacity = proxy.Opacity;
             IsVisible = proxy.Visible;
+            RasterMode = proxy.RasterMode;
             Level = level;
 
             NamedObservableCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
@@ -117,6 +118,7 @@ namespace Treefrog.Framework.Model
                 Name = layer.Name,
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,
+                RasterMode = layer.RasterMode,
                 Objects = objs.Count > 0 ? objs : null,
                 Properties = props.Count > 0 ? props : null,
             };

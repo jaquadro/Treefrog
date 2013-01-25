@@ -11,6 +11,7 @@ namespace Treefrog.Windows.Layers
     public class GridRenderLayer : RenderLayer
     {
         private const int MaxBrushSize = 256;
+        private const int MinRenderThreshold = 8;
 
         private Texture2D _tileGridBrush;
         //private Texture2D _tileGridBrushRight;
@@ -40,6 +41,10 @@ namespace Treefrog.Windows.Layers
 
             if (_tileGridBrush == null || ShouldRebuildTileBrush())
                 BuildTileBrush(spriteBatch.GraphicsDevice);
+
+            if (_effectiveSpacingX * _effectiveZoom < MinRenderThreshold ||
+                _effectiveSpacingY * _effectiveZoom < MinRenderThreshold)
+                return;
 
             Rectangle levelBounds = LevelGeometry.LevelBounds.ToXnaRectangle();
             Rectangle region = LevelGeometry.VisibleBounds.ToXnaRectangle();

@@ -5,17 +5,24 @@ using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
 {
+    public enum RasterMode
+    {
+        Point,
+        Linear,
+    }
+
     public abstract class Layer : INamedResource, IPropertyProvider, ICloneable
     {
         #region Fields
 
-        private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible" };
+        private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible", "RasterMode" };
 
         private Level _level;
         private string _name;
 
         private float _opacity;
         private bool _visible;
+        private RasterMode _rasterMode;
 
         private PropertyCollection _properties;
         private LayerProperties _predefinedProperties;
@@ -28,6 +35,7 @@ namespace Treefrog.Framework.Model
         {
             _opacity = 1f;
             _visible = true;
+            _rasterMode = RasterMode.Point;
 
             _name = name;
             _properties = new PropertyCollection(_reservedPropertyNames);
@@ -45,6 +53,7 @@ namespace Treefrog.Framework.Model
 
             _opacity = layer._opacity;
             _visible = layer._visible;
+            _rasterMode = layer._rasterMode;
         }
 
         #endregion
@@ -86,6 +95,20 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        public RasterMode RasterMode
+        {
+            get { return _rasterMode; }
+            set
+            {
+                if (_rasterMode != value) {
+                    _rasterMode = value;
+
+                    OnRasterModeChanged(EventArgs.Empty);
+                    OnModified(EventArgs.Empty);
+                }
+            }
+        }
+
         #endregion
 
         #region Events
@@ -98,6 +121,8 @@ namespace Treefrog.Framework.Model
         public event EventHandler OpacityChanged = (s, e) => { };
 
         public event EventHandler VisibilityChanged = (s, e) => { };
+
+        public event EventHandler RasterModeChanged = (s, e) => { };
 
         #endregion
 
@@ -120,6 +145,11 @@ namespace Treefrog.Framework.Model
         protected virtual void OnVisibilityChanged (EventArgs e)
         {
             VisibilityChanged(this, e);
+        }
+
+        protected virtual void OnRasterModeChanged (EventArgs e)
+        {
+            RasterModeChanged(this, e);
         }
 
         #endregion
@@ -148,6 +178,15 @@ namespace Treefrog.Framework.Model
 
             OnVisibilityChanged(e);
             OnModified(e);
+        }
+
+        private void RasterModePropertyChangedHandler (object sender, EventArgs e)
+        {
+            StringProperty property = sender as StringProperty;
+            if (property.Value == "Point")
+                RasterMode = Model.RasterMode.Point;
+            else
+                RasterMode = Model.RasterMode.Linear;
         }
 
         private void CustomPropertiesModifiedHandler (object sender, EventArgs e)
@@ -229,6 +268,7 @@ namespace Treefrog.Framework.Model
                 yield return _parent.LookupProperty("Name");
                 yield return _parent.LookupProperty("Opacity");
                 yield return _parent.LookupProperty("Visible");
+                yield return _parent.LookupProperty("RasterMode");
             }
 
             protected override Property LookupProperty (string name)
@@ -265,6 +305,7 @@ namespace Treefrog.Framework.Model
                 case "Name":
                 case "Opacity":
                 case "Visible":
+                case "RasterMode":
                     return PropertyCategory.Predefined;
                 default:
                     return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
@@ -289,6 +330,11 @@ namespace Treefrog.Framework.Model
                 case "Visible":
                     prop = new BoolProperty("Visible", _visible);
                     prop.ValueChanged += VisiblePropertyChangedHandler;
+                    return prop;
+
+                case "RasterMode":
+                    prop = new StringProperty("RasterMode", _rasterMode.ToString());
+                    prop.ValueChanged += RasterModePropertyChangedHandler;
                     return prop;
 
                 default:

@@ -19,5 +19,10 @@ namespace Treefrog.Windows.Layers
             if (Model != null && TextureCache != null)
                 RenderCommands(spriteBatch, TextureCache, Model.RenderCommands);
         }
+
+        protected override RenderLayer.SampleMode LayerSampleMode
+        {
+            get { return (Model.RasterMode == Framework.Model.RasterMode.Point) ? SampleMode.Point : SampleMode.Linear; }
+        }
     }
 }

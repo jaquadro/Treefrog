@@ -27,7 +27,7 @@ namespace Treefrog.Presentation
 
         private List<SelectedObjectRecord> _selectedObjects;
 
-        private static Brush SelectedAnnotFill = new SolidColorBrush(new Color(128, 77, 255, 96));
+        private static Brush SelectedAnnotFill = null; //new SolidColorBrush(new Color(128, 77, 255, 96));
         private static Pen SelectedAnnotOutline = new Pen(new SolidColorBrush(new Color(96, 0, 255, 255)), 1);
         //private static Pen SelectedAnnotOutline = new Pen(new StippleBrush(StipplePattern2px, new Color(96, 0, 255, 255)));
 

@@ -705,7 +705,8 @@ namespace Treefrog.Presentation.Tools
 
         private class RotationStandbyToolState : ToolState
         {
-            private static Pen Outline = new Pen(new SolidColorBrush(new Color(128, 128, 128, 220)));
+            private static Pen Outline = new PrimitivePen(new SolidColorBrush(new Color(128, 128, 128, 220)));
+            private const float RingThreshold = 8;
 
             public RotationStandbyToolState (ObjectSelectTool tool) : base(tool) { }
 
@@ -739,7 +740,7 @@ namespace Treefrog.Presentation.Tools
 
             private ToolState StartPrimaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
             {
-                if (PointInRing(new Point((int)info.X, (int)info.Y), Annot.Center, Annot.Radius - 5, Annot.Radius + 5)) {
+                if (PointInRing(new Point((int)info.X, (int)info.Y), Annot.Center, Annot.Radius - RingThreshold, Annot.Radius + RingThreshold)) {
                     ClearAnnot();
                     return new SelectionRotatingToolState(Tool, HitObject).StartPointerSequence(info, viewport);
                 }
@@ -923,7 +924,7 @@ namespace Treefrog.Presentation.Tools
 
         private class SelectionRotatingToolState : ToolState
         {
-            private static Pen Outline = new Pen(new SolidColorBrush(Colors.Blue));
+            private static Pen Outline = new PrimitivePen(new SolidColorBrush(Colors.Red));
 
             public SelectionRotatingToolState(ObjectSelectTool tool, ObjectInstance hitObject) 
                 : base(tool) 

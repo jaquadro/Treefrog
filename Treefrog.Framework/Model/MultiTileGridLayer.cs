@@ -50,6 +50,7 @@ namespace Treefrog.Framework.Model
 
             Opacity = proxy.Opacity;
             IsVisible = proxy.Visible;
+            RasterMode = proxy.RasterMode;
             Level = level;
 
             foreach (TileStackXmlProxy tileProxy in proxy.Tiles) {
@@ -103,6 +104,7 @@ namespace Treefrog.Framework.Model
                 Name = layer.Name,
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,
+                RasterMode = layer.RasterMode,
                 TileWidth = layer.TileWidth,
                 TileHeight = layer.TileHeight,
                 Tiles = tiles.Count > 0 ? tiles : null,

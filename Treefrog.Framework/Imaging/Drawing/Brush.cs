@@ -73,7 +73,18 @@ namespace Treefrog.Framework.Imaging.Drawing
 
         public Pen (Brush brush)
             : this(brush, 1.0)
+        { }
+    }
+
+    public class PrimitivePen : Pen
+    {
+        public PrimitivePen (SolidColorBrush brush)
+            : base(brush, 1.0)
+        { }
+
+        public Color Color
         {
+            get { return (Brush as SolidColorBrush).Color; }
         }
     }
 }

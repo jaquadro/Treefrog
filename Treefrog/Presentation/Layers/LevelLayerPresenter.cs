@@ -72,5 +72,11 @@ namespace Treefrog.Presentation.Layers
             get { return _layer.Opacity; }
             set { _layer.Opacity = value; }
         }
+
+        public RasterMode RasterMode
+        {
+            get { return _layer.RasterMode; }
+            set { _layer.RasterMode = value; }
+        }
     }
 }
