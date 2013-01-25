@@ -16,6 +16,7 @@ namespace Treefrog.Presentation.Controllers
             _zoomLevelText = new List<string>();
 
             AddZoomLevel(.25f, "25%");
+            AddZoomLevel(.33f, "33%");
             AddZoomLevel(.5f, "50%");
             AddZoomLevel(1f, "100%");
             AddZoomLevel(2f, "200%");

@@ -63,6 +63,10 @@ namespace Treefrog.Framework.Model
             get { return _rotation; }
             set
             {
+                value = value % (float)(Math.PI * 2);
+                if (value < 0)
+                    value += (float)(Math.PI * 2);
+
                 if (_rotation != value) {
                     _rotation = value;
 
@@ -268,7 +272,7 @@ namespace Treefrog.Framework.Model
                     prop.ValueChanged += PropertyYChanged;
                     return prop;
                 case "Rotation":
-                    prop = new NumberProperty("Rotation", Rotation);
+                    prop = new NumberProperty("Rotation", MathEx.RadToDeg(Rotation));
                     prop.ValueChanged += PropertyRotationChanged;
                     return prop;
 
@@ -292,7 +296,7 @@ namespace Treefrog.Framework.Model
         private void PropertyRotationChanged (object sender, EventArgs e)
         {
             NumberProperty property = sender as NumberProperty;
-            Rotation = property.Value;
+            Rotation = MathEx.DegToRad(property.Value);
         }
 
         #endregion

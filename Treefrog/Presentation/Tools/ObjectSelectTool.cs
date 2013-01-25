@@ -567,6 +567,23 @@ namespace Treefrog.Presentation.Tools
             return objects[objects.Count - 1];
         }
 
+        private bool PointInRing (Point point, Point center, float innerRadius, float outerRadius)
+        {
+            float diffX = point.X - center.X;
+            float diffY = point.Y - center.Y;
+            float distance = (float)Math.Sqrt(diffX * diffX + diffY * diffY);
+
+            return (distance >= innerRadius && distance < outerRadius);
+        }
+
+        private float MaxBoundingDiagonal (ObjectInstance inst)
+        {
+            int maxDim = Math.Max(inst.ObjectClass.ImageBounds.Width, inst.ObjectClass.ImageBounds.Height);
+            float diag1 = (float)Math.Sqrt(maxDim * maxDim * 2);
+            float diag2 = (float)Math.Sqrt(diag1 * diag1 * 2);
+
+            return diag2;
+        }
 
 
         private abstract class ToolState
@@ -688,6 +705,8 @@ namespace Treefrog.Presentation.Tools
 
         private class RotationStandbyToolState : ToolState
         {
+            private static Pen Outline = new Pen(new SolidColorBrush(new Color(128, 128, 128, 220)));
+
             public RotationStandbyToolState (ObjectSelectTool tool) : base(tool) { }
 
             public ObjectInstance HitObject { get; set; }
@@ -708,15 +727,23 @@ namespace Treefrog.Presentation.Tools
 
             public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
             {
-                Annot = new CircleAnnot(HitObject.ImageBounds.Center, HitObject.ImageBounds.Width + 10);
-                Annot.Outline = SelectedAnnotOutline;
-                Tool._annots.Add(Annot);
+                if (Annot == null) {
+                    float radius = Tool.MaxBoundingDiagonal(HitObject) / 2 + 5;
+                    Annot = new CircleAnnot(HitObject.ImageBounds.Center, radius);
+                    Annot.Outline = Outline;
+                    Tool._annots.Add(Annot);
+                }
 
                 return this;
             }
 
             private ToolState StartPrimaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
             {
+                if (PointInRing(new Point((int)info.X, (int)info.Y), Annot.Center, Annot.Radius - 5, Annot.Radius + 5)) {
+                    ClearAnnot();
+                    return new SelectionRotatingToolState(Tool, HitObject).StartPointerSequence(info, viewport);
+                }
+
                 ObjectInstance hitObject = Tool.TopObject(Tool.CoarseHitTest((int)info.X, (int)info.Y));
 
                 if (Tool._selectionManager.IsObjectSelected(hitObject)) {
@@ -727,8 +754,6 @@ namespace Treefrog.Presentation.Tools
                     ClearAnnot();
                     return new SelectionStandbyToolState(Tool).StartPointerSequence(info, viewport);
                 }
-
-                //return this;
             }
 
             private ToolState StartSecondaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
@@ -741,6 +766,15 @@ namespace Treefrog.Presentation.Tools
             {
                 if (Annot != null)
                     Tool._annots.Remove(Annot);
+            }
+
+            private bool PointInRing (Point point, Point center, float innerRadius, float outerRadius)
+            {
+                float diffX = point.X - center.X;
+                float diffY = point.Y - center.Y;
+                float distance = (float)Math.Sqrt(diffX * diffX + diffY * diffY);
+
+                return (distance >= innerRadius && distance < outerRadius);
             }
         }
 
@@ -884,6 +918,73 @@ namespace Treefrog.Presentation.Tools
                 Tool.UpdatePropertyProvider();
 
                 return new SelectionStandbyToolState(Tool).EndPointerSequence(info, viewport);
+            }
+        }
+
+        private class SelectionRotatingToolState : ToolState
+        {
+            private static Pen Outline = new Pen(new SolidColorBrush(Colors.Blue));
+
+            public SelectionRotatingToolState(ObjectSelectTool tool, ObjectInstance hitObject) 
+                : base(tool) 
+            {
+                HitObject = hitObject;
+                InitialAngle = hitObject.Rotation;
+
+                float radius = Tool.MaxBoundingDiagonal(HitObject) / 2 + 5;
+                Annot = new CircleAnnot(HitObject.ImageBounds.Center, radius);
+                Annot.Outline = Outline;
+                Tool._annots.Add(Annot);
+            }
+
+            private ObjectInstance HitObject { get; set; }
+            private Point InitialLocation { get; set; }
+            private float InitialAngle { get; set; }
+            private CircleAnnot Annot { get; set; }
+
+            public override ToolState StartPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                InitialLocation = new Point((int)info.X, (int)info.Y);
+
+                return this;
+            }
+
+            public override ToolState UpdatePointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                Vector vecCenter = new Vector(HitObject.X, HitObject.Y);
+                Vector vec1 = new Vector(InitialLocation.X, InitialLocation.Y) - vecCenter;
+                Vector vec2 = new Vector((float)info.X, (float)info.Y) - vecCenter;
+
+                float angle = Angle(vec1, vec2);
+
+                HitObject.Rotation = InitialAngle + angle;
+
+                return this;
+            }
+
+            public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                ClearAnnot();
+
+                Tool.UpdatePropertyProvider();
+
+                return new RotationStandbyToolState(Tool) {
+                    HitObject = HitObject,
+                }.EndPointerSequence(info, viewport);
+            }
+
+            private void ClearAnnot ()
+            {
+                if (Annot != null) {
+                    Tool._annots.Remove(Annot);
+                    Annot = null;
+                }
+            }
+
+            private float Angle (Vector vec1, Vector vec2)
+            {
+                float angle = (float)Math.Atan2(vec1.X * vec2.Y - vec2.X * vec1.Y, vec1.X * vec2.X + vec1.Y * vec2.Y);
+                return angle % (2 * (float)Math.PI);
             }
         }
     }
