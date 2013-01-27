@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model.Collections;
 using System.Collections.Generic;
+using System.Xml;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
@@ -51,6 +54,8 @@ namespace Treefrog.Framework.Model
             foreach (Property prop in inst._properties) {
                 _properties.Add(prop.Clone() as Property);
             }
+
+            UpdateBounds();
         }
 
         public ObjectClass ObjectClass
@@ -324,6 +329,8 @@ namespace Treefrog.Framework.Model
             _class = pool.GetObject(_classId);
             if (_class == null)
                 throw new Exception("Invalid ObjectClass Id");
+
+            UpdateBounds();
         }
 
         public ObjectInstance (SerializationInfo info, StreamingContext context)
@@ -334,6 +341,9 @@ namespace Treefrog.Framework.Model
             _rotation = info.GetSingle("Rotation");
             _scaleX = info.GetSingle("ScaleX");
             _scaleY = info.GetSingle("ScaleY");
+
+            _predefinedProperties = new ObjectInstanceProperties(this);
+            _properties = info.GetValue("Properties", typeof(PropertyCollection)) as PropertyCollection;
         }
 
         public void GetObjectData (SerializationInfo info, StreamingContext context)
@@ -344,6 +354,18 @@ namespace Treefrog.Framework.Model
             info.AddValue("Rotation", _rotation);
             info.AddValue("ScaleX", _scaleX);
             info.AddValue("ScaleY", _scaleY);
+
+            /*List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
+            foreach (Property prop in CustomProperties)
+                props.Add(Property.ToXmlProxy(prop));
+
+            MemoryStream mstr = new MemoryStream();
+            XmlWriter writer = XmlTextWriter.Create(mstr);
+
+            XmlSerializer serializer = new XmlSerializer(typeof(List<PropertyXmlProxy>));
+            serializer.Serialize(writer, props);*/
+
+            info.AddValue("Properties", _properties, typeof(PropertyCollection));
         }
 
         #endregion

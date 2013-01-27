@@ -106,6 +106,7 @@ namespace Treefrog.Framework.Model
                 {
                     Class = inst.ObjectClass.Id,
                     At = inst.X + "," + inst.Y,
+                    Rotation = MathEx.RadToDeg(inst.Rotation),
                 });
             }
 

@@ -144,6 +144,7 @@
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />
     <Compile Include="Presentation\Annotations\CircleAnnot.cs" />
+    <Compile Include="Presentation\Annotations\ImageAnnot.cs" />
     <Compile Include="Presentation\Annotations\MultiTileSelectionAnnot.cs" />
     <Compile Include="Presentation\Annotations\SelectionAnnot.cs" />
     <Compile Include="Presentation\Commands\CommandHistory.cs" />

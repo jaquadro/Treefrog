@@ -72,13 +72,6 @@ namespace Treefrog.Presentation
                 InitialLocation = new Point(obj.X, obj.Y),
             };
 
-            /*CircleAnnot circle = new CircleAnnot() {
-                Outline = SelectedAnnotOutline,
-            };
-            circle.SizeToBound(obj.ImageBounds);
-            circle.Radius += 5;
-            */
-
             obj.PositionChanged += InstancePositionChanged;
             obj.RotationChanged += InstanceRotationChanged;
 
@@ -86,12 +79,7 @@ namespace Treefrog.Presentation
             if (Annotations != null)
                 Annotations.Add(record.Annot);
 
-            //Annotations.Add(circle);
-
-            //if (_selectedObjects.Count == 1) {
-            //    CommandManager.Invalidate(CommandKey.Delete);
-            //    CommandManager.Invalidate(CommandKey.SelectNone);
-            //}
+            OnSelectionChanged(EventArgs.Empty);
         }
 
         public void AddObjectsToSelection (IEnumerable<ObjectInstance> objs)
@@ -114,6 +102,7 @@ namespace Treefrog.Presentation
                 }
             }
 
+            OnSelectionChanged(EventArgs.Empty);
             //if (_selectedObjects.Count == 0) {
             //    CommandManager.Invalidate(CommandKey.Delete);
             //    CommandManager.Invalidate(CommandKey.SelectNone);
@@ -138,6 +127,7 @@ namespace Treefrog.Presentation
 
             _selectedObjects.Clear();
 
+            OnSelectionChanged(EventArgs.Empty);
             //CommandManager.Invalidate(CommandKey.Delete);
             //CommandManager.Invalidate(CommandKey.SelectNone);
         }
@@ -193,7 +183,6 @@ namespace Treefrog.Presentation
 
                 record.Instance.X = newLocation.X;
                 record.Instance.Y = newLocation.Y;
-                //record.Annot.MoveTo(record.Instance.ImageBounds.Location);
             }
         }
 
@@ -204,7 +193,6 @@ namespace Treefrog.Presentation
 
                 record.Instance.X = newLocation.X;
                 record.Instance.Y = newLocation.Y;
-                //record.Annot.MoveTo(record.Instance.ImageBounds.Location);
             }
         }
 
@@ -274,6 +262,15 @@ namespace Treefrog.Presentation
             }
 
             return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+        }
+
+        public event EventHandler SelectionChanged;
+
+        protected virtual void OnSelectionChanged (EventArgs e)
+        {
+            var ev = SelectionChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         private void ExecuteCommand (Command command)

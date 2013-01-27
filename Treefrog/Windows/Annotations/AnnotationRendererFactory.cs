@@ -24,6 +24,9 @@ namespace Treefrog.Windows.Annotations
             Default.Register<CircleAnnot, CircleAnnotRenderer>(annot => {
                 return new CircleAnnotRenderer(annot as CircleAnnot);
             });
+            Default.Register<ImageAnnot, ImageAnnotRenderer>(annot => {
+                return new ImageAnnotRenderer(annot as ImageAnnot);
+            });
         }
     }
 }

@@ -190,6 +190,8 @@ namespace Treefrog.Presentation
             _project = EmptyProject();
             _project.Modified += ProjectModifiedHandler;
 
+            _project.ObjectPoolManager.CreatePool("Default");
+
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
 

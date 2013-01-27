@@ -15,7 +15,7 @@ namespace Treefrog.Presentation.Tools
     {
         private ObservableCollection<Annotation> _annots;
 
-        private SelectionAnnot _previewMarker;
+        private ImageAnnot _previewMarker;
 
         public ObjectDrawTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots)
             : base(history, layer, gridSize)
@@ -72,8 +72,10 @@ namespace Treefrog.Presentation.Tools
 
             if (!_previewMarkerVisible) {
                 if (_previewMarker == null) {
-                    _previewMarker = new SelectionAnnot();
-                    _previewMarker.Fill = new PatternBrush(ActiveObjectClass.Image, 0.5);
+                    _previewMarker = new ImageAnnot() {
+                        Image = ActiveObjectClass.Image,
+                        BlendColor = new Color(255, 255, 255, 128),
+                    };
                 }
 
                 _annots.Add(_previewMarker);
@@ -84,8 +86,7 @@ namespace Treefrog.Presentation.Tools
             if (SnapManager != null)
                 xlat = SnapManager.Translate(xlat, SnappingTarget);
 
-            _previewMarker.Start = xlat;
-            _previewMarker.End = new Point(xlat.X + _activeClass.ImageBounds.Width, xlat.Y + _activeClass.ImageBounds.Height);
+            _previewMarker.Position = xlat;
         }
 
         private void HidePreviewMarker ()
@@ -107,7 +108,7 @@ namespace Treefrog.Presentation.Tools
             if (SnapManager != null)
                 xlat = SnapManager.Translate(xlat, SnappingTarget);
 
-            ObjectInstance inst = new ObjectInstance(ActiveObjectClass, xlat.X, xlat.Y);
+            ObjectInstance inst = new ObjectInstance(ActiveObjectClass, xlat.X + ActiveObjectClass.Origin.X, xlat.Y + ActiveObjectClass.Origin.Y);
             History.Execute(new ObjectAddCommand(Layer, inst));
         }
 

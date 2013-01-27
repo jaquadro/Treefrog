@@ -6,10 +6,11 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Presentation.Tools;
 using Treefrog.Utility;
+using System.Windows.Forms;
 
 namespace Treefrog.Presentation.Layers
 {
-    public class ObjectLayerPresenter : LevelLayerPresenter, IPointerResponder, 
+    public class ObjectLayerPresenter : LevelLayerPresenter, IPointerResponder, ICommandSubscriber,
         IBindable<IObjectPoolCollectionPresenter>
     {
         private ObjectLayer _layer;
@@ -27,6 +28,8 @@ namespace Treefrog.Presentation.Layers
                 History = layerContext.History,
                 Annotations = layerContext.Annotations,
             };
+
+            _selectionManager.SelectionChanged += SelectionChanged;
 
             InitializeCommandManager();
             SetCurrentTool(NewSelectTool());
@@ -107,6 +110,8 @@ namespace Treefrog.Presentation.Layers
             _commandManager.Register(CommandKey.Delete, CommandCanDelete, CommandDelete);
             _commandManager.Register(CommandKey.SelectAll, CommandCanSelectAll, CommandSelectAll);
             _commandManager.Register(CommandKey.SelectNone, CommandCanSelectNone, CommandSelectNone);
+            _commandManager.Register(CommandKey.Cut, CommandCanCut, CommandCut);
+            _commandManager.Register(CommandKey.Copy, CommandCanCopy, CommandCopy);
             _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
         }
 
@@ -122,7 +127,9 @@ namespace Treefrog.Presentation.Layers
 
         private void CommandDelete ()
         {
-            _selectionManager.DeleteSelectedObjects();
+            if (CommandCanDelete()) {
+                _selectionManager.DeleteSelectedObjects();
+            }
         }
 
         private bool CommandCanSelectAll ()
@@ -132,9 +139,11 @@ namespace Treefrog.Presentation.Layers
 
         private void CommandSelectAll ()
         {
-            if (Layer != null) {
-                _selectionManager.AddObjectsToSelection(Layer.Objects);
-                SetCurrentTool(NewSelectTool());
+            if (CommandCanSelectAll()) {
+                if (Layer != null) {
+                    _selectionManager.AddObjectsToSelection(Layer.Objects);
+                    SetCurrentTool(NewSelectTool());
+                }
             }
         }
 
@@ -145,7 +154,9 @@ namespace Treefrog.Presentation.Layers
 
         private void CommandSelectNone ()
         {
-            _selectionManager.ClearSelection();
+            if (CommandCanSelectNone()) {
+                _selectionManager.ClearSelection();
+            }
         }
 
         private IEnumerable<ICommandSubscriber> CommandForwarder ()
@@ -155,6 +166,38 @@ namespace Treefrog.Presentation.Layers
                 yield return tool;
         }
 
+        private bool CommandCanCut ()
+        {
+            return _selectionManager.SelectedObjectCount > 0;
+        }
+
+        private void CommandCut ()
+        {
+            if (CommandCanCut()) {
+                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(_selectionManager.SelectedObjects);
+                clip.CopyToClipboard();
+
+                _selectionManager.DeleteSelectedObjects();
+
+                CommandManager.Invalidate(CommandKey.Paste);
+            }
+        }
+
+        private bool CommandCanCopy ()
+        {
+            return _selectionManager.SelectedObjectCount > 0;
+        }
+
+        private void CommandCopy ()
+        {
+            if (CommandCanCopy()) {
+                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(_selectionManager.SelectedObjects);
+                clip.CopyToClipboard();
+
+                CommandManager.Invalidate(CommandKey.Paste);
+            }
+        }
+
         private bool CommandCanPaste ()
         {
             return ObjectSelectionClipboard.ContainsData;
@@ -162,14 +205,78 @@ namespace Treefrog.Presentation.Layers
 
         private void CommandPaste ()
         {
-            ObjectSelectTool tool = _currentTool as ObjectSelectTool;
-            if (tool == null)
-                SetCurrentTool(NewSelectTool());
+            if (CommandCanPaste()) {
+                ObjectSelectionClipboard clip = ObjectSelectionClipboard.CopyFromClipboard(Layer.Level.Project);
+                if (clip == null)
+                    return;
 
-            tool.CommandManager.Perform(CommandKey.Paste);
+                ObjectSelectTool tool = _currentTool as ObjectSelectTool;
+                if (tool == null)
+                    SetCurrentTool(NewSelectTool());
+
+                _selectionManager.ClearSelection();
+
+                CenterObjectsInViewport(clip.Objects);
+
+                Command command = new ObjectAddCommand(Layer, clip.Objects, _selectionManager);
+                LayerContext.History.Execute(command);
+
+                foreach (ObjectInstance inst in clip.Objects) {
+                    //Layer.AddObject(inst);
+                    _selectionManager.AddObjectToSelection(inst);
+                }
+            }
         }
 
         #endregion
+
+        private void InvalidateObjectCommands ()
+        {
+            CommandManager.Invalidate(CommandKey.Cut);
+            CommandManager.Invalidate(CommandKey.Copy);
+            CommandManager.Invalidate(CommandKey.Delete);
+            CommandManager.Invalidate(CommandKey.SelectAll);
+            CommandManager.Invalidate(CommandKey.SelectNone);
+        }
+
+        private void SelectionChanged (object sender, EventArgs e)
+        {
+            InvalidateObjectCommands();
+        }
+
+        private void CenterObjectsInViewport (List<ObjectInstance> objects)
+        {
+            Rectangle visibleBounds = LayerContext.Geometry.VisibleBounds;
+            Rectangle collectionBounds = ObjectCollectionBounds(objects);
+
+            int centerViewX = (int)(visibleBounds.Left + (visibleBounds.Right - visibleBounds.Left) / 2);
+            int centerViewY = (int)(visibleBounds.Top + (visibleBounds.Bottom - visibleBounds.Top) / 2);
+
+            int diffX = centerViewX - collectionBounds.Center.X;
+            int diffY = centerViewY - collectionBounds.Center.Y;
+
+            foreach (ObjectInstance inst in objects) {
+                inst.X += diffX;
+                inst.Y += diffY;
+            }
+        }
+
+        private Rectangle ObjectCollectionBounds (List<ObjectInstance> objects)
+        {
+            int minX = Int32.MaxValue;
+            int minY = Int32.MaxValue;
+            int maxX = Int32.MinValue;
+            int maxY = Int32.MinValue;
+
+            foreach (ObjectInstance inst in objects) {
+                minX = Math.Min(minX, inst.ImageBounds.Left);
+                minY = Math.Min(minY, inst.ImageBounds.Top);
+                maxX = Math.Max(maxX, inst.ImageBounds.Right);
+                maxY = Math.Max(maxY, inst.ImageBounds.Bottom);
+            }
+
+            return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+        }
 
         #region Tool Management
 
@@ -255,5 +362,43 @@ namespace Treefrog.Presentation.Layers
         }
 
         #endregion
+    }
+
+    [Serializable]
+    public class ObjectSelectionClipboard
+    {
+        public List<ObjectInstance> Objects;
+
+        public ObjectSelectionClipboard (IEnumerable<ObjectInstance> objects)
+        {
+            Objects = new List<ObjectInstance>();
+            foreach (ObjectInstance inst in objects)
+                Objects.Add(inst);
+        }
+
+        public static bool ContainsData
+        {
+            get { return Clipboard.ContainsData(typeof(ObjectSelectionClipboard).FullName); }
+        }
+
+        public void CopyToClipboard ()
+        {
+            foreach (ObjectInstance inst in Objects)
+                inst.PreSerialize();
+
+            Clipboard.SetData(typeof(ObjectSelectionClipboard).FullName, this);
+        }
+
+        public static ObjectSelectionClipboard CopyFromClipboard (Project project)
+        {
+            ObjectSelectionClipboard clip = Clipboard.GetData(typeof(ObjectSelectionClipboard).FullName) as ObjectSelectionClipboard;
+            if (clip == null)
+                return null;
+
+            foreach (ObjectInstance inst in clip.Objects)
+                inst.PostDeserialize(project);
+
+            return clip;
+        }
     }
 }

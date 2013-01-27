@@ -18,6 +18,7 @@ namespace Treefrog.Framework.Model
     /// <summary>
     /// A generic named property base class.
     /// </summary>
+    [Serializable]
     public abstract class Property : INamedResource, ICloneable
     {
         #region Fields
@@ -213,6 +214,7 @@ namespace Treefrog.Framework.Model
     /// <summary>
     /// A concrete <see cref="Property"/> type that represents a <see cref="String"/> value.
     /// </summary>
+    [Serializable]
     public class StringProperty : Property
     {
         private string _value;
@@ -305,6 +307,7 @@ namespace Treefrog.Framework.Model
     /// <summary>
     /// A concrete <see cref="Property"/> type that represents a numeric <see cref="Single"/> value.
     /// </summary>
+    [Serializable]
     public class NumberProperty : Property
     {
         private float _value;
@@ -403,6 +406,7 @@ namespace Treefrog.Framework.Model
     /// <summary>
     /// A concrete <see cref="Property"/> type that represents a <see cref="Boolean"/> value.
     /// </summary>
+    [Serializable]
     public class BoolProperty : Property
     {
         private bool _value;
@@ -501,6 +505,7 @@ namespace Treefrog.Framework.Model
     /// <summary>
     /// A concrete <see cref="Property"/> type that represents a <see cref="Color"/> value.
     /// </summary>
+    [Serializable]
     public class ColorProperty : Property
     {
         private Color _value;

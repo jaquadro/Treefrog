@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Treefrog.Framework.Model.Collections
 {
+    [Serializable]
     public class PropertyCollection : ICollection<Property>
     {
         private Dictionary<string, Property> _properties;

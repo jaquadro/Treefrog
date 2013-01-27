@@ -15,7 +15,7 @@ namespace Treefrog.Presentation.Tools
     {
         private ObservableCollection<Annotation> _annots;
 
-        private SelectionAnnot _previewMarker;
+        private ImageAnnot _previewMarker;
 
         public TileDrawTool (CommandHistory history, MultiTileGridLayer layer, ObservableCollection<Annotation> annots)
             : base(history, layer)
@@ -117,11 +117,12 @@ namespace Treefrog.Presentation.Tools
 
             if (!_previewMarkerVisible) {
                 if (_previewMarker == null) {
-                    _previewMarker = new SelectionAnnot();
+                    _previewMarker = new ImageAnnot();
+                    _previewMarker.BlendColor = new Color(255, 255, 255, 128);
                     if (_activeBrush != null)
-                        _previewMarker.Fill = BuildBrushMarker();
+                        _previewMarker.Image = BuildBrushMarker();
                     else
-                        _previewMarker.Fill = BuildTileMarker();
+                        _previewMarker.Image = BuildTileMarker();
                 }
 
                 _annots.Add(_previewMarker);
@@ -132,29 +133,25 @@ namespace Treefrog.Presentation.Tools
                 int x = (int)(location.X * Layer.TileWidth);
                 int y = (int)(location.Y * Layer.TileHeight);
 
-                _previewMarker.Start = new Point(x, y);
-                if (_activeBrush != null)
-                    _previewMarker.End = new Point(x + Layer.TileWidth * _activeBrush.TilesWide, y + Layer.TileHeight * _activeBrush.TilesHigh);
-                else
-                    _previewMarker.End = new Point(x + Layer.TileWidth, y + Layer.TileHeight);
+                _previewMarker.Position = new Point(x, y);
+                //if (_activeBrush != null)
+                //    _previewMarker.End = new Point(x + Layer.TileWidth * _activeBrush.TilesWide, y + Layer.TileHeight * _activeBrush.TilesHigh);
+                //else
+                //    _previewMarker.End = new Point(x + Layer.TileWidth, y + Layer.TileHeight);
             }
             else {
                 HidePreviewMarker();
             }
         }
 
-        private PatternBrush BuildTileMarker ()
+        private TextureResource BuildTileMarker ()
         {
-            return new PatternBrush(ActiveTile.Pool.GetTileTexture(ActiveTile.Id), 0.5);
+            return ActiveTile.Pool.GetTileTexture(ActiveTile.Id);
         }
 
-        private PatternBrush BuildBrushMarker ()
+        private TextureResource BuildBrushMarker ()
         {
-            TextureResource resource = _activeBrush.MakePreview();
-            if (resource == null)
-                return null;
-
-            return new PatternBrush(resource, 0.5);
+            return _activeBrush.MakePreview();
         }
 
         private void HidePreviewMarker ()

@@ -1,58 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Clipboard = System.Windows.Forms.Clipboard;
-using Treefrog.Framework.Model;
-using Treefrog.Presentation.Commands;
-using Treefrog.Framework.Imaging;
-using System.Windows.Forms;
 using System.Collections.ObjectModel;
-using Treefrog.Presentation.Annotations;
+using System.Windows.Forms;
+using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework.Model;
+using Treefrog.Presentation.Annotations;
+using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation.Tools
 {
-    [Serializable]
-    public class ObjectSelectionClipboard
-    {
-        public List<ObjectInstance> Objects;
-
-        public ObjectSelectionClipboard (IEnumerable<ObjectInstance> objects)
-        {
-            Objects = new List<ObjectInstance>();
-            foreach (ObjectInstance inst in objects)
-                Objects.Add(inst);
-        }
-
-        public static bool ContainsData
-        {
-            get { return Clipboard.ContainsData(typeof(ObjectSelectionClipboard).FullName); }
-        }
-
-        public void CopyToClipboard ()
-        {
-            foreach (ObjectInstance inst in Objects)
-                inst.PreSerialize();
-
-            Clipboard.SetData(typeof(ObjectSelectionClipboard).FullName, this);
-        }
-
-        public static ObjectSelectionClipboard CopyFromClipboard (Project project)
-        {
-            ObjectSelectionClipboard clip = Clipboard.GetData(typeof(ObjectSelectionClipboard).FullName) as ObjectSelectionClipboard;
-            if (clip == null)
-                return null;
-
-            foreach (ObjectInstance inst in clip.Objects)
-                inst.PostDeserialize(project);
-
-            return clip;
-        }
-    }
-
     public class ObjectSelectTool : ObjectPointerTool, ICommandSubscriber
     {
         private static bool[,] StipplePattern2px = new bool[,] {
@@ -151,12 +109,12 @@ namespace Treefrog.Presentation.Tools
         {
             _commandManager = new CommandManager();
 
-            _commandManager.Register(CommandKey.Cut, CommandCanCut, CommandCut);
+            /*_commandManager.Register(CommandKey.Cut, CommandCanCut, CommandCut);
             _commandManager.Register(CommandKey.Copy, CommandCanCopy, CommandCopy);
-            _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
+            _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);*/
         }
 
-        private bool CommandCanCut ()
+        /*private bool CommandCanCut ()
         {
             return _selectionManager.SelectedObjectCount > 0;
         }
@@ -210,7 +168,7 @@ namespace Treefrog.Presentation.Tools
                 Layer.AddObject(inst);
                 _selectionManager.AddObjectToSelection(inst);
             }
-        }
+        }*/
 
         private void CenterObjectsInViewport (List<ObjectInstance> objects)
         {

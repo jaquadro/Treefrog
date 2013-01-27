@@ -3,6 +3,7 @@ using System.Globalization;
 
 namespace Treefrog.Framework.Imaging
 {
+    [Serializable]
     public struct Color
     {
         public byte A;
