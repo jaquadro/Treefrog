@@ -1,11 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model.Collections;
-using System.Collections.Generic;
-using System.Xml;
-using System.IO;
-using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
@@ -354,16 +351,6 @@ namespace Treefrog.Framework.Model
             info.AddValue("Rotation", _rotation);
             info.AddValue("ScaleX", _scaleX);
             info.AddValue("ScaleY", _scaleY);
-
-            /*List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
-            foreach (Property prop in CustomProperties)
-                props.Add(Property.ToXmlProxy(prop));
-
-            MemoryStream mstr = new MemoryStream();
-            XmlWriter writer = XmlTextWriter.Create(mstr);
-
-            XmlSerializer serializer = new XmlSerializer(typeof(List<PropertyXmlProxy>));
-            serializer.Serialize(writer, props);*/
 
             info.AddValue("Properties", _properties, typeof(PropertyCollection));
         }

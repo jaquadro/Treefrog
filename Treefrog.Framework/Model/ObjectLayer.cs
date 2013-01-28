@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Treefrog.Framework.Imaging;
 using System.Xml;
 using Treefrog.Framework.Compat;
+using Treefrog.Framework;
 
 namespace Treefrog.Framework.Model
 {
@@ -129,6 +130,8 @@ namespace Treefrog.Framework.Model
 
         public event EventHandler<ObjectInstanceEventArgs> ObjectRemoved;
 
+        public event EventHandler<ObjectInstanceEventArgs> ObjectReordered;
+
         protected virtual void OnObjectAdded (ObjectInstanceEventArgs e)
         {
             if (ObjectAdded != null)
@@ -139,6 +142,12 @@ namespace Treefrog.Framework.Model
         {
             if (ObjectRemoved != null)
                 ObjectRemoved(this, e);
+        }
+
+        protected virtual void OnObjectReordered (ObjectInstanceEventArgs e)
+        {
+            if (ObjectReordered != null)
+                ObjectReordered(this, e);
         }
 
         public override bool IsResizable
@@ -186,6 +195,71 @@ namespace Treefrog.Framework.Model
         {
             if (_objects.Remove(instance))
                 OnObjectRemoved(new ObjectInstanceEventArgs(instance));
+        }
+
+        public void MoveObjectBackward (ObjectInstance instance)
+        {
+            if (_objects.IndexOf(instance) > 1) {
+                _objects.MoveItemBy(instance, -1);
+                OnObjectReordered(new ObjectInstanceEventArgs(instance));
+            }
+        }
+
+        public void MoveObjectForward (ObjectInstance instance)
+        {
+            if (_objects.IndexOf(instance) < _objects.Count - 1) {
+                _objects.MoveItemBy(instance, 1);
+                OnObjectReordered(new ObjectInstanceEventArgs(instance));
+            }
+        }
+
+        public void MoveObjectToFront (ObjectInstance instance)
+        {
+            if (_objects.MoveItem(instance, _objects.Count - 1))
+                OnObjectReordered(new ObjectInstanceEventArgs(instance));
+        }
+
+        public void MoveObjectToBack (ObjectInstance instance)
+        {
+            if (_objects.MoveItem(instance, 0))
+                OnObjectReordered(new ObjectInstanceEventArgs(instance));
+        }
+
+        public void MoveObjectsToFront (IEnumerable<ObjectInstance> instances)
+        {
+            foreach (ObjectInstance inst in QueueOrderedObjects(instances))
+                MoveObjectToFront(inst);
+        }
+
+        public void MoveObjectsForward (IEnumerable<ObjectInstance> instances)
+        {
+            foreach (ObjectInstance inst in QueueOrderedObjects(instances))
+                MoveObjectForward(inst);
+        }
+
+        public void MoveObjectsBackward (IEnumerable<ObjectInstance> instances)
+        {
+            foreach (ObjectInstance inst in QueueOrderedObjects(instances))
+                MoveObjectBackward(inst);
+        }
+
+        public void MoveObjectsToBack (IEnumerable<ObjectInstance> instances)
+        {
+            foreach (ObjectInstance inst in QueueOrderedObjects(instances))
+                MoveObjectToBack(inst);
+        }
+
+        private IEnumerable<ObjectInstance> QueueOrderedObjects (IEnumerable<ObjectInstance> instances)
+        {
+            HashSet<ObjectInstance> objs = new HashSet<ObjectInstance>(instances);
+            List<ObjectInstance> queue = new List<ObjectInstance>();
+
+            foreach (ObjectInstance inst in _objects) {
+                if (objs.Contains(inst))
+                    queue.Add(inst);
+            }
+
+            return queue;
         }
 
         public IEnumerable<ObjectInstance> Objects

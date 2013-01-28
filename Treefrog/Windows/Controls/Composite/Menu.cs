@@ -193,6 +193,11 @@ namespace Treefrog.Windows.Controls.Composite
             _objectsProtosClone = CreateMenuItem("D&uplicate");
             _objectsProtosDelete = CreateMenuItem("&Delete", "Treefrog.Icons._16.game--minus.png");
             _objectsProtosProperties = CreateMenuItem("&Properties", "Treefrog.Icons._16.tags.png");
+            _objectsArrange = CreateMenuItem("&Arrange");
+            _objectsArrangeMoveTop = CreateMenuItem("Bring to &Front", "Treefrog.Icons._16.arrow-skip-090.png");
+            _objectsArrangeMoveUp = CreateMenuItem("Move &Forward", "Treefrog.Icons._16.arrow-090.png");
+            _objectsArrangeMoveDown = CreateMenuItem("Move &Backward", "Treefrog.Icons._16.arrow-270.png");
+            _objectsArrangeMoveBottom = CreateMenuItem("Send to &Back", "Treefrog.Icons._16.arrow-skip-270.png");
             _objectsReference = CreateMenuItem("&Reference Point");
             _objectsReferenceImageBounds = CreateMenuItem("&Image Bounds", "Treefrog.Icons._16.snap-borders.png");
             _objectsReferenceMaskBounds = CreateMenuItem("&Mask Bounds", "Treefrog.Icons._16.snap-bounds.png");
@@ -269,12 +274,17 @@ namespace Treefrog.Windows.Controls.Composite
 
             _objectStrip.DropDownItems.AddRange(new ToolStripItem[] {
                 _objectsProtos, new ToolStripSeparator(),
+                _objectsArrange, new ToolStripSeparator(),
                 _objectsReference, _objectsSnapping,
             });
 
             _objectsProtos.DropDownItems.AddRange(new ToolStripItem[] {
                 _objectsProtosImport, new ToolStripSeparator(),
                 _objectsProtosClone, _objectsProtosDelete, _objectsProtosProperties,
+            });
+
+            _objectsArrange.DropDownItems.AddRange(new ToolStripItem[] {
+                _objectsArrangeMoveTop, _objectsArrangeMoveUp, _objectsArrangeMoveDown, _objectsArrangeMoveBottom,
             });
 
             _objectsReference.DropDownItems.AddRange(new ToolStripItem[] {
@@ -347,6 +357,10 @@ namespace Treefrog.Windows.Controls.Composite
                 { CommandKey.ObjectProtoClone, _objectsProtosClone },
                 { CommandKey.ObjectProtoDelete, _objectsProtosDelete },
                 { CommandKey.ObjectProtoProperties, _objectsProtosProperties },
+                { CommandKey.ObjectMoveTop, _objectsArrangeMoveTop },
+                { CommandKey.ObjectMoveUp, _objectsArrangeMoveUp },
+                { CommandKey.ObjectMoveDown, _objectsArrangeMoveDown },
+                { CommandKey.ObjectMoveBottom, _objectsArrangeMoveBottom },
                 { CommandKey.ObjectReferenceImage, _objectsReferenceImageBounds },
                 { CommandKey.ObjectReferenceMask, _objectsReferenceMaskBounds },
                 { CommandKey.ObjectReferenceOrigin, _objectsReferenceOrigin },

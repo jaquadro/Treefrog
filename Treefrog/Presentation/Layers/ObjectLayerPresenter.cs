@@ -113,6 +113,10 @@ namespace Treefrog.Presentation.Layers
             _commandManager.Register(CommandKey.Cut, CommandCanCut, CommandCut);
             _commandManager.Register(CommandKey.Copy, CommandCanCopy, CommandCopy);
             _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);
+            _commandManager.Register(CommandKey.ObjectMoveTop, CommandCanMoveObjectsToFront, CommandMoveObjectsToFront);
+            _commandManager.Register(CommandKey.ObjectMoveUp, CommandCanMoveObjectsForward, CommandMoveObjectsForward);
+            _commandManager.Register(CommandKey.ObjectMoveDown, CommandCanMoveObjectsBackward, CommandMoveObjectsBackward);
+            _commandManager.Register(CommandKey.ObjectMoveBottom, CommandCanMoveObjectsToBack, CommandMoveObjectsToBack);
         }
 
         public CommandManager CommandManager
@@ -228,6 +232,58 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
+        private bool CommandCanMoveObjectsToFront ()
+        {
+            return _selectionManager.SelectedObjectCount > 0;
+        }
+
+        private void CommandMoveObjectsToFront ()
+        {
+            if (CommandCanMoveObjectsToFront()) {
+                Layer.MoveObjectsToFront(_selectionManager.SelectedObjects);
+                InvalidateObjectArrangeCommands();
+            }
+        }
+
+        private bool CommandCanMoveObjectsForward ()
+        {
+            return _selectionManager.SelectedObjectCount > 0;
+        }
+
+        private void CommandMoveObjectsForward ()
+        {
+            if (CommandCanMoveObjectsForward()) {
+                Layer.MoveObjectsForward(_selectionManager.SelectedObjects);
+                InvalidateObjectArrangeCommands();
+            }
+        }
+
+        private bool CommandCanMoveObjectsBackward ()
+        {
+            return _selectionManager.SelectedObjectCount > 0;
+        }
+
+        private void CommandMoveObjectsBackward ()
+        {
+            if (CommandCanMoveObjectsForward()) {
+                Layer.MoveObjectsBackward(_selectionManager.SelectedObjects);
+                InvalidateObjectArrangeCommands();
+            }
+        }
+
+        private bool CommandCanMoveObjectsToBack ()
+        {
+            return _selectionManager.SelectedObjectCount > 0;
+        }
+
+        private void CommandMoveObjectsToBack ()
+        {
+            if (CommandCanMoveObjectsToBack()) {
+                Layer.MoveObjectsToBack(_selectionManager.SelectedObjects);
+                InvalidateObjectArrangeCommands();
+            }
+        }
+
         #endregion
 
         private void InvalidateObjectCommands ()
@@ -237,6 +293,16 @@ namespace Treefrog.Presentation.Layers
             CommandManager.Invalidate(CommandKey.Delete);
             CommandManager.Invalidate(CommandKey.SelectAll);
             CommandManager.Invalidate(CommandKey.SelectNone);
+
+            InvalidateObjectArrangeCommands();
+        }
+
+        private void InvalidateObjectArrangeCommands ()
+        {
+            CommandManager.Invalidate(CommandKey.ObjectMoveBottom);
+            CommandManager.Invalidate(CommandKey.ObjectMoveDown);
+            CommandManager.Invalidate(CommandKey.ObjectMoveTop);
+            CommandManager.Invalidate(CommandKey.ObjectMoveUp);
         }
 
         private void SelectionChanged (object sender, EventArgs e)
