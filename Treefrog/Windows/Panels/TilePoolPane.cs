@@ -125,6 +125,8 @@ namespace Treefrog.Windows
 
                 ResetComponent();
             }
+
+            RebuildPoolList();
         }
 
         private void BindTilePoolManager (TilePoolManager manager)
@@ -203,8 +205,16 @@ namespace Treefrog.Windows
 
         private void SyncTilePoolListHandler (object sender, EventArgs e)
         {
+            RebuildPoolList();
+        }
+
+        private void RebuildPoolList ()
+        {
             _poolComboBox.Items.Clear();
             _poolComboBox.Text = "";
+
+            if (_controller == null)
+                return;
 
             foreach (TilePoolPresenter pool in _controller.TilePoolList) {
                 _poolComboBox.Items.Add(pool.TilePool.Name);
