@@ -356,5 +356,47 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
+
+        public static ObjectInstanceXmlProxy ToXmlProxy (ObjectInstance inst)
+        {
+            if (inst == null)
+                return null;
+
+            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
+            foreach (Property prop in inst.CustomProperties)
+                props.Add(Property.ToXmlProxy(prop));
+
+            return new ObjectInstanceXmlProxy() {
+                Class = inst.ObjectClass.Id,
+                At = inst.X + "," + inst.Y,
+                Rotation = MathEx.RadToDeg(inst.Rotation),
+                Properties = (props.Count > 0) ? props : null,
+            };
+        }
+
+        public static ObjectInstance FromXmlProxy (ObjectInstanceXmlProxy proxy, ObjectPoolManager manager)
+        {
+            if (proxy == null)
+                return null;
+
+            string[] coords = proxy.At.Split(new char[] { ',' });
+
+            ObjectPool pool = manager.PoolFromItemKey(proxy.Class);
+            foreach (ObjectClass objClass in pool) {
+                if (objClass.Id == proxy.Class) {
+                    ObjectInstance inst = new ObjectInstance(objClass);
+                    inst.X = Convert.ToInt32(coords[0]);
+                    inst.Y = Convert.ToInt32(coords[1]);
+                    inst.Rotation = MathEx.DegToRad(proxy.Rotation);
+
+                    foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
+                        inst.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+                    return inst;
+                }
+            }
+
+            return null;
+        }
     }
 }

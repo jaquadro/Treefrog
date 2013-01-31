@@ -77,19 +77,9 @@ namespace Treefrog.Framework.Model
 
             NamedObservableCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
             foreach (ObjectInstanceXmlProxy objProxy in proxy.Objects) {
-                string[] coords = objProxy.At.Split(new char[] { ',' });
-
-                ObjectPool pool = Level.Project.ObjectPoolManager.PoolFromItemKey(objProxy.Class);
-                foreach (ObjectClass objClass in pool) {
-                    if (objClass.Id == objProxy.Class) {
-                        ObjectInstance inst = new ObjectInstance(objClass);
-                        inst.X = Convert.ToInt32(coords[0]);
-                        inst.Y = Convert.ToInt32(coords[1]);
-                        inst.Rotation = MathEx.DegToRad(objProxy.Rotation);
-                        AddObject(inst);
-                        break;
-                    }
-                }
+                ObjectInstance inst = ObjectInstance.FromXmlProxy(objProxy, Level.Project.ObjectPoolManager);
+                if (inst != null)
+                    AddObject(inst);
             }
 
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
@@ -102,14 +92,8 @@ namespace Treefrog.Framework.Model
                 return null;
 
             List<ObjectInstanceXmlProxy> objs = new List<ObjectInstanceXmlProxy>();
-            foreach (ObjectInstance inst in layer.Objects) {
-                objs.Add(new ObjectInstanceXmlProxy()
-                {
-                    Class = inst.ObjectClass.Id,
-                    At = inst.X + "," + inst.Y,
-                    Rotation = MathEx.RadToDeg(inst.Rotation),
-                });
-            }
+            foreach (ObjectInstance inst in layer.Objects)
+                objs.Add(ObjectInstance.ToXmlProxy(inst));
 
             List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
             foreach (Property prop in layer.CustomProperties)

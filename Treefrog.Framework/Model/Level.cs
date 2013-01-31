@@ -623,5 +623,9 @@ namespace Treefrog.Framework.Model
 
         [XmlAttribute]
         public float Rotation { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Property")]
+        public List<PropertyXmlProxy> Properties { get; set; }
     }
 }
