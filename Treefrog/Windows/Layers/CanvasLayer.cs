@@ -146,5 +146,14 @@ namespace Treefrog.Windows.Layers
         {
             get { return 0; }
         }
+
+        public event EventHandler DependentSizeChanged;
+
+        protected virtual void OnDependentSizeChanged (EventArgs e)
+        {
+            var ev = DependentSizeChanged;
+            if (ev != null)
+                ev(this, e);
+        }
     }
 }

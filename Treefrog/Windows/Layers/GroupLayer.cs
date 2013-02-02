@@ -28,9 +28,10 @@ namespace Treefrog.Windows.Layers
 
         protected override void DisposeManaged ()
         {
-            foreach (CanvasLayer layer in Layers)
+            foreach (CanvasLayer layer in Layers) {
                 if (layer != null)
                     layer.Dispose();
+            }
 
             _adapter.Dependent.CollectionChanged -= DependentCollectionChanged;
             _adapter.Primary = null;
@@ -66,11 +67,16 @@ namespace Treefrog.Windows.Layers
         {
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Add:
-                    foreach (CanvasLayer layer in e.NewItems)
-                        if (layer != null)
+                    foreach (CanvasLayer layer in e.NewItems) {
+                        if (layer != null) {
                             layer.ParentLayer = this;
+                            layer.DependentSizeChanged += DependentSizeChangedHandler;
+                        }
+                    }
                     break;
             }
+
+            OnDependentSizeChanged(EventArgs.Empty);
         }
 
         public override int DependentHeight
@@ -93,6 +99,11 @@ namespace Treefrog.Windows.Layers
                     width = Math.Max(width, layer.DependentWidth);
                 return width;
             }
+        }
+
+        private void DependentSizeChangedHandler (object sender, EventArgs e)
+        {
+            OnDependentSizeChanged(EventArgs.Empty);
         }
     }
 }

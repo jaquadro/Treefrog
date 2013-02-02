@@ -69,14 +69,25 @@ namespace Treefrog.Windows.Controls
                 if (_rootLayer != null) {
                     _rootLayer.LevelGeometry = null;
                     _rootLayer.TextureCache = null;
+                    _rootLayer.DependentSizeChanged -= RootLayerDependentSizeChanged;
                 }
 
                 _rootLayer = value;
                 if (_rootLayer != null) {
                     _rootLayer.LevelGeometry = _geometry;
                     _rootLayer.TextureCache = _textureCache;
+                    _rootLayer.DependentSizeChanged += RootLayerDependentSizeChanged;
+
+                    if (WidthSynced || HeightSynced)
+                        OnVirtualSizeChanged(EventArgs.Empty);
                 }
             }
+        }
+
+        private void RootLayerDependentSizeChanged (object sender, EventArgs e)
+        {
+            if (WidthSynced || HeightSynced)
+                OnVirtualSizeChanged(EventArgs.Empty);
         }
 
         public ILevelGeometry LevelGeometry

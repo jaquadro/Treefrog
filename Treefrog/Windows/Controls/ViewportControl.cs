@@ -18,6 +18,9 @@ namespace Treefrog.Windows.Controls
         Rectangle VirtualSize { get; }
         float Zoom { get; }
 
+        bool WidthSynced { get; }
+        bool HeightSynced { get; }
+
         int GetScrollValue (ScrollOrientation orientation);
         //int GetScrollSmallChange (ScrollOrientation orientation);
         //int GetScrollLargeChange (ScrollOrientation orientation);
@@ -179,7 +182,7 @@ namespace Treefrog.Windows.Controls
                 else if (maxWidth >= vwidth) {
                     ShowVScrollBar(true);
                     width = minWidth;
-                    if (minWidth >= vwidth) {
+                    if (minWidth >= vwidth || _control.WidthSynced) {
                         ShowHScrollBar(false);
                         height = maxHeight;
                     }
@@ -191,7 +194,7 @@ namespace Treefrog.Windows.Controls
                 else if (maxHeight >= vheight) {
                     ShowHScrollBar(true);
                     height = minHeight;
-                    if (minHeight >= vheight) {
+                    if (minHeight >= vheight || _control.HeightSynced) {
                         ShowVScrollBar(false);
                         width = maxWidth;
                     }
@@ -268,6 +271,7 @@ namespace Treefrog.Windows.Controls
                 _control.Control.Height = panel1.Height;
                 _hScrollBar.Top = panel1.Height;
                 _vScrollBar.Height = panel1.Height;
+                _hScrollBar.Width = panel1.Width;
             }
             else if (!show && _showHScrollBar) {
                 _showHScrollBar = false;
@@ -277,6 +281,8 @@ namespace Treefrog.Windows.Controls
                 tableLayoutPanel1.SetRowSpan(_vScrollBar, 2);
                 panel1.Height = tableLayoutPanel1.Height;
                 _control.Control.Height = panel1.Height;
+                _vScrollBar.Height = panel1.Height;
+                _hScrollBar.Width = panel1.Width;
             }
         }
 
@@ -291,6 +297,7 @@ namespace Treefrog.Windows.Controls
                 _control.Control.Width = panel1.Width;
                 _vScrollBar.Left = panel1.Width;
                 _hScrollBar.Width = panel1.Width;
+                _vScrollBar.Height = panel1.Height;
             }
             else if (!show && _showVScrollBar) {
                 _showVScrollBar = false;
@@ -300,6 +307,8 @@ namespace Treefrog.Windows.Controls
                 tableLayoutPanel1.SetColumnSpan(_hScrollBar, 2);
                 panel1.Width = tableLayoutPanel1.Width;
                 _control.Control.Width = panel1.Width;
+                _hScrollBar.Width = panel1.Width;
+                _vScrollBar.Height = panel1.Height;
             }
         }
     }
