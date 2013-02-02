@@ -16,7 +16,7 @@ namespace Treefrog.Windows.Layers
 
         protected override void RenderContent (SpriteBatch spriteBatch)
         {
-            if (Model != null && TextureCache != null)
+            if (Model != null && Model.IsVisible && TextureCache != null)
                 RenderCommands(spriteBatch, TextureCache, Model.RenderCommands);
         }
 

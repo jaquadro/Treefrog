@@ -123,7 +123,7 @@ namespace Treefrog.Windows
                 foreach (LevelLayerPresenter layer in _controller.LayerList) {
                     ListViewItem layerItem = new ListViewItem(layer.LayerName, 0) {
                         Name = layer.LayerName,
-                        Checked = true,
+                        Checked = layer.IsVisible,
                     };
 
                     if (layer is ObjectLayerPresenter)

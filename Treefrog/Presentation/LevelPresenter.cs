@@ -356,6 +356,9 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.LayerMoveUp, CommandCanMoveLayerUp, CommandMoveLayerUp);
             _commandManager.Register(CommandKey.LayerMoveDown, CommandCanMoveLayerDown, CommandMoveLayerDown);
             _commandManager.Register(CommandKey.LayerMoveBottom, CommandCanMoveLayerBottom, CommandMoveLayerBottom);
+            _commandManager.Register(CommandKey.LayerShowAll, CommandCanShowAll, CommandShowAll);
+            _commandManager.Register(CommandKey.LayerShowNone, CommandCanShowNone, CommandShowNone);
+            _commandManager.Register(CommandKey.LayerShowCurrentOnly, CommandCanShowSelectedOnly, CommandShowSelectedOnly);
 
             _commandManager.RegisterToggle(CommandKey.ViewGrid, CommandCanToggleGrid, CommandToggleGrid);
 
@@ -667,6 +670,60 @@ namespace Treefrog.Presentation
             }
         }
 
+        private bool CommandCanShowAll ()
+        {
+            return true;
+        }
+
+        private void CommandShowAll ()
+        {
+            if (CommandCanShowAll()) {
+                foreach (Layer layer in _level.Layers) {
+                    if (!layer.IsVisible)
+                        layer.IsVisible = true;
+                }
+
+                OnSyncLayerList(EventArgs.Empty);
+            }
+        }
+
+        private bool CommandCanShowNone ()
+        {
+            return true;
+        }
+
+        private void CommandShowNone ()
+        {
+            if (CommandCanShowNone()) {
+                foreach (Layer layer in _level.Layers) {
+                    if (layer.IsVisible)
+                        layer.IsVisible = false;
+                }
+
+                OnSyncLayerList(EventArgs.Empty);
+            }
+        }
+
+        private bool CommandCanShowSelectedOnly ()
+        {
+            return SelectedLayer != null;
+        }
+
+        private void CommandShowSelectedOnly ()
+        {
+            if (CommandCanShowSelectedOnly()) {
+                foreach (Layer layer in _level.Layers) {
+                    if (layer != SelectedLayer.Layer && layer.IsVisible)
+                        layer.IsVisible = false;
+                }
+
+                if (SelectedLayer.Layer.IsVisible == false)
+                    SelectedLayer.Layer.IsVisible = true;
+
+                OnSyncLayerList(EventArgs.Empty);
+            }
+        }
+
         private void InvalidateLayerViewCommands ()
         {
             CommandManager.Invalidate(CommandKey.LayerMoveTop);
@@ -684,6 +741,8 @@ namespace Treefrog.Presentation
             CommandManager.Invalidate(CommandKey.LayerProperties);
             CommandManager.Invalidate(CommandKey.LayerExportRaster);
             CommandManager.Invalidate(CommandKey.LevelResize);
+
+            CommandManager.Invalidate(CommandKey.LayerShowCurrentOnly);
         }
 
         private void InvalidateZoomCommands ()
@@ -787,7 +846,10 @@ namespace Treefrog.Presentation
 
         public void ActionShowHideLayer (string name, LayerVisibility visibility)
         {
+            if (!_level.Layers.Contains(name))
+                return;
 
+            _level.Layers[name].IsVisible = (visibility == LayerVisibility.Show);
         }
 
         public void SetPropertyProvider (IPropertyProvider provider)
