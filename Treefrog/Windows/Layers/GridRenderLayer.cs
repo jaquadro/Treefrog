@@ -11,7 +11,7 @@ namespace Treefrog.Windows.Layers
     public class GridRenderLayer : RenderLayer
     {
         private const int MaxBrushSize = 256;
-        private const int MinRenderThreshold = 8;
+        private const int MinRenderThreshold = 16;
 
         private Texture2D _tileGridBrush;
         //private Texture2D _tileGridBrushRight;
