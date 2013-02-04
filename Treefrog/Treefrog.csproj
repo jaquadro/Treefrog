@@ -40,7 +40,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\x86\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS; OPENGL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
@@ -88,37 +88,19 @@
     <Reference Include="Amphibian.Drawing">
       <HintPath>..\..\Amphibian\Amphibian.Drawing\bin\x86\Debug\Amphibian.Drawing.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Build" />
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.GamerServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Video, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Avatar, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Net, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Storage, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsGL\Debug\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <Private>False</Private>
+    </Reference>
+    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsGL\Debug\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.GLControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsGL\Debug\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Private>False</Private>
@@ -189,7 +171,7 @@
     <Compile Include="Windows\Annotations\CircleAnnotationRenderer.cs" />
     <Compile Include="Windows\Annotations\MultiTileSelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
-      <SubType>Component</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Layers\AnnotationRenderLayer.cs" />
     <Compile Include="Windows\Layers\LevelRenderLayer.cs" />
@@ -207,7 +189,7 @@
     <Compile Include="Presentation\TilePoolListPresenter.cs" />
     <Compile Include="Presentation\PresentationInterface.cs" />
     <Compile Include="Presentation\Commands\Command.cs" />
-    <Compile Include="ContentBuilder.cs" />
+    <None Include="ContentBuilder.cs" />
     <Compile Include="Model\TileSetLayer.cs" />
     <Compile Include="Presentation\Tools\SnappingManager.cs" />
     <Compile Include="Presentation\Tools\TileDrawTool.cs" />
@@ -236,14 +218,14 @@
     <Compile Include="Windows\Controls\Composite\StandardToolbar.cs" />
     <Compile Include="Windows\Controls\Composite\TileToolbar.cs" />
     <Compile Include="Windows\Controls\GameControl.cs">
-      <SubType>Component</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Controls\GraphicsDeviceControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <None Include="Windows\Controls\GraphicsDeviceControlGL.cs">
+    <None Include="Windows\Controls\GraphicsDeviceControl.cs">
       <SubType>Component</SubType>
     </None>
+    <Compile Include="Windows\Controls\GraphicsDeviceControlGL.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <None Include="Windows\Controls\LayerControl.cs">
       <SubType>Component</SubType>
     </None>
@@ -314,8 +296,8 @@
     <Compile Include="Windows\Forms\ResizeLevelForm.Designer.cs">
       <DependentUpon>ResizeLevelForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\GraphicsDeviceService.cs" />
-    <None Include="Windows\GraphicsDeviceServiceGL.cs" />
+    <None Include="Windows\GraphicsDeviceService.cs" />
+    <Compile Include="Windows\GraphicsDeviceServiceGL.cs" />
     <Compile Include="Windows\Layers\CanvasLayer.cs" />
     <Compile Include="Windows\Layers\GroupLayer.cs" />
     <Compile Include="Windows\Layers\RenderLayer.cs" />

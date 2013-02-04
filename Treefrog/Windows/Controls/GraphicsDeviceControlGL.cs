@@ -3,19 +3,20 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
 using Treefrog.Framework;
 
 namespace Treefrog.Windows.Controls
 {
     using Color = System.Drawing.Color;
-    using XnaColor = Microsoft.Xna.Framework.Color;
     using Rectangle = Microsoft.Xna.Framework.Rectangle;
+    using XnaColor = Microsoft.Xna.Framework.Color;
     
-    public abstract class GraphicsDeviceControl : Control
+    public abstract class GraphicsDeviceControl : GLControl
     {
         #region Fields
 
-        private OpenTK.GLControl _tkControl;
+        //private OpenTK.GLControl _tkControl;
 
         private bool _designMode;
 
@@ -65,11 +66,10 @@ namespace Treefrog.Windows.Controls
         {
             _designMode = DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
-            _tkControl = new OpenTK.GLControl();
-            _tkControl.Dock = DockStyle.Fill;
-            _tkControl.Load += _tkControl_Load;
+            //_tkControl.Dock = DockStyle.Fill;
+            Load += _tkControl_Load;
 
-            Controls.Add(_tkControl);
+            //Controls.Add(_tkControl);
         }
 
         private void _tkControl_Load (object sender, EventArgs e)
@@ -93,8 +93,6 @@ namespace Treefrog.Windows.Controls
 
         protected override void OnCreateControl ()
         {
-            
-
             base.OnCreateControl();
         }
 
@@ -110,10 +108,7 @@ namespace Treefrog.Windows.Controls
 
         protected new bool DesignMode
         {
-            get 
-            {
-                return _designMode;
-            }
+            get { return _designMode; }
         }
 
         #endregion
@@ -126,6 +121,7 @@ namespace Treefrog.Windows.Controls
 
             if (string.IsNullOrEmpty(beginDrawError)) {
                 Draw();
+                //GraphicsDevice.Clear(XnaColor.Aqua);
                 EndDraw();
             }
             else {
@@ -139,11 +135,13 @@ namespace Treefrog.Windows.Controls
                 return Text + "\n\n" + GetType();
             }
 
-            /*string deviceResetError = HandleDeviceReset();
+            string deviceResetError = HandleDeviceReset();
 
             if (!string.IsNullOrEmpty(deviceResetError)) {
                 return deviceResetError;
-            }*/
+            }
+
+            MakeCurrent();
 
             Viewport viewport = new Viewport();
 
@@ -156,18 +154,30 @@ namespace Treefrog.Windows.Controls
             viewport.MinDepth = 0;
             viewport.MaxDepth = 1;
 
-            GraphicsDevice.Viewport = viewport;
+            if (GraphicsDevice.Viewport.Equals(viewport) == false)
+                GraphicsDevice.Viewport = viewport;
 
             return null;
         }
 
+        private static Random rand = new Random();
+
         private void EndDraw ()
         {
             try {
-                Rectangle srcRect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
-                //GraphicsDevice.Clear(XnaColor.Azure);
+                //Rectangle srcRect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+                //GraphicsDevice.Clear(XnaColor.Aqua);
                 //GraphicsDevice.Present(srcRect, null, Handle);
-                _tkControl.SwapBuffers();
+                OpenTK.Graphics.OpenGL.GL.Begin(OpenTK.Graphics.OpenGL.BeginMode.Quads);
+                OpenTK.Graphics.OpenGL.GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
+                OpenTK.Graphics.OpenGL.GL.Color4(0f, 0f, 0f, .5f);
+                OpenTK.Graphics.OpenGL.GL.Vertex3(0, 0, 0);
+                OpenTK.Graphics.OpenGL.GL.Vertex3(50, 0, 0);
+                OpenTK.Graphics.OpenGL.GL.Vertex3(50, 50, 0);
+                OpenTK.Graphics.OpenGL.GL.Vertex3(0, 50, 0);
+                OpenTK.Graphics.OpenGL.GL.End();
+
+                SwapBuffers();
             }
             catch {
             }

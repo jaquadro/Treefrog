@@ -26,6 +26,8 @@ namespace Treefrog.Windows.Controls
         private TextureCache _textureCache;
         private LayerGraphicsControlGeometry _geometry;
 
+        private static Random _rand = new Random();
+
         public LayerGraphicsControl ()
         {
             ControlInitialized += GraphicsDeviceControlInitialized;
@@ -34,6 +36,7 @@ namespace Treefrog.Windows.Controls
             _geometry = new LayerGraphicsControlGeometry(this);
 
             ClearColor = Color.LightGray;
+            ClearColor = new Color((float)_rand.NextDouble(), (float)_rand.NextDouble(), (float)_rand.NextDouble());
         }
 
         private void GraphicsDeviceControlInitialized (object sender, EventArgs e)

@@ -41,6 +41,7 @@ namespace Treefrog.Windows.Forms
             _editor.SyncModified += SyncProjectModified;
             _editor.PanelActivation += PanelActivated;
 
+            //_editor.CommandManager.Perform(Presentation.Commands.CommandKey.OpenProject);
             _editor.NewDefault();
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
