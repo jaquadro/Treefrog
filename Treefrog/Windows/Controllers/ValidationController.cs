@@ -74,8 +74,10 @@ namespace Treefrog.Windows.Controllers
 
                 EventHandler validatedHandler = (sender, e) => {
                     string msg = validationFunc();
-                    if (msg != null)
+                    if (msg != null) {
+                        errorProvider.SetIconPadding(control, DetermineErrorIconPadding(control));
                         errorProvider.SetError(control, msg);
+                    }
                     else
                         errorProvider.SetError(control, String.Empty);
                     Validate();
@@ -114,6 +116,16 @@ namespace Treefrog.Windows.Controllers
                 ApplyButton.Enabled = enable;
         }
 
+        private int DetermineErrorIconPadding (Control control)
+        {
+            if (control is TextBox)
+                return -18;
+            if (control is NumericUpDown)
+                return -32;
+
+            return -18;
+        }
+
         public static Func<string> ValidateNumericUpDownFunc (string fieldName, NumericUpDown control)
         {
             return () => {
@@ -121,6 +133,46 @@ namespace Treefrog.Windows.Controllers
                     return fieldName + " must be in range [" + control.Minimum + ", " + control.Maximum + "].";
                 else
                     return null;
+            };
+        }
+
+        public static Func<string> ValidateGreater (string fieldName, NumericUpDown control, string refName, NumericUpDown reference)
+        {
+            return () => {
+                if (control.Value <= reference.Value)
+                    return fieldName + " must be greater than " + refName;
+                else
+                    return ValidateNumericUpDownFunc(fieldName, control)();
+            };
+        }
+
+        public static Func<string> ValidateGreaterEq (string fieldName, NumericUpDown control, string refName, NumericUpDown reference)
+        {
+            return () => {
+                if (control.Value < reference.Value)
+                    return fieldName + " must be greater than or equal to " + refName;
+                else
+                    return ValidateNumericUpDownFunc(fieldName, control)();
+            };
+        }
+
+        public static Func<string> ValidateLess (string fieldName, NumericUpDown control, string refName, NumericUpDown reference)
+        {
+            return () => {
+                if (control.Value >= reference.Value)
+                    return fieldName + " must be less than " + refName;
+                else
+                    return ValidateNumericUpDownFunc(fieldName, control)();
+            };
+        }
+
+        public static Func<string> ValidateLessEq (string fieldName, NumericUpDown control, string refName, NumericUpDown reference)
+        {
+            return () => {
+                if (control.Value > reference.Value)
+                    return fieldName + " must be less than or equal to " + refName;
+                else
+                    return ValidateNumericUpDownFunc(fieldName, control)();
             };
         }
     }

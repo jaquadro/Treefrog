@@ -8,14 +8,49 @@ using System.Text;
 using System.Windows.Forms;
 using Treefrog.Framework.Imaging;
 using Treefrog.Aux;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Forms
 {
     public partial class ImportObject : Form
     {
+        private ValidationController _validateController;
+
         public ImportObject ()
         {
+            InitializeForm();
+
+            _validateController.Validate();
+        }
+
+        private void InitializeForm ()
+        {
             InitializeComponent();
+
+            _validateController = new ValidationController() {
+                OKButton = _buttonOK,
+            };
+
+            _validateController.RegisterControl(_textObjectName, ValidateObjectName);
+            _validateController.RegisterControl(_textSource, ValidateSourceFile);
+            _validateController.RegisterControl(_numMaskLeft,
+                ValidationController.ValidateLessEq("Left Mask Bound", _numMaskLeft, "Right Mask Bound", _numMaskRight));
+            _validateController.RegisterControl(_numMaskRight,
+                ValidationController.ValidateGreaterEq("Right Mask Bound", _numMaskRight, "Left Mask Bound", _numMaskLeft));
+            _validateController.RegisterControl(_numMaskTop,
+                ValidationController.ValidateLessEq("Top Mask Bound", _numMaskTop, "Bottom Mask Bound", _numMaskBottom));
+            _validateController.RegisterControl(_numMaskBottom,
+                ValidationController.ValidateGreaterEq("Bottom Mask Bound", _numMaskBottom, "Top Mask Bound", _numMaskTop));
+            _validateController.RegisterControl(_numOriginX,
+                ValidationController.ValidateNumericUpDownFunc("Origin X", _numOriginX));
+            _validateController.RegisterControl(_numOriginY,
+                ValidationController.ValidateNumericUpDownFunc("Origin Y", _numOriginY));
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+ 	         base.OnLoad(e);
+            _textObjectName.Text = FindDefaultName("Object");
         }
 
         #region Object Name
@@ -42,16 +77,7 @@ namespace Treefrog.Windows.Forms
                 value = value != null ? value.Trim() : "";
                 if (_name != value) {
                     _name = value;
-                    string error = ValidateObjectName();
-                    if (error != null)
-                        MessageBox.Show(error);
                 }
-                /*if (_name != value) {
-                    TestValidState(() => {
-                        _name = value;
-                        RaisePropertyChanged("ObjectName");
-                    });
-                }*/
             }
         }
 
@@ -69,21 +95,7 @@ namespace Treefrog.Windows.Forms
                 value = value != null ? value.Trim() : "";
                 if (_sourceFile != value) {
                     _sourceFile = value;
-                    _textSource.Text = _sourceFile;
-                    LoadObjectPreview(value);
-
-                    string error = ValidateSourceFile();
-                    if (error != null)
-                        MessageBox.Show(error);
                 }
-                /*if (_sourceFile != value) {
-                    TestValidState(() => {
-                        _sourceFile = value;
-                        LoadObjectPreview(value);
-
-                        RaisePropertyChanged("SourceFile");
-                    });
-                }*/
             }
         }
 
@@ -97,7 +109,9 @@ namespace Treefrog.Windows.Forms
             dlg.Multiselect = false;
 
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                LoadObjectPreview(dlg.FileName);
                 SourceFile = dlg.FileName;
+                _textSource.Text = dlg.FileName;
             }
         }
 
@@ -119,14 +133,6 @@ namespace Treefrog.Windows.Forms
             {
                 if (_maskLeft != value) {
                     _maskLeft = value;
-                    string error = ValidateMaskLeft();
-                    if (error != null)
-                        MessageBox.Show(error);
-                    /*TestValidState(() => {
-                        _maskLeft = value;
-                        RaisePropertyChanged("MaskLeft");
-                        RaisePreviewProperties();
-                    });*/
                 }
             }
         }
@@ -138,14 +144,6 @@ namespace Treefrog.Windows.Forms
             {
                 if (_maskTop != value) {
                     _maskTop = value;
-                    string error = ValidateMaskTop();
-                    if (error != null)
-                        MessageBox.Show(error);
-                    /*TestValidState(() => {
-                        _maskTop = value;
-                        RaisePropertyChanged("MaskTop");
-                        RaisePreviewProperties();
-                    });*/
                 }
             }
         }
@@ -157,14 +155,6 @@ namespace Treefrog.Windows.Forms
             {
                 if (_maskRight != value) {
                     _maskRight = value;
-                    string error = ValidateMaskRight();
-                    if (error != null)
-                        MessageBox.Show(error);
-                    /*TestValidState(() => {
-                        _maskRight = value;
-                        RaisePropertyChanged("MaskRight");
-                        RaisePreviewProperties();
-                    });*/
                 }
             }
         }
@@ -176,14 +166,6 @@ namespace Treefrog.Windows.Forms
             {
                 if (_maskBottom != value) {
                     _maskBottom = value;
-                    string error = ValidateMaskBottom();
-                    if (error != null)
-                        MessageBox.Show(error);
-                    /*TestValidState(() => {
-                        _maskBottom = value;
-                        RaisePropertyChanged("MaskBottom");
-                        RaisePreviewProperties();
-                    });*/
                 }
             }
         }
@@ -195,12 +177,6 @@ namespace Treefrog.Windows.Forms
             {
                 if (_originX != value) {
                     UpdateOrigin(value, _originY);
-                    string error = ValidateOriginX();
-                    if (error != null)
-                        MessageBox.Show(error);
-                    /*TestValidState(() => {
-                        UpdateOrigin(value, _originY);
-                    });*/
                 }
             }
         }
@@ -211,13 +187,6 @@ namespace Treefrog.Windows.Forms
             set
             {
                 if (_originY != value) {
-                    UpdateOrigin(_originX, value);
-                    string error = ValidateOriginY();
-                    if (error != null)
-                        MessageBox.Show(error);
-                    /*TestValidState(() => {
-                        UpdateOrigin(_originX, value);
-                    });*/
                 }
             }
         }
@@ -252,83 +221,36 @@ namespace Treefrog.Windows.Forms
             {
                 return ValidateObjectName() == null
                     && ValidateSourceFile() == null
-                    && ValidateMaskLeft() == null
+                    /*&& ValidateMaskLeft() == null
                     && ValidateMaskTop() == null
                     && ValidateMaskRight() == null
                     && ValidateMaskBottom() == null
                     && ValidateOriginX() == null
-                    && ValidateOriginY() == null;
+                    && ValidateOriginY() == null*/;
             }
         }
 
         private string ValidateObjectName ()
         {
-            if (string.IsNullOrWhiteSpace(_name))
+            string txt = _textObjectName.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(txt))
                 return "Object Name must not be empty";
-            if (_reservedNames.Contains(_name))
+            if (_reservedNames.Contains(txt))
                 return "Object Name conflicts with another Object";
             return null;
         }
 
         private string ValidateSourceFile ()
         {
-            if (string.IsNullOrWhiteSpace(_sourceFile))
+            string txt = _textSource.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(txt))
                 return "Source File must not be empty";
+
             if (!_sourceFileValid)
                 return "Invalid Source File slected";
             return null;
-        }
-
-        private string ValidateMaskLeft ()
-        {
-            if (_maskLeft == null || _maskLeft > (_maskRight ?? 0))
-                return "Mask must define a positive area";
-            return null;
-        }
-
-        private string ValidateMaskTop ()
-        {
-            if (_maskTop == null || _maskTop > (_maskBottom ?? 0))
-                return "Mask must define a positive area";
-            return null;
-        }
-
-        private string ValidateMaskRight ()
-        {
-            if (_maskRight == null || _maskRight < (_maskLeft ?? 0))
-                return "Mask must define a positive area";
-            return null;
-        }
-
-        private string ValidateMaskBottom ()
-        {
-            if (_maskBottom == null || _maskBottom < (_maskTop ?? 0))
-                return "Mask must define a positive area";
-            return null;
-        }
-
-        private string ValidateOriginX ()
-        {
-            if (_originX == null)
-                return "Invalid origin";
-            return null;
-        }
-
-        private string ValidateOriginY ()
-        {
-            if (_originY == null)
-                return "Invalid origin";
-            return null;
-        }
-
-        private void TestValidState (Action act)
-        {
-            bool valid = IsValid;
-
-            act();
-
-            //if (valid != IsValid)
-            //    RaisePropertyChanged("IsValid");
         }
 
         #endregion
@@ -374,7 +296,7 @@ namespace Treefrog.Windows.Forms
 
         private void ResetObjectPreview ()
         {
-            if (!IsValid)
+            if (!_validateController.ValidateForm())
                 ClearObjectPreiew();
 
             if (_sourceFileValid)
@@ -410,12 +332,18 @@ namespace Treefrog.Windows.Forms
 
         private void UpdateMaskPropertyFields ()
         {
-            _textOriginX.Text = (_originX ?? 0).ToString();
-            _textOriginY.Text = (_originY ?? 0).ToString();
-            _textMaskLeft.Text = (_maskLeft ?? 0).ToString();
-            _textMaskTop.Text = (_maskTop ?? 0).ToString();
-            _textMaskRight.Text = (_maskRight ?? 0).ToString();
-            _textMaskBottom.Text = (_maskBottom ?? 0).ToString();
+            if (_numOriginX.Value != (_originX ?? 0))
+                _numOriginX.Value = _originX ?? 0;
+            if (_numOriginY.Value != (_originY ?? 0))
+                _numOriginY.Value = _originY ?? 0;
+            if (_numMaskLeft.Value != (_maskLeft ?? 0))
+                _numMaskLeft.Value = _maskLeft ?? 0;
+            if (_numMaskRight.Value != (_maskRight ?? 0))
+                _numMaskRight.Value = _maskRight ?? 0;
+            if (_numMaskTop.Value != (_maskTop ?? 0))
+                _numMaskTop.Value = _maskTop ?? 0;
+            if (_numMaskBottom.Value != (_maskBottom ?? 0))
+                _numMaskBottom.Value = _maskBottom ?? 0;
         }
 
         public int PreviewCanvasWidth
@@ -482,13 +410,17 @@ namespace Treefrog.Windows.Forms
 
         private void _buttonOK_Click (object sender, EventArgs e)
         {
+            if (!_validateController.ValidateForm())
+                return;
+
             DialogResult = DialogResult.OK;
             Close();
         }
 
         private void _buttonCancel_Click (object sender, EventArgs e)
         {
-
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private void _buttonBrowse_Click (object sender, EventArgs e)
@@ -501,52 +433,46 @@ namespace Treefrog.Windows.Forms
             ObjectName = _textObjectName.Text;
         }
 
-        private void _textMaskLeft_TextChanged (object sender, EventArgs e)
+        private void _numMaskLeft_ValueChanged (object sender, EventArgs e)
         {
-            try {
-                MaskLeft = Convert.ToInt32(_textMaskLeft.Text);
-            }
-            catch (FormatException) { }
+            MaskLeft = (int)_numMaskLeft.Value;
         }
 
-        private void _textMaskTop_TextChanged (object sender, EventArgs e)
+        private void _numMaskRight_ValueChanged (object sender, EventArgs e)
         {
-            try {
-                MaskTop = Convert.ToInt32(_textMaskTop.Text);
-            }
-            catch (FormatException) { }
+            MaskRight = (int)_numMaskRight.Value;
         }
 
-        private void _textMaskRight_TextChanged (object sender, EventArgs e)
+        private void _numMaskTop_ValueChanged (object sender, EventArgs e)
         {
-            try {
-                MaskRight = Convert.ToInt32(_textMaskRight.Text);
-            }
-            catch (FormatException) { }
+            MaskTop = (int)_numMaskTop.Value;
         }
 
-        private void _textMaskBottom_TextChanged (object sender, EventArgs e)
+        private void _numMaskBottom_ValueChanged (object sender, EventArgs e)
         {
-            try {
-                MaskBottom = Convert.ToInt32(_textMaskBottom.Text);
-            }
-            catch (FormatException) { }
+            MaskBottom = (int)_numMaskBottom.Value;
         }
 
-        private void _textOriginX_TextChanged (object sender, EventArgs e)
+        private void _numOriginX_ValueChanged (object sender, EventArgs e)
         {
-            try {
-                OriginX = Convert.ToInt32(_textOriginX.Text);
-            }
-            catch (FormatException) { }
+            OriginX = (int)_numOriginX.Value;
         }
 
-        private void _textOriginY_TextChanged (object sender, EventArgs e)
+        private void _numOriginY_ValueChanged (object sender, EventArgs e)
         {
-            try {
-                OriginY = Convert.ToInt32(_textOriginY.Text);
+            OriginY = (int)_numOriginY.Value;
+        }
+
+        private string FindDefaultName (string baseName)
+        {
+            int i = 0;
+            while (true) {
+                string name = baseName + " " + ++i;
+                if (_reservedNames.Contains(name)) {
+                    continue;
+                }
+                return name;
             }
-            catch (FormatException) { }
         }
     }
 }

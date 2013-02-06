@@ -248,27 +248,27 @@ namespace Treefrog.Windows
 
         private void InitializeComponent ()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PropertyPane));
-            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Predefined Properties", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Custom Properties", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Predefined Properties", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup4 = new System.Windows.Forms.ListViewGroup("Custom Properties", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "Location",
             "50,50"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "Collision",
             "true"}, -1);
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PropertyPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
+            this._propertyList = new Treefrog.Windows.Controls.WinEx.EditableListView();
+            this._colLabel = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this._colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this._colValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this._buttonAddProp = new System.Windows.Forms.ToolStripButton();
             this._buttonRemoveProp = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
-            this._propertyList = new Treefrog.Windows.Controls.WinEx.EditableListView();
-            this._colLabel = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this._colValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -295,51 +295,6 @@ namespace Treefrog.Windows
             // 
             this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
             // 
-            // toolStrip1
-            // 
-            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
-            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._buttonAddProp,
-            this._buttonRemoveProp,
-            this.toolStripSeparator1,
-            this.toolStripTextBox1});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(239, 25);
-            this.toolStrip1.Stretch = true;
-            this.toolStrip1.TabIndex = 0;
-            // 
-            // _buttonAddProp
-            // 
-            this._buttonAddProp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._buttonAddProp.Image = ((System.Drawing.Image)(resources.GetObject("_buttonAddProp.Image")));
-            this._buttonAddProp.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._buttonAddProp.Name = "_buttonAddProp";
-            this._buttonAddProp.Size = new System.Drawing.Size(23, 22);
-            this._buttonAddProp.Text = "toolStripButton1";
-            // 
-            // _buttonRemoveProp
-            // 
-            this._buttonRemoveProp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._buttonRemoveProp.Image = ((System.Drawing.Image)(resources.GetObject("_buttonRemoveProp.Image")));
-            this._buttonRemoveProp.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._buttonRemoveProp.Name = "_buttonRemoveProp";
-            this._buttonRemoveProp.Size = new System.Drawing.Size(23, 22);
-            this._buttonRemoveProp.Text = "toolStripButton2";
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripTextBox1
-            // 
-            this.toolStripTextBox1.AutoSize = false;
-            this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.ReadOnly = true;
-            this.toolStripTextBox1.Size = new System.Drawing.Size(150, 22);
-            // 
             // _propertyList
             // 
             this._propertyList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -349,19 +304,19 @@ namespace Treefrog.Windows
             this._propertyList.Dock = System.Windows.Forms.DockStyle.Fill;
             this._propertyList.DoubleClickActivation = true;
             this._propertyList.FullRowSelect = true;
-            listViewGroup1.Header = "Predefined Properties";
-            listViewGroup1.Name = "_groupPredef";
-            listViewGroup2.Header = "Custom Properties";
-            listViewGroup2.Name = "_groupCustom";
+            listViewGroup3.Header = "Predefined Properties";
+            listViewGroup3.Name = "_groupPredef";
+            listViewGroup4.Header = "Custom Properties";
+            listViewGroup4.Name = "_groupCustom";
             this._propertyList.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup1,
-            listViewGroup2});
+            listViewGroup3,
+            listViewGroup4});
             this._propertyList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            listViewItem1.Group = listViewGroup1;
-            listViewItem2.Group = listViewGroup2;
+            listViewItem3.Group = listViewGroup3;
+            listViewItem4.Group = listViewGroup4;
             this._propertyList.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2});
+            listViewItem3,
+            listViewItem4});
             this._propertyList.Location = new System.Drawing.Point(0, 0);
             this._propertyList.Margin = new System.Windows.Forms.Padding(0);
             this._propertyList.MultiSelect = false;
@@ -385,6 +340,51 @@ namespace Treefrog.Windows
             // 
             this._colValue.Text = "Value";
             this._colValue.Width = 135;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._buttonAddProp,
+            this._buttonRemoveProp,
+            this.toolStripSeparator1,
+            this.toolStripTextBox1});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(239, 25);
+            this.toolStrip1.Stretch = true;
+            this.toolStrip1.TabIndex = 0;
+            // 
+            // _buttonAddProp
+            // 
+            this._buttonAddProp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._buttonAddProp.Image = ((System.Drawing.Image)(resources.GetObject("_buttonAddProp.Image")));
+            this._buttonAddProp.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._buttonAddProp.Name = "_buttonAddProp";
+            this._buttonAddProp.Size = new System.Drawing.Size(23, 22);
+            this._buttonAddProp.Text = "Add Property";
+            // 
+            // _buttonRemoveProp
+            // 
+            this._buttonRemoveProp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._buttonRemoveProp.Image = ((System.Drawing.Image)(resources.GetObject("_buttonRemoveProp.Image")));
+            this._buttonRemoveProp.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._buttonRemoveProp.Name = "_buttonRemoveProp";
+            this._buttonRemoveProp.Size = new System.Drawing.Size(23, 22);
+            this._buttonRemoveProp.Text = "Delete Selected Property";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripTextBox1
+            // 
+            this.toolStripTextBox1.AutoSize = false;
+            this.toolStripTextBox1.Name = "toolStripTextBox1";
+            this.toolStripTextBox1.ReadOnly = true;
+            this.toolStripTextBox1.Size = new System.Drawing.Size(150, 22);
             // 
             // PropertyPane
             // 
