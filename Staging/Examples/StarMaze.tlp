@@ -2233,13 +2233,13 @@
               <Object Class="1" At="2128,2951" Rotation="0" />
               <Object Class="1" At="352,2099" Rotation="0" />
               <Object Class="1" At="1412,1123" Rotation="71.09283" />
-              <Object Class="1" At="1304,1199" Rotation="0" />
               <Object Class="1" At="2152,403" Rotation="326.5112" />
               <Object Class="1" At="2556,1195" Rotation="0" />
               <Object Class="1" At="2856,2193" Rotation="275.033" />
               <Object Class="1" At="3336,2781" Rotation="0" />
               <Object Class="1" At="3196,3009" Rotation="329.807556" />
               <Object Class="1" At="3224,3795" Rotation="0" />
+              <Object Class="1" At="1304,1199" Rotation="68.03728" />
             </Objects>
           </LayerData>
         </Layer>

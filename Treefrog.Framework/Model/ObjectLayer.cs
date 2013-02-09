@@ -120,18 +120,26 @@ namespace Treefrog.Framework.Model
         {
             if (ObjectAdded != null)
                 ObjectAdded(this, e);
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnObjectRemoved (ObjectInstanceEventArgs e)
         {
             if (ObjectRemoved != null)
                 ObjectRemoved(this, e);
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnObjectReordered (ObjectInstanceEventArgs e)
         {
             if (ObjectReordered != null)
                 ObjectReordered(this, e);
+            OnModified(EventArgs.Empty);
+        }
+
+        private void ObjectInst_Modified (object sender, EventArgs e)
+        {
+            OnModified(EventArgs.Empty);
         }
 
         public override bool IsResizable
@@ -161,24 +169,31 @@ namespace Treefrog.Framework.Model
 
         public override void RequestNewSize (int originX, int originY, int pixelsWide, int pixelsHigh)
         {
-            _layerOriginX = originX;
-            _layerOriginY = originY;
-            _layerHeight = pixelsHigh;
-            _layerWidth = pixelsWide;
+            if (_layerOriginX != originX || _layerOriginY != originY || _layerHeight != LayerHeight || _layerWidth != LayerWidth) {
+                _layerOriginX = originX;
+                _layerOriginY = originY;
+                _layerHeight = pixelsHigh;
+                _layerWidth = pixelsWide;
+
+                OnLayerSizeChanged(EventArgs.Empty);
+            }
         }
 
         public void AddObject (ObjectInstance instance)
         {
             if (!_objects.Contains(instance)) {
                 _objects.Add(instance);
+                instance.Modified += ObjectInst_Modified;
                 OnObjectAdded(new ObjectInstanceEventArgs(instance));
             }
         }
 
         public void RemoveObject (ObjectInstance instance)
         {
-            if (_objects.Remove(instance))
+            if (_objects.Remove(instance)) {
+                instance.Modified -= ObjectInst_Modified;
                 OnObjectRemoved(new ObjectInstanceEventArgs(instance));
+            }
         }
 
         public void MoveObjectBackward (ObjectInstance instance)

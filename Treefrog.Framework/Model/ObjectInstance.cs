@@ -31,6 +31,8 @@ namespace Treefrog.Framework.Model
             _scaleY = 1f;
 
             _properties = new PropertyCollection(_reservedPropertyNames);
+            _properties.Modified += CustomProperties_Modified;
+
             _predefinedProperties = new ObjectInstanceProperties(this);
 
             UpdateBounds();
@@ -154,6 +156,7 @@ namespace Treefrog.Framework.Model
             var ev = PositionChanged;
             if (ev != null)
                 ev(this, e);
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnRotationChanged (EventArgs e)
@@ -161,6 +164,7 @@ namespace Treefrog.Framework.Model
             var ev = RotationChanged;
             if (ev != null)
                 ev(this, e);
+            OnModified(EventArgs.Empty);
         }
 
         private void UpdateBounds ()
@@ -231,11 +235,23 @@ namespace Treefrog.Framework.Model
             get { return "Object#"; }
         }
 
+        public event EventHandler Modified;
+
         public event EventHandler<EventArgs> PropertyProviderNameChanged;
+
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            var ev = Modified;
+            if (ev != null)
+                ev(this, e);
+        }
 
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
         {
-            PropertyProviderNameChanged(this, e);
+            var ev = PropertyProviderNameChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         public Collections.PropertyCollection CustomProperties
@@ -299,6 +315,11 @@ namespace Treefrog.Framework.Model
         {
             NumberProperty property = sender as NumberProperty;
             Rotation = MathEx.DegToRad(property.Value);
+        }
+
+        private void CustomProperties_Modified (object sender, EventArgs e)
+        {
+            OnModified(e);
         }
 
         #endregion
