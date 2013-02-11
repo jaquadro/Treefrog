@@ -141,7 +141,13 @@ namespace Treefrog.Windows.Controls
                 return deviceResetError;
             }
 
-            MakeCurrent();
+            //MakeCurrent();
+            GLControl control = GLControl.FromHandle(_deviceService.GraphicsDevice.PresentationParameters.DeviceWindowHandle) as GLControl;
+            if (control != null) {
+                control.Context.MakeCurrent(WindowInfo);
+                _deviceService.GraphicsDevice.PresentationParameters.BackBufferHeight = ClientSize.Height;
+                _deviceService.GraphicsDevice.PresentationParameters.BackBufferWidth = ClientSize.Width;
+            }     
 
             Viewport viewport = new Viewport();
 
@@ -168,14 +174,6 @@ namespace Treefrog.Windows.Controls
                 //Rectangle srcRect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
                 //GraphicsDevice.Clear(XnaColor.Aqua);
                 //GraphicsDevice.Present(srcRect, null, Handle);
-                OpenTK.Graphics.OpenGL.GL.Begin(OpenTK.Graphics.OpenGL.BeginMode.Quads);
-                OpenTK.Graphics.OpenGL.GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
-                OpenTK.Graphics.OpenGL.GL.Color4(0f, 0f, 0f, .5f);
-                OpenTK.Graphics.OpenGL.GL.Vertex3(0, 0, 0);
-                OpenTK.Graphics.OpenGL.GL.Vertex3(50, 0, 0);
-                OpenTK.Graphics.OpenGL.GL.Vertex3(50, 50, 0);
-                OpenTK.Graphics.OpenGL.GL.Vertex3(0, 50, 0);
-                OpenTK.Graphics.OpenGL.GL.End();
 
                 SwapBuffers();
             }
@@ -251,10 +249,16 @@ namespace Treefrog.Windows.Controls
 
             GraphicsDevice.SetRenderTarget(null);
 
+#if false
             XnaColor[] data = new XnaColor[1];
             target.GetData(0, new Rectangle(x, y, 1, 1), data, 0, data.Length);
-
             return data[0];
+#else
+            XnaColor[] data = new XnaColor[GraphicsDevice.Viewport.Width * GraphicsDevice.Viewport.Height];
+            target.GetData(data);
+
+            return data[GraphicsDevice.Viewport.Width * y + x];
+#endif
         }
     }
 }
