@@ -99,7 +99,11 @@ namespace Treefrog.Windows.Controls
         protected override void Dispose (bool disposing)
         {
             if (_deviceService != null) {
-                _deviceService.Release();
+                try {
+                    _deviceService.Release();
+                }
+                catch { }
+
                 _deviceService = null;
             }
 
