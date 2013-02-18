@@ -9,12 +9,12 @@ namespace Treefrog.Windows
     {
         #region Fields
 
-        private static GraphicsDeviceService _instance;
+        private static readonly GraphicsDeviceService _instance = new GraphicsDeviceService();
         private static int _refCount;
 
         private GraphicsDevice _device;
 
-        private PresentationParameters _parameters;
+        //private PresentationParameters _parameters;
 
         #endregion
 
@@ -43,7 +43,6 @@ namespace Treefrog.Windows
         public static GraphicsDeviceService AddRef (IntPtr windowHandle, int width, int height)
         {
             if (Interlocked.Increment(ref _refCount) == 1) {
-                _instance = new GraphicsDeviceService();
                 _instance.CreateDevice(windowHandle, width, height);
             }
 
@@ -62,6 +61,8 @@ namespace Treefrog.Windows
                     if (DeviceDisposing != null) {
                         DeviceDisposing(this, EventArgs.Empty);
                     }
+
+                    _device.Dispose();
                 }
 
                 _device = null;
@@ -70,7 +71,7 @@ namespace Treefrog.Windows
 
         protected void CreateDevice (IntPtr windowHandle, int width, int height)
         {
-            _parameters = new PresentationParameters();
+            /*_parameters = new PresentationParameters();
 
             _parameters.BackBufferWidth = Math.Max(width, 1);
             _parameters.BackBufferHeight = Math.Max(height, 1);
@@ -81,10 +82,12 @@ namespace Treefrog.Windows
             _parameters.IsFullScreen = false;
             _parameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
 
-            //OpenTKGameWindow tkWindow = new OpenTKGameWindow();
-            //tkWindow.ChangeClientBounds(new Rectangle(0, 0, Math.Max(width, 1), Math.Max(height, 1)));
+            _device = new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile.Reach, _parameters);*/
 
-            _device = new GraphicsDevice(); //GraphicsAdapter.DefaultAdapter, GraphicsProfile.Reach, _parameters);
+            _device = new GraphicsDevice();
+            _device.PresentationParameters.DeviceWindowHandle = windowHandle;
+            _device.PresentationParameters.BackBufferWidth = Math.Max(width, 1);
+            _device.PresentationParameters.BackBufferHeight = Math.Max(height, 1);
 
             if (DeviceCreated != null) {
                 DeviceCreated(this, EventArgs.Empty);
@@ -93,7 +96,7 @@ namespace Treefrog.Windows
 
         public void ResetDevice (int width, int height)
         {
-            if (DeviceResetting != null) {
+            /*if (DeviceResetting != null) {
                 DeviceResetting(this, EventArgs.Empty);
             }
 
@@ -104,7 +107,7 @@ namespace Treefrog.Windows
 
             if (DeviceReset != null) {
                 DeviceReset(this, EventArgs.Empty);
-            }
+            }*/
         }
     }
 }

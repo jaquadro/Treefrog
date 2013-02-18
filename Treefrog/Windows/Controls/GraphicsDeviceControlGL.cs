@@ -3,19 +3,20 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
+using OpenTK;
 using Treefrog.Framework;
 
 namespace Treefrog.Windows.Controls
 {
     using Color = System.Drawing.Color;
-    using XnaColor = Microsoft.Xna.Framework.Color;
     using Rectangle = Microsoft.Xna.Framework.Rectangle;
+    using XnaColor = Microsoft.Xna.Framework.Color;
     
-    public abstract class GraphicsDeviceControl : Control
+    public abstract class GraphicsDeviceControl : GLControl
     {
         #region Fields
 
-        private OpenTK.GLControl _tkControl;
+        //private OpenTK.GLControl _tkControl;
 
         private bool _designMode;
 
@@ -65,11 +66,10 @@ namespace Treefrog.Windows.Controls
         {
             _designMode = DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
-            _tkControl = new OpenTK.GLControl();
-            _tkControl.Dock = DockStyle.Fill;
-            _tkControl.Load += _tkControl_Load;
+            //_tkControl.Dock = DockStyle.Fill;
+            Load += _tkControl_Load;
 
-            Controls.Add(_tkControl);
+            //Controls.Add(_tkControl);
         }
 
         private void _tkControl_Load (object sender, EventArgs e)
@@ -93,15 +93,17 @@ namespace Treefrog.Windows.Controls
 
         protected override void OnCreateControl ()
         {
-            
-
             base.OnCreateControl();
         }
 
         protected override void Dispose (bool disposing)
         {
             if (_deviceService != null) {
-                _deviceService.Release();
+                try {
+                    _deviceService.Release();
+                }
+                catch { }
+
                 _deviceService = null;
             }
 
@@ -110,10 +112,7 @@ namespace Treefrog.Windows.Controls
 
         protected new bool DesignMode
         {
-            get 
-            {
-                return _designMode;
-            }
+            get { return _designMode; }
         }
 
         #endregion
@@ -126,6 +125,7 @@ namespace Treefrog.Windows.Controls
 
             if (string.IsNullOrEmpty(beginDrawError)) {
                 Draw();
+                //GraphicsDevice.Clear(XnaColor.Aqua);
                 EndDraw();
             }
             else {
@@ -139,11 +139,19 @@ namespace Treefrog.Windows.Controls
                 return Text + "\n\n" + GetType();
             }
 
-            /*string deviceResetError = HandleDeviceReset();
+            string deviceResetError = HandleDeviceReset();
 
             if (!string.IsNullOrEmpty(deviceResetError)) {
                 return deviceResetError;
-            }*/
+            }
+
+            //MakeCurrent();
+            GLControl control = GLControl.FromHandle(_deviceService.GraphicsDevice.PresentationParameters.DeviceWindowHandle) as GLControl;
+            if (control != null) {
+                control.Context.MakeCurrent(WindowInfo);
+                _deviceService.GraphicsDevice.PresentationParameters.BackBufferHeight = ClientSize.Height;
+                _deviceService.GraphicsDevice.PresentationParameters.BackBufferWidth = ClientSize.Width;
+            }     
 
             Viewport viewport = new Viewport();
 
@@ -156,18 +164,22 @@ namespace Treefrog.Windows.Controls
             viewport.MinDepth = 0;
             viewport.MaxDepth = 1;
 
-            GraphicsDevice.Viewport = viewport;
+            if (GraphicsDevice.Viewport.Equals(viewport) == false)
+                GraphicsDevice.Viewport = viewport;
 
             return null;
         }
 
+        private static Random rand = new Random();
+
         private void EndDraw ()
         {
             try {
-                Rectangle srcRect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
-                //GraphicsDevice.Clear(XnaColor.Azure);
+                //Rectangle srcRect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+                //GraphicsDevice.Clear(XnaColor.Aqua);
                 //GraphicsDevice.Present(srcRect, null, Handle);
-                _tkControl.SwapBuffers();
+
+                SwapBuffers();
             }
             catch {
             }
@@ -241,10 +253,16 @@ namespace Treefrog.Windows.Controls
 
             GraphicsDevice.SetRenderTarget(null);
 
+#if false
             XnaColor[] data = new XnaColor[1];
             target.GetData(0, new Rectangle(x, y, 1, 1), data, 0, data.Length);
-
             return data[0];
+#else
+            XnaColor[] data = new XnaColor[GraphicsDevice.Viewport.Width * GraphicsDevice.Viewport.Height];
+            target.GetData(data);
+
+            return data[GraphicsDevice.Viewport.Width * y + x];
+#endif
         }
     }
 }

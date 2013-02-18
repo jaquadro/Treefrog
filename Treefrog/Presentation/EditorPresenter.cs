@@ -199,12 +199,21 @@ namespace Treefrog.Presentation
             level.Project = _project;
             level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
 
+            Level level2 = new Level("Level 2", 0, 0, 800, 480);
+            level2.Project = _project;
+            level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 32, 32, 25, 15));
+
             LevelPresenter pres = new LevelPresenter(this, level);
             _levels[level.Name] = pres;
 
+            LevelPresenter pres2 = new LevelPresenter(this, level2);
+            _levels[level2.Name] = pres2;
+
             _openContent.Add(level.Name);
+            _openContent.Add(level2.Name);
 
             _project.Levels.Add(level);
+            _project.Levels.Add(level2);
 
             SelectLevel("Level 1");
 

@@ -303,6 +303,7 @@ namespace Treefrog.Presentation
 
             SelectTilePool();
 
+            OnSelectedTilePoolChanged(EventArgs.Empty);
             OnSyncTilePoolList(EventArgs.Empty);
         }
 
