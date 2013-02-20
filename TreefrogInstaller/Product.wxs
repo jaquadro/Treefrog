@@ -59,6 +59,15 @@
       <Component Id="C.LilyPath.dll" Guid="*">
         <File Source="../Staging/LilyPath.dll" KeyPath="yes" />
       </Component>
+      <Component Id="C.MonoGame.Framework.dll" Guid="*">
+        <File Source="../Staging/MonoGame.Framework.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C.OpenTK.dll" Guid="*">
+        <File Source="../Staging/OpenTK.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="C.OpenTK.GLControl.dll" Guid="*">
+        <File Source="../Staging/OpenTK.GLControl.dll" KeyPath="yes" />
+      </Component>
       <Component Id="C.Treefrog.exe" Guid="*">
         <File Source="../Staging/Treefrog.exe" KeyPath="yes" />
       </Component>
