@@ -85,8 +85,8 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Amphibian.Drawing">
-      <HintPath>..\..\Amphibian\Amphibian.Drawing\bin\x86\Debug\Amphibian.Drawing.dll</HintPath>
+    <Reference Include="LilyPath">
+      <HintPath>..\..\LilyPath\bin\Debug\LilyPath.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsGL\Debug\MonoGame.Framework.dll</HintPath>
@@ -168,7 +168,11 @@
     <Compile Include="Utility\DependentTypeFactory.cs" />
     <Compile Include="Utility\IBindable.cs" />
     <Compile Include="Utility\NotificationExtensions.cs" />
+    <Compile Include="Windows\Annotations\AnnotationRenderer.cs" />
+    <Compile Include="Windows\Annotations\Factory.cs" />
     <Compile Include="Windows\Annotations\CircleAnnotationRenderer.cs" />
+    <Compile Include="Windows\Annotations\DrawAnnotationRenderer.cs" />
+    <Compile Include="Windows\Annotations\ImageAnnotRenderer.cs" />
     <Compile Include="Windows\Annotations\MultiTileSelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>UserControl</SubType>

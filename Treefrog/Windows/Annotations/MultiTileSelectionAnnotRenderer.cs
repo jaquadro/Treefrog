@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using LilyPath;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework;
 using Treefrog.Presentation.Annotations;
-using Drawing = Treefrog.Framework.Imaging.Drawing;
-using XnaDrawing = Amphibian.Drawing;
 
 namespace Treefrog.Windows.Annotations
 {
@@ -21,7 +16,7 @@ namespace Treefrog.Windows.Annotations
             _data = data;
         }
 
-        public override void Render (SpriteBatch spriteBatch, float zoomFactor)
+        public override void Render (DrawBatch spriteBatch, float zoomFactor)
         {
             if (IsDisposed)
                 return;
@@ -42,7 +37,7 @@ namespace Treefrog.Windows.Annotations
             }
         }
 
-        private void RenderRow (SpriteBatch spriteBatch, float zoomFactor, int y)
+        private void RenderRow (DrawBatch spriteBatch, float zoomFactor, int y)
         {
             int xStart = Int32.MinValue;
             for (int x = _data.TileMinExtant.X; x <= _data.TileMaxExtant.X; x++) {
@@ -61,7 +56,7 @@ namespace Treefrog.Windows.Annotations
             return _data.TileLocations.Contains(coord1) ^ _data.TileLocations.Contains(coord2);
         }
 
-        private void RenderHorizontalLine (SpriteBatch spriteBatch, float zoomFactor, int y)
+        private void RenderHorizontalLine (DrawBatch spriteBatch, float zoomFactor, int y)
         {
             int xStart = Int32.MinValue;
             for (int x = _data.TileMinExtant.X; x <= _data.TileMaxExtant.X; x++) {
@@ -75,7 +70,7 @@ namespace Treefrog.Windows.Annotations
             }
         }
 
-        private void RenderVerticalLine (SpriteBatch spriteBatch, float zoomFactor, int x)
+        private void RenderVerticalLine (DrawBatch spriteBatch, float zoomFactor, int x)
         {
             int yStart = Int32.MinValue;
             for (int y = _data.TileMinExtant.Y; y <= _data.TileMaxExtant.Y; y++) {
@@ -89,25 +84,25 @@ namespace Treefrog.Windows.Annotations
             }
         }
 
-        private void RenderPartialHorizontalLine (SpriteBatch spriteBatch, float zoomFactor, int x1, int x2, int y)
+        private void RenderPartialHorizontalLine (DrawBatch drawBatch, float zoomFactor, int x1, int x2, int y)
         {
             int top = (int)((y + _data.Offset.Y) * _data.TileHeight * zoomFactor);
             int left = (int)((x1 + _data.Offset.X) * _data.TileWidth * zoomFactor);
             int right = (int)((x2 + _data.Offset.X + 1) * _data.TileWidth * zoomFactor);
 
-            XnaDrawing.Draw2D.DrawLine(spriteBatch, new Point(left, top), new Point(right, top), Outline);
+            drawBatch.DrawLine(new Point(left, top), new Point(right, top), Outline);
         }
 
-        private void RenderPartialVerticalLine (SpriteBatch spriteBatch, float zoomFactor, int x, int y1, int y2)
+        private void RenderPartialVerticalLine (DrawBatch drawBatch, float zoomFactor, int x, int y1, int y2)
         {
             int left = (int)((x + _data.Offset.X) * _data.TileWidth * zoomFactor);
             int top = (int)((y1 + _data.Offset.Y) * _data.TileHeight * zoomFactor);
             int bottom = (int)((y2 + _data.Offset.Y + 1) * _data.TileHeight * zoomFactor);
 
-            XnaDrawing.Draw2D.DrawLine(spriteBatch, new Point(left, top), new Point(left, bottom), Outline);
+            drawBatch.DrawLine(new Point(left, top), new Point(left, bottom), Outline);
         }
 
-        private void RenderPartialRow (SpriteBatch spriteBatch, float zoomFactor, int x1, int x2, int y)
+        private void RenderPartialRow (DrawBatch drawBatch, float zoomFactor, int x1, int x2, int y)
         {
             Rectangle rect = new Rectangle(
                 (int)((x1 + _data.Offset.X) * _data.TileWidth * zoomFactor),
@@ -116,7 +111,7 @@ namespace Treefrog.Windows.Annotations
                 (int)(_data.TileHeight * zoomFactor)
                 );
 
-            XnaDrawing.Draw2D.FillRectangle(spriteBatch, rect, Fill);
+            drawBatch.FillRectangle(rect, Fill);
         }
     }
 }

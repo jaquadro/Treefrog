@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Amphibian.Drawing;
+using LilyPath;
 using Treefrog.Framework;
 using Treefrog.Presentation.Layers;
 using Treefrog.Framework.Model;

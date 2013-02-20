@@ -56,8 +56,8 @@
     </ComponentGroup>
 
 		<ComponentGroup Id="CG.ProductComponents" Directory="INSTALLDIR">
-      <Component Id="C.Amphibian.Drawing.dll" Guid="*">
-        <File Source="../Staging/Amphibian.Drawing.dll" KeyPath="yes" />
+      <Component Id="C.LilyPath.dll" Guid="*">
+        <File Source="../Staging/LilyPath.dll" KeyPath="yes" />
       </Component>
       <Component Id="C.Treefrog.exe" Guid="*">
         <File Source="../Staging/Treefrog.exe" KeyPath="yes" />

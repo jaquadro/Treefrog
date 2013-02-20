@@ -14,7 +14,7 @@ using Amphibian.Behaviors;
 using Amphibian.Collision;
 using Amphibian.Input;
 using Amphibian.Geometry;
-using Amphibian.Drawing;
+using LilyPath;
 using Editor.Model;
 
 namespace Editor

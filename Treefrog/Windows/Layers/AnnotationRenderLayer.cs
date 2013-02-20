@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using Treefrog.Presentation.Annotations;
 using Treefrog.Windows.Annotations;
 using System.Collections.Specialized;
-using Amphibian.Drawing;
+using LilyPath;
 
 namespace Treefrog.Windows.Layers
 {

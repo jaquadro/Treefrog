@@ -24,7 +24,8 @@ namespace Treefrog.Presentation.Tools
         private static Pen SelectionAnnotOutline = null; //new Pen(new SolidColorBrush(new Color(64, 96, 216, 200)));
 
         private static Brush SelectedAnnotFill = new SolidColorBrush(new Color(128, 77, 255, 96));
-        private static Pen SelectedAnnotOutline = new Pen(new SolidColorBrush(new Color(96, 0, 255, 255)), 1);
+        //private static Pen SelectedAnnotOutline = new Pen(new SolidColorBrush(new Color(96, 0, 255, 255)), 1);
+        private static Pen SelectedAnnotOutline = new PrimitivePen(new SolidColorBrush(new Color(96, 0, 255, 255)));
         //private static Pen SelectedAnnotOutline = new Pen(new StippleBrush(StipplePattern2px, new Color(96, 0, 255, 255)));
 
         private ObservableCollection<Annotation> _annots;
