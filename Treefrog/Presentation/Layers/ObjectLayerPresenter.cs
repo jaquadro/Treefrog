@@ -240,7 +240,11 @@ namespace Treefrog.Presentation.Layers
         private void CommandMoveObjectsToFront ()
         {
             if (CommandCanMoveObjectsToFront()) {
-                Layer.MoveObjectsToFront(_selectionManager.SelectedObjects);
+                ObjectOrderCommand command = new ObjectOrderCommand(Layer);
+                foreach (ObjectInstance inst in _selectionManager.SelectedObjects)
+                    command.QueueMoveFront(inst);
+
+                LayerContext.History.Execute(command);
                 InvalidateObjectArrangeCommands();
             }
         }
@@ -253,7 +257,11 @@ namespace Treefrog.Presentation.Layers
         private void CommandMoveObjectsForward ()
         {
             if (CommandCanMoveObjectsForward()) {
-                Layer.MoveObjectsForward(_selectionManager.SelectedObjects);
+                ObjectOrderCommand command = new ObjectOrderCommand(Layer);
+                foreach (ObjectInstance inst in _selectionManager.SelectedObjects)
+                    command.QueueMoveForward(inst);
+
+                LayerContext.History.Execute(command);
                 InvalidateObjectArrangeCommands();
             }
         }
@@ -266,7 +274,11 @@ namespace Treefrog.Presentation.Layers
         private void CommandMoveObjectsBackward ()
         {
             if (CommandCanMoveObjectsForward()) {
-                Layer.MoveObjectsBackward(_selectionManager.SelectedObjects);
+                ObjectOrderCommand command = new ObjectOrderCommand(Layer);
+                foreach (ObjectInstance inst in _selectionManager.SelectedObjects)
+                    command.QueueMoveBackward(inst);
+
+                LayerContext.History.Execute(command);
                 InvalidateObjectArrangeCommands();
             }
         }
@@ -279,7 +291,11 @@ namespace Treefrog.Presentation.Layers
         private void CommandMoveObjectsToBack ()
         {
             if (CommandCanMoveObjectsToBack()) {
-                Layer.MoveObjectsToBack(_selectionManager.SelectedObjects);
+                ObjectOrderCommand command = new ObjectOrderCommand(Layer);
+                foreach (ObjectInstance inst in _selectionManager.SelectedObjects)
+                    command.QueueMoveBack(inst);
+
+                LayerContext.History.Execute(command);
                 InvalidateObjectArrangeCommands();
             }
         }

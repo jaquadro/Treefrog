@@ -110,9 +110,14 @@ namespace Treefrog.Windows
 
         public void ReleaseAll ()
         {
-            foreach (Texture2D tex in _cache.Values) {
-                if (tex != null)
-                    tex.Dispose();
+            try {
+                foreach (Texture2D tex in _cache.Values) {
+                    if (tex != null)
+                        tex.Dispose();
+                }
+            }
+            catch {
+                // If dispose fails, shrug it off
             }
 
             _cache.Clear();

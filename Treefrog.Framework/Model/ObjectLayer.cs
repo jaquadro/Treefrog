@@ -248,6 +248,21 @@ namespace Treefrog.Framework.Model
                 MoveObjectToBack(inst);
         }
 
+        public void MoveToIndex (ObjectInstance inst, int index)
+        {
+            _objects.MoveItem(inst, index);
+        }
+
+        public int ObjectIndex (ObjectInstance inst)
+        {
+            return _objects.IndexOf(inst);
+        }
+
+        public int ObjectCount
+        {
+            get { return _objects.Count; }
+        }
+
         private IEnumerable<ObjectInstance> QueueOrderedObjects (IEnumerable<ObjectInstance> instances)
         {
             HashSet<ObjectInstance> objs = new HashSet<ObjectInstance>(instances);

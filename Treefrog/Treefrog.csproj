@@ -137,6 +137,7 @@
     <Compile Include="Presentation\Commands\ObjectAddCommand.cs" />
     <Compile Include="Presentation\Commands\ObjectLayerCommand.cs" />
     <Compile Include="Presentation\Commands\ObjectMoveCommand.cs" />
+    <Compile Include="Presentation\Commands\ObjectOrderCommand.cs" />
     <Compile Include="Presentation\Commands\ObjectRemoveCommand.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
     <Compile Include="Presentation\Commands\TileSelectionCommands.cs" />
