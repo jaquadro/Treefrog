@@ -2,7 +2,6 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{DCDDA578-009A-4994-8B30-4589B69248FB}</ProjectGuid>
-    <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
@@ -504,11 +503,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Treefrog.Content\Treefrog.Content.contentproj">
-      <Project>{351A1ABE-2FA9-4112-B089-6EC7E885ED6D}</Project>
-      <Name>Treefrog.Content %28Content%29</Name>
-      <XnaReferenceType>Content</XnaReferenceType>
-    </ProjectReference>
     <ProjectReference Include="..\Treefrog.Framework\Treefrog.Framework.csproj">
       <Project>{DFDC210B-3181-4F4D-92B9-6FCDE456697B}</Project>
       <Name>Treefrog.Framework</Name>
