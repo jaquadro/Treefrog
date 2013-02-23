@@ -5,6 +5,12 @@ using System.Text;
 
 namespace Treefrog.Presentation.Commands
 {
+    public class CommandCollectionEntry
+    {
+        public CommandKey Key { get; }
+        public CommandCollection SubCollection { get; }
+    }
+
     public enum CommandKey
     {
         Unknown,

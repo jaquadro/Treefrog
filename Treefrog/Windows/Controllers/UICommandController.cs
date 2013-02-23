@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Utility;
-using Treefrog.Presentation.Commands;
 using System.Windows.Forms;
+using Treefrog.Presentation.Commands;
+using Treefrog.Utility;
 
 namespace Treefrog.Windows.Controllers
 {
