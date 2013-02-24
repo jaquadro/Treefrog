@@ -9,6 +9,120 @@ using System.Drawing;
 
 namespace Treefrog.Windows.Controllers
 {
+    public class CommandMenuEntry
+    {
+        public CommandKey Key { get; set; }
+        public CommandMenu SubMenu { get; set; }
+
+        public CommandMenuEntry (CommandKey key)
+        {
+            Key = key;
+        }
+
+        public CommandMenuEntry (CommandMenu subMenu)
+        {
+            SubMenu = subMenu;
+        }
+
+        public static implicit operator CommandMenuEntry (CommandKey key)
+        {
+            return new CommandMenuEntry(key);
+        }
+    }
+
+    public class CommandMenu
+    {
+        public string Name { get; set; }
+        public IEnumerable<CommandMenuGroup> Groups { get; set; }
+
+        public CommandMenu (string name)
+        {
+            Name = name;
+        }
+
+        public CommandMenu (string name, IEnumerable<CommandMenuGroup> groups)
+            : this(name)
+        {
+            Groups = groups;
+        }
+
+        public CommandMenu (string name, CommandMenuGroup group)
+            : this(name)
+        {
+            List<CommandMenuGroup> groups = new List<CommandMenuGroup>();
+            groups.Add(group);
+
+            Groups = groups;
+        }
+    }
+
+    public class CommandMenuGroup : List<CommandMenuEntry>
+    {
+        public CommandMenuGroup ()
+            : base()
+        { }
+
+        public CommandMenuGroup (IEnumerable<CommandMenuEntry> entries)
+            : base(entries)
+        { }
+
+        public CommandMenuGroup (IEnumerable<CommandKey> keys)
+            : base(BuildEntryList(keys))
+        { }
+
+        private static IEnumerable<CommandMenuEntry> BuildEntryList (IEnumerable<CommandKey> keys)
+        {
+            List<CommandMenuEntry> entries = new List<CommandMenuEntry>();
+            foreach (CommandKey key in keys)
+                entries.Add(new CommandMenuEntry(key));
+
+            return entries;
+        }
+    }
+
+    public static class CommandMenuBuilder
+    {
+        public static ToolStripMenuItem BuildMenu (CommandMenu menu)
+        {
+            return BuildMenu(menu, CommandRegistry.Default);
+        }
+
+        public static ToolStripMenuItem BuildMenu (CommandMenu menu, CommandRegistry registry)
+        {
+            ToolStripMenuItem item = new ToolStripMenuItem(menu.Name);
+            if (menu.Groups == null)
+                return item;
+
+            List<CommandMenuGroup> groups = new List<CommandMenuGroup>(menu.Groups);
+            foreach (CommandMenuGroup group in groups) {
+                if (group != groups[0])
+                    item.DropDownItems.Add(new ToolStripSeparator());
+
+                foreach (CommandMenuEntry entry in group) {
+                    if (entry.SubMenu != null)
+                        item.DropDownItems.Add(BuildMenu(entry.SubMenu, registry));
+                    else {
+                        CommandRecord record = registry.Lookup(entry.Key);
+                        if (record != null) {
+                            ToolStripMenuItem menuItem = new ToolStripMenuItem() {
+                                Tag = entry.Key,
+                                Text = record.DisplayName,
+                                Image = record.Image,
+                                ShortcutKeys = record.Shortcut,
+                                ShortcutKeyDisplayString = record.ShortcutDisplay,
+                                ToolTipText = record.Description,
+                            };
+
+                            item.DropDownItems.Add(menuItem);
+                        }
+                    }
+                }
+            }
+
+            return item;
+        }
+    }
+
     public class CommandRecord
     {
         public CommandKey Key { get; set; }
@@ -64,7 +178,7 @@ namespace Treefrog.Windows.Controllers
 
         static CommandRegistry ()
         {
-            CommandRegistry _default = new CommandRegistry();
+            _default = new CommandRegistry();
 
             _assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
@@ -200,13 +314,17 @@ namespace Treefrog.Windows.Controllers
 
         private static void Register (CommandKey key, string displayName, string resource = null, Keys shortcut = Keys.None, string description = null, string shortcutDisplay = null)
         {
-            _default.Register(new CommandRecord(key) {
+            CommandRecord record = new CommandRecord(key) {
                 DisplayName = displayName,
                 Description = description,
-                Image = Image.FromStream(_assembly.GetManifestResourceStream(resource)),
                 Shortcut = shortcut,
                 ShortcutDisplay = shortcutDisplay,
-            });
+            };
+
+            if (resource != null)
+                record.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+
+            _default.Register(record);
         }
     }
 }

@@ -176,6 +176,7 @@
     <Compile Include="Windows\Annotations\DrawAnnotationRenderer.cs" />
     <Compile Include="Windows\Annotations\ImageAnnotRenderer.cs" />
     <Compile Include="Windows\Annotations\MultiTileSelectionAnnotRenderer.cs" />
+    <Compile Include="Windows\Controllers\CommandRegistry.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

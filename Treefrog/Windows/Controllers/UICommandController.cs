@@ -42,11 +42,42 @@ namespace Treefrog.Windows.Controllers
 
         public void MapMenuItems (IEnumerable<KeyValuePair<CommandKey, ToolStripMenuItem>> mappings)
         {
-            foreach (var item in mappings) {
-                _menuMap.Add(item.Key, item.Value);
-                item.Value.Click += BoundMenuClickHandler;
+            foreach (var item in mappings)
+                MapMenuItem(item.Key, item.Value);
+        }
 
-                Invalidate(item.Key);
+        public void MapMenuItems (IEnumerable<ToolStripMenuItem> items)
+        {
+            foreach (ToolStripMenuItem item in items) {
+                if (item != null && item.Tag is CommandKey)
+                    MapMenuItem((CommandKey)item.Tag, item);
+
+                if (item.DropDownItems != null)
+                    MapMenuItems(item.DropDownItems);
+            }
+        }
+
+        private void MapMenuItems (ToolStripItemCollection items)
+        {
+            foreach (ToolStripItem item in items) {
+                ToolStripMenuItem menuItem = item as ToolStripMenuItem;
+                if (menuItem != null) {
+                    if (item != null && item.Tag is CommandKey)
+                        MapMenuItem((CommandKey)menuItem.Tag, menuItem);
+
+                    if (menuItem.DropDownItems != null)
+                        MapMenuItems(menuItem.DropDownItems);
+                }
+            }
+        }
+
+        private void MapMenuItem (CommandKey key, ToolStripMenuItem item)
+        {
+            if (key != CommandKey.Unknown && item != null) {
+                _menuMap.Add(key, item);
+                item.Click += BoundMenuClickHandler;
+
+                Invalidate(key);
             }
         }
 
