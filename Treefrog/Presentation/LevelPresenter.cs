@@ -21,6 +21,20 @@ namespace Treefrog.Presentation
         ObservableCollection<Annotation> Annotations { get; }
 
         void SetPropertyProvider (IPropertyProvider provider);
+        void ActivatePropertyProvider (IPropertyProvider provider);
+        void ActivateContextMenu (CommandMenu menu, Point location);
+    }
+
+    public class ContextMenuEventArgs : EventArgs
+    {
+        public CommandMenu Menu { get; set; }
+        public Point Location { get; set; }
+
+        public ContextMenuEventArgs (CommandMenu menu, Point location)
+        {
+            Menu = menu;
+            Location = location;
+        }
     }
 
     public class LevelPresenter : IDisposable, ILayerContext, IPointerResponderProvider, ICommandSubscriber, ILayerListPresenter
@@ -855,6 +869,26 @@ namespace Treefrog.Presentation
         public void SetPropertyProvider (IPropertyProvider provider)
         {
             _editor.Presentation.PropertyList.Provider = provider;
+        }
+
+        public void ActivatePropertyProvider (IPropertyProvider provider)
+        {
+            _editor.Presentation.PropertyList.Provider = provider;
+            _editor.ActivatePropertyPanel();
+        }
+
+        public event EventHandler<ContextMenuEventArgs> ContextMenuActivated;
+
+        protected virtual void OnContextMenuActivated (ContextMenuEventArgs e)
+        {
+            var ev = ContextMenuActivated;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        public void ActivateContextMenu (CommandMenu menu, Point location)
+        {
+            OnContextMenuActivated(new ContextMenuEventArgs(menu, location));
         }
     }
 }

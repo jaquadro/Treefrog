@@ -14,7 +14,6 @@ namespace Treefrog.Windows.Controls.Composite
     {
         private IEditorPresenter _controller;
 
-        private CommandManager _commandManager;
         private UICommandController _commandController;
 
         private MenuStrip _menuStrip;
@@ -44,7 +43,7 @@ namespace Treefrog.Windows.Controls.Composite
         {
             _menuStrip = new MenuStrip();
 
-            _fileStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&File", new List<CommandMenuGroup>() {
+            _fileStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&File", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     CommandKey.NewProject, CommandKey.OpenProject, CommandKey.Save, CommandKey.SaveAs,
                 },
@@ -53,7 +52,7 @@ namespace Treefrog.Windows.Controls.Composite
                 },
             }));
 
-            _editStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&Edit", new List<CommandMenuGroup>() {
+            _editStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&Edit", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     CommandKey.Undo, CommandKey.Redo,
                 },
@@ -65,7 +64,7 @@ namespace Treefrog.Windows.Controls.Composite
                 },
             }));
 
-            _viewStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&View", new List<CommandMenuGroup>() {
+            _viewStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&View", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     CommandKey.ViewZoomNormal, CommandKey.ViewZoomIn, CommandKey.ViewZoomOut,
                 },
@@ -74,19 +73,19 @@ namespace Treefrog.Windows.Controls.Composite
                 },
             }));
 
-            _projectStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&Project", new List<CommandMenuGroup>() {
+            _projectStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&Project", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     CommandKey.ProjectAddLevel,
                 },
             }));
 
-            _levelStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&Level", new List<CommandMenuGroup>() {
+            _levelStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&Level", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     CommandKey.LevelResize,
                 },
             }));
 
-            _layerStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("La&yers", new List<CommandMenuGroup>() {
+            _layerStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("La&yers", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     CommandKey.NewTileLayer, CommandKey.NewObjectLayer,
                 },
@@ -110,7 +109,7 @@ namespace Treefrog.Windows.Controls.Composite
                 },
             }));
 
-            _tileStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&Tiles", new List<CommandMenuGroup>() {
+            _tileStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&Tiles", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     new CommandMenuEntry(new CommandMenu("&Brushes", new List<CommandMenuGroup>() {
                         new CommandMenuGroup() {
@@ -134,7 +133,7 @@ namespace Treefrog.Windows.Controls.Composite
                 },
             }));
 
-            _objectStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&Objects", new List<CommandMenuGroup>() {
+            _objectStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&Objects", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     new CommandMenuEntry(new CommandMenu("Object &Prototypes", new List<CommandMenuGroup>() {
                         new CommandMenuGroup() {
@@ -169,7 +168,7 @@ namespace Treefrog.Windows.Controls.Composite
                 },
             }));
 
-            _helpStrip = CommandMenuBuilder.BuildMenu(new CommandMenu("&Help"));
+            _helpStrip = CommandMenuBuilder.BuildToolStripMenu(new CommandMenu("&Help"));
 
             _commandController = new UICommandController();
             _commandController.MapMenuItems(new List<ToolStripMenuItem>() {

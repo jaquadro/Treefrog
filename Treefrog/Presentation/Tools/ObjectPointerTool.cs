@@ -13,16 +13,18 @@ namespace Treefrog.Presentation.Tools
         //private ObjectPoolManagerService _poolManager;
 
         private IObjectPoolCollectionPresenter _objectPool;
+        private ILayerContext _layerContext;
 
-        private CommandHistory _history;
+        //private CommandHistory _history;
         private ObjectLayer _layer;
 
         private Size _gridSize;
         private SnappingManager _snapManager;
 
-        public ObjectPointerTool (CommandHistory history, ObjectLayer layer, Size gridSize)
+        public ObjectPointerTool (ILayerContext layerContext, ObjectLayer layer, Size gridSize)
         {
-            _history = history;
+            _layerContext = layerContext;
+            //_history = history;
             _layer = layer;
             _gridSize = gridSize;
         }
@@ -53,9 +55,14 @@ namespace Treefrog.Presentation.Tools
             get { return _layer; }
         }
 
+        protected ILayerContext LayerContext
+        {
+            get { return _layerContext; }
+        }
+
         protected CommandHistory History
         {
-            get { return _history; }
+            get { return _layerContext.History; }
         }
 
         protected Size GridSize

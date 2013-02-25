@@ -18,6 +18,7 @@ namespace Treefrog.Presentation
 
         event EventHandler SyncLayerList;
         event EventHandler SyncLayerSelection;
+        //event EventHandler<ContextMenuEventArgs> ContextMenuActivated;
 
         void ActionSelectLayer (string name);
         void ActionShowHideLayer (string name, LayerVisibility visibility);

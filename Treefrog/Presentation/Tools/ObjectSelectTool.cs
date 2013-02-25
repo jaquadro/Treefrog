@@ -36,11 +36,11 @@ namespace Treefrog.Presentation.Tools
 
         private ToolState _state;
 
-        public ObjectSelectTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots, ILevelGeometry viewport, ObjectSelectionManager selectionManager, ILayerContext layerContext)
-            : base(history, layer, gridSize)
+        public ObjectSelectTool (ILayerContext layerContext, ObjectLayer layer, Size gridSize, ObjectSelectionManager selectionManager)
+            : base(layerContext, layer, gridSize)
         {
-            _annots = annots;
-            _viewport = viewport;
+            _annots = layerContext.Annotations;
+            _viewport = layerContext.Geometry;
             _selectionManager = selectionManager;
             _layerContext = layerContext;
 
@@ -109,186 +109,9 @@ namespace Treefrog.Presentation.Tools
         private void InitializeCommandManager ()
         {
             _commandManager = new CommandManager();
-
-            /*_commandManager.Register(CommandKey.Cut, CommandCanCut, CommandCut);
-            _commandManager.Register(CommandKey.Copy, CommandCanCopy, CommandCopy);
-            _commandManager.Register(CommandKey.Paste, CommandCanPaste, CommandPaste);*/
-        }
-
-        /*private bool CommandCanCut ()
-        {
-            return _selectionManager.SelectedObjectCount > 0;
-        }
-
-        private void CommandCut ()
-        {
-            if (_selectionManager.SelectedObjectCount > 0) {
-                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(_selectionManager.SelectedObjects);
-                clip.CopyToClipboard();
-
-                _selectionManager.DeleteSelectedObjects();
-
-                CommandManager.Invalidate(CommandKey.Paste);
-            }
-        }
-
-        private bool CommandCanCopy ()
-        {
-            return _selectionManager.SelectedObjectCount > 0;
-        }
-
-        private void CommandCopy ()
-        {
-            if (_selectionManager.SelectedObjectCount > 0) {
-                ObjectSelectionClipboard clip = new ObjectSelectionClipboard(_selectionManager.SelectedObjects);
-                clip.CopyToClipboard();
-
-                CommandManager.Invalidate(CommandKey.Paste);
-            }
-        }
-
-        private bool CommandCanPaste ()
-        {
-            return ObjectSelectionClipboard.ContainsData;
-        }
-
-        private void CommandPaste ()
-        {
-            _selectionManager.ClearSelection();
-
-            ObjectSelectionClipboard clip = ObjectSelectionClipboard.CopyFromClipboard(Layer.Level.Project);
-            if (clip == null)
-                return;
-
-            CenterObjectsInViewport(clip.Objects);
-
-            Command command = new ObjectAddCommand(Layer, clip.Objects, _selectionManager);
-            History.Execute(command);
-
-            foreach (ObjectInstance inst in clip.Objects) {
-                Layer.AddObject(inst);
-                _selectionManager.AddObjectToSelection(inst);
-            }
-        }*/
-
-        private void CenterObjectsInViewport (List<ObjectInstance> objects)
-        {
-            Rectangle collectionBounds = ObjectCollectionBounds(objects);
-
-            int centerViewX = (int)(_viewport.VisibleBounds.Left + (_viewport.VisibleBounds.Right - _viewport.VisibleBounds.Left) / 2);
-            int centerViewY = (int)(_viewport.VisibleBounds.Top + (_viewport.VisibleBounds.Bottom - _viewport.VisibleBounds.Top) / 2);
-
-            int diffX = centerViewX - collectionBounds.Center.X;
-            int diffY = centerViewY - collectionBounds.Center.Y;
-
-            foreach (ObjectInstance inst in objects) {
-                inst.X += diffX;
-                inst.Y += diffY;
-            }
-        }
-
-        private Rectangle ObjectCollectionBounds (List<ObjectInstance> objects)
-        {
-            int minX = Int32.MaxValue;
-            int minY = Int32.MaxValue;
-            int maxX = Int32.MinValue;
-            int maxY = Int32.MinValue;
-
-            foreach (ObjectInstance inst in objects) {
-                minX = Math.Min(minX, inst.ImageBounds.Left);
-                minY = Math.Min(minY, inst.ImageBounds.Top);
-                maxX = Math.Max(maxX, inst.ImageBounds.Right);
-                maxY = Math.Max(maxY, inst.ImageBounds.Bottom);
-            }
-
-            return new Rectangle(minX, minY, maxX - minX, maxY - minY);
         }
 
         #endregion
-
-        #region Select Object Sequence
-
-        private enum UpdateAction
-        {
-            None,
-            Move,
-            Box,
-            Timeout,
-        }
-
-        private DateTime _timeout;
-        private const int _timeoutLimit = 500;
-
-        private Point _initialLocation;
-        private Point _initialSnapLocation;
-
-        private SnappingManager _selectSnapManager;
-        private UpdateAction _action;
-
-        private CircleAnnot _rotationAnnot;
-        private ObjectInstance _rotationObj;
-
-        private void StartSelectObjectSequence (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            ObjectInstance hitObject = TopObject(CoarseHitTest((int)info.X, (int)info.Y));
-            bool controlKey = Control.ModifierKeys.HasFlag(Keys.Control);
-
-            if (hitObject == null) {
-                if (controlKey)
-                    StartDragAdd(info, viewport);
-                else
-                    StartDrag(info, viewport);
-                return;
-            }
-
-            bool alreadySelected = false;
-            foreach (var inst in _selectionManager.SelectedObjects)
-                if (inst == hitObject)
-                    alreadySelected = true;
-
-            if (alreadySelected) {
-                if (controlKey)
-                    StartClickRemove(info, viewport, hitObject);
-                else
-                    StartClickTimeout(info, viewport, hitObject);
-            }
-            else {
-                if (controlKey)
-                    StartClickAdd(info, viewport, hitObject);
-                else
-                    StartClickNew(info, viewport, hitObject);
-            }
-        }
-
-        private void UpdateSelectObjectSequence (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            switch (_action) {
-                case UpdateAction.Move:
-                    UpdateMove(info, viewport);
-                    break;
-                case UpdateAction.Box:
-                    UpdateDrag(info, viewport);
-                    break;
-                case UpdateAction.Timeout:
-                    UpdateTimeout(info, viewport);
-                    break;
-            }
-        }
-
-        private void EndSelectObjectSequence (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            switch (_action) {
-                case UpdateAction.Move:
-                    EndMove(info, viewport);
-                    break;
-                case UpdateAction.Box:
-                    EndDrag(info, viewport);
-                    break;
-                case UpdateAction.Timeout:
-                    EndTimeout(info, viewport);
-                    break;
-            }
-        }
 
         private void SelectObjectPosition (PointerEventInfo info, ILevelGeometry viewport)
         {
@@ -302,189 +125,6 @@ namespace Treefrog.Presentation.Tools
             // Pointer not over any selected object
             Cursor.Current = Cursors.Default;
         }
-
-        #region Move Actions
-
-        private void StartClickNew (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
-        {
-            _selectionManager.ClearSelection();
-            if (_rotationAnnot != null) {
-                _annots.Remove(_rotationAnnot);
-                _rotationAnnot = null;
-            }
-
-            StartClickAdd(info, viewport, obj);
-        }
-
-        private void StartClickAdd (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
-        {
-            if (obj == null)
-                return;
-
-            _initialLocation = new Point((int)info.X, (int)info.Y);
-            _selectSnapManager = GetSnappingManager(obj.ObjectClass);
-
-            _selectionManager.AddObjectToSelection(obj);
-
-            _initialSnapLocation = new Point(obj.X, obj.Y);
-            _action = UpdateAction.Move;
-
-            StartAutoScroll(info, viewport);
-            UpdatePropertyProvider();
-        }
-
-        private void StartClickRemove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
-        {
-            if (obj == null)
-                return;
-
-            _selectionManager.RemoveObjectFromSelection(obj);
-
-            _action = UpdateAction.None;
-
-            StartAutoScroll(info, viewport);
-            UpdatePropertyProvider();
-        }
-
-        private void StartClickTimeout (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
-        {
-            if (obj == null)
-                return;
-
-            if (_rotationAnnot != null) {
-                _annots.Remove(_rotationAnnot);
-                _rotationAnnot = null;
-            }
-
-            _initialLocation = new Point((int)info.X, (int)info.Y);
-
-            _timeout = DateTime.Now;
-            _action = UpdateAction.Timeout;
-            _rotationObj = obj;
-        }
-
-        private void UpdateTimeout (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            if (_initialLocation.X != info.X || _initialLocation.Y != info.Y)
-                StartClickMove(info, viewport, _rotationObj);
-        }
-
-        private void EndTimeout (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            if ((DateTime.Now - _timeout).TotalMilliseconds < _timeoutLimit) {
-                if (true) {
-                    _rotationAnnot = new CircleAnnot(_rotationObj.ImageBounds.Center, _rotationObj.ImageBounds.Width + 10);
-                    _rotationAnnot.Outline = SelectedAnnotOutline;
-                    _annots.Add(_rotationAnnot);
-                }
-                _action = UpdateAction.None;
-            }
-            else {
-                StartClickMove(info, viewport, _rotationObj);
-            }
-        }
-
-        private void StartClickMove (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
-        {
-            if (obj == null)
-                return;
-
-            _initialLocation = new Point((int)info.X, (int)info.Y);
-            _selectSnapManager = GetSnappingManager(obj.ObjectClass);
-
-            _initialSnapLocation = new Point(obj.X, obj.Y);
-            _action = UpdateAction.Move;
-
-            _selectionManager.RecordLocations();
-
-            StartAutoScroll(info, viewport);
-        }
-
-        private void UpdateMove (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            UpdateMoveCommon(info, viewport);
-            UpdateAutoScroll(info, viewport);
-        }
-
-        private void UpdateMoveCommon (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            int diffx = (int)info.X - _initialLocation.X;
-            int diffy = (int)info.Y - _initialLocation.Y;
-
-            if (diffx == 0 && diffy == 0)
-                return;
-
-            Point snapLoc = new Point(_initialSnapLocation.X + diffx, _initialSnapLocation.Y + diffy);
-            if (_selectSnapManager != null)
-                snapLoc = _selectSnapManager.Translate(snapLoc, SnappingTarget);
-
-            _selectionManager.MoveObjectsByOffsetRelative(new Point(snapLoc.X - _initialSnapLocation.X, snapLoc.Y - _initialSnapLocation.Y));
-        }
-
-        private void EndMove (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            _selectionManager.CommitMoveFromRecordedLocations();
-
-            EndAutoScroll(info, viewport);
-            UpdatePropertyProvider();
-        }
-
-        #endregion
-
-        #region Select Box Action
-
-        RubberBand _band;
-        SelectionAnnot _selection;
-
-        private void StartDrag (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            _selectionManager.ClearSelection();
-            StartDragAdd(info, viewport);
-        }
-
-        private void StartDragAdd (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            _band = new RubberBand(new Point((int)info.X, (int)info.Y));
-            _selection = new SelectionAnnot(new Point((int)info.X, (int)info.Y)) {
-                Fill = SelectionAnnotFill,
-                Outline = SelectionAnnotOutline,
-            };
-
-            _annots.Add(_selection);
-
-            _action = UpdateAction.Box;
-
-            StartAutoScroll(info, viewport);
-        }
-
-        private void UpdateDrag (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            UpdateDragCommon(info, viewport);
-            UpdateAutoScroll(info, viewport);
-        }
-
-        private void UpdateDragCommon (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            _band.End = new Point((int)info.X, (int)info.Y);
-            Rectangle selection = _band.Selection;
-
-            _selection.Start = new Point(selection.Left, selection.Top);
-            _selection.End = new Point(selection.Right, selection.Bottom);
-        }
-
-        private void EndDrag (PointerEventInfo info, ILevelGeometry viewport)
-        {
-            _annots.Remove(_selection);
-
-            _selectionManager.AddObjectsToSelection(ObjectsInArea(_band.Selection));
-
-            EndAutoScroll(info, viewport);
-            UpdatePropertyProvider();
-        }
-
-        #endregion
-
-        #endregion
 
         private void UpdatePropertyProvider ()
         {
@@ -544,6 +184,20 @@ namespace Treefrog.Presentation.Tools
             return diag2;
         }
 
+        private void ActivateObjectMenu (PointerEventInfo info)
+        {
+            CommandMenu menu = new CommandMenu("", new List<CommandMenuGroup>() {
+                    new CommandMenuGroup() {
+                        CommandKey.Cut, CommandKey.Copy, CommandKey.Paste, CommandKey.Delete,
+                    },
+                    new CommandMenuGroup() {
+                        CommandKey.ObjectProperties,
+                    },
+                });
+
+            LayerContext.ActivateContextMenu(menu, new Point((int)info.X, (int)info.Y));
+        }
+
 
         private abstract class ToolState
         {
@@ -580,7 +234,7 @@ namespace Treefrog.Presentation.Tools
                     case PointerEventType.Primary:
                         return StartPrimaryPointerSequence(info, viewport);
                     case PointerEventType.Secondary:
-                        return new ReleaseToolState(Tool).StartPointerSequence(info, viewport);
+                        return StartSecondaryPointerSequence(info, viewport);
                     default:
                         return base.StartPointerSequence(info, viewport);
                 }
@@ -610,6 +264,20 @@ namespace Treefrog.Presentation.Tools
                     else
                         return StartClickNew(info, viewport, hitObject);
                 }
+            }
+
+            private ToolState StartSecondaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
+            {
+                ObjectInstance hitObject = Tool.TopObject(Tool.CoarseHitTest((int)info.X, (int)info.Y));
+                if (hitObject == null)
+                    return new ReleaseToolState(Tool).StartPointerSequence(info, viewport);
+
+                Tool.ActivateObjectMenu(info);
+
+                if (Tool._selectionManager.IsObjectSelected(hitObject))
+                    return this;
+                else
+                    return StartClickNew(info, viewport, hitObject);
             }
 
             private ToolState StartTimeoutSequence (PointerEventInfo info, ILevelGeometry viewport, ObjectInstance obj)
@@ -719,8 +387,21 @@ namespace Treefrog.Presentation.Tools
 
             private ToolState StartSecondaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
             {
-                ClearAnnot();
-                return new ReleaseToolState(Tool).StartPointerSequence(info, viewport);
+                ObjectInstance hitObject = Tool.TopObject(Tool.CoarseHitTest((int)info.X, (int)info.Y));
+                if (hitObject == null) {
+                    ClearAnnot();
+                    return new ReleaseToolState(Tool).StartPointerSequence(info, viewport);
+                }
+
+                Tool.ActivateObjectMenu(info);
+
+                if (Tool._selectionManager.IsObjectSelected(hitObject)) {
+                    return this;
+                }
+                else {
+                    ClearAnnot();
+                    return new SelectionStandbyToolState(Tool).StartPointerSequence(info, viewport);
+                }
             }
 
             private void ClearAnnot ()

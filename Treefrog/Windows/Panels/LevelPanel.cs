@@ -5,6 +5,8 @@ using Treefrog.Presentation.Layers;
 using Treefrog.Windows.Controls;
 using Treefrog.Windows.Layers;
 using Treefrog.Presentation.Controllers;
+using System.Drawing;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows
 {
@@ -44,12 +46,14 @@ namespace Treefrog.Windows
             if (_controller != null) {
                 _controller.LevelGeometry = null;
                 _controller.PointerEventResponderChanged -= PointerEventResponderChanged;
+                _controller.ContextMenuActivated -= ContextMenuActivatedHandler;
             }
 
             _controller = controller;
             if (_controller != null) {
                 _controller.LevelGeometry = _layerControl.LevelGeometry;
                 _controller.PointerEventResponderChanged += PointerEventResponderChanged;
+                _controller.ContextMenuActivated += ContextMenuActivatedHandler;
 
                 _pointerController.Responder = _controller.PointerEventResponder;
 
@@ -79,6 +83,22 @@ namespace Treefrog.Windows
         private void PointerEventResponderChanged (object sender, EventArgs e)
         {
             _pointerController.Responder = _controller.PointerEventResponder;
+        }
+
+        UICommandController _contextController;
+
+        private void ContextMenuActivatedHandler (object sender, ContextMenuEventArgs e)
+        {
+            ContextMenuStrip menu = CommandMenuBuilder.BuildContextMenu(e.Menu);
+
+            if (_contextController != null)
+                _contextController.Dispose();
+
+            _contextController = new UICommandController();
+            _contextController.BindCommandManager(_controller.CommandManager);
+            _contextController.MapMenuItems(menu.Items);
+
+            menu.Show(this, _pointerController.UntranslatePosition(new Point(e.Location.X, e.Location.Y)));
         }
     }
 }

@@ -6,12 +6,33 @@ using Treefrog.Utility;
 
 namespace Treefrog.Windows.Controllers
 {
-    public class UICommandController
+    public class UICommandController : IDisposable
     {
         private CommandManager _commandManager;
 
         private Mapper<CommandKey, ToolStripButton> _buttonMap = new Mapper<CommandKey, ToolStripButton>();
         private Mapper<CommandKey, ToolStripMenuItem> _menuMap = new Mapper<CommandKey, ToolStripMenuItem>();
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose (bool disposing)
+        {
+            if (disposing) {
+                foreach (ToolStripButton button in _buttonMap.Values)
+                    button.Click -= BoundButtonClickHandler;
+                foreach (ToolStripMenuItem item in _menuMap.Values)
+                    item.Click -= BoundMenuClickHandler;
+
+                _buttonMap.Clear();
+                _menuMap.Clear();
+
+                BindCommandManager(null);
+            }
+        }
 
         public void BindCommandManager (CommandManager commandManager)
         {
@@ -57,7 +78,7 @@ namespace Treefrog.Windows.Controllers
             }
         }
 
-        private void MapMenuItems (ToolStripItemCollection items)
+        public void MapMenuItems (ToolStripItemCollection items)
         {
             foreach (ToolStripItem item in items) {
                 ToolStripMenuItem menuItem = item as ToolStripMenuItem;

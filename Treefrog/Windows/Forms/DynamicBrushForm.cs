@@ -114,6 +114,12 @@ namespace Treefrog.Windows.Forms
 
             public void SetPropertyProvider (IPropertyProvider provider)
             { }
+
+            public void ActivatePropertyProvider (IPropertyProvider provider)
+            { }
+
+            public void ActivateContextMenu (CommandMenu menu, Treefrog.Framework.Imaging.Point location)
+            { }
         }
 
         private class OverlayRenderCore : LocalRenderCore

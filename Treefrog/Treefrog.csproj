@@ -131,6 +131,7 @@
     <Compile Include="Presentation\Annotations\MultiTileSelectionAnnot.cs" />
     <Compile Include="Presentation\Annotations\SelectionAnnot.cs" />
     <Compile Include="Presentation\Commands\CommandHistory.cs" />
+    <Compile Include="Presentation\Commands\CommandMenu.cs" />
     <Compile Include="Presentation\Commands\CommandSubscriber.cs" />
     <Compile Include="Presentation\Commands\CompoundCommand.cs" />
     <Compile Include="Presentation\Commands\EventArgs.cs" />

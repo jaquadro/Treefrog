@@ -117,6 +117,7 @@ namespace Treefrog.Presentation.Layers
             _commandManager.Register(CommandKey.ObjectMoveUp, CommandCanMoveObjectsForward, CommandMoveObjectsForward);
             _commandManager.Register(CommandKey.ObjectMoveDown, CommandCanMoveObjectsBackward, CommandMoveObjectsBackward);
             _commandManager.Register(CommandKey.ObjectMoveBottom, CommandCanMoveObjectsToBack, CommandMoveObjectsToBack);
+            _commandManager.Register(CommandKey.ObjectProperties, CommandCanObjectProperties, CommandObjectProperties);
         }
 
         public CommandManager CommandManager
@@ -300,6 +301,21 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
+        private bool CommandCanObjectProperties ()
+        {
+            return _selectionManager.SelectedObjectCount == 1;
+        }
+
+        private void CommandObjectProperties ()
+        {
+            if (CommandCanObjectProperties()) {
+                foreach (ObjectInstance inst in _selectionManager.SelectedObjects) {
+                    LayerContext.ActivatePropertyProvider(inst);
+                    break;
+                }
+            }
+        }
+
         #endregion
 
         private void InvalidateObjectCommands ()
@@ -309,6 +325,7 @@ namespace Treefrog.Presentation.Layers
             CommandManager.Invalidate(CommandKey.Delete);
             CommandManager.Invalidate(CommandKey.SelectAll);
             CommandManager.Invalidate(CommandKey.SelectNone);
+            CommandManager.Invalidate(CommandKey.ObjectProperties);
 
             InvalidateObjectArrangeCommands();
         }
@@ -384,7 +401,7 @@ namespace Treefrog.Presentation.Layers
         private ObjectSelectTool NewSelectTool ()
         {
             Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
-            ObjectSelectTool tool = new ObjectSelectTool(LayerContext.History, Layer, gridSize, LayerContext.Annotations, null, _selectionManager, LayerContext);
+            ObjectSelectTool tool = new ObjectSelectTool(LayerContext, Layer, gridSize, _selectionManager);
             tool.BindObjectSourceController(_objectController);
 
             return tool;
@@ -393,7 +410,7 @@ namespace Treefrog.Presentation.Layers
         private ObjectDrawTool NewDrawTool ()
         {
             Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
-            ObjectDrawTool tool = new ObjectDrawTool(LayerContext.History, Layer, gridSize, LayerContext.Annotations);
+            ObjectDrawTool tool = new ObjectDrawTool(LayerContext, Layer, gridSize);
             tool.BindObjectSourceController(_objectController);
 
             return tool;

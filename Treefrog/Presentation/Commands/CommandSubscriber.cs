@@ -100,6 +100,8 @@ namespace Treefrog.Presentation.Commands
         ObjectSnappingVert,
         ObjectSnappingHorz,
         ObjectSnappingCenter,
+
+        ObjectProperties,
     }
 
     public enum CommandToggleGroup

@@ -80,6 +80,12 @@ namespace Treefrog.Utility
             }
         }
 
+        public void Clear ()
+        {
+            _forwardMap.Clear();
+            _backwardMap.Clear();
+        }
+
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator ()
         {
             return _forwardMap.GetEnumerator();

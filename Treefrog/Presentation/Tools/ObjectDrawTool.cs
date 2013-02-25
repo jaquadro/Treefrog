@@ -17,10 +17,10 @@ namespace Treefrog.Presentation.Tools
 
         private ImageAnnot _previewMarker;
 
-        public ObjectDrawTool (CommandHistory history, ObjectLayer layer, Size gridSize, ObservableCollection<Annotation> annots)
-            : base(history, layer, gridSize)
+        public ObjectDrawTool (ILayerContext layerContext, ObjectLayer layer, Size gridSize)
+            : base(layerContext, layer, gridSize)
         {
-            _annots = annots;
+            _annots = layerContext.Annotations;
         }
 
         protected override void DisposeManaged ()
