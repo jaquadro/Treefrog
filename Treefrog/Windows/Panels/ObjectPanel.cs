@@ -16,6 +16,8 @@ namespace Treefrog.Windows.Panels
         private IObjectPoolCollectionPresenter _controller;
         private UICommandController _commandController;
 
+        private ContextMenuStrip _itemContextMenu;
+
         public ObjectPanel ()
         {
             InitializeComponent();
@@ -33,9 +35,18 @@ namespace Treefrog.Windows.Panels
                 { CommandKey.ObjectProtoDelete, _buttonRemoveObject },
             });
 
+            _itemContextMenu = CommandMenuBuilder.BuildContextMenu(new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    CommandKey.ObjectProtoProperties,
+                },
+            }));
+
+            _commandController.MapMenuItems(_itemContextMenu.Items);
+
             // Wire events
 
             _listView.ItemSelectionChanged += ListViewSelectionChangedHandler;
+            _listView.MouseClick += ListViewMouseClickHandler;
         }
 
         public void BindController (IObjectPoolCollectionPresenter controller)
@@ -74,6 +85,16 @@ namespace Treefrog.Windows.Panels
                     _controller.ActionSelectObject(null);
                 else
                     _controller.ActionSelectObject(e.Item.Text);
+            }
+        }
+
+        private void ListViewMouseClickHandler (object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right) {
+                ListViewItem item = _listView.GetItemAt(e.X, e.Y);
+                if (item != null && item.Selected) {
+                    _itemContextMenu.Show(_listView, e.Location);
+                }
             }
         }
 
