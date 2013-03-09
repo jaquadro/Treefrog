@@ -30,9 +30,9 @@ namespace Treefrog.Windows.Annotations
                 );
 
             if (Fill != null)
-                drawBatch.FillRectangle(rect, Fill);
+                drawBatch.FillRectangle(Fill, rect);
             if (Outline != null)
-                drawBatch.DrawRectangle(rect, Outline);
+                drawBatch.DrawRectangle(Outline, rect);
         }
     }
 }

@@ -90,9 +90,9 @@ namespace Treefrog.Windows.Layers
             if (_pattern == null)
                 _pattern = BuildCanvasPattern(spriteBatch.GraphicsDevice);
             if (_borderPen == null)
-                _borderPen = new Pen(new SolidColorBrush(spriteBatch.GraphicsDevice, Model.BorderColor.ToXnaColor()));
+                _borderPen = new Pen(new SolidColorBrush(Model.BorderColor.ToXnaColor()));
             if (_guidePen == null)
-                _guidePen = new Pen(new SolidColorBrush(spriteBatch.GraphicsDevice, Model.OriginGuideColor.ToXnaColor()));
+                _guidePen = new Pen(new SolidColorBrush(Model.OriginGuideColor.ToXnaColor()));
 
             ILevelGeometry geometry = LevelGeometry;
             Rectangle bounds = geometry.VisibleBounds.ToXnaRectangle();
@@ -120,11 +120,11 @@ namespace Treefrog.Windows.Layers
                 );
 
             if (levelBounds.X != 0)
-                drawBatch.DrawLine(new Point(0, bounds.Top), new Point(0, bounds.Bottom), Pens.Gray);
+                drawBatch.DrawLine(Pens.Gray, new Vector2(0, bounds.Top), new Vector2(0, bounds.Bottom));
             if (levelBounds.Y != 0)
-                drawBatch.DrawLine(new Point(bounds.Left, 0), new Point(bounds.Right, 0), Pens.Gray);
+                drawBatch.DrawLine(Pens.Gray, new Vector2(bounds.Left, 0), new Vector2(bounds.Right, 0));
 
-            drawBatch.DrawRectangle(bounds, Pens.Black);
+            drawBatch.DrawRectangle(Pens.Black, bounds);
         }
 
         private Texture2D BuildCanvasPattern (GraphicsDevice device)

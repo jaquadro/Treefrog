@@ -104,9 +104,6 @@ namespace Treefrog.Windows.Layers
 
             if (Mode.HasFlag(RenderMode.Drawing)) {
                 if (_drawBatch == null || _drawBatch.GraphicsDevice != device) {
-                    Brushes.Initialize(device);
-                    Pens.Initialize(device);
-
                     _drawBatch = new DrawBatch(device);
                 }
 

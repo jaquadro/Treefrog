@@ -90,7 +90,7 @@ namespace Treefrog.Windows.Annotations
             int left = (int)((x1 + _data.Offset.X) * _data.TileWidth * zoomFactor);
             int right = (int)((x2 + _data.Offset.X + 1) * _data.TileWidth * zoomFactor);
 
-            drawBatch.DrawLine(new Point(left, top), new Point(right, top), Outline);
+            drawBatch.DrawLine(Outline, new Vector2(left, top), new Vector2(right, top));
         }
 
         private void RenderPartialVerticalLine (DrawBatch drawBatch, float zoomFactor, int x, int y1, int y2)
@@ -99,7 +99,7 @@ namespace Treefrog.Windows.Annotations
             int top = (int)((y1 + _data.Offset.Y) * _data.TileHeight * zoomFactor);
             int bottom = (int)((y2 + _data.Offset.Y + 1) * _data.TileHeight * zoomFactor);
 
-            drawBatch.DrawLine(new Point(left, top), new Point(left, bottom), Outline);
+            drawBatch.DrawLine(Outline, new Vector2(left, top), new Vector2(left, bottom));
         }
 
         private void RenderPartialRow (DrawBatch drawBatch, float zoomFactor, int x1, int x2, int y)
@@ -111,7 +111,7 @@ namespace Treefrog.Windows.Annotations
                 (int)(_data.TileHeight * zoomFactor)
                 );
 
-            drawBatch.FillRectangle(rect, Fill);
+            drawBatch.FillRectangle(Fill, rect);
         }
     }
 }

@@ -13,12 +13,12 @@ namespace Treefrog.Windows.Annotations
             if (brush is Drawing.SolidColorBrush) {
                 Drawing.SolidColorBrush scBrush = brush as Drawing.SolidColorBrush;
                 Color color = new Color(scBrush.Color.R / 255f, scBrush.Color.G / 255f, scBrush.Color.B / 255f, scBrush.Color.A / 255f);
-                return new XnaDrawing.SolidColorBrush(device, color);
+                return new XnaDrawing.SolidColorBrush(color);
             }
             else if (brush is Drawing.PatternBrush) {
                 Drawing.PatternBrush pBrush = brush as Drawing.PatternBrush;
                 using (Texture2D pattern = pBrush.Pattern.CreateTexture(device)) {
-                    return new XnaDrawing.PatternBrush(device, pattern, (float)pBrush.Opacity);
+                    return new XnaDrawing.TextureBrush(pattern, (float)pBrush.Opacity);
                 }
             }
 

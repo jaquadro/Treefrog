@@ -21,16 +21,16 @@ namespace Treefrog.Windows.Annotations
 
             InitializeResources(drawBatch.GraphicsDevice);
 
-            Point center = new Point((int)(_data.Center.X * zoomFactor), (int)(_data.Center.Y * zoomFactor));
+            Vector2 center = new Vector2((int)(_data.Center.X * zoomFactor), (int)(_data.Center.Y * zoomFactor));
             float radius = _data.Radius * zoomFactor;
 
             //if (Fill != null)
             //    drawBatch.FillRectangle(rect, Fill);
             if (Outline != null) {
                 if (Outline is PrimitivePen)
-                    drawBatch.DrawPrimitiveCircle(center, radius, Outline);
+                    drawBatch.DrawPrimitiveCircle(Outline, center, radius);
                 else
-                    drawBatch.DrawCircle(center, radius, Outline);
+                    drawBatch.DrawCircle(Outline, center, radius);
             }
         }
     }
