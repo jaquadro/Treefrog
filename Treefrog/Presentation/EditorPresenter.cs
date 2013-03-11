@@ -693,6 +693,7 @@ namespace Treefrog.Presentation
 
             // Unbind previously selected layer if necessary
             if (_currentLevelRef != null) {
+                _currentLevelRef.Deactivate();
                 _commandManager.RemoveCommandSubscriber(_currentLevelRef);
             }
 
@@ -714,6 +715,8 @@ namespace Treefrog.Presentation
                 info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
                 CurrentLevel.InfoPresenter.RefreshContentInfo();
+
+                CurrentLevel.Activate();
             }
             else {
                 ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;

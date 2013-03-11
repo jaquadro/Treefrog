@@ -102,6 +102,18 @@ namespace Treefrog.Presentation
             }
         }
 
+        private IPropertyProvider _currentPropertyProvider;
+
+        public void Activate ()
+        {
+            _editor.Presentation.PropertyList.Provider = _currentPropertyProvider;
+        }
+
+        public void Deactivate ()
+        {
+
+        }
+
         private void HistoryChangedHandler (object sender, EventArgs e)
         {
             CommandManager.Invalidate(CommandKey.Undo);
@@ -868,11 +880,13 @@ namespace Treefrog.Presentation
 
         public void SetPropertyProvider (IPropertyProvider provider)
         {
+            _currentPropertyProvider = provider;
             _editor.Presentation.PropertyList.Provider = provider;
         }
 
         public void ActivatePropertyProvider (IPropertyProvider provider)
         {
+            _currentPropertyProvider = provider;
             _editor.Presentation.PropertyList.Provider = provider;
             _editor.ActivatePropertyPanel();
         }
