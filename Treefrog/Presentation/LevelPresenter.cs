@@ -487,8 +487,7 @@ namespace Treefrog.Presentation
         private void CommandLevelProperties ()
         {
             if (CommandCanLevelProperties()) {
-                _editor.Presentation.PropertyList.Provider = _level;
-                _editor.ActivatePropertyPanel();
+                ActivatePropertyProvider(_level);
             }
         }
 

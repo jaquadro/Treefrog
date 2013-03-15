@@ -337,11 +337,15 @@ namespace Treefrog.Windows.Controls.WinEx
             _editSubItem = subItem;
         }
 
+        private bool _inEndEditing;
+
         public void EndEditing (bool acceptChanges, Keys exitKey)
         {
-            if (_editControl == null) {
+            if (_inEndEditing || _editControl == null) {
                 return;
             }
+
+            _inEndEditing = true;
 
             SubItemEndEditingEventArgs e = new SubItemEndEditingEventArgs(_editItem, _editSubItem,
                 acceptChanges ? _editControl.Text : _editItem.SubItems[_editSubItem].Text, !acceptChanges, exitKey);
@@ -362,6 +366,8 @@ namespace Treefrog.Windows.Controls.WinEx
             _editSubItem = -1;
 
             OnSubItemReset(EventArgs.Empty);
+
+            _inEndEditing = false;
         }
 
         protected override void WndProc (ref Message m)
