@@ -181,6 +181,12 @@
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\NameChangeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\NameChangeForm.Designer.cs">
+      <DependentUpon>NameChangeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Layers\AnnotationRenderLayer.cs" />
     <Compile Include="Windows\Layers\LevelRenderLayer.cs" />
     <Compile Include="Windows\Layers\LocalRenderLayer.cs" />
@@ -458,6 +464,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Controls\ViewportControl.resx">
       <DependentUpon>ViewportControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\NameChangeForm.resx">
+      <DependentUpon>NameChangeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\StaticBrushForm.resx">
       <DependentUpon>StaticBrushForm.cs</DependentUpon>

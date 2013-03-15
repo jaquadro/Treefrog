@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Treefrog.Framework.Model;
 using Treefrog.Windows.Forms;
 using Treefrog.Presentation.Commands;
+using Treefrog.Framework;
 
 namespace Treefrog.Presentation
 {
@@ -189,6 +190,7 @@ namespace Treefrog.Presentation
 
             _project = EmptyProject();
             _project.Modified += ProjectModifiedHandler;
+            _project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             _project.ObjectPoolManager.CreatePool("Default");
 
@@ -249,6 +251,7 @@ namespace Treefrog.Presentation
 
             _project = project;
             _project.Modified += ProjectModifiedHandler;
+            _project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             _openContent = new List<string>();
             _levels = new Dictionary<string, LevelPresenter>();
@@ -293,6 +296,7 @@ namespace Treefrog.Presentation
 
             _project = project;
             _project.Modified += ProjectModifiedHandler;
+            _project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             _currentLevel = null;
 
@@ -674,6 +678,17 @@ namespace Treefrog.Presentation
             }
         }
 
+        private void InvalidateLevelCommands ()
+        {
+            if (CommandManager != null) {
+                CommandManager.Invalidate(CommandKey.LevelClose);
+                CommandManager.Invalidate(CommandKey.LevelCloseAllOther);
+                CommandManager.Invalidate(CommandKey.LevelRename);
+                CommandManager.Invalidate(CommandKey.LevelResize);
+                CommandManager.Invalidate(CommandKey.LevelProperties);
+            }
+        }
+
         #endregion
 
         private void TilePoolSelectedTileChangedHandler (object sender, EventArgs e)
@@ -723,10 +738,28 @@ namespace Treefrog.Presentation
                 info.BindInfoPresenter(null);
             }
 
+            InvalidateLevelCommands();
             CommandManager.Invalidate(CommandKey.ViewGrid);
 
             OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
             OnSyncContentView(EventArgs.Empty);
+        }
+
+        private void LevelNameChangedHandler (object sender, NamedResourceRemappedEventArgs<Level> e)
+        {
+            if (_levels.ContainsKey(e.OldName)) {
+                LevelPresenter lp = _levels[e.OldName];
+                _levels.Remove(e.OldName);
+                _levels.Add(e.NewName, lp);
+            }
+
+            if (_openContent.Contains(e.OldName)) {
+                int index = _openContent.IndexOf(e.OldName);
+                _openContent.Remove(e.OldName);
+                _openContent.Insert(index, e.NewName);
+            }
+
+            OnSyncContentTabs(EventArgs.Empty);
         }
     }
 }

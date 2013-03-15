@@ -207,8 +207,14 @@ namespace Treefrog.Windows.Controllers
             Register(CommandKey.ProjectAddLevel, "New &Level...", 
                 resource: "Treefrog.Icons._16.map--asterisk.png");
 
+            Register(CommandKey.LevelClose, "&Close",
+                shortcut: Keys.Control | Keys.F4);
+            Register(CommandKey.LevelCloseAllOther, "Close &All But This");
+            Register(CommandKey.LevelRename, "Re&name");
             Register(CommandKey.LevelResize, "&Resize...", 
                 resource: "Treefrog.Icons._16.arrow-resize-135.png", shortcut: Keys.Control | Keys.R);
+            Register(CommandKey.LevelProperties, "&Properties",
+                resource: "Treefrog.Icons._16.tags.png");
 
             Register(CommandKey.NewTileLayer, "New &Tile Layer",
                 resource: "Treefrog.Icons._16.grid.png");

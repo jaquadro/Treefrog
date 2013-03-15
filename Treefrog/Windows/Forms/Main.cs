@@ -2,6 +2,11 @@
 using System.Windows.Forms;
 using Treefrog.Presentation;
 using Treefrog.Windows.Controls.Composite;
+using System.Drawing;
+using System.ComponentModel;
+using Treefrog.Windows.Controllers;
+using Treefrog.Presentation.Commands;
+using System.Collections.Generic;
 
 namespace Treefrog.Windows.Forms
 {
@@ -11,6 +16,8 @@ namespace Treefrog.Windows.Forms
         private StandardToolbar _standardToolbar;
         private TileToolbar _tileToolbar;
         private InfoStatus _infoStatus;
+
+        private UICommandController _commandController;
 
         private EditorPresenter _editor;
 
@@ -43,6 +50,23 @@ namespace Treefrog.Windows.Forms
 
             //_editor.CommandManager.Perform(Presentation.Commands.CommandKey.OpenProject);
             _editor.NewDefault();
+
+            tabControlEx1.ContextMenuStrip = CommandMenuBuilder.BuildContextMenu(new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    CommandKey.LevelClose, CommandKey.LevelCloseAllOther,
+                },
+                new CommandMenuGroup() {
+                    CommandKey.LevelRename, CommandKey.LevelResize,
+                },
+                new CommandMenuGroup() {
+                    CommandKey.LevelProperties,
+                },
+            }));
+            tabControlEx1.ContextMenuStrip.Opening += contextMenuStrip1_Opening;
+
+            _commandController = new UICommandController();
+            _commandController.BindCommandManager(_editor.CommandManager);
+            _commandController.MapMenuItems(tabControlEx1.ContextMenuStrip.Items);
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
         }
@@ -129,6 +153,20 @@ namespace Treefrog.Windows.Forms
                 if (e.TabPage != null)
                     _editor.ActionSelectContent(e.TabPage.Text);
             }
+        }
+
+        private void contextMenuStrip1_Opening (object sender, CancelEventArgs e)
+        {
+            Point location = new Point(Cursor.Position.X + tabControlEx1.Location.X, Cursor.Position.Y + tabControlEx1.Location.Y);
+            Point p = tabControlEx1.PointToClient(location);
+            for (int i = 0; i < tabControlEx1.TabCount; i++) {
+                Rectangle r = tabControlEx1.GetTabRect(i);
+                if (r.Contains(p)) {
+                    tabControlEx1.SelectedIndex = i; // i is the index of tab under cursor
+                    return;
+                }
+            }
+            e.Cancel = true;
         }
     }
 }

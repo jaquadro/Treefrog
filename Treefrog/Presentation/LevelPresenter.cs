@@ -368,7 +368,9 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
             _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
+            _commandManager.Register(CommandKey.LevelRename, CommandCanRename, CommandRename);
             _commandManager.Register(CommandKey.LevelResize, CommandCanResize, CommandResize);
+            _commandManager.Register(CommandKey.LevelProperties, CommandCanLevelProperties, CommandLevelProperties);
             _commandManager.Register(CommandKey.ViewZoomIn, CommandCanZoomIn, CommandZoomIn);
             _commandManager.Register(CommandKey.ViewZoomOut, CommandCanZoomOut, CommandZoomOut);
             _commandManager.Register(CommandKey.ViewZoomNormal, CommandCanZoomNormal, CommandZoomNormal);
@@ -435,6 +437,24 @@ namespace Treefrog.Presentation
             RefreshGridVisibility();
         }
 
+        private bool CommandCanRename ()
+        {
+            return true;
+        }
+
+        private void CommandRename ()
+        {
+            if (CommandCanRename()) {
+                using (NameChangeForm form = new NameChangeForm(_level.Name)) {
+                    foreach (Level lev in _level.Project.Levels)
+                        form.ReservedNames.Add(lev.Name);
+
+                    if (form.ShowDialog() == DialogResult.OK) 
+                        _level.Name = form.Name;
+                }
+            }
+        }
+
         private bool CommandCanResize ()
         {
             return true;
@@ -456,6 +476,19 @@ namespace Treefrog.Presentation
                         _history.Clear();
                     }
                 }
+            }
+        }
+
+        private bool CommandCanLevelProperties ()
+        {
+            return true;
+        }
+
+        private void CommandLevelProperties ()
+        {
+            if (CommandCanLevelProperties()) {
+                _editor.Presentation.PropertyList.Provider = _level;
+                _editor.ActivatePropertyPanel();
             }
         }
 

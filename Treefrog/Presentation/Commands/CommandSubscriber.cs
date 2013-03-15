@@ -42,7 +42,11 @@ namespace Treefrog.Presentation.Commands
 
         ProjectAddLevel,
 
+        LevelClose,
+        LevelCloseAllOther,
+        LevelRename,
         LevelResize,
+        LevelProperties,
 
         NewTileLayer,
         NewObjectLayer,

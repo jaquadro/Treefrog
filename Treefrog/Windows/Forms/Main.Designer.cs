@@ -29,6 +29,7 @@ namespace Treefrog.Windows.Forms
         /// </summary>
         private void InitializeComponent ()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.menuBar = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,19 +58,27 @@ namespace Treefrog.Windows.Forms
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this._tabTilePools = new System.Windows.Forms.TabPage();
-            this.tilePoolPane1 = new Treefrog.Windows.TilePoolPane();
             this._tabTileBrushes = new System.Windows.Forms.TabPage();
-            this.tileBrushPanel1 = new Treefrog.Windows.Panels.TileBrushPanel();
             this._tabObjects = new System.Windows.Forms.TabPage();
-            this.objectPanel1 = new Treefrog.Windows.Panels.ObjectPanel();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this._tabProject = new System.Windows.Forms.TabPage();
-            this.projectPanel1 = new Treefrog.Windows.Panels.ProjectPanel();
             this._tabLayers = new System.Windows.Forms.TabPage();
-            this.layerPane1 = new Treefrog.Windows.LayerPane();
             this._tabProperties = new System.Windows.Forms.TabPage();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.contextClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextCloseAllOther = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.contextRename = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextProperties = new System.Windows.Forms.ToolStripMenuItem();
+            this.tilePoolPane1 = new Treefrog.Windows.TilePoolPane();
+            this.tileBrushPanel1 = new Treefrog.Windows.Panels.TileBrushPanel();
+            this.objectPanel1 = new Treefrog.Windows.Panels.ObjectPanel();
+            this.projectPanel1 = new Treefrog.Windows.Panels.ProjectPanel();
+            this.layerPane1 = new Treefrog.Windows.LayerPane();
             this.propertyPane1 = new Treefrog.Windows.PropertyPane();
             this.tabControlEx1 = new Treefrog.Windows.Controls.WinEx.TabControlEx();
+            this.contextResize = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.menuBar.SuspendLayout();
             this.statusBar.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
@@ -90,6 +99,7 @@ namespace Treefrog.Windows.Forms
             this._tabProject.SuspendLayout();
             this._tabLayers.SuspendLayout();
             this._tabProperties.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuBar
@@ -372,34 +382,15 @@ namespace Treefrog.Windows.Forms
             this._tabTilePools.Text = "Tiles";
             this._tabTilePools.UseVisualStyleBackColor = true;
             // 
-            // tilePoolPane1
-            // 
-            this.tilePoolPane1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
-            this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
-            this.tilePoolPane1.Name = "tilePoolPane1";
-            this.tilePoolPane1.Size = new System.Drawing.Size(244, 292);
-            this.tilePoolPane1.TabIndex = 0;
-            this.tilePoolPane1.TabStop = false;
-            // 
             // _tabTileBrushes
             // 
             this._tabTileBrushes.Controls.Add(this.tileBrushPanel1);
             this._tabTileBrushes.Location = new System.Drawing.Point(4, 22);
             this._tabTileBrushes.Name = "_tabTileBrushes";
-            this._tabTileBrushes.Size = new System.Drawing.Size(283, 293);
+            this._tabTileBrushes.Size = new System.Drawing.Size(246, 293);
             this._tabTileBrushes.TabIndex = 2;
             this._tabTileBrushes.Text = "Brushes";
             this._tabTileBrushes.UseVisualStyleBackColor = true;
-            // 
-            // tileBrushPanel1
-            // 
-            this.tileBrushPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tileBrushPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tileBrushPanel1.Name = "tileBrushPanel1";
-            this.tileBrushPanel1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this.tileBrushPanel1.Size = new System.Drawing.Size(283, 293);
-            this.tileBrushPanel1.TabIndex = 0;
             // 
             // _tabObjects
             // 
@@ -407,18 +398,10 @@ namespace Treefrog.Windows.Forms
             this._tabObjects.Location = new System.Drawing.Point(4, 22);
             this._tabObjects.Name = "_tabObjects";
             this._tabObjects.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this._tabObjects.Size = new System.Drawing.Size(283, 293);
+            this._tabObjects.Size = new System.Drawing.Size(246, 293);
             this._tabObjects.TabIndex = 1;
             this._tabObjects.Text = "Objects";
             this._tabObjects.UseVisualStyleBackColor = true;
-            // 
-            // objectPanel1
-            // 
-            this.objectPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.objectPanel1.Location = new System.Drawing.Point(0, 0);
-            this.objectPanel1.Name = "objectPanel1";
-            this.objectPanel1.Size = new System.Drawing.Size(281, 292);
-            this.objectPanel1.TabIndex = 0;
             // 
             // tabControl2
             // 
@@ -445,14 +428,6 @@ namespace Treefrog.Windows.Forms
             this._tabProject.Text = "Project";
             this._tabProject.UseVisualStyleBackColor = true;
             // 
-            // projectPanel1
-            // 
-            this.projectPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.projectPanel1.Location = new System.Drawing.Point(0, 2);
-            this.projectPanel1.Name = "projectPanel1";
-            this.projectPanel1.Size = new System.Drawing.Size(244, 251);
-            this.projectPanel1.TabIndex = 0;
-            // 
             // _tabLayers
             // 
             this._tabLayers.Controls.Add(this.layerPane1);
@@ -460,20 +435,10 @@ namespace Treefrog.Windows.Forms
             this._tabLayers.Margin = new System.Windows.Forms.Padding(0);
             this._tabLayers.Name = "_tabLayers";
             this._tabLayers.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this._tabLayers.Size = new System.Drawing.Size(283, 254);
+            this._tabLayers.Size = new System.Drawing.Size(246, 254);
             this._tabLayers.TabIndex = 0;
             this._tabLayers.Text = "Layers";
             this._tabLayers.UseVisualStyleBackColor = true;
-            // 
-            // layerPane1
-            // 
-            this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layerPane1.Location = new System.Drawing.Point(0, 0);
-            this.layerPane1.Margin = new System.Windows.Forms.Padding(0);
-            this.layerPane1.Name = "layerPane1";
-            this.layerPane1.Size = new System.Drawing.Size(281, 253);
-            this.layerPane1.TabIndex = 0;
-            this.layerPane1.TabStop = false;
             // 
             // _tabProperties
             // 
@@ -482,10 +447,98 @@ namespace Treefrog.Windows.Forms
             this._tabProperties.Margin = new System.Windows.Forms.Padding(0);
             this._tabProperties.Name = "_tabProperties";
             this._tabProperties.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this._tabProperties.Size = new System.Drawing.Size(283, 254);
+            this._tabProperties.Size = new System.Drawing.Size(246, 254);
             this._tabProperties.TabIndex = 1;
             this._tabProperties.Text = "Properties";
             this._tabProperties.UseVisualStyleBackColor = true;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.contextClose,
+            this.contextCloseAllOther,
+            this.toolStripSeparator3,
+            this.contextRename,
+            this.contextResize,
+            this.toolStripSeparator4,
+            this.contextProperties});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(167, 148);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // contextClose
+            // 
+            this.contextClose.Name = "contextClose";
+            this.contextClose.Size = new System.Drawing.Size(166, 22);
+            this.contextClose.Text = "&Close";
+            // 
+            // contextCloseAllOther
+            // 
+            this.contextCloseAllOther.Name = "contextCloseAllOther";
+            this.contextCloseAllOther.Size = new System.Drawing.Size(166, 22);
+            this.contextCloseAllOther.Text = "Close &All But This";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(163, 6);
+            // 
+            // contextRename
+            // 
+            this.contextRename.Name = "contextRename";
+            this.contextRename.Size = new System.Drawing.Size(166, 22);
+            this.contextRename.Text = "Re&name";
+            // 
+            // contextProperties
+            // 
+            this.contextProperties.Name = "contextProperties";
+            this.contextProperties.Size = new System.Drawing.Size(166, 22);
+            this.contextProperties.Text = "&Properties";
+            // 
+            // tilePoolPane1
+            // 
+            this.tilePoolPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tilePoolPane1.Location = new System.Drawing.Point(0, 0);
+            this.tilePoolPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.tilePoolPane1.Name = "tilePoolPane1";
+            this.tilePoolPane1.Size = new System.Drawing.Size(244, 292);
+            this.tilePoolPane1.TabIndex = 0;
+            this.tilePoolPane1.TabStop = false;
+            // 
+            // tileBrushPanel1
+            // 
+            this.tileBrushPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tileBrushPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tileBrushPanel1.Name = "tileBrushPanel1";
+            this.tileBrushPanel1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
+            this.tileBrushPanel1.Size = new System.Drawing.Size(246, 293);
+            this.tileBrushPanel1.TabIndex = 0;
+            // 
+            // objectPanel1
+            // 
+            this.objectPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.objectPanel1.Location = new System.Drawing.Point(0, 0);
+            this.objectPanel1.Name = "objectPanel1";
+            this.objectPanel1.Size = new System.Drawing.Size(244, 292);
+            this.objectPanel1.TabIndex = 0;
+            // 
+            // projectPanel1
+            // 
+            this.projectPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectPanel1.Location = new System.Drawing.Point(0, 2);
+            this.projectPanel1.Name = "projectPanel1";
+            this.projectPanel1.Size = new System.Drawing.Size(244, 251);
+            this.projectPanel1.TabIndex = 0;
+            // 
+            // layerPane1
+            // 
+            this.layerPane1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layerPane1.Location = new System.Drawing.Point(0, 0);
+            this.layerPane1.Margin = new System.Windows.Forms.Padding(0);
+            this.layerPane1.Name = "layerPane1";
+            this.layerPane1.Size = new System.Drawing.Size(244, 253);
+            this.layerPane1.TabIndex = 0;
+            this.layerPane1.TabStop = false;
             // 
             // propertyPane1
             // 
@@ -493,12 +546,13 @@ namespace Treefrog.Windows.Forms
             this.propertyPane1.Location = new System.Drawing.Point(0, 0);
             this.propertyPane1.Margin = new System.Windows.Forms.Padding(0);
             this.propertyPane1.Name = "propertyPane1";
-            this.propertyPane1.Size = new System.Drawing.Size(281, 253);
+            this.propertyPane1.Size = new System.Drawing.Size(244, 253);
             this.propertyPane1.TabIndex = 0;
             this.propertyPane1.TabStop = false;
             // 
             // tabControlEx1
             // 
+            this.tabControlEx1.ContextMenuStrip = this.contextMenuStrip1;
             this.tabControlEx1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlEx1.Location = new System.Drawing.Point(0, 0);
             this.tabControlEx1.Margin = new System.Windows.Forms.Padding(0);
@@ -508,6 +562,17 @@ namespace Treefrog.Windows.Forms
             this.tabControlEx1.TabIndex = 0;
             this.tabControlEx1.TabStop = false;
             this.tabControlEx1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControlEx1_Selected);
+            // 
+            // contextResize
+            // 
+            this.contextResize.Name = "contextResize";
+            this.contextResize.Size = new System.Drawing.Size(166, 22);
+            this.contextResize.Text = "&Resize";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(163, 6);
             // 
             // Main
             // 
@@ -542,6 +607,7 @@ namespace Treefrog.Windows.Forms
             this._tabProject.ResumeLayout(false);
             this._tabLayers.ResumeLayout(false);
             this._tabProperties.ResumeLayout(false);
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -589,6 +655,14 @@ namespace Treefrog.Windows.Forms
         private Panels.ProjectPanel projectPanel1;
         private System.Windows.Forms.TabPage _tabTileBrushes;
         private Panels.TileBrushPanel tileBrushPanel1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem contextClose;
+        private System.Windows.Forms.ToolStripMenuItem contextCloseAllOther;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem contextRename;
+        private System.Windows.Forms.ToolStripMenuItem contextProperties;
+        private System.Windows.Forms.ToolStripMenuItem contextResize;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
     }
 }
 

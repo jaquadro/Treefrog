@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace Treefrog.Windows.Controllers
 {
@@ -124,6 +125,19 @@ namespace Treefrog.Windows.Controllers
                 return -32;
 
             return -18;
+        }
+
+        public static Func<string> ValidateNonEmptyName (string fieldName, TextBox control, IEnumerable<string> reservedNames)
+        {
+            return () => {
+                string txt = (control.Text ?? "").Trim();
+
+                if (string.IsNullOrWhiteSpace(txt))
+                    return fieldName + " must not be empty";
+                if (reservedNames != null && reservedNames.Contains(txt))
+                    return fieldName + " conflicts with another name";
+                return null;
+            };
         }
 
         public static Func<string> ValidateNumericUpDownFunc (string fieldName, NumericUpDown control)
