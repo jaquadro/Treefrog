@@ -39,7 +39,19 @@ namespace Treefrog.Presentation.Layers
         {
             Bind((IObjectPoolCollectionPresenter)null);
 
+            _selectionManager.Dispose();
+
             base.DisposeManaged();
+        }
+
+        public override void Activate ()
+        {
+            _selectionManager.ShowAnnotations();
+        }
+
+        public override void Deactivate ()
+        {
+            _selectionManager.HideAnnotations();
         }
 
         public void Bind (IObjectPoolCollectionPresenter controller)

@@ -9,7 +9,7 @@ using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Presentation
 {
-    public class ObjectSelectionManager
+    public class ObjectSelectionManager : IDisposable
     {
         private class SelectedObjectRecord
         {
@@ -34,6 +34,19 @@ namespace Treefrog.Presentation
         public ObjectSelectionManager ()
         {
             _selectedObjects = new List<SelectedObjectRecord>();
+        }
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (disposing) {
+                ClearSelection();
+            }
         }
 
         public ObjectLayer Layer { get; set; }
@@ -76,8 +89,8 @@ namespace Treefrog.Presentation
             obj.RotationChanged += InstanceRotationChanged;
 
             _selectedObjects.Add(record);
-            if (Annotations != null)
-                Annotations.Add(record.Annot);
+
+            AddAnnotation(record.Annot);
 
             OnSelectionChanged(EventArgs.Empty);
         }
@@ -92,8 +105,8 @@ namespace Treefrog.Presentation
         {
             foreach (SelectedObjectRecord record in _selectedObjects) {
                 if (record.Instance == obj) {
-                    if (Annotations != null)
-                        Annotations.Remove(record.Annot);
+                    RemoveAnnotation(record.Annot);
+
                     _selectedObjects.Remove(record);
 
                     obj.PositionChanged -= InstancePositionChanged;
@@ -117,9 +130,11 @@ namespace Treefrog.Presentation
 
         public void ClearSelection ()
         {
+            if (_selectedObjects.Count == 0)
+                return;
+
             foreach (SelectedObjectRecord record in _selectedObjects) {
-                if (Annotations != null)
-                    Annotations.Remove(record.Annot);
+                RemoveAnnotation(record.Annot);
 
                 record.Instance.PositionChanged -= InstancePositionChanged;
                 record.Instance.RotationChanged -= InstanceRotationChanged;
@@ -262,6 +277,53 @@ namespace Treefrog.Presentation
             }
 
             return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+        }
+
+        private bool _hidden;
+
+        public bool AnnotationsHidden
+        {
+            get { return _hidden; }
+        }
+
+        public void ShowAnnotations ()
+        {
+            if (!_hidden)
+                return;
+
+            if (Annotations != null) {
+                foreach (SelectedObjectRecord record in _selectedObjects) {
+                    if (!Annotations.Contains(record.Annot))
+                        Annotations.Add(record.Annot);
+                }
+            }
+
+            _hidden = false;
+        }
+
+        public void HideAnnotations ()
+        {
+            if (_hidden)
+                return;
+
+            if (Annotations != null) {
+                foreach (SelectedObjectRecord record in _selectedObjects)
+                    Annotations.Remove(record.Annot);
+            }
+
+            _hidden = true;
+        }
+
+        private void AddAnnotation (Annotation annot)
+        {
+            if (!_hidden && Annotations != null && !Annotations.Contains(annot))
+                Annotations.Add(annot);
+        }
+
+        private void RemoveAnnotation (Annotation annot)
+        {
+            if (Annotations != null)
+                Annotations.Remove(annot);
         }
 
         public event EventHandler SelectionChanged;
