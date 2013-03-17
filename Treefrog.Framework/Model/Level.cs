@@ -424,6 +424,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        [Obsolete]
         public static Level FromXmlProxy (LevelXmlProxy proxy, Project project)
         {
             if (proxy == null)
@@ -440,6 +441,27 @@ namespace Treefrog.Framework.Model
             }
 
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
+                level.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+            return level;
+        }
+
+        public static Level FromXmlProxy (LevelX proxy, Project project)
+        {
+            if (proxy == null)
+                return null;
+
+            Level level = new Level(proxy.Name, proxy.OriginX, proxy.OriginY, proxy.Width, proxy.Height);
+            level.Project = project;
+
+            foreach (LevelX.LayerX layerProxy in proxy.Layers) {
+                if (layerProxy is LevelX.MultiTileGridLayerX)
+                    level.Layers.Add(new MultiTileGridLayer(layerProxy as LevelX.MultiTileGridLayerX, level));
+                else if (layerProxy is LevelX.ObjectLayerX)
+                    level.Layers.Add(new ObjectLayer(layerProxy as LevelX.ObjectLayerX, level));
+            }
+
+            foreach (var propertyProxy in proxy.Properties)
                 level.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
 
             return level;

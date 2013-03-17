@@ -208,8 +208,8 @@ namespace Treefrog.Framework.Model
             //ProjectXmlProxy proxy = serializer.Deserialize(reader) as ProjectXmlProxy;
             //Project project = Project.FromXmlProxy(proxy);
 
-            XmlSerializer serializer = new XmlSerializer(typeof(ProjectXmlProxyX));
-            ProjectXmlProxyX proxy = serializer.Deserialize(reader) as ProjectXmlProxyX;
+            XmlSerializer serializer = new XmlSerializer(typeof(ProjectX));
+            ProjectX proxy = serializer.Deserialize(reader) as ProjectX;
             Project project = Project.FromXmlProxy(proxy, resolver);
 
             reader.Close();
@@ -234,7 +234,7 @@ namespace Treefrog.Framework.Model
             writer.Close();
         }
 
-        public static Project FromXmlProxy (ProjectXmlProxyX proxy, ProjectResolver resolver)
+        public static Project FromXmlProxy (ProjectX proxy, ProjectResolver resolver)
         {
             if (proxy == null)
                 return null;
@@ -245,6 +245,12 @@ namespace Treefrog.Framework.Model
                 if (itemGroup.Libraries != null) {
                     foreach (var library in itemGroup.Libraries) {
                         LoadLibrary(project, resolver, library.Include);
+                    }
+                }
+
+                if (itemGroup.Levels != null) {
+                    foreach (var level in itemGroup.Levels) {
+                        LoadLevel(project, resolver, level.Include);
                     }
                 }
             }
@@ -284,6 +290,24 @@ namespace Treefrog.Framework.Model
                 project._tileBrushes = TileBrushManager.FromXmlProxy(proxy.TileBrushGroup, project._tilePools, Project.DynamicBrushClassRegistry);
                 if (project._tileBrushes == null)
                     project._tileBrushes = new TileBrushManager();
+            }
+        }
+
+        private static void LoadLevel (Project project, ProjectResolver resolver, string levelPath)
+        {
+            using (Stream stream = resolver.InputStream(levelPath)) {
+                XmlReaderSettings settings = new XmlReaderSettings() {
+                    CloseInput = true,
+                    IgnoreComments = true,
+                    IgnoreWhitespace = true,
+                };
+
+                XmlReader reader = XmlTextReader.Create(stream, settings);
+
+                XmlSerializer serializer = new XmlSerializer(typeof(LevelX));
+                LevelX proxy = serializer.Deserialize(reader) as LevelX;
+
+                project.Levels.Add(Level.FromXmlProxy(proxy, project));
             }
         }
 
@@ -384,8 +408,8 @@ namespace Treefrog.Framework.Model
         public List<LevelXmlProxy> Levels { get; set; }
     }
 
-    [XmlRoot("Project")]
-    public class ProjectXmlProxyX
+    [XmlRoot("Project", Namespace = "http://jaquadro.com/schemas/treefrog/project")]
+    public class ProjectX
     {
         public class PropertyGroupX
         {
@@ -421,7 +445,7 @@ namespace Treefrog.Framework.Model
         public ItemGroupX[] ItemGroups { get; set; }
     }
 
-    [XmlRoot("Library")]
+    [XmlRoot("Library", Namespace = "http://jaquadro.com/schemas/treefrog/library")]
     public class LibraryX
     {
         public class PropertyGroupX
@@ -471,18 +495,6 @@ namespace Treefrog.Framework.Model
             [XmlElement]
             public TextureResource.XmlProxy TextureData { get; set; }
         }
-
-        /*public class TextureDataX
-        {
-            [XmlAttribute]
-            public int Width { get; set; }
-
-            [XmlAttribute]
-            public int Height { get; set; }
-
-            [XmlElement(IsNullable = true)]
-            public byte[] Data { get; set; }
-        }*/
 
         public class ObjectPoolX
         {
@@ -665,5 +677,114 @@ namespace Treefrog.Framework.Model
 
         [XmlElement]
         public TileBrushGroupX TileBrushGroup { get; set; }
+    }
+
+    [XmlRoot("Level", Namespace="http://jaquadro.com/schemas/treefrog/level")]
+    public class LevelX
+    {
+        public class PropertyGroupX
+        {
+            [XmlAnyElement]
+            public List<XmlElement> Properties { get; set; }
+        }
+
+        public class ItemGroupX
+        {
+            [XmlElement("Library")]
+            public LibraryX[] Libraries { get; set; }
+        }
+
+        public abstract class LayerX
+        {
+            protected LayerX ()
+            {
+                Opacity = 1.0f;
+                Visible = true;
+                RasterMode = RasterMode.Point;
+            }
+
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlAttribute]
+            public float Opacity { get; set; }
+
+            [XmlAttribute]
+            public bool Visible { get; set; }
+
+            [XmlAttribute]
+            public RasterMode RasterMode { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public LibraryX.PropertyX[] Properties { get; set; }
+        }
+
+        [XmlRoot("LayerData", Namespace = "http://jaquadro.com/schemas/treefrog/level")]
+        public class MultiTileGridLayerX : LayerX
+        {
+            [XmlAttribute]
+            public int TileWidth { get; set; }
+
+            [XmlAttribute]
+            public int TileHeight { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Tile")]
+            public List<LibraryX.TileStackX> Tiles { get; set; }
+        }
+
+        [XmlRoot("LayerData", Namespace = "http://jaquadro.com/schemas/treefrog/level")]
+        public class ObjectLayerX : LayerX
+        {
+            [XmlArray]
+            [XmlArrayItem("Object")]
+            public List<ObjectInstanceX> Objects { get; set; }
+        }
+
+        public class ObjectInstanceX
+        {
+            [XmlAttribute]
+            public int Class { get; set; }
+
+            [XmlAttribute]
+            public string At { get; set; }
+
+            [XmlAttribute]
+            public float Rotation { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public LibraryX.PropertyX[] Properties { get; set; }
+        }
+
+        [XmlAttribute]
+        public string Name { get; set; }
+
+        [XmlAttribute]
+        public int OriginX { get; set; }
+
+        [XmlAttribute]
+        public int OriginY { get; set; }
+
+        [XmlAttribute]
+        public int Width { get; set; }
+
+        [XmlAttribute]
+        public int Height { get; set; }
+
+        [XmlElement]
+        public PropertyGroupX PropertyGroup { get; set; }
+
+        [XmlElement("ItemGroup")]
+        public ItemGroupX[] ItemGroups { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Layer", Type = typeof(AbstractXmlSerializer<LayerX>))]
+        public List<AbstractXmlSerializer<LayerX>> Layers { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Property")]
+        public List<LibraryX.PropertyX> Properties { get; set; }
     }
 }

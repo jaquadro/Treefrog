@@ -43,6 +43,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        [Obsolete]
         public MultiTileGridLayer (MultiTileGridLayerXmlProxy proxy, Level level)
             : base(proxy.Name, proxy.TileWidth, proxy.TileHeight, level)
         {
@@ -71,6 +72,38 @@ namespace Treefrog.Framework.Model
 
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
                 CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+        }
+
+        public MultiTileGridLayer (LevelX.MultiTileGridLayerX proxy, Level level)
+            : base(proxy.Name, proxy.TileWidth, proxy.TileHeight, level)
+        {
+            _tiles = new TileStack[TilesHigh, TilesWide];
+
+            Opacity = proxy.Opacity;
+            IsVisible = proxy.Visible;
+            RasterMode = proxy.RasterMode;
+            Level = level;
+
+            foreach (var tileProxy in proxy.Tiles) {
+                string[] coords = tileProxy.At.Split(new char[] { ',' });
+                string[] ids = tileProxy.Items.Split(new char[] { ',' });
+
+                TilePoolManager manager = Level.Project.TilePoolManager;
+
+                foreach (string id in ids) {
+                    int tileId = Convert.ToInt32(id);
+
+                    TilePool pool = manager.PoolFromTileId(tileId);
+                    Tile tile = pool.GetTile(tileId);
+
+                    AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
+                }
+            }
+
+            if (proxy.Properties != null) {
+                foreach (var propertyProxy in proxy.Properties)
+                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+            }
         }
 
         public static MultiTileGridLayerXmlProxy ToXmlProxy (MultiTileGridLayer layer)

@@ -395,6 +395,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static ObjectInstance FromXmlProxy (ObjectInstanceXmlProxy proxy, ObjectPoolManager manager)
         {
             if (proxy == null)
@@ -412,6 +413,33 @@ namespace Treefrog.Framework.Model
 
                     foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
                         inst.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+                    return inst;
+                }
+            }
+
+            return null;
+        }
+
+        public static ObjectInstance FromXmlProxy (LevelX.ObjectInstanceX proxy, ObjectPoolManager manager)
+        {
+            if (proxy == null)
+                return null;
+
+            string[] coords = proxy.At.Split(new char[] { ',' });
+
+            ObjectPool pool = manager.PoolFromItemKey(proxy.Class);
+            foreach (ObjectClass objClass in pool) {
+                if (objClass.Id == proxy.Class) {
+                    ObjectInstance inst = new ObjectInstance(objClass);
+                    inst.X = Convert.ToInt32(coords[0]);
+                    inst.Y = Convert.ToInt32(coords[1]);
+                    inst.Rotation = MathEx.DegToRad(proxy.Rotation);
+
+                    if (proxy.Properties != null) {
+                        foreach (var propertyProxy in proxy.Properties)
+                            inst.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    }
 
                     return inst;
                 }
