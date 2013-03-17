@@ -205,6 +205,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static TileBrushCollection<T> FromXmlProxy<TProxy> (TileBrushCollectionXmlProxy<TProxy> proxy, TileBrushCollection<T> brushCollection, Func<TProxy, T> itemXmlFunc)
             where TProxy : TileBrushXmlProxy
         {
@@ -214,6 +215,22 @@ namespace Treefrog.Framework.Model
             foreach (TProxy brush in proxy.Brushes) {
                 T inst = itemXmlFunc(brush);
                 brushCollection.AddBrush(inst, brush.Id);
+            }
+
+            return brushCollection;
+        }
+
+        public static TileBrushCollection<T> FromXmlProxy<TProxy> (LibraryX.TileBrushCollectionX<TProxy> proxy, TileBrushCollection<T> brushCollection, Func<TProxy, T> itemXmlFunc)
+            where TProxy : LibraryX.TileBrushX
+        {
+            if (proxy == null)
+                return null;
+
+            if (proxy.Brushes != null) {
+                foreach (TProxy brush in proxy.Brushes) {
+                    T inst = itemXmlFunc(brush);
+                    brushCollection.AddBrush(inst, brush.Id);
+                }
             }
 
             return brushCollection;

@@ -190,7 +190,16 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        [Obsolete]
         public static Property FromXmlProxy (PropertyXmlProxy proxy)
+        {
+            if (proxy == null)
+                return null;
+
+            return new StringProperty(proxy.Name, proxy.Value);
+        }
+
+        public static Property FromXmlProxy (LibraryX.PropertyX proxy)
         {
             if (proxy == null)
                 return null;

@@ -179,6 +179,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static StaticTileBrush FromXmlProxy (StaticTileBrushXmlProxy proxy, TilePoolManager manager)
         {
             if (proxy == null)
@@ -187,6 +188,36 @@ namespace Treefrog.Framework.Model
             StaticTileBrush brush = new StaticTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight);
 
             foreach (TileStackXmlProxy stack in proxy.Tiles) {
+                string[] coord = stack.At.Split(',');
+                string[] tileIds = stack.Items.Split(',');
+
+                int x = (coord.Length > 0) ? Convert.ToInt32(coord[0].Trim()) : 0;
+                int y = (coord.Length > 1) ? Convert.ToInt32(coord[1].Trim()) : 0;
+
+                foreach (string tileId in tileIds) {
+                    int id = Convert.ToInt32(tileId.Trim());
+
+                    TilePool pool = manager.PoolFromTileId(id);
+                    if (pool == null)
+                        continue;
+
+                    brush.AddTile(new TileCoord(x, y), pool.GetTile(id));
+                }
+            }
+
+            brush.Normalize();
+
+            return brush;
+        }
+
+        public static StaticTileBrush FromXmlProxy (LibraryX.StaticTileBrushX proxy, TilePoolManager manager)
+        {
+            if (proxy == null)
+                return null;
+
+            StaticTileBrush brush = new StaticTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight);
+
+            foreach (var stack in proxy.Tiles) {
                 string[] coord = stack.At.Split(',');
                 string[] tileIds = stack.Items.Split(',');
 

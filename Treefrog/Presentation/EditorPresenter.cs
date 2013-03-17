@@ -317,8 +317,10 @@ namespace Treefrog.Presentation
                 }
             }
 
-            ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
-            info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            if (CurrentLevel != null) {
+                ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
+                info.BindInfoPresenter(CurrentLevel.InfoPresenter);
+            }
 
             Modified = false;
 
@@ -567,7 +569,7 @@ namespace Treefrog.Presentation
             if (CommandCanOpenProject()) {
                 OpenFileDialog ofd = new OpenFileDialog();
                 ofd.Title = "Open Project File";
-                ofd.Filter = "Treefrog Project Files|*.tlp";
+                ofd.Filter = "Treefrog Project Files|*.tlp;*.tlpx";
                 ofd.Multiselect = false;
                 ofd.RestoreDirectory = false;
 
@@ -579,7 +581,7 @@ namespace Treefrog.Presentation
 
                     try {
                         using (FileStream fs = File.Open(ofd.FileName, FileMode.Open, FileAccess.Read)) {
-                            Project project = Project.Open(fs);
+                            Project project = Project.Open(fs, new FileProjectResolver(ofd.FileName));
                             Open(project);
 
                             _projectPath = ofd.FileName;

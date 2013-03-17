@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model.Support;
 using Treefrog.Framework.Model.Proxy;
+using System;
 
 namespace Treefrog.Framework.Model
 {
@@ -180,6 +181,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static DynamicTileBrush FromXmlProxy (DynamicTileBrushXmlProxy proxy, TilePoolManager manager, DynamicTileBrushClassRegistry registry)
         {
             if (proxy == null)
@@ -192,6 +194,28 @@ namespace Treefrog.Framework.Model
             DynamicTileBrush brush = new DynamicTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
 
             foreach (TileBrushEntryXmlProxy entry in proxy.BrushEntries) {
+                TilePool pool = manager.PoolFromTileId(entry.TileId);
+                if (pool == null)
+                    continue;
+
+                brush.SetTile(entry.Slot, pool.GetTile(entry.TileId));
+            }
+
+            return brush;
+        }
+
+        public static DynamicTileBrush FromXmlProxy (LibraryX.DynamicTileBrushX proxy, TilePoolManager manager, DynamicTileBrushClassRegistry registry)
+        {
+            if (proxy == null)
+                return null;
+
+            DynamicTileBrushClass brushClass = registry.Lookup(proxy.Type);
+            if (brushClass == null)
+                return null;
+
+            DynamicTileBrush brush = new DynamicTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
+
+            foreach (var entry in proxy.Entries) {
                 TilePool pool = manager.PoolFromTileId(entry.TileId);
                 if (pool == null)
                     continue;

@@ -316,8 +316,8 @@ namespace Treefrog.Presentation
 
             using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read)) {
                 //Project project = Project.Open(fs, gds.GraphicsDevice);
-                Project project = Project.Open(fs);
-                _editor.Open(project);
+                //Project project = Project.Open(fs);
+                //_editor.Open(project);
             }
         }
 

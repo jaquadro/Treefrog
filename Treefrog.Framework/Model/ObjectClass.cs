@@ -428,6 +428,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static ObjectClass FromXmlProxy (ObjectClassXmlProxy proxy, TexturePool texturePool)
         {
             if (proxy == null)
@@ -445,6 +446,29 @@ namespace Treefrog.Framework.Model
 
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
                 objClass.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+
+            return objClass;
+        }
+
+        public static ObjectClass FromXmlProxy (LibraryX.ObjectClassX proxy, TexturePool texturePool)
+        {
+            if (proxy == null)
+                return null;
+
+            ObjectClass objClass = new ObjectClass(proxy.Name);
+            objClass._id = proxy.Id;
+            objClass._textureId = int.Parse(proxy.Texture);
+            //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
+            objClass._imageBounds = proxy.ImageBounds;
+            objClass._maskBounds = proxy.MaskBounds;
+            objClass._origin = proxy.Origin;
+
+            objClass._image = texturePool.GetResource(objClass._textureId);
+
+            if (proxy.Properties != null) {
+                foreach (var propertyProxy in proxy.Properties)
+                    objClass.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+            }
 
             return objClass;
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using System;
 
 namespace Treefrog.Framework.Model
 {
@@ -55,6 +56,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static ObjectPoolManager FromXmlProxy (ObjectPoolManagerXmlProxy proxy, TexturePool texturePool)
         {
             if (proxy == null)
@@ -63,6 +65,20 @@ namespace Treefrog.Framework.Model
             ObjectPoolManager manager = new ObjectPoolManager(texturePool);
             if (proxy.Pools != null) {
                 foreach (ObjectPoolXmlProxy pool in proxy.Pools)
+                    ObjectPool.FromXmlProxy(pool, manager);
+            }
+
+            return manager;
+        }
+
+        public static ObjectPoolManager FromXmlProxy (LibraryX.ObjectGroupX proxy, TexturePool texturePool)
+        {
+            if (proxy == null)
+                return null;
+
+            ObjectPoolManager manager = new ObjectPoolManager(texturePool);
+            if (proxy.ObjectPools != null) {
+                foreach (var pool in proxy.ObjectPools)
                     ObjectPool.FromXmlProxy(pool, manager);
             }
 

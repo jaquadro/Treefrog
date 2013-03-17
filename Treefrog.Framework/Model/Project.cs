@@ -5,6 +5,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using Treefrog.Framework.Model.Proxy;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
@@ -192,7 +193,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        public static Project Open (Stream stream)
+        public static Project Open (Stream stream, ProjectResolver resolver)
         {
             XmlReaderSettings settings = new XmlReaderSettings()
             {
@@ -203,9 +204,13 @@ namespace Treefrog.Framework.Model
 
             XmlReader reader = XmlTextReader.Create(stream, settings);
 
-            XmlSerializer serializer = new XmlSerializer(typeof(ProjectXmlProxy));
-            ProjectXmlProxy proxy = serializer.Deserialize(reader) as ProjectXmlProxy;
-            Project project = Project.FromXmlProxy(proxy);
+            //XmlSerializer serializer = new XmlSerializer(typeof(ProjectXmlProxy));
+            //ProjectXmlProxy proxy = serializer.Deserialize(reader) as ProjectXmlProxy;
+            //Project project = Project.FromXmlProxy(proxy);
+
+            XmlSerializer serializer = new XmlSerializer(typeof(ProjectXmlProxyX));
+            ProjectXmlProxyX proxy = serializer.Deserialize(reader) as ProjectXmlProxyX;
+            Project project = Project.FromXmlProxy(proxy, resolver);
 
             reader.Close();
 
@@ -227,6 +232,59 @@ namespace Treefrog.Framework.Model
             serializer.Serialize(writer, proxy);
 
             writer.Close();
+        }
+
+        public static Project FromXmlProxy (ProjectXmlProxyX proxy, ProjectResolver resolver)
+        {
+            if (proxy == null)
+                return null;
+
+            Project project = new Project();
+
+            foreach (var itemGroup in proxy.ItemGroups) {
+                if (itemGroup.Libraries != null) {
+                    foreach (var library in itemGroup.Libraries) {
+                        LoadLibrary(project, resolver, library.Include);
+                    }
+                }
+            }
+
+            project._tilePools.Pools.Modified += project.TilePoolsModifiedHandler;
+            project._objectPools.Pools.PropertyChanged += project.HandleObjectPoolManagerPropertyChanged;
+
+            return project;
+        }
+
+        private static void LoadLibrary (Project project, ProjectResolver resolver, string libraryPath)
+        {
+            using (Stream stream = resolver.InputStream(libraryPath)) {
+                XmlReaderSettings settings = new XmlReaderSettings() {
+                    CloseInput = true,
+                    IgnoreComments = true,
+                    IgnoreWhitespace = true,
+                };
+
+                XmlReader reader = XmlTextReader.Create(stream, settings);
+
+                XmlSerializer serializer = new XmlSerializer(typeof(LibraryX));
+                LibraryX proxy = serializer.Deserialize(reader) as LibraryX;
+
+                project._texturePool = TexturePool.FromXmlProxy(proxy.TextureGroup);
+                if (project._texturePool == null)
+                    project._texturePool = new TexturePool();
+
+                project._objectPools = ObjectPoolManager.FromXmlProxy(proxy.ObjectGroup, project._texturePool);
+                if (project._objectPools == null)
+                    project._objectPools = new ObjectPoolManager(project._texturePool);
+
+                project._tilePools = TilePoolManager.FromXmlProxy(proxy.TileGroup, project._texturePool);
+                if (project._tilePools == null)
+                    project._tilePools = new TilePoolManager(project._texturePool);
+
+                project._tileBrushes = TileBrushManager.FromXmlProxy(proxy.TileBrushGroup, project._tilePools, Project.DynamicBrushClassRegistry);
+                if (project._tileBrushes == null)
+                    project._tileBrushes = new TileBrushManager();
+            }
         }
 
         public static Project FromXmlProxy (ProjectXmlProxy proxy)
@@ -280,6 +338,32 @@ namespace Treefrog.Framework.Model
         }
     }
 
+    public abstract class ProjectResolver
+    {
+        public abstract Stream InputStream (string relativePath);
+        public abstract Stream OutputStream (string relativePath);
+    }
+
+    public class FileProjectResolver : ProjectResolver
+    {
+        private string _basePath;
+
+        public FileProjectResolver (string projectFilePath)
+        {
+            _basePath = Path.GetDirectoryName(projectFilePath);
+        }
+
+        public override Stream InputStream (string relativePath)
+        {
+            return File.OpenRead(Path.Combine(_basePath, relativePath));
+        }
+
+        public override Stream OutputStream (string relativePath)
+        {
+            return File.OpenWrite(Path.Combine(_basePath, relativePath));
+        }
+    }
+
     [XmlRoot("Project")]
     public class ProjectXmlProxy
     {
@@ -298,5 +382,288 @@ namespace Treefrog.Framework.Model
         [XmlArray]
         [XmlArrayItem("Level")]
         public List<LevelXmlProxy> Levels { get; set; }
+    }
+
+    [XmlRoot("Project")]
+    public class ProjectXmlProxyX
+    {
+        public class PropertyGroupX
+        {
+            [XmlAnyElement]
+            public List<XmlElement> Properties { get; set; }
+        }
+
+        public class ItemGroupX
+        {
+            [XmlElement("Library")]
+            public LibraryX[] Libraries { get; set; }
+
+            [XmlElement("Level")]
+            public LevelX[] Levels { get; set; }
+        }
+
+        public class LibraryX
+        {
+            [XmlAttribute]
+            public string Include { get; set; }
+        }
+
+        public class LevelX
+        {
+            [XmlAttribute]
+            public string Include { get; set; }
+        }
+
+        [XmlElement]
+        public PropertyGroupX PropertyGroup { get; set; }
+
+        [XmlElement("ItemGroup")]
+        public ItemGroupX[] ItemGroups { get; set; }
+    }
+
+    [XmlRoot("Library")]
+    public class LibraryX
+    {
+        public class PropertyGroupX
+        {
+            [XmlAnyElement]
+            public List<XmlElement> Properties { get; set; }
+        }
+
+        public class TextureGroupX
+        {
+            [XmlElement("Texture")]
+            public TextureX[] Textures { get; set; }
+        }
+
+        public class ObjectGroupX
+        {
+            [XmlElement("ObjectPool")]
+            public ObjectPoolX[] ObjectPools { get; set; }
+        }
+
+        public class TileGroupX
+        {
+            [XmlElement("TilePool")]
+            public TilePoolX[] TilePools { get; set; }
+        }
+
+        public class TileBrushGroupX
+        {
+            [XmlElement]
+            public TileBrushCollectionX<StaticTileBrushX> StaticBrushes { get; set; }
+
+            [XmlElement]
+            public TileBrushCollectionX<DynamicTileBrushX> DynamicBrushes { get; set; }
+        }
+
+        public class TextureX
+        {
+            [XmlAttribute]
+            public int Id { get; set; }
+
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
+            public string Include { get; set; }
+
+            [XmlElement]
+            public TextureResource.XmlProxy TextureData { get; set; }
+        }
+
+        /*public class TextureDataX
+        {
+            [XmlAttribute]
+            public int Width { get; set; }
+
+            [XmlAttribute]
+            public int Height { get; set; }
+
+            [XmlElement(IsNullable = true)]
+            public byte[] Data { get; set; }
+        }*/
+
+        public class ObjectPoolX
+        {
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("ObjectClass")]
+            public ObjectClassX[] ObjectClasses { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public PropertyX[] Properties { get; set; }
+        }
+
+        public class ObjectClassX
+        {
+            [XmlAttribute]
+            public int Id { get; set; }
+
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlAttribute]
+            public string Texture { get; set; }
+
+            [XmlElement]
+            public Rectangle ImageBounds { get; set; }
+
+            [XmlElement]
+            public Rectangle MaskBounds { get; set; }
+
+            [XmlElement]
+            public Point Origin { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public PropertyX[] Properties { get; set; }
+        }
+
+        public class TilePoolX
+        {
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlAttribute]
+            public int TileWidth { get; set; }
+
+            [XmlAttribute]
+            public int TileHeight { get; set; }
+
+            [XmlAttribute]
+            public string Texture { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("TileDef")]
+            public TileDefX[] TileDefinitions { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public PropertyX[] Properties { get; set; }
+        }
+
+        public class TileDefX
+        {
+            [XmlAttribute]
+            public int Id { get; set; }
+
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute("Loc")]
+            public string Location { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public PropertyX[] Properties { get; set; }
+        }
+
+        public class PropertyX
+        {
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlText]
+            public string Value { get; set; }
+        }
+
+        public class TileBrushCollectionX<TProxy>
+            where TProxy : TileBrushX
+        {
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlElement("Brush")]
+            public TProxy[] Brushes { get; set; }
+        }
+
+        public class TileBrushX
+        {
+            [XmlAttribute]
+            public int Id { get; set; }
+
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlAttribute]
+            public int TileWidth { get; set; }
+
+            [XmlAttribute]
+            public int TileHeight { get; set; }
+        }
+
+        public class StaticTileBrushX : TileBrushX
+        {
+            [XmlAttribute]
+            public int Id { get; set; }
+
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlAttribute]
+            public int TileWidth { get; set; }
+
+            [XmlAttribute]
+            public int TileHeight { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Tile")]
+            public List<TileStackX> Tiles { get; set; }
+        }
+
+        public class DynamicTileBrushX : TileBrushX
+        {
+            [XmlAttribute]
+            public string Type { get; set; }
+
+            [XmlElement("Entry")]
+            public BrushEntryX[] Entries { get; set; }
+        }
+
+        public class BrushEntryX
+        {
+            [XmlAttribute]
+            public int Slot { get; set; }
+
+            [XmlAttribute]
+            public int TileId { get; set; }
+        }
+
+        public class TileStackX
+        {
+            [XmlAttribute]
+            public string At { get; set; }
+
+            [XmlText]
+            public string Items { get; set; }
+        }
+
+        [XmlElement]
+        public PropertyGroupX PropertyGroup { get; set; }
+
+        [XmlElement]
+        public TextureGroupX TextureGroup { get; set; }
+
+        [XmlElement]
+        public ObjectGroupX ObjectGroup { get; set; }
+
+        [XmlElement]
+        public TileGroupX TileGroup { get; set; }
+
+        [XmlElement]
+        public TileBrushGroupX TileBrushGroup { get; set; }
     }
 }

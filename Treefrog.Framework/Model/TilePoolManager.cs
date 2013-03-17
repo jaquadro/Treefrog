@@ -149,6 +149,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static TilePoolManager FromXmlProxy (TilePoolManagerXmlProxy proxy, TexturePool texturePool)
         {
             if (proxy == null)
@@ -158,6 +159,20 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Pools != null)
                 foreach (TilePoolXmlProxy pool in proxy.Pools)
+                    TilePool.FromXmlProxy(pool, manager);
+
+            return manager;
+        }
+
+        public static TilePoolManager FromXmlProxy (LibraryX.TileGroupX proxy, TexturePool texturePool)
+        {
+            if (proxy == null)
+                return null;
+
+            TilePoolManager manager = new TilePoolManager(texturePool);
+
+            if (proxy.TilePools != null)
+                foreach (var pool in proxy.TilePools)
                     TilePool.FromXmlProxy(pool, manager);
 
             return manager;

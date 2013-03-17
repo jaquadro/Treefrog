@@ -343,6 +343,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static ObjectPool FromXmlProxy (ObjectPoolXmlProxy proxy, ObjectPoolManager manager)
         {
             if (proxy == null)
@@ -350,6 +351,20 @@ namespace Treefrog.Framework.Model
 
             ObjectPool pool = manager.CreatePool(proxy.Name);
             foreach (ObjectClassXmlProxy objClass in proxy.ObjectClasses) {
+                ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
+                pool.AddObject(inst, objClass.Id);
+            }
+
+            return pool;
+        }
+
+        public static ObjectPool FromXmlProxy (LibraryX.ObjectPoolX proxy, ObjectPoolManager manager)
+        {
+            if (proxy == null)
+                return null;
+
+            ObjectPool pool = manager.CreatePool(proxy.Name);
+            foreach (var objClass in proxy.ObjectClasses) {
                 ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
                 pool.AddObject(inst, objClass.Id);
             }

@@ -2,6 +2,7 @@
 using System.Xml.Serialization;
 using Treefrog.Framework.Compat;
 using Treefrog.Framework.Model.Proxy;
+using System;
 
 namespace Treefrog.Framework.Model
 {
@@ -90,6 +91,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static TileBrushManager FromXmlProxy (TileBrushManagerXmlProxy proxy, TilePoolManager tileManager, DynamicTileBrushClassRegistry registry)
         {
             if (proxy == null)
@@ -106,6 +108,26 @@ namespace Treefrog.Framework.Model
             TileBrushManager manager = new TileBrushManager();
             TileBrushCollection<StaticTileBrush>.FromXmlProxy<StaticTileBrushXmlProxy>(proxy.StaticBrushes, manager.StaticBrushes, staticBrushFunc);
             TileBrushCollection<DynamicTileBrush>.FromXmlProxy<DynamicTileBrushXmlProxy>(proxy.DynamicBrushes, manager.DynamicBrushes, dynamicBrushFunc);
+
+            return manager;
+        }
+
+        public static TileBrushManager FromXmlProxy (LibraryX.TileBrushGroupX proxy, TilePoolManager tileManager, DynamicTileBrushClassRegistry registry)
+        {
+            if (proxy == null)
+                return null;
+
+            Func<LibraryX.StaticTileBrushX, StaticTileBrush> staticBrushFunc = (brushProxy) => {
+                return StaticTileBrush.FromXmlProxy(brushProxy, tileManager);
+            };
+
+            Func<LibraryX.DynamicTileBrushX, DynamicTileBrush> dynamicBrushFunc = (brushProxy) => {
+                return DynamicTileBrush.FromXmlProxy(brushProxy, tileManager, registry);
+            };
+
+            TileBrushManager manager = new TileBrushManager();
+            TileBrushCollection<StaticTileBrush>.FromXmlProxy<LibraryX.StaticTileBrushX>(proxy.StaticBrushes, manager.StaticBrushes, staticBrushFunc);
+            TileBrushCollection<DynamicTileBrush>.FromXmlProxy<LibraryX.DynamicTileBrushX>(proxy.DynamicBrushes, manager.DynamicBrushes, dynamicBrushFunc);
 
             return manager;
         }

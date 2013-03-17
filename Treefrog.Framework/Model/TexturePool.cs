@@ -116,6 +116,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static TexturePool FromXmlProxy (TexturePoolXmlProxy proxy)
         {
             if (proxy == null)
@@ -123,6 +124,23 @@ namespace Treefrog.Framework.Model
 
             TexturePool pool = new TexturePool();
             foreach (TextureDefinitionXmlProxy defProxy in proxy.Textures) {
+                TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData);
+                if (resource != null) {
+                    pool._resources[defProxy.Id] = resource;
+                    pool._lastId = Math.Max(pool._lastId, defProxy.Id);
+                }
+            }
+
+            return pool;
+        }
+
+        public static TexturePool FromXmlProxy (LibraryX.TextureGroupX proxy)
+        {
+            if (proxy == null)
+                return null;
+
+            TexturePool pool = new TexturePool();
+            foreach (var defProxy in proxy.Textures) {
                 TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData);
                 if (resource != null) {
                     pool._resources[defProxy.Id] = resource;
