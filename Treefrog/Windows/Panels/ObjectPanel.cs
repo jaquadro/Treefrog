@@ -135,8 +135,8 @@ namespace Treefrog.Windows.Panels
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
             foreach (ObjectClass obj in _controller.ObjectPoolManager.Pools[objectPool].Objects) {
-
-                imgList.Images.Add(obj.Name, CreateCenteredBitmap(obj.Image, 64, 64));
+                if (obj.Image != null)
+                    imgList.Images.Add(obj.Name, CreateCenteredBitmap(obj.Image, 64, 64));
             }
 
             return imgList;
@@ -161,6 +161,9 @@ namespace Treefrog.Windows.Panels
 
         private Bitmap CreateCenteredBitmap (Bitmap source, int width, int height)
         {
+            if (source == null)
+                return null;
+
             Bitmap dest = new Bitmap(width, height, source.PixelFormat);
             int x = Math.Max(0, (width - source.Width) / 2);
             int y = Math.Max(0, (height - source.Height) / 2);

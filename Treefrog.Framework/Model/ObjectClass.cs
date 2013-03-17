@@ -48,7 +48,7 @@ namespace Treefrog.Framework.Model
         private ObjectPool _pool;
         private int _id;
         private string _name;
-        private int _textureId;
+        private Guid _textureId;
 
         private bool _canRotate;
         private bool _canScale;
@@ -161,7 +161,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public int ImageId
+        public Guid ImageId
         {
             get { return _textureId; }
         }
@@ -176,7 +176,7 @@ namespace Treefrog.Framework.Model
                         _textureId = _pool.TexturePool.AddResource(value);
                     else if (value == null) {
                         _pool.TexturePool.RemoveResource(_textureId);
-                        _textureId = 0;
+                        _textureId = Guid.Empty;
                     }
                     else
                         _pool.TexturePool.ReplaceResource(_textureId, value);
@@ -420,7 +420,7 @@ namespace Treefrog.Framework.Model
             {
                 Id = objClass.Id,
                 Name = objClass._name,
-                Texture = objClass._textureId,
+                //Texture = objClass._textureId,
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,
@@ -441,7 +441,7 @@ namespace Treefrog.Framework.Model
             return new LibraryX.ObjectClassX() {
                 Id = objClass.Id,
                 Name = objClass._name,
-                Texture = objClass._textureId.ToString(),
+                Texture = objClass._textureId,
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,
@@ -458,7 +458,7 @@ namespace Treefrog.Framework.Model
 
             ObjectClass objClass = new ObjectClass(proxy.Name);
             objClass._id = proxy.Id;
-            objClass._textureId = proxy.Texture;
+            //objClass._textureId = proxy.Texture;
             //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
             objClass._imageBounds = proxy.ImageBounds;
             objClass._maskBounds = proxy.MaskBounds;
@@ -479,7 +479,7 @@ namespace Treefrog.Framework.Model
 
             ObjectClass objClass = new ObjectClass(proxy.Name);
             objClass._id = proxy.Id;
-            objClass._textureId = int.Parse(proxy.Texture);
+            objClass._textureId = proxy.Texture;
             //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
             objClass._imageBounds = proxy.ImageBounds;
             objClass._maskBounds = proxy.MaskBounds;

@@ -170,6 +170,9 @@ namespace Treefrog.Framework.Imaging
 
         public void Set (TextureResource data, Point location)
         {
+            if (data == null)
+                return;
+
             Rectangle rect = ClampRectangle(new Rectangle(location, data.Size), Bounds);
 
             if (Rectangle.IsAreaNegativeOrEmpty(rect))

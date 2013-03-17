@@ -605,7 +605,7 @@ namespace Treefrog.Framework.Model
             public string Name { get; set; }
 
             [XmlAttribute]
-            public string Texture { get; set; }
+            public Guid Texture { get; set; }
 
             [XmlElement]
             public Rectangle ImageBounds { get; set; }
@@ -633,7 +633,7 @@ namespace Treefrog.Framework.Model
             public int TileHeight { get; set; }
 
             [XmlAttribute]
-            public string Texture { get; set; }
+            public Guid Texture { get; set; }
 
             [XmlArray]
             [XmlArrayItem("TileDef")]

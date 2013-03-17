@@ -8,22 +8,22 @@ namespace Treefrog.Framework.Model
 {
     public class ResourceEventArgs : EventArgs
     {
-        public int Id { get; private set; }
+        public Guid Uid { get; private set; }
 
-        public ResourceEventArgs (int id)
+        public ResourceEventArgs (Guid uid)
         {
-            Id = id;
+            Uid = uid;
         }
     }
 
     public class TexturePool
     {
-        private int _lastId;
-        private Dictionary<int, TextureResource> _resources;
+        //private int _lastId;
+        private Dictionary<Guid, TextureResource> _resources;
 
         public TexturePool ()
         {
-            _resources = new Dictionary<int, TextureResource>();
+            _resources = new Dictionary<Guid, TextureResource>();
         }
 
         public int Count
@@ -31,47 +31,45 @@ namespace Treefrog.Framework.Model
             get { return _resources.Count; }
         }
 
-        public TextureResource GetResource (int id)
+        public TextureResource GetResource (Guid uid)
         {
             TextureResource resource;
-            if (_resources.TryGetValue(id, out resource))
+            if (_resources.TryGetValue(uid, out resource))
                 return resource;
             else
                 return null;
         }
 
-        public int AddResource (TextureResource resource)
+        public Guid AddResource (TextureResource resource)
         {
             if (resource == null)
                 throw new ArgumentNullException("resource");
 
-            int id = ++_lastId;
-            _resources.Add(id, resource);
+            Guid uid = Guid.NewGuid();
+            _resources.Add(uid, resource);
 
-            OnResourceAdded(new ResourceEventArgs(id));
-            return id;
+            OnResourceAdded(new ResourceEventArgs(uid));
+            return uid;
         }
 
-        public void RemoveResource (int id)
+        public void RemoveResource (Guid uid)
         {
-            if (_resources.Remove(id)) {
-                if (id == _lastId)
-                    _lastId--;
-                OnResourceRemoved(new ResourceEventArgs(id));
+            if (_resources.Remove(uid)) {
+                OnResourceRemoved(new ResourceEventArgs(uid));
             }
         }
 
-        internal void ReplaceResource (int id, TextureResource resource)
+        internal void ReplaceResource (Guid uid, TextureResource resource)
         {
-            if (GetResource(id) != resource) {
-                _resources[id] = resource;
-                Invalidate(id);
+            if (GetResource(uid) != resource) {
+                _resources[uid] = resource;
+                Invalidate(uid);
             }
         }
 
-        public void Invalidate (int id)
+        public void Invalidate (Guid uid)
         {
-            OnResourceInvalidated(new ResourceEventArgs(id));
+            OnResourceInvalidated(new ResourceEventArgs(uid));
         }
 
         public event EventHandler<ResourceEventArgs> ResourceAdded;
@@ -108,7 +106,7 @@ namespace Treefrog.Framework.Model
             List<TextureDefinitionXmlProxy> defs = new List<TextureDefinitionXmlProxy>();
             foreach (var kv in pool._resources)
                 defs.Add(new TextureDefinitionXmlProxy() {
-                    Id = kv.Key,
+                    //Id = kv.Key,
                     TextureData = TextureResource.ToXmlProxy(kv.Value),
                 });
 
@@ -125,7 +123,7 @@ namespace Treefrog.Framework.Model
             List<LibraryX.TextureX> defs = new List<LibraryX.TextureX>();
             foreach (var kv in pool._resources)
                 defs.Add(new LibraryX.TextureX() {
-                    Id = kv.Key,
+                    Uid = kv.Key,
                     TextureData = TextureResource.ToXmlProxy(kv.Value),
                 });
 
@@ -144,8 +142,8 @@ namespace Treefrog.Framework.Model
             foreach (TextureDefinitionXmlProxy defProxy in proxy.Textures) {
                 TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData);
                 if (resource != null) {
-                    pool._resources[defProxy.Id] = resource;
-                    pool._lastId = Math.Max(pool._lastId, defProxy.Id);
+                    //pool._resources[defProxy.Id] = resource;
+                    //pool._lastId = Math.Max(pool._lastId, defProxy.Id);
                 }
             }
 
@@ -161,8 +159,8 @@ namespace Treefrog.Framework.Model
             foreach (var defProxy in proxy.Textures) {
                 TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData);
                 if (resource != null) {
-                    pool._resources[defProxy.Id] = resource;
-                    pool._lastId = Math.Max(pool._lastId, defProxy.Id);
+                    pool._resources[defProxy.Uid.ValueOrNew()] = resource;
+                    //pool._lastId = Math.Max(pool._lastId, defProxy.Id);
                 }
             }
 

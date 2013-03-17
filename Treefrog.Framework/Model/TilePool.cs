@@ -42,7 +42,7 @@ namespace Treefrog.Framework.Model
         private string _name;
 
         private TilePoolManager _manager;
-        private int _textureId;
+        private Guid _textureId;
         private TextureResource _tileSource;
 
         private int _tileWidth;
@@ -113,7 +113,7 @@ namespace Treefrog.Framework.Model
             get { return _tileHeight; }
         }
 
-        public int TextureId
+        public Guid TextureId
         {
             get { return _textureId; }
         }
@@ -290,9 +290,11 @@ namespace Treefrog.Framework.Model
 
         public TextureResource GetTileTexture (int id)
         {
-            if (!_tiles.ContainsKey(id)) {
+            if (!_tiles.ContainsKey(id))
                 return null;
-            }
+
+            if (_tileSource == null)
+                return null;
 
             Rectangle src = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
             return _tileSource.Crop(src);
@@ -985,7 +987,7 @@ namespace Treefrog.Framework.Model
             return new TilePoolXmlProxy()
             {
                 Name = pool.Name,
-                Texture = pool._textureId,
+                //Texture = pool._textureId,
                 //Source = TextureResource.ToXmlProxy(pool._tileSource),
                 TileWidth = pool._tileWidth,
                 TileHeight = pool._tileHeight,
@@ -1009,7 +1011,7 @@ namespace Treefrog.Framework.Model
 
             return new LibraryX.TilePoolX() {
                 Name = pool.Name,
-                Texture = pool._textureId.ToString(),
+                Texture = pool._textureId,
                 //Source = TextureResource.ToXmlProxy(pool._tileSource),
                 TileWidth = pool._tileWidth,
                 TileHeight = pool._tileHeight,
@@ -1027,7 +1029,7 @@ namespace Treefrog.Framework.Model
             TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
             manager.TexturePool.RemoveResource(pool._textureId);
 
-            pool._textureId = proxy.Texture;
+            //pool._textureId = proxy.Texture;
             pool._tileSource = manager.TexturePool.GetResource(pool._textureId);
 
             //pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
@@ -1058,7 +1060,7 @@ namespace Treefrog.Framework.Model
             TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
             manager.TexturePool.RemoveResource(pool._textureId);
 
-            pool._textureId = int.Parse(proxy.Texture);
+            pool._textureId = proxy.Texture;
             pool._tileSource = manager.TexturePool.GetResource(pool._textureId);
 
             //pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);

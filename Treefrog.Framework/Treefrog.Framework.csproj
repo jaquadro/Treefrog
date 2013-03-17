@@ -78,6 +78,7 @@
     <Compile Include="Compat\NotifyCollectionChangedAction.cs" />
     <Compile Include="Compat\NotifyCollectionChangedEventArgs.cs" />
     <Compile Include="Compat\NotifyPropertyChangedEventHandler.cs" />
+    <Compile Include="GuidEx.cs" />
     <Compile Include="Imaging\Color.cs" />
     <Compile Include="Imaging\Colors.cs" />
     <Compile Include="Imaging\Drawing\Brush.cs" />

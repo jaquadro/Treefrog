@@ -12,11 +12,11 @@ namespace Treefrog.Windows
         private bool _disposed;
         private GraphicsDevice _device;
         private TexturePool _sourcePool;
-        private Dictionary<int, Texture2D> _cache;
+        private Dictionary<Guid, Texture2D> _cache;
 
         public TextureCache ()
         {
-            _cache = new Dictionary<int, Texture2D>();
+            _cache = new Dictionary<Guid, Texture2D>();
         }
 
         public void Dispose ()
@@ -78,7 +78,7 @@ namespace Treefrog.Windows
             }
         }
 
-        public Texture2D Resolve (int textureId)
+        public Texture2D Resolve (Guid textureId)
         {
             if (_disposed)
                 throw new ObjectDisposedException("TextureCache");
@@ -99,12 +99,12 @@ namespace Treefrog.Windows
             return tex;
         }
 
-        public void Release (int id)
+        public void Release (Guid uid)
         {
             Texture2D tex;
-            if (_cache.TryGetValue(id, out tex) && tex != null) {
+            if (_cache.TryGetValue(uid, out tex) && tex != null) {
                 tex.Dispose();
-                _cache.Remove(id);
+                _cache.Remove(uid);
             }
         }
 
@@ -125,7 +125,7 @@ namespace Treefrog.Windows
 
         private void SourcePoolResourceInvalidated (object sender, ResourceEventArgs e)
         {
-            Release(e.Id);
+            Release(e.Uid);
         }
 
         private void GraphicsDeviceLost (object sender, EventArgs e)
