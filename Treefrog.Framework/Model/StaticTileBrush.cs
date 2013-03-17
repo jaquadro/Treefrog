@@ -153,6 +153,7 @@ namespace Treefrog.Framework.Model
                 UpdateExtants(coord);
         }
 
+        [Obsolete]
         public static StaticTileBrushXmlProxy ToXmlProxy (StaticTileBrush brush)
         {
             if (brush == null)
@@ -171,6 +172,32 @@ namespace Treefrog.Framework.Model
             }
 
             return new StaticTileBrushXmlProxy() {
+                Id = brush.Id,
+                Name = brush.Name,
+                TileWidth = brush.TileWidth,
+                TileHeight = brush.TileHeight,
+                Tiles = stacks,
+            };
+        }
+
+        public static LibraryX.StaticTileBrushX ToXmlProxyX (StaticTileBrush brush)
+        {
+            if (brush == null)
+                return null;
+
+            List<LibraryX.TileStackX> stacks = new List<LibraryX.TileStackX>();
+            foreach (var kv in brush._tiles) {
+                List<string> tileIds = new List<string>();
+                foreach (Tile tile in kv.Value)
+                    tileIds.Add(tile.Id.ToString());
+
+                stacks.Add(new LibraryX.TileStackX() {
+                    At = kv.Key.X + "," + kv.Key.Y,
+                    Items = String.Join(",", tileIds.ToArray()),
+                });
+            }
+
+            return new LibraryX.StaticTileBrushX() {
                 Id = brush.Id,
                 Name = brush.Name,
                 TileWidth = brush.TileWidth,

@@ -108,6 +108,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        [Obsolete]
         public static ObjectLayerXmlProxy ToXmlProxy (ObjectLayer layer)
         {
             if (layer == null)
@@ -123,6 +124,29 @@ namespace Treefrog.Framework.Model
 
             return new ObjectLayerXmlProxy()
             {
+                Name = layer.Name,
+                Opacity = layer.Opacity,
+                Visible = layer.IsVisible,
+                RasterMode = layer.RasterMode,
+                Objects = objs.Count > 0 ? objs : null,
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static LevelX.ObjectLayerX ToXmlProxyX (ObjectLayer layer)
+        {
+            if (layer == null)
+                return null;
+
+            List<LevelX.ObjectInstanceX> objs = new List<LevelX.ObjectInstanceX>();
+            foreach (ObjectInstance inst in layer.Objects)
+                objs.Add(ObjectInstance.ToXmlProxyX(inst));
+
+            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            foreach (Property prop in layer.CustomProperties)
+                props.Add(Property.ToXmlProxyX(prop));
+
+            return new LevelX.ObjectLayerX() {
                 Name = layer.Name,
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,

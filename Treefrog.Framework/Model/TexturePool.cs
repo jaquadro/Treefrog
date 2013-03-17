@@ -99,6 +99,7 @@ namespace Treefrog.Framework.Model
                 ev(this, e);
         }
 
+        [Obsolete]
         public static TexturePoolXmlProxy ToXmlProxy (TexturePool pool)
         {
             if (pool == null)
@@ -112,6 +113,23 @@ namespace Treefrog.Framework.Model
                 });
 
             return new TexturePoolXmlProxy() {
+                Textures = defs,
+            };
+        }
+
+        public static LibraryX.TextureGroupX ToXmlProxyX (TexturePool pool)
+        {
+            if (pool == null)
+                return null;
+
+            List<LibraryX.TextureX> defs = new List<LibraryX.TextureX>();
+            foreach (var kv in pool._resources)
+                defs.Add(new LibraryX.TextureX() {
+                    Id = kv.Key,
+                    TextureData = TextureResource.ToXmlProxy(kv.Value),
+                });
+
+            return new LibraryX.TextureGroupX() {
                 Textures = defs,
             };
         }

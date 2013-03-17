@@ -40,6 +40,7 @@ namespace Treefrog.Framework.Model
             return LastKey;
         }
 
+        [Obsolete]
         public static ObjectPoolManagerXmlProxy ToXmlProxy (ObjectPoolManager manager)
         {
             if (manager == null)
@@ -53,6 +54,20 @@ namespace Treefrog.Framework.Model
             {
                 LastKey = manager.LastKey,
                 Pools = pools.ToArray(),
+            };
+        }
+
+        public static LibraryX.ObjectGroupX ToXmlProxyX (ObjectPoolManager manager)
+        {
+            if (manager == null)
+                return null;
+
+            List<LibraryX.ObjectPoolX> pools = new List<LibraryX.ObjectPoolX>();
+            foreach (ObjectPool pool in manager.Pools)
+                pools.Add(ObjectPool.ToXmlProxyX(pool));
+
+            return new LibraryX.ObjectGroupX() {
+                ObjectPools = pools,
             };
         }
 

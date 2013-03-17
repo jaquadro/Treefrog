@@ -133,6 +133,7 @@ namespace Treefrog.Framework.Model
             _tileIndexMap.Remove(id);
         }
 
+        [Obsolete]
         public static TilePoolManagerXmlProxy ToXmlProxy (TilePoolManager manager)
         {
             if (manager == null)
@@ -146,6 +147,20 @@ namespace Treefrog.Framework.Model
             {
                 LastKey = manager.LastId,
                 Pools = pools.ToArray(),
+            };
+        }
+
+        public static LibraryX.TileGroupX ToXmlProxyX (TilePoolManager manager)
+        {
+            if (manager == null)
+                return null;
+
+            List<LibraryX.TilePoolX> pools = new List<LibraryX.TilePoolX>();
+            foreach (TilePool pool in manager.Pools)
+                pools.Add(TilePool.ToXmlProxyX(pool));
+
+            return new LibraryX.TileGroupX() {
+                TilePools = pools,
             };
         }
 

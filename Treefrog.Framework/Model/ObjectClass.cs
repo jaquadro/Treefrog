@@ -406,6 +406,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        [Obsolete]
         public static ObjectClassXmlProxy ToXmlProxy (ObjectClass objClass)
         {
             if (objClass == null)
@@ -420,6 +421,27 @@ namespace Treefrog.Framework.Model
                 Id = objClass.Id,
                 Name = objClass._name,
                 Texture = objClass._textureId,
+                ImageBounds = objClass._imageBounds,
+                MaskBounds = objClass._maskBounds,
+                Origin = objClass._origin,
+                //Image = TextureResource.ToXmlProxy(objClass._image),
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static LibraryX.ObjectClassX ToXmlProxyX (ObjectClass objClass)
+        {
+            if (objClass == null)
+                return null;
+
+            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            foreach (Property prop in objClass.CustomProperties)
+                props.Add(Property.ToXmlProxyX(prop));
+
+            return new LibraryX.ObjectClassX() {
+                Id = objClass.Id,
+                Name = objClass._name,
+                Texture = objClass._textureId.ToString(),
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,

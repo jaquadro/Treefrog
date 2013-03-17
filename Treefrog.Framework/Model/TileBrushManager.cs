@@ -79,6 +79,7 @@ namespace Treefrog.Framework.Model
             _indexMap.Remove(key);
         }
 
+        [Obsolete]
         public static TileBrushManagerXmlProxy ToXmlProxy (TileBrushManager manager)
         {
             if (manager == null)
@@ -88,6 +89,17 @@ namespace Treefrog.Framework.Model
                 LastKey = manager.LastKey,
                 StaticBrushes = TileBrushCollection<StaticTileBrush>.ToXmlProxy<StaticTileBrushXmlProxy>(manager.StaticBrushes, StaticTileBrush.ToXmlProxy),
                 DynamicBrushes = TileBrushCollection<DynamicTileBrush>.ToXmlProxy<DynamicTileBrushXmlProxy>(manager.DynamicBrushes, DynamicTileBrush.ToXmlProxy),
+            };
+        }
+
+        public static LibraryX.TileBrushGroupX ToXmlProxyX (TileBrushManager manager)
+        {
+            if (manager == null)
+                return null;
+
+            return new LibraryX.TileBrushGroupX() {
+                StaticBrushes = TileBrushCollection<StaticTileBrush>.ToXmlProxyX<LibraryX.StaticTileBrushX>(manager.StaticBrushes, StaticTileBrush.ToXmlProxyX),
+                DynamicBrushes = TileBrushCollection<DynamicTileBrush>.ToXmlProxyX<LibraryX.DynamicTileBrushX>(manager.DynamicBrushes, DynamicTileBrush.ToXmlProxyX),
             };
         }
 

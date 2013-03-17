@@ -378,6 +378,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        [Obsolete]
         public static ObjectInstanceXmlProxy ToXmlProxy (ObjectInstance inst)
         {
             if (inst == null)
@@ -388,6 +389,23 @@ namespace Treefrog.Framework.Model
                 props.Add(Property.ToXmlProxy(prop));
 
             return new ObjectInstanceXmlProxy() {
+                Class = inst.ObjectClass.Id,
+                At = inst.X + "," + inst.Y,
+                Rotation = MathEx.RadToDeg(inst.Rotation),
+                Properties = (props.Count > 0) ? props : null,
+            };
+        }
+
+        public static LevelX.ObjectInstanceX ToXmlProxyX (ObjectInstance inst)
+        {
+            if (inst == null)
+                return null;
+
+            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            foreach (Property prop in inst.CustomProperties)
+                props.Add(Property.ToXmlProxyX(prop));
+
+            return new LevelX.ObjectInstanceX() {
                 Class = inst.ObjectClass.Id,
                 At = inst.X + "," + inst.Y,
                 Rotation = MathEx.RadToDeg(inst.Rotation),

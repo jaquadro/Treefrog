@@ -156,6 +156,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        [Obsolete]
         public static DynamicTileBrushXmlProxy ToXmlProxy (DynamicTileBrush brush)
         {
             if (brush == null)
@@ -178,6 +179,31 @@ namespace Treefrog.Framework.Model
                 TileWidth = brush.TileWidth,
                 TileHeight = brush.TileHeight,
                 BrushEntries = brushEntries,
+            };
+        }
+
+        public static LibraryX.DynamicTileBrushX ToXmlProxyX (DynamicTileBrush brush)
+        {
+            if (brush == null)
+                return null;
+
+            List<LibraryX.BrushEntryX> brushEntries = new List<LibraryX.BrushEntryX>();
+            for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
+                Tile tile = brush.GetTile(i);
+                if (tile != null)
+                    brushEntries.Add(new LibraryX.BrushEntryX() {
+                        Slot = i,
+                        TileId = tile.Id,
+                    });
+            }
+
+            return new LibraryX.DynamicTileBrushX() {
+                Id = brush.Id,
+                Name = brush.Name,
+                Type = brush.BrushClass.ClassName,
+                TileWidth = brush.TileWidth,
+                TileHeight = brush.TileHeight,
+                Entries = brushEntries,
             };
         }
 

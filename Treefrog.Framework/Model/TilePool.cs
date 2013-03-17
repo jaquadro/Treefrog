@@ -968,6 +968,7 @@ namespace Treefrog.Framework.Model
             Name = property.Value;
         }
 
+        [Obsolete]
         public static TilePoolXmlProxy ToXmlProxy (TilePool pool)
         {
             if (pool == null)
@@ -985,6 +986,30 @@ namespace Treefrog.Framework.Model
             {
                 Name = pool.Name,
                 Texture = pool._textureId,
+                //Source = TextureResource.ToXmlProxy(pool._tileSource),
+                TileWidth = pool._tileWidth,
+                TileHeight = pool._tileHeight,
+                TileDefinitions = tiledefs.Count > 0 ? tiledefs : null,
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static LibraryX.TilePoolX ToXmlProxyX (TilePool pool)
+        {
+            if (pool == null)
+                return null;
+
+            List<LibraryX.TileDefX> tiledefs = new List<LibraryX.TileDefX>();
+            foreach (Tile tile in pool._tiles.Values)
+                tiledefs.Add(ToXmlProxyX(tile));
+
+            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            foreach (Property prop in pool.CustomProperties)
+                props.Add(Property.ToXmlProxyX(prop));
+
+            return new LibraryX.TilePoolX() {
+                Name = pool.Name,
+                Texture = pool._textureId.ToString(),
                 //Source = TextureResource.ToXmlProxy(pool._tileSource),
                 TileWidth = pool._tileWidth,
                 TileHeight = pool._tileHeight,
@@ -1060,6 +1085,7 @@ namespace Treefrog.Framework.Model
             return pool;
         }
 
+        [Obsolete]
         public static TileDefXmlProxy ToXmlProxy (Tile tile)
         {
             if (tile == null)
@@ -1074,6 +1100,23 @@ namespace Treefrog.Framework.Model
             {
                 Id = tile.Id,
                 Loc = loc.X + "," + loc.Y,
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static LibraryX.TileDefX ToXmlProxyX (Tile tile)
+        {
+            if (tile == null)
+                return null;
+
+            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            foreach (Property prop in tile.CustomProperties)
+                props.Add(Property.ToXmlProxyX(prop));
+
+            TileCoord loc = tile.Pool.GetTileLocation(tile.Id);
+            return new LibraryX.TileDefX() {
+                Id = tile.Id,
+                Location = loc.X + "," + loc.Y,
                 Properties = props.Count > 0 ? props : null,
             };
         }

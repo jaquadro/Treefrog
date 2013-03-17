@@ -217,6 +217,7 @@ namespace Treefrog.Framework.Model
             return project;
         }
 
+        [Obsolete]
         public void Save (Stream stream)
         {
             XmlWriterSettings settings = new XmlWriterSettings()
@@ -229,6 +230,46 @@ namespace Treefrog.Framework.Model
 
             ProjectXmlProxy proxy = Project.ToXmlProxy(this);
             XmlSerializer serializer = new XmlSerializer(typeof(ProjectXmlProxy));
+            serializer.Serialize(writer, proxy);
+
+            writer.Close();
+        }
+
+        public void Save (Stream stream, ProjectResolver resolver)
+        {
+            WriteLibrary(this, resolver, "test.tlbx");
+
+            foreach (Level level in Levels) {
+                WriteLevel(resolver, level, level.Name + "_test.tlvx");
+            }
+
+            XmlWriterSettings settings = new XmlWriterSettings() {
+                CloseOutput = true,
+                Indent = true,
+            };
+
+            XmlWriter writer = XmlTextWriter.Create(stream, settings);
+
+            ProjectX proxy = new ProjectX() {
+                ItemGroups = new List<ProjectX.ItemGroupX>(),
+            };
+
+            proxy.ItemGroups.Add(new ProjectX.ItemGroupX() {
+                Libraries = new List<ProjectX.LibraryX>() {
+                    new ProjectX.LibraryX() { Include = "test.tlbx" },
+                }
+            });
+
+            ProjectX.ItemGroupX levelGroup = new ProjectX.ItemGroupX() {
+                Levels = new List<ProjectX.LevelX>()
+            };
+
+            foreach (Level level in Levels) 
+                levelGroup.Levels.Add(new ProjectX.LevelX() { Include = level.Name + "_test.tlvx" });
+
+            proxy.ItemGroups.Add(levelGroup);
+
+            XmlSerializer serializer = new XmlSerializer(typeof(ProjectX));
             serializer.Serialize(writer, proxy);
 
             writer.Close();
@@ -360,6 +401,48 @@ namespace Treefrog.Framework.Model
                 Levels = levels,
             };
         }
+
+        private static void WriteLevel (ProjectResolver resolver, Level level, string levelPath)
+        {
+            using (Stream stream = resolver.OutputStream(levelPath)) {
+                XmlWriterSettings settings = new XmlWriterSettings() {
+                    CloseOutput = true,
+                    Indent = true,
+                };
+
+                XmlWriter writer = XmlTextWriter.Create(stream, settings);
+
+                LevelX proxy = Level.ToXmlProxyX(level);
+                XmlSerializer serializer = new XmlSerializer(typeof(LevelX));
+                serializer.Serialize(writer, proxy);
+
+                writer.Close();
+            }
+        }
+
+        private static void WriteLibrary (Project project, ProjectResolver resolver, string libraryPath)
+        {
+            using (Stream stream = resolver.OutputStream(libraryPath)) {
+                XmlWriterSettings settings = new XmlWriterSettings() {
+                    CloseOutput = true,
+                    Indent = true,
+                };
+
+                XmlWriter writer = XmlTextWriter.Create(stream, settings);
+
+                LibraryX library = new LibraryX() {
+                    TextureGroup = TexturePool.ToXmlProxyX(project.TexturePool),
+                    ObjectGroup = ObjectPoolManager.ToXmlProxyX(project.ObjectPoolManager),
+                    TileGroup = TilePoolManager.ToXmlProxyX(project.TilePoolManager),
+                    TileBrushGroup = TileBrushManager.ToXmlProxyX(project.TileBrushManager),
+                };
+
+                XmlSerializer serializer = new XmlSerializer(typeof(LibraryX));
+                serializer.Serialize(writer, library);
+
+                writer.Close();
+            }
+        }
     }
 
     public abstract class ProjectResolver
@@ -420,10 +503,10 @@ namespace Treefrog.Framework.Model
         public class ItemGroupX
         {
             [XmlElement("Library")]
-            public LibraryX[] Libraries { get; set; }
+            public List<LibraryX> Libraries { get; set; }
 
             [XmlElement("Level")]
-            public LevelX[] Levels { get; set; }
+            public List<LevelX> Levels { get; set; }
         }
 
         public class LibraryX
@@ -442,7 +525,7 @@ namespace Treefrog.Framework.Model
         public PropertyGroupX PropertyGroup { get; set; }
 
         [XmlElement("ItemGroup")]
-        public ItemGroupX[] ItemGroups { get; set; }
+        public List<ItemGroupX> ItemGroups { get; set; }
     }
 
     [XmlRoot("Library", Namespace = "http://jaquadro.com/schemas/treefrog/library")]
@@ -457,19 +540,19 @@ namespace Treefrog.Framework.Model
         public class TextureGroupX
         {
             [XmlElement("Texture")]
-            public TextureX[] Textures { get; set; }
+            public List<TextureX> Textures { get; set; }
         }
 
         public class ObjectGroupX
         {
             [XmlElement("ObjectPool")]
-            public ObjectPoolX[] ObjectPools { get; set; }
+            public List<ObjectPoolX> ObjectPools { get; set; }
         }
 
         public class TileGroupX
         {
             [XmlElement("TilePool")]
-            public TilePoolX[] TilePools { get; set; }
+            public List<TilePoolX> TilePools { get; set; }
         }
 
         public class TileBrushGroupX
@@ -503,11 +586,11 @@ namespace Treefrog.Framework.Model
 
             [XmlArray]
             [XmlArrayItem("ObjectClass")]
-            public ObjectClassX[] ObjectClasses { get; set; }
+            public List<ObjectClassX> ObjectClasses { get; set; }
 
             [XmlArray]
             [XmlArrayItem("Property")]
-            public PropertyX[] Properties { get; set; }
+            public List<PropertyX> Properties { get; set; }
         }
 
         public class ObjectClassX
@@ -535,7 +618,7 @@ namespace Treefrog.Framework.Model
 
             [XmlArray]
             [XmlArrayItem("Property")]
-            public PropertyX[] Properties { get; set; }
+            public List<PropertyX> Properties { get; set; }
         }
 
         public class TilePoolX
@@ -554,11 +637,11 @@ namespace Treefrog.Framework.Model
 
             [XmlArray]
             [XmlArrayItem("TileDef")]
-            public TileDefX[] TileDefinitions { get; set; }
+            public List<TileDefX> TileDefinitions { get; set; }
 
             [XmlArray]
             [XmlArrayItem("Property")]
-            public PropertyX[] Properties { get; set; }
+            public List<PropertyX> Properties { get; set; }
         }
 
         public class TileDefX
@@ -574,7 +657,7 @@ namespace Treefrog.Framework.Model
 
             [XmlArray]
             [XmlArrayItem("Property")]
-            public PropertyX[] Properties { get; set; }
+            public List<PropertyX> Properties { get; set; }
         }
 
         public class PropertyX
@@ -593,7 +676,7 @@ namespace Treefrog.Framework.Model
             public string Name { get; set; }
 
             [XmlElement("Brush")]
-            public TProxy[] Brushes { get; set; }
+            public List<TProxy> Brushes { get; set; }
         }
 
         public class TileBrushX
@@ -642,7 +725,7 @@ namespace Treefrog.Framework.Model
             public string Type { get; set; }
 
             [XmlElement("Entry")]
-            public BrushEntryX[] Entries { get; set; }
+            public List<BrushEntryX> Entries { get; set; }
         }
 
         public class BrushEntryX
@@ -717,7 +800,7 @@ namespace Treefrog.Framework.Model
 
             [XmlArray]
             [XmlArrayItem("Property")]
-            public LibraryX.PropertyX[] Properties { get; set; }
+            public List<LibraryX.PropertyX> Properties { get; set; }
         }
 
         [XmlRoot("LayerData", Namespace = "http://jaquadro.com/schemas/treefrog/level")]
@@ -755,7 +838,7 @@ namespace Treefrog.Framework.Model
 
             [XmlArray]
             [XmlArrayItem("Property")]
-            public LibraryX.PropertyX[] Properties { get; set; }
+            public List<LibraryX.PropertyX> Properties { get; set; }
         }
 
         [XmlAttribute]

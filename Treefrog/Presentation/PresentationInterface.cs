@@ -324,7 +324,7 @@ namespace Treefrog.Presentation
         public void ActionSaveProject (string path)
         {
             using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.Write)) {
-                _editor.Save(fs);
+                _editor.Save(fs, new FileProjectResolver(path));
             }
         }
 

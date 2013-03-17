@@ -467,6 +467,7 @@ namespace Treefrog.Framework.Model
             return level;
         }
 
+        [Obsolete]
         public static LevelXmlProxy ToXmlProxy (Level level)
         {
             if (level == null)
@@ -482,6 +483,29 @@ namespace Treefrog.Framework.Model
 
             return new LevelXmlProxy()
             {
+                Name = level.Name,
+                OriginX = level.OriginX,
+                OriginY = level.OriginY,
+                Width = level.Width,
+                Height = level.Height,
+                Layers = layers.Count > 0 ? layers : null,
+            };
+        }
+
+        public static LevelX ToXmlProxyX (Level level)
+        {
+            if (level == null)
+                return null;
+
+            List<AbstractXmlSerializer<LevelX.LayerX>> layers = new List<AbstractXmlSerializer<LevelX.LayerX>>();
+            foreach (Layer layer in level.Layers) {
+                if (layer is MultiTileGridLayer)
+                    layers.Add(MultiTileGridLayer.ToXmlProxyX(layer as MultiTileGridLayer));
+                else if (layer is ObjectLayer)
+                    layers.Add(ObjectLayer.ToXmlProxyX(layer as ObjectLayer));
+            }
+
+            return new LevelX() {
                 Name = level.Name,
                 OriginX = level.OriginX,
                 OriginY = level.OriginY,

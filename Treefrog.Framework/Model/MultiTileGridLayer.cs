@@ -106,6 +106,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        [Obsolete]
         public static MultiTileGridLayerXmlProxy ToXmlProxy (MultiTileGridLayer layer)
         {
             if (layer == null)
@@ -134,6 +135,43 @@ namespace Treefrog.Framework.Model
 
             return new MultiTileGridLayerXmlProxy()
             {
+                Name = layer.Name,
+                Opacity = layer.Opacity,
+                Visible = layer.IsVisible,
+                RasterMode = layer.RasterMode,
+                TileWidth = layer.TileWidth,
+                TileHeight = layer.TileHeight,
+                Tiles = tiles.Count > 0 ? tiles : null,
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static LevelX.MultiTileGridLayerX ToXmlProxyX (MultiTileGridLayer layer)
+        {
+            if (layer == null)
+                return null;
+
+            List<LibraryX.TileStackX> tiles = new List<LibraryX.TileStackX>();
+            foreach (LocatedTileStack ts in layer.TileStacks) {
+                if (ts.Stack != null && ts.Stack.Count > 0) {
+                    List<string> ids = new List<string>();
+                    foreach (Tile tile in ts.Stack) {
+                        ids.Add(tile.Id.ToString());
+                    }
+                    string idSet = String.Join(",", ids.ToArray());
+
+                    tiles.Add(new LibraryX.TileStackX() {
+                        At = ts.X + "," + ts.Y,
+                        Items = idSet,
+                    });
+                }
+            }
+
+            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            foreach (Property prop in layer.CustomProperties)
+                props.Add(Property.ToXmlProxyX(prop));
+
+            return new LevelX.MultiTileGridLayerX() {
                 Name = layer.Name,
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,

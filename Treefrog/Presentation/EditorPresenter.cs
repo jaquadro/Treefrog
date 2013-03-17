@@ -333,10 +333,10 @@ namespace Treefrog.Presentation
             }
         }
 
-        public void Save (Stream stream)
+        public void Save (Stream stream, ProjectResolver resolver)
         {
             if (_project != null) {
-                _project.Save(stream);
+                _project.Save(stream, resolver);
                 Modified = false;
             }
         }
@@ -608,7 +608,7 @@ namespace Treefrog.Presentation
                 else {
                     try {
                         using (FileStream fs = File.Open(_projectPath, FileMode.Create, FileAccess.Write)) {
-                            Save(fs);
+                            Save(fs, new FileProjectResolver(_projectPath));
                         }
                     }
                     catch (IOException e) {
@@ -635,7 +635,7 @@ namespace Treefrog.Presentation
                 if (ofd.ShowDialog() == DialogResult.OK) {
                     try {
                         using (FileStream fs = File.Open(ofd.FileName, FileMode.Create, FileAccess.Write)) {
-                            Save(fs);
+                            Save(fs, new FileProjectResolver(ofd.FileName));
                         }
                     }
                     catch (IOException e) {

@@ -325,6 +325,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        [Obsolete]
         public static ObjectPoolXmlProxy ToXmlProxy (ObjectPool pool)
         {
             if (pool == null)
@@ -338,6 +339,23 @@ namespace Treefrog.Framework.Model
 
             return new ObjectPoolXmlProxy()
             {
+                Name = pool._name,
+                ObjectClasses = objects,
+            };
+        }
+
+        public static LibraryX.ObjectPoolX ToXmlProxyX (ObjectPool pool)
+        {
+            if (pool == null)
+                return null;
+
+            List<LibraryX.ObjectClassX> objects = new List<LibraryX.ObjectClassX>();
+            foreach (ObjectClass objClass in pool._objects) {
+                LibraryX.ObjectClassX classProxy = ObjectClass.ToXmlProxyX(objClass);
+                objects.Add(classProxy);
+            }
+
+            return new LibraryX.ObjectPoolX() {
                 Name = pool._name,
                 ObjectClasses = objects,
             };

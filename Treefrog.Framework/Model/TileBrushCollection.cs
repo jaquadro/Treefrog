@@ -187,6 +187,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        [Obsolete]
         public static TileBrushCollectionXmlProxy<TProxy> ToXmlProxy<TProxy> (TileBrushCollection<T> brushCollection, Func<T, TProxy> itemXmlFunc)
             where TProxy : TileBrushXmlProxy
         {
@@ -200,6 +201,24 @@ namespace Treefrog.Framework.Model
             }
 
             return new TileBrushCollectionXmlProxy<TProxy>() {
+                Name = brushCollection.Name,
+                Brushes = objects,
+            };
+        }
+
+        public static LibraryX.TileBrushCollectionX<TProxy> ToXmlProxyX<TProxy> (TileBrushCollection<T> brushCollection, Func<T, TProxy> itemXmlFunc)
+            where TProxy : LibraryX.TileBrushX
+        {
+            if (brushCollection == null)
+                return null;
+
+            List<TProxy> objects = new List<TProxy>();
+            foreach (T brush in brushCollection.Brushes) {
+                TProxy brushProxy = itemXmlFunc(brush);
+                objects.Add(brushProxy);
+            }
+
+            return new LibraryX.TileBrushCollectionX<TProxy>() {
                 Name = brushCollection.Name,
                 Brushes = objects,
             };

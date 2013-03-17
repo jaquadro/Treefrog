@@ -207,6 +207,7 @@ namespace Treefrog.Framework.Model
             return new StringProperty(proxy.Name, proxy.Value);
         }
 
+        [Obsolete]
         public static PropertyXmlProxy ToXmlProxy (Property property)
         {
             if (property == null)
@@ -214,6 +215,17 @@ namespace Treefrog.Framework.Model
 
             return new PropertyXmlProxy()
             {
+                Name = property.Name,
+                Value = property.ToString(),
+            };
+        }
+
+        public static LibraryX.PropertyX ToXmlProxyX (Property property)
+        {
+            if (property == null)
+                return null;
+
+            return new LibraryX.PropertyX() {
                 Name = property.Name,
                 Value = property.ToString(),
             };
