@@ -46,7 +46,7 @@ namespace Treefrog.Framework.Model
         private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
 
         private ObjectPool _pool;
-        private int _id;
+        private Guid _id;
         private string _name;
         private Guid _textureId;
 
@@ -95,7 +95,7 @@ namespace Treefrog.Framework.Model
             _origin = origin;
         }
 
-        public int Id
+        public Guid Uid
         {
             get { return _id; }
             set { _id = value; }
@@ -418,7 +418,7 @@ namespace Treefrog.Framework.Model
 
             return new ObjectClassXmlProxy()
             {
-                Id = objClass.Id,
+                //Id = objClass.Uid,
                 Name = objClass._name,
                 //Texture = objClass._textureId,
                 ImageBounds = objClass._imageBounds,
@@ -439,7 +439,7 @@ namespace Treefrog.Framework.Model
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LibraryX.ObjectClassX() {
-                Id = objClass.Id,
+                Uid = objClass.Uid,
                 Name = objClass._name,
                 Texture = objClass._textureId,
                 ImageBounds = objClass._imageBounds,
@@ -457,7 +457,7 @@ namespace Treefrog.Framework.Model
                 return null;
 
             ObjectClass objClass = new ObjectClass(proxy.Name);
-            objClass._id = proxy.Id;
+            //objClass._id = proxy.Id;
             //objClass._textureId = proxy.Texture;
             //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
             objClass._imageBounds = proxy.ImageBounds;
@@ -478,7 +478,7 @@ namespace Treefrog.Framework.Model
                 return null;
 
             ObjectClass objClass = new ObjectClass(proxy.Name);
-            objClass._id = proxy.Id;
+            objClass._id = proxy.Uid;
             objClass._textureId = proxy.Texture;
             //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
             objClass._imageBounds = proxy.ImageBounds;

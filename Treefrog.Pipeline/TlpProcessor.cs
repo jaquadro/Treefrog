@@ -171,7 +171,7 @@ namespace Treefrog.Pipeline
                 ObjectLayer objLayer = layer as ObjectLayer;
                 if (objLayer != null) {
                     foreach (ObjectInstance inst in objLayer.Objects) {
-                        ObjectPool pool = level.Project.ObjectPoolManager.PoolFromItemKey(inst.ObjectClass.Id);
+                        ObjectPool pool = level.Project.ObjectPoolManager.PoolFromItemKey(inst.ObjectClass.Uid);
                         if (!pools.Contains(pool)) {
                             pools.Add(pool);
                         }

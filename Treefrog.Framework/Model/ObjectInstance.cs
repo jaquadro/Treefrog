@@ -331,11 +331,11 @@ namespace Treefrog.Framework.Model
 
         #region Serialization
 
-        private int _classId;
+        private Guid _classId;
 
         public void PreSerialize ()
         {
-            _classId = _class.Id;
+            _classId = _class.Uid;
         }
 
         public void PostDeserialize (Project project)
@@ -353,7 +353,7 @@ namespace Treefrog.Framework.Model
 
         public ObjectInstance (SerializationInfo info, StreamingContext context)
         {
-            _classId = info.GetInt32("ClassID");
+            _classId = (Guid)info.GetValue("ClassID", typeof(Guid));
             _posX = info.GetInt32("PosX");
             _posY = info.GetInt32("PosY");
             _rotation = info.GetSingle("Rotation");
@@ -366,7 +366,7 @@ namespace Treefrog.Framework.Model
 
         public void GetObjectData (SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("ClassID", _class.Id);
+            info.AddValue("ClassID", _class.Uid);
             info.AddValue("PosX", _posX);
             info.AddValue("PosY", _posY);
             info.AddValue("Rotation", _rotation);
@@ -389,7 +389,7 @@ namespace Treefrog.Framework.Model
                 props.Add(Property.ToXmlProxy(prop));
 
             return new ObjectInstanceXmlProxy() {
-                Class = inst.ObjectClass.Id,
+                //Class = inst.ObjectClass.Uid,
                 At = inst.X + "," + inst.Y,
                 Rotation = MathEx.RadToDeg(inst.Rotation),
                 Properties = (props.Count > 0) ? props : null,
@@ -406,7 +406,7 @@ namespace Treefrog.Framework.Model
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LevelX.ObjectInstanceX() {
-                Class = inst.ObjectClass.Id,
+                Class = inst.ObjectClass.Uid,
                 At = inst.X + "," + inst.Y,
                 Rotation = MathEx.RadToDeg(inst.Rotation),
                 Properties = (props.Count > 0) ? props : null,
@@ -421,9 +421,9 @@ namespace Treefrog.Framework.Model
 
             string[] coords = proxy.At.Split(new char[] { ',' });
 
-            ObjectPool pool = manager.PoolFromItemKey(proxy.Class);
-            foreach (ObjectClass objClass in pool) {
-                if (objClass.Id == proxy.Class) {
+            //ObjectPool pool = manager.PoolFromItemKey(proxy.Class);
+            //foreach (ObjectClass objClass in pool) {
+                /*if (objClass.Uid == proxy.Class) {
                     ObjectInstance inst = new ObjectInstance(objClass);
                     inst.X = Convert.ToInt32(coords[0]);
                     inst.Y = Convert.ToInt32(coords[1]);
@@ -433,8 +433,8 @@ namespace Treefrog.Framework.Model
                         inst.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
 
                     return inst;
-                }
-            }
+                }*/
+            //}
 
             return null;
         }
@@ -448,7 +448,7 @@ namespace Treefrog.Framework.Model
 
             ObjectPool pool = manager.PoolFromItemKey(proxy.Class);
             foreach (ObjectClass objClass in pool) {
-                if (objClass.Id == proxy.Class) {
+                if (objClass.Uid == proxy.Class) {
                     ObjectInstance inst = new ObjectInstance(objClass);
                     inst.X = Convert.ToInt32(coords[0]);
                     inst.Y = Convert.ToInt32(coords[1]);

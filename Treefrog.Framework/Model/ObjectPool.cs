@@ -62,10 +62,10 @@ namespace Treefrog.Framework.Model
             get { return _objects.Count; }
         }
 
-        public ObjectClass GetObject (int id)
+        public ObjectClass GetObject (Guid uid)
         {
             foreach (ObjectClass objClass in _objects) {
-                if (objClass.Id == id)
+                if (objClass.Uid == uid)
                     return objClass;
             }
 
@@ -74,23 +74,21 @@ namespace Treefrog.Framework.Model
 
         public void AddObject (ObjectClass objClass)
         {
-            int id = _manager.TakeKey();
+            Guid id = _manager.TakeKey();
             AddObject(objClass, id);
         }
 
-        public void AddObject (ObjectClass objClass, int id)
+        public void AddObject (ObjectClass objClass, Guid uid)
         {
             if (_objects.Contains(objClass.Name))
                 throw new ArgumentException("Object Pool already contains an object with the same name as objClass.");
 
-            objClass.Id = id;
+            objClass.Uid = uid;
             objClass.Pool = this;
 
             _objects.Add(objClass);
 
-            _manager.LinkItemKey(id, this);
-            if (_manager.LastKey < id)
-                _manager.LastKey = id;
+            _manager.LinkItemKey(uid, this);
         }
 
         public void RemoveObject (string name)
@@ -99,7 +97,7 @@ namespace Treefrog.Framework.Model
                 ObjectClass objClass = _objects[name];
                 objClass.Pool = null;
 
-                _manager.UnlinkItemKey(objClass.Id);
+                _manager.UnlinkItemKey(objClass.Uid);
 
                 _objects.Remove(name);
             }
@@ -370,7 +368,7 @@ namespace Treefrog.Framework.Model
             ObjectPool pool = manager.CreatePool(proxy.Name);
             foreach (ObjectClassXmlProxy objClass in proxy.ObjectClasses) {
                 ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
-                pool.AddObject(inst, objClass.Id);
+                //pool.AddObject(inst, objClass.Id);
             }
 
             return pool;
@@ -384,7 +382,7 @@ namespace Treefrog.Framework.Model
             ObjectPool pool = manager.CreatePool(proxy.Name);
             foreach (var objClass in proxy.ObjectClasses) {
                 ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
-                pool.AddObject(inst, objClass.Id);
+                pool.AddObject(inst, objClass.Uid);
             }
 
             return pool;

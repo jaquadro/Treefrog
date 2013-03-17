@@ -596,9 +596,6 @@ namespace Treefrog.Framework.Model
         public class ObjectClassX
         {
             [XmlAttribute]
-            public int Id { get; set; }
-
-            [XmlAttribute]
             public Guid Uid { get; set; }
 
             [XmlAttribute]
@@ -828,7 +825,7 @@ namespace Treefrog.Framework.Model
         public class ObjectInstanceX
         {
             [XmlAttribute]
-            public int Class { get; set; }
+            public Guid Class { get; set; }
 
             [XmlAttribute]
             public string At { get; set; }

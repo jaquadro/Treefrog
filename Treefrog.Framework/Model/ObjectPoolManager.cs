@@ -14,7 +14,7 @@ namespace Treefrog.Framework.Model
         public ObjectPoolXmlProxy[] Pools { get; set; }
     }
 
-    public class ObjectPoolManager : PoolManager<ObjectPool, int>
+    public class ObjectPoolManager : PoolManager<ObjectPool, Guid>
     {
         private TexturePool _texPool;
 
@@ -34,10 +34,9 @@ namespace Treefrog.Framework.Model
             return new ObjectPool(name, this);
         }
 
-        internal override int TakeKey ()
+        internal override Guid TakeKey ()
         {
-            LastKey++;
-            return LastKey;
+            return Guid.NewGuid();
         }
 
         [Obsolete]
@@ -52,7 +51,7 @@ namespace Treefrog.Framework.Model
 
             return new ObjectPoolManagerXmlProxy()
             {
-                LastKey = manager.LastKey,
+                //LastKey = manager.LastKey,
                 Pools = pools.ToArray(),
             };
         }
