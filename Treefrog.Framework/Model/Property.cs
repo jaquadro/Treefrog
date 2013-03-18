@@ -191,34 +191,12 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        [Obsolete]
-        public static Property FromXmlProxy (PropertyXmlProxy proxy)
-        {
-            if (proxy == null)
-                return null;
-
-            return new StringProperty(proxy.Name, proxy.Value);
-        }
-
         public static Property FromXmlProxy (CommonX.PropertyX proxy)
         {
             if (proxy == null)
                 return null;
 
             return new StringProperty(proxy.Name, proxy.Value);
-        }
-
-        [Obsolete]
-        public static PropertyXmlProxy ToXmlProxy (Property property)
-        {
-            if (property == null)
-                return null;
-
-            return new PropertyXmlProxy()
-            {
-                Name = property.Name,
-                Value = property.ToString(),
-            };
         }
 
         public static CommonX.PropertyX ToXmlProxyX (Property property)

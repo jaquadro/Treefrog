@@ -153,32 +153,6 @@ namespace Treefrog.Framework.Model
                 UpdateExtants(coord);
         }
 
-        [Obsolete]
-        public static StaticTileBrushXmlProxy ToXmlProxy (StaticTileBrush brush)
-        {
-            if (brush == null)
-                return null;
-
-            List<TileStackXmlProxy> stacks = new List<TileStackXmlProxy>();
-            foreach (var kv in brush._tiles) {
-                List<string> tileIds = new List<string>();
-                foreach (Tile tile in kv.Value)
-                    tileIds.Add(tile.Uid.ToString());
-
-                stacks.Add(new TileStackXmlProxy() {
-                    At = kv.Key.X + "," + kv.Key.Y,
-                    Items = String.Join(",", tileIds.ToArray()),
-                });
-            }
-
-            return new StaticTileBrushXmlProxy() {
-                Name = brush.Name,
-                TileWidth = brush.TileWidth,
-                TileHeight = brush.TileHeight,
-                Tiles = stacks,
-            };
-        }
-
         public static LibraryX.StaticTileBrushX ToXmlProxyX (StaticTileBrush brush)
         {
             if (brush == null)
@@ -203,37 +177,6 @@ namespace Treefrog.Framework.Model
                 TileHeight = brush.TileHeight,
                 Tiles = stacks,
             };
-        }
-
-        [Obsolete]
-        public static StaticTileBrush FromXmlProxy (StaticTileBrushXmlProxy proxy, TilePoolManager manager)
-        {
-            if (proxy == null)
-                return null;
-
-            StaticTileBrush brush = new StaticTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight);
-
-            foreach (TileStackXmlProxy stack in proxy.Tiles) {
-                string[] coord = stack.At.Split(',');
-                string[] tileIds = stack.Items.Split(',');
-
-                int x = (coord.Length > 0) ? Convert.ToInt32(coord[0].Trim()) : 0;
-                int y = (coord.Length > 1) ? Convert.ToInt32(coord[1].Trim()) : 0;
-
-                foreach (string tileId in tileIds) {
-                    //int id = Convert.ToInt32(tileId.Trim());
-
-                    /*TilePool pool = manager.PoolFromTileId(id);
-                    if (pool == null)
-                        continue;
-
-                    brush.AddTile(new TileCoord(x, y), pool.GetTile(id));*/
-                }
-            }
-
-            brush.Normalize();
-
-            return brush;
         }
 
         public static StaticTileBrush FromXmlProxy (LibraryX.StaticTileBrushX proxy, TilePoolManager manager)

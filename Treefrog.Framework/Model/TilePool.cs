@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Collections;
 using System.Xml;
-//using System.IO.Compression;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Imaging;
 using System.Xml.Serialization;
@@ -701,32 +700,6 @@ namespace Treefrog.Framework.Model
             Name = property.Value;
         }
 
-        [Obsolete]
-        public static TilePoolXmlProxy ToXmlProxy (TilePool pool)
-        {
-            if (pool == null)
-                return null;
-
-            List<TileDefXmlProxy> tiledefs = new List<TileDefXmlProxy>();
-            foreach (Tile tile in pool._tiles.Values)
-                tiledefs.Add(ToXmlProxy(tile));
-
-            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
-            foreach (Property prop in pool.CustomProperties)
-                props.Add(Property.ToXmlProxy(prop));
-
-            return new TilePoolXmlProxy()
-            {
-                Name = pool.Name,
-                //Texture = pool._textureId,
-                //Source = TextureResource.ToXmlProxy(pool._tileSource),
-                TileWidth = pool._tileWidth,
-                TileHeight = pool._tileHeight,
-                TileDefinitions = tiledefs.Count > 0 ? tiledefs : null,
-                Properties = props.Count > 0 ? props : null,
-            };
-        }
-
         public static LibraryX.TilePoolX ToXmlProxyX (TilePool pool)
         {
             if (pool == null)
@@ -749,38 +722,6 @@ namespace Treefrog.Framework.Model
                 TileDefinitions = tiledefs.Count > 0 ? tiledefs : null,
                 Properties = props.Count > 0 ? props : null,
             };
-        }
-
-        [Obsolete]
-        public static TilePool FromXmlProxy (TilePoolXmlProxy proxy, TilePoolManager manager)
-        {
-            if (proxy == null)
-                return null;
-
-            TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
-            manager.TexturePool.RemoveResource(pool._textureId);
-
-            //pool._textureId = proxy.Texture;
-            pool._tileSource = manager.TexturePool.GetResource(pool._textureId);
-
-            //pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
-
-            if (pool._tileSource != null) {
-                pool._tileSource.Apply(c => {
-                    return (c.A == 0) ? Colors.Transparent : c;
-                });
-            }
-
-            foreach (TileDefXmlProxy tiledef in proxy.TileDefinitions)
-                FromXmlProxy(tiledef, pool);
-
-            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
-                pool.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-
-            if (pool._tileSource != null)
-                pool.RecalculateOpenLocations();
-
-            return pool;
         }
 
         public static TilePool FromXmlProxy (LibraryX.TilePoolX proxy, TilePoolManager manager)
@@ -818,25 +759,6 @@ namespace Treefrog.Framework.Model
             return pool;
         }
 
-        [Obsolete]
-        public static TileDefXmlProxy ToXmlProxy (Tile tile)
-        {
-            if (tile == null)
-                return null;
-
-            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
-            foreach (Property prop in tile.CustomProperties)
-                props.Add(Property.ToXmlProxy(prop));
-
-            TileCoord loc = tile.Pool.GetTileLocation(tile.Uid);
-            return new TileDefXmlProxy()
-            {
-                //Id = tile.Uid,
-                Loc = loc.X + "," + loc.Y,
-                Properties = props.Count > 0 ? props : null,
-            };
-        }
-
         public static LibraryX.TileDefX ToXmlProxyX (Tile tile)
         {
             if (tile == null)
@@ -852,39 +774,6 @@ namespace Treefrog.Framework.Model
                 Location = loc.X + "," + loc.Y,
                 Properties = props.Count > 0 ? props : null,
             };
-        }
-
-        [Obsolete]
-        public static Tile FromXmlProxy (TileDefXmlProxy proxy, TilePool pool)
-        {
-            if (proxy == null)
-                return null;
-
-            string[] loc = proxy.Loc.Split(new char[] { ',' });
-            if (loc.Length != 2)
-                throw new Exception("Malformed location: " + proxy.Loc);
-
-            int x = Convert.ToInt32(loc[0]);
-            int y = Convert.ToInt32(loc[1]);
-            if (x < 0 || y < 0)
-                throw new Exception("Invalid location: " + proxy.Loc);
-
-            TileCoord coord = new TileCoord(x, y);
-            /*Tile tile = new PhysicalTile(proxy.Uid, pool);
-
-            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
-                tile.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-
-            pool._locations[proxy.Id] = coord;
-            pool._tiles[proxy.Id] = tile;
-            pool._tiles[proxy.Id].Modified += pool.TileModifiedHandler;
-
-            pool._manager.LinkTile(proxy.Id, pool);
-            if (pool._manager.LastId < proxy.Id)
-                pool._manager.LastId = proxy.Id;*/
-
-            //return tile;
-            return null;
         }
 
         public static Tile FromXmlProxy (LibraryX.TileDefX proxy, TilePool pool)

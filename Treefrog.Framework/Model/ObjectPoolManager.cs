@@ -40,23 +40,6 @@ namespace Treefrog.Framework.Model
             return Guid.NewGuid();
         }
 
-        [Obsolete]
-        public static ObjectPoolManagerXmlProxy ToXmlProxy (ObjectPoolManager manager)
-        {
-            if (manager == null)
-                return null;
-
-            List<ObjectPoolXmlProxy> pools = new List<ObjectPoolXmlProxy>();
-            foreach (ObjectPool pool in manager.Pools)
-                pools.Add(ObjectPool.ToXmlProxy(pool));
-
-            return new ObjectPoolManagerXmlProxy()
-            {
-                //LastKey = manager.LastKey,
-                Pools = pools.ToArray(),
-            };
-        }
-
         public static LibraryX.ObjectGroupX ToXmlProxyX (ObjectPoolManager manager)
         {
             if (manager == null)
@@ -69,21 +52,6 @@ namespace Treefrog.Framework.Model
             return new LibraryX.ObjectGroupX() {
                 ObjectPools = pools,
             };
-        }
-
-        [Obsolete]
-        public static ObjectPoolManager FromXmlProxy (ObjectPoolManagerXmlProxy proxy, TexturePool texturePool)
-        {
-            if (proxy == null)
-                return null;
-
-            ObjectPoolManager manager = new ObjectPoolManager(texturePool);
-            if (proxy.Pools != null) {
-                foreach (ObjectPoolXmlProxy pool in proxy.Pools)
-                    ObjectPool.FromXmlProxy(pool, manager);
-            }
-
-            return manager;
         }
 
         public static ObjectPoolManager FromXmlProxy (LibraryX.ObjectGroupX proxy, TexturePool texturePool)

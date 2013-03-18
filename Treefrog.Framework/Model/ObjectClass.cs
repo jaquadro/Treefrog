@@ -407,29 +407,6 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        [Obsolete]
-        public static ObjectClassXmlProxy ToXmlProxy (ObjectClass objClass)
-        {
-            if (objClass == null)
-                return null;
-
-            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
-            foreach (Property prop in objClass.CustomProperties)
-                props.Add(Property.ToXmlProxy(prop));
-
-            return new ObjectClassXmlProxy()
-            {
-                //Id = objClass.Uid,
-                Name = objClass._name,
-                //Texture = objClass._textureId,
-                ImageBounds = objClass._imageBounds,
-                MaskBounds = objClass._maskBounds,
-                Origin = objClass._origin,
-                //Image = TextureResource.ToXmlProxy(objClass._image),
-                Properties = props.Count > 0 ? props : null,
-            };
-        }
-
         public static LibraryX.ObjectClassX ToXmlProxyX (ObjectClass objClass)
         {
             if (objClass == null)
@@ -446,31 +423,8 @@ namespace Treefrog.Framework.Model
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,
-                //Image = TextureResource.ToXmlProxy(objClass._image),
                 Properties = props.Count > 0 ? props : null,
             };
-        }
-
-        [Obsolete]
-        public static ObjectClass FromXmlProxy (ObjectClassXmlProxy proxy, TexturePool texturePool)
-        {
-            if (proxy == null)
-                return null;
-
-            ObjectClass objClass = new ObjectClass(proxy.Name);
-            //objClass._id = proxy.Id;
-            //objClass._textureId = proxy.Texture;
-            //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
-            objClass._imageBounds = proxy.ImageBounds;
-            objClass._maskBounds = proxy.MaskBounds;
-            objClass._origin = proxy.Origin;
-
-            objClass._image = texturePool.GetResource(objClass._textureId);
-
-            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
-                objClass.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-
-            return objClass;
         }
 
         public static ObjectClass FromXmlProxy (LibraryX.ObjectClassX proxy, TexturePool texturePool)
@@ -481,7 +435,6 @@ namespace Treefrog.Framework.Model
             ObjectClass objClass = new ObjectClass(proxy.Name);
             objClass._id = proxy.Uid;
             objClass._textureId = proxy.Texture;
-            //objClass._image = TextureResource.FromXmlProxy(proxy.Image);
             objClass._imageBounds = proxy.ImageBounds;
             objClass._maskBounds = proxy.MaskBounds;
             objClass._origin = proxy.Origin;

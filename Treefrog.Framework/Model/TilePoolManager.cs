@@ -19,7 +19,6 @@ namespace Treefrog.Framework.Model
 
     public class TilePoolManager
     {
-        //private int _lastId = 0;
         private NamedResourceCollection<TilePool> _pools;
         private Dictionary<Guid, TilePool> _tileIndexMap;
 
@@ -100,7 +99,6 @@ namespace Treefrog.Framework.Model
 
         public void Reset ()
         {
-            //_lastId = 0;
             _pools.Clear();
             _tileIndexMap = new Dictionary<Guid, TilePool>();
         }
@@ -111,12 +109,6 @@ namespace Treefrog.Framework.Model
             _tileIndexMap.TryGetValue(uid, out pool);
             return pool;
         }
-
-        /*internal int LastId
-        {
-            get { return _lastId; }
-            set { _lastId = value; }
-        }*/
 
         internal Guid TakeId ()
         {
@@ -133,23 +125,6 @@ namespace Treefrog.Framework.Model
             _tileIndexMap.Remove(uid);
         }
 
-        [Obsolete]
-        public static TilePoolManagerXmlProxy ToXmlProxy (TilePoolManager manager)
-        {
-            if (manager == null)
-                return null;
-
-            List<TilePoolXmlProxy> pools = new List<TilePoolXmlProxy>();
-            foreach (TilePool pool in manager.Pools)
-                pools.Add(TilePool.ToXmlProxy(pool));
-
-            return new TilePoolManagerXmlProxy()
-            {
-                //LastKey = manager.LastId,
-                Pools = pools.ToArray(),
-            };
-        }
-
         public static LibraryX.TileGroupX ToXmlProxyX (TilePoolManager manager)
         {
             if (manager == null)
@@ -162,21 +137,6 @@ namespace Treefrog.Framework.Model
             return new LibraryX.TileGroupX() {
                 TilePools = pools,
             };
-        }
-
-        [Obsolete]
-        public static TilePoolManager FromXmlProxy (TilePoolManagerXmlProxy proxy, TexturePool texturePool)
-        {
-            if (proxy == null)
-                return null;
-
-            TilePoolManager manager = new TilePoolManager(texturePool);
-
-            if (proxy.Pools != null)
-                foreach (TilePoolXmlProxy pool in proxy.Pools)
-                    TilePool.FromXmlProxy(pool, manager);
-
-            return manager;
         }
 
         public static TilePoolManager FromXmlProxy (LibraryX.TileGroupX proxy, TexturePool texturePool)

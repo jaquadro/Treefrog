@@ -68,26 +68,6 @@ namespace Treefrog.Framework.Model
                 _objects.Add(inst.Clone() as ObjectInstance);
         }
 
-        [Obsolete]
-        public ObjectLayer (ObjectLayerXmlProxy proxy, Level level)
-            : this(proxy.Name, level)
-        {
-            Opacity = proxy.Opacity;
-            IsVisible = proxy.Visible;
-            RasterMode = proxy.RasterMode;
-            Level = level;
-
-            NamedObservableCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
-            foreach (ObjectInstanceXmlProxy objProxy in proxy.Objects) {
-                ObjectInstance inst = ObjectInstance.FromXmlProxy(objProxy, Level.Project.ObjectPoolManager);
-                if (inst != null)
-                    AddObject(inst);
-            }
-
-            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
-                CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-        }
-
         public ObjectLayer (LevelX.ObjectLayerX proxy, Level level)
             : this(proxy.Name, level)
         {
@@ -107,31 +87,6 @@ namespace Treefrog.Framework.Model
                 foreach (var propertyProxy in proxy.Properties)
                     CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
-        }
-
-        [Obsolete]
-        public static ObjectLayerXmlProxy ToXmlProxy (ObjectLayer layer)
-        {
-            if (layer == null)
-                return null;
-
-            List<ObjectInstanceXmlProxy> objs = new List<ObjectInstanceXmlProxy>();
-            foreach (ObjectInstance inst in layer.Objects)
-                objs.Add(ObjectInstance.ToXmlProxy(inst));
-
-            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
-            foreach (Property prop in layer.CustomProperties)
-                props.Add(Property.ToXmlProxy(prop));
-
-            return new ObjectLayerXmlProxy()
-            {
-                Name = layer.Name,
-                Opacity = layer.Opacity,
-                Visible = layer.IsVisible,
-                RasterMode = layer.RasterMode,
-                Objects = objs.Count > 0 ? objs : null,
-                Properties = props.Count > 0 ? props : null,
-            };
         }
 
         public static LevelX.ObjectLayerX ToXmlProxyX (ObjectLayer layer)

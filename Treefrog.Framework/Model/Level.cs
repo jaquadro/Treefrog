@@ -426,28 +426,6 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        [Obsolete]
-        public static Level FromXmlProxy (LevelXmlProxy proxy, Project project)
-        {
-            if (proxy == null)
-                return null;
-
-            Level level = new Level(proxy.Name, proxy.OriginX, proxy.OriginY, proxy.Width, proxy.Height);
-            level.Project = project;
-
-            foreach (LayerXmlProxy layerProxy in proxy.Layers) {
-                if (layerProxy is MultiTileGridLayerXmlProxy)
-                    level.Layers.Add(new MultiTileGridLayer(layerProxy as MultiTileGridLayerXmlProxy, level));
-                else if (layerProxy is ObjectLayerXmlProxy)
-                    level.Layers.Add(new ObjectLayer(layerProxy as ObjectLayerXmlProxy, level));
-            }
-
-            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
-                level.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-
-            return level;
-        }
-
         private int _lastLocalTileIndex;
         private Mapper<int, Guid> _localTileIndex = new Mapper<int,Guid>();
 
@@ -482,34 +460,6 @@ namespace Treefrog.Framework.Model
                 level.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
 
             return level;
-        }
-
-        [Obsolete]
-        public static LevelXmlProxy ToXmlProxy (Level level)
-        {
-            if (level == null)
-                return null;
-
-            int index = 1;
-
-
-            List<AbstractXmlSerializer<LayerXmlProxy>> layers = new List<AbstractXmlSerializer<LayerXmlProxy>>();
-            foreach (Layer layer in level.Layers) {
-                if (layer is MultiTileGridLayer)
-                    layers.Add(MultiTileGridLayer.ToXmlProxy(layer as MultiTileGridLayer));
-                else if (layer is ObjectLayer)
-                    layers.Add(ObjectLayer.ToXmlProxy(layer as ObjectLayer));
-            }
-
-            return new LevelXmlProxy()
-            {
-                Name = level.Name,
-                OriginX = level.OriginX,
-                OriginY = level.OriginY,
-                Width = level.Width,
-                Height = level.Height,
-                Layers = layers.Count > 0 ? layers : null,
-            };
         }
 
         public static LevelX ToXmlProxyX (Level level)

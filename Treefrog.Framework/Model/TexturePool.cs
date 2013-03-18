@@ -98,24 +98,6 @@ namespace Treefrog.Framework.Model
                 ev(this, e);
         }
 
-        [Obsolete]
-        public static TexturePoolXmlProxy ToXmlProxy (TexturePool pool)
-        {
-            if (pool == null)
-                return null;
-
-            List<TextureDefinitionXmlProxy> defs = new List<TextureDefinitionXmlProxy>();
-            foreach (var kv in pool._resources)
-                defs.Add(new TextureDefinitionXmlProxy() {
-                    //Id = kv.Key,
-                    TextureData = TextureResource.ToXmlProxy(kv.Value),
-                });
-
-            return new TexturePoolXmlProxy() {
-                Textures = defs,
-            };
-        }
-
         public static LibraryX.TextureGroupX ToXmlProxyX (TexturePool pool)
         {
             if (pool == null)
@@ -131,24 +113,6 @@ namespace Treefrog.Framework.Model
             return new LibraryX.TextureGroupX() {
                 Textures = defs,
             };
-        }
-
-        [Obsolete]
-        public static TexturePool FromXmlProxy (TexturePoolXmlProxy proxy)
-        {
-            if (proxy == null)
-                return null;
-
-            TexturePool pool = new TexturePool();
-            foreach (TextureDefinitionXmlProxy defProxy in proxy.Textures) {
-                TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData);
-                if (resource != null) {
-                    //pool._resources[defProxy.Id] = resource;
-                    //pool._lastId = Math.Max(pool._lastId, defProxy.Id);
-                }
-            }
-
-            return pool;
         }
 
         public static TexturePool FromXmlProxy (LibraryX.TextureGroupX proxy)

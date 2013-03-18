@@ -324,25 +324,6 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        [Obsolete]
-        public static ObjectPoolXmlProxy ToXmlProxy (ObjectPool pool)
-        {
-            if (pool == null)
-                return null;
-
-            List<ObjectClassXmlProxy> objects = new List<ObjectClassXmlProxy>();
-            foreach (ObjectClass objClass in pool._objects) {
-                ObjectClassXmlProxy classProxy = ObjectClass.ToXmlProxy(objClass);
-                objects.Add(classProxy);
-            }
-
-            return new ObjectPoolXmlProxy()
-            {
-                Name = pool._name,
-                ObjectClasses = objects,
-            };
-        }
-
         public static LibraryX.ObjectPoolX ToXmlProxyX (ObjectPool pool)
         {
             if (pool == null)
@@ -358,21 +339,6 @@ namespace Treefrog.Framework.Model
                 Name = pool._name,
                 ObjectClasses = objects,
             };
-        }
-
-        [Obsolete]
-        public static ObjectPool FromXmlProxy (ObjectPoolXmlProxy proxy, ObjectPoolManager manager)
-        {
-            if (proxy == null)
-                return null;
-
-            ObjectPool pool = manager.CreatePool(proxy.Name);
-            foreach (ObjectClassXmlProxy objClass in proxy.ObjectClasses) {
-                ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
-                //pool.AddObject(inst, objClass.Id);
-            }
-
-            return pool;
         }
 
         public static ObjectPool FromXmlProxy (LibraryX.ObjectPoolX proxy, ObjectPoolManager manager)

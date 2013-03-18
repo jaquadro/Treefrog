@@ -44,37 +44,6 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        [Obsolete]
-        public MultiTileGridLayer (MultiTileGridLayerXmlProxy proxy, Level level)
-            : base(proxy.Name, proxy.TileWidth, proxy.TileHeight, level)
-        {
-            _tiles = new TileStack[TilesHigh, TilesWide];
-
-            Opacity = proxy.Opacity;
-            IsVisible = proxy.Visible;
-            RasterMode = proxy.RasterMode;
-            Level = level;
-
-            foreach (TileStackXmlProxy tileProxy in proxy.Tiles) {
-                string[] coords = tileProxy.At.Split(new char[] { ',' });
-                string[] ids = tileProxy.Items.Split(new char[] { ',' });
-
-                TilePoolManager manager = Level.Project.TilePoolManager;
-
-                foreach (string id in ids) {
-                    int tileId = Convert.ToInt32(id);
-
-                    //TilePool pool = manager.PoolFromTileId(tileId);
-                    //Tile tile = pool.GetTile(tileId);
-
-                    //AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
-                }
-            }
-
-            foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
-                CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-        }
-
         public MultiTileGridLayer (LevelX.MultiTileGridLayerX proxy, Level level, Dictionary<int, Guid> tileIndex)
             : base(proxy.Name, proxy.TileWidth, proxy.TileHeight, level)
         {
@@ -109,46 +78,6 @@ namespace Treefrog.Framework.Model
                 foreach (var propertyProxy in proxy.Properties)
                     CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
-        }
-
-        [Obsolete]
-        public static MultiTileGridLayerXmlProxy ToXmlProxy (MultiTileGridLayer layer)
-        {
-            if (layer == null)
-                return null;
-
-            List<TileStackXmlProxy> tiles = new List<TileStackXmlProxy>();
-            foreach (LocatedTileStack ts in layer.TileStacks) {
-                if (ts.Stack != null && ts.Stack.Count > 0) {
-                    List<string> ids = new List<string>();
-                    foreach (Tile tile in ts.Stack) {
-                        ids.Add(tile.Uid.ToString());
-                    }
-                    string idSet = String.Join(",", ids.ToArray());
-
-                    tiles.Add(new TileStackXmlProxy()
-                    {
-                        At = ts.X + "," + ts.Y,
-                        Items = idSet,
-                    });
-                }
-            }
-
-            List<PropertyXmlProxy> props = new List<PropertyXmlProxy>();
-            foreach (Property prop in layer.CustomProperties)
-                props.Add(Property.ToXmlProxy(prop));
-
-            return new MultiTileGridLayerXmlProxy()
-            {
-                Name = layer.Name,
-                Opacity = layer.Opacity,
-                Visible = layer.IsVisible,
-                RasterMode = layer.RasterMode,
-                TileWidth = layer.TileWidth,
-                TileHeight = layer.TileHeight,
-                Tiles = tiles.Count > 0 ? tiles : null,
-                Properties = props.Count > 0 ? props : null,
-            };
         }
 
         public static LevelX.MultiTileGridLayerX ToXmlProxyX (MultiTileGridLayer layer)

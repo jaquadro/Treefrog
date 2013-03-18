@@ -156,31 +156,6 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        [Obsolete]
-        public static DynamicTileBrushXmlProxy ToXmlProxy (DynamicTileBrush brush)
-        {
-            if (brush == null)
-                return null;
-
-            List<TileBrushEntryXmlProxy> brushEntries = new List<TileBrushEntryXmlProxy>();
-            for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
-                /*Tile tile = brush.GetTile(i);
-                if (tile != null)
-                    brushEntries.Add(new TileBrushEntryXmlProxy() {
-                        Slot = i,
-                        TileId = tile.Uid,
-                    });*/
-            }
-
-            return new DynamicTileBrushXmlProxy() {
-                Name = brush.Name,
-                Type = brush.BrushClass.ClassName,
-                TileWidth = brush.TileWidth,
-                TileHeight = brush.TileHeight,
-                BrushEntries = brushEntries,
-            };
-        }
-
         public static LibraryX.DynamicTileBrushX ToXmlProxyX (DynamicTileBrush brush)
         {
             if (brush == null)
@@ -204,29 +179,6 @@ namespace Treefrog.Framework.Model
                 TileHeight = brush.TileHeight,
                 Entries = brushEntries,
             };
-        }
-
-        [Obsolete]
-        public static DynamicTileBrush FromXmlProxy (DynamicTileBrushXmlProxy proxy, TilePoolManager manager, DynamicTileBrushClassRegistry registry)
-        {
-            if (proxy == null)
-                return null;
-
-            DynamicTileBrushClass brushClass = registry.Lookup(proxy.Type);
-            if (brushClass == null)
-                return null;
-
-            DynamicTileBrush brush = new DynamicTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
-
-            /*foreach (TileBrushEntryXmlProxy entry in proxy.BrushEntries) {
-                TilePool pool = manager.PoolFromTileId(entry.TileId);
-                if (pool == null)
-                    continue;
-
-                brush.SetTile(entry.Slot, pool.GetTile(entry.TileId));
-            }*/
-
-            return brush;
         }
 
         public static DynamicTileBrush FromXmlProxy (LibraryX.DynamicTileBrushX proxy, TilePoolManager manager, DynamicTileBrushClassRegistry registry)
