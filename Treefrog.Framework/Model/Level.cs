@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Xml;
 using System.Xml.Serialization;
 using Treefrog.Framework.Model.Collections;
+using Treefrog.Framework.Model.Support;
 
 namespace Treefrog.Framework.Model
 {
@@ -446,17 +447,28 @@ namespace Treefrog.Framework.Model
             return level;
         }
 
+        private int _lastLocalTileIndex;
+        private Mapper<int, Guid> _localTileIndex = new Mapper<int,Guid>();
+
+        public Mapper<int, Guid> TileIndex
+        {
+            get { return _localTileIndex; }
+        }
+
         public static Level FromXmlProxy (LevelX proxy, Project project)
         {
             if (proxy == null)
                 return null;
 
-            Dictionary<int, Guid> tileIndex = new Dictionary<int, Guid>();
-            foreach (var entry in proxy.TileIndex)
-                tileIndex.Add(entry.Id, entry.Uid);
-
             Level level = new Level(proxy.Name, proxy.OriginX, proxy.OriginY, proxy.Width, proxy.Height);
             level.Project = project;
+
+            Dictionary<int, Guid> tileIndex = new Dictionary<int, Guid>();
+            foreach (var entry in proxy.TileIndex) {
+                level._localTileIndex.Add(entry.Id, entry.Uid);
+                level._lastLocalTileIndex = Math.Max(level._lastLocalTileIndex, entry.Id);
+                tileIndex.Add(entry.Id, entry.Uid);
+            }
 
             foreach (LevelX.LayerX layerProxy in proxy.Layers) {
                 if (layerProxy is LevelX.MultiTileGridLayerX)
@@ -476,6 +488,9 @@ namespace Treefrog.Framework.Model
         {
             if (level == null)
                 return null;
+
+            int index = 1;
+
 
             List<AbstractXmlSerializer<LayerXmlProxy>> layers = new List<AbstractXmlSerializer<LayerXmlProxy>>();
             foreach (Layer layer in level.Layers) {
@@ -501,6 +516,24 @@ namespace Treefrog.Framework.Model
             if (level == null)
                 return null;
 
+            foreach (Layer layer in level.Layers) {
+                if (layer is TileGridLayer) {
+                    TileGridLayer tileLayer = layer as TileGridLayer;
+                    foreach (LocatedTile tile in tileLayer.Tiles) {
+                        if (!level._localTileIndex.ContainsValue(tile.Tile.Uid))
+                            level._localTileIndex.Add(level._lastLocalTileIndex++, tile.Tile.Uid);
+                    }
+                }
+            }
+
+            List<LevelX.TileIndexEntryX> tileIndex = new List<LevelX.TileIndexEntryX>();
+            foreach (var item in level._localTileIndex) {
+                tileIndex.Add(new LevelX.TileIndexEntryX() {
+                    Id = item.Key,
+                    Uid = item.Value,
+                });
+            }
+
             List<AbstractXmlSerializer<LevelX.LayerX>> layers = new List<AbstractXmlSerializer<LevelX.LayerX>>();
             foreach (Layer layer in level.Layers) {
                 if (layer is MultiTileGridLayer)
@@ -515,6 +548,7 @@ namespace Treefrog.Framework.Model
                 OriginY = level.OriginY,
                 Width = level.Width,
                 Height = level.Height,
+                TileIndex = tileIndex.Count > 0 ? tileIndex : null,
                 Layers = layers.Count > 0 ? layers : null,
             };
         }

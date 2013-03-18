@@ -89,6 +89,7 @@
     <Compile Include="Imaging\Vector.cs" />
     <Compile Include="KeyedObservableCollection.cs" />
     <Compile Include="ListEx.cs" />
+    <Compile Include="Mapper.cs" />
     <Compile Include="MathEx.cs" />
     <Compile Include="Model\Collections\EventArgs.cs" />
     <Compile Include="Model\Collections\PredefinedPropertyCollection.cs" />

@@ -33,8 +33,8 @@ namespace Treefrog.Presentation
 
         event EventHandler TileBrushSelected;
 
-        void ActionSelectBrush (int brushId);
-        void ActionEditBrush (int brushId);
+        void ActionSelectBrush (Guid brushId);
+        void ActionEditBrush (Guid brushId);
 
         void RefreshTileBrushCollection ();
     }
@@ -43,7 +43,7 @@ namespace Treefrog.Presentation
     {
         private IEditorPresenter _editor;
 
-        private int _selectedBrush;
+        private Guid _selectedBrush;
         private TileBrush _selectedBrushRef;
 
         public TileBrushManagerPresenter (IEditorPresenter editor)
@@ -56,7 +56,7 @@ namespace Treefrog.Presentation
 
         private void SyncCurrentProjectHandler (object sender, SyncProjectEventArgs e)
         {
-            SelectBrush(-1);
+            SelectBrush(Guid.Empty);
 
             OnSyncTileBrushManager(EventArgs.Empty);
             OnSyncTileBrushCollection(EventArgs.Empty);
@@ -100,11 +100,11 @@ namespace Treefrog.Presentation
                             form.ReservedNames.Add(item.Name);
 
                         if (form.ShowDialog() == DialogResult.OK) {
-                            if (TileBrushManager.StaticBrushes.GetBrush(form.Brush.Id) == null)
+                            if (TileBrushManager.StaticBrushes.GetBrush(form.Brush.Uid) == null)
                                 TileBrushManager.StaticBrushes.AddBrush(form.Brush);
 
                             OnSyncTileBrushCollection(EventArgs.Empty);
-                            SelectBrush(form.Brush.Id);
+                            SelectBrush(form.Brush.Uid);
                             OnTileBrushSelected(EventArgs.Empty);
                         }
                     }
@@ -129,11 +129,11 @@ namespace Treefrog.Presentation
                             form.ReservedNames.Add(item.Name);
 
                         if (form.ShowDialog() == DialogResult.OK) {
-                            if (TileBrushManager.DynamicBrushes.GetBrush(form.Brush.Id) == null)
+                            if (TileBrushManager.DynamicBrushes.GetBrush(form.Brush.Uid) == null)
                                 TileBrushManager.DynamicBrushes.AddBrush(form.Brush);
 
                             OnSyncTileBrushCollection(EventArgs.Empty);
-                            SelectBrush(form.Brush.Id);
+                            SelectBrush(form.Brush.Uid);
                             OnTileBrushSelected(EventArgs.Empty);
                         }
                     }
@@ -151,7 +151,7 @@ namespace Treefrog.Presentation
             if (CommandCanCloneBrush()) {
                 string name = FindCloneBrushName(SelectedBrush.Name);
 
-                int newBrushId = -1;
+                Guid newBrushId = Guid.Empty;
                 if (SelectedBrush is DynamicTileBrush) {
                     DynamicTileBrush oldBrush = SelectedBrush as DynamicTileBrush;
                     DynamicTileBrush newBrush = new DynamicTileBrush(name, oldBrush.TileWidth, oldBrush.TileHeight, oldBrush.BrushClass);
@@ -159,7 +159,7 @@ namespace Treefrog.Presentation
                         newBrush.SetTile(i, oldBrush.GetTile(i));
 
                     TileBrushManager.DynamicBrushes.AddBrush(newBrush);
-                    newBrushId = newBrush.Id;
+                    newBrushId = newBrush.Uid;
                 }
                 else if (SelectedBrush is StaticTileBrush) {
                     StaticTileBrush oldBrush = SelectedBrush as StaticTileBrush;
@@ -169,7 +169,7 @@ namespace Treefrog.Presentation
                     newBrush.Normalize();
 
                     TileBrushManager.StaticBrushes.AddBrush(newBrush);
-                    newBrushId = newBrush.Id;
+                    newBrushId = newBrush.Uid;
                 }
                 else
                     return;
@@ -194,7 +194,7 @@ namespace Treefrog.Presentation
                     TileBrushManager.StaticBrushes.RemoveBrush(SelectedBrush.Name);
 
                 OnSyncTileBrushCollection(EventArgs.Empty);
-                SelectBrush(-1);
+                SelectBrush(Guid.Empty);
             }
         }
 
@@ -245,13 +245,13 @@ namespace Treefrog.Presentation
                 TileBrushSelected(this, e);
         }
 
-        public void ActionSelectBrush (int brushId)
+        public void ActionSelectBrush (Guid brushId)
         {
             SelectBrush(brushId);
             OnTileBrushSelected(EventArgs.Empty);
         }
 
-        public void ActionEditBrush (int brushId)
+        public void ActionEditBrush (Guid brushId)
         {
             TileBrush brush = TileBrushManager.GetBrush(brushId) as TileBrush;
             if (brush == null)
@@ -269,7 +269,7 @@ namespace Treefrog.Presentation
 
                         if (form.ShowDialog() == DialogResult.OK) {
                             OnSyncTileBrushCollection(EventArgs.Empty);
-                            SelectBrush(form.Brush.Id);
+                            SelectBrush(form.Brush.Uid);
                             OnTileBrushSelected(EventArgs.Empty);
                         }
                     }
@@ -287,7 +287,7 @@ namespace Treefrog.Presentation
 
                         if (form.ShowDialog() == DialogResult.OK) {
                             OnSyncTileBrushCollection(EventArgs.Empty);
-                            SelectBrush(form.Brush.Id);
+                            SelectBrush(form.Brush.Uid);
                             OnTileBrushSelected(EventArgs.Empty);
                         }
                     }
@@ -300,7 +300,7 @@ namespace Treefrog.Presentation
             OnSyncTileBrushCollection(EventArgs.Empty);
         }
 
-        private void SelectBrush (int brushId)
+        private void SelectBrush (Guid brushId)
         {
             if (_selectedBrush == brushId)
                 return;

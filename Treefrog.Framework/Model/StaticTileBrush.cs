@@ -172,7 +172,6 @@ namespace Treefrog.Framework.Model
             }
 
             return new StaticTileBrushXmlProxy() {
-                Id = brush.Id,
                 Name = brush.Name,
                 TileWidth = brush.TileWidth,
                 TileHeight = brush.TileHeight,
@@ -198,7 +197,7 @@ namespace Treefrog.Framework.Model
             }
 
             return new LibraryX.StaticTileBrushX() {
-                Id = brush.Id,
+                Uid = brush.Uid,
                 Name = brush.Name,
                 TileWidth = brush.TileWidth,
                 TileHeight = brush.TileHeight,

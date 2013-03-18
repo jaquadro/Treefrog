@@ -16,12 +16,12 @@ namespace Treefrog.Framework.Model
             _name = name;
         }
 
-        public TileBrush GetBrush (int id)
+        public TileBrush GetBrush (Guid uid)
         {
-            return GetBrushCore(id);
+            return GetBrushCore(uid);
         }
 
-        protected abstract TileBrush GetBrushCore (int id);
+        protected abstract TileBrush GetBrushCore (Guid uid);
 
         #region IKeyProvider<string> Members
 
@@ -94,7 +94,7 @@ namespace Treefrog.Framework.Model
     {
         private TileBrushManager _manager;
         private NamedObservableCollection<T> _brushes;
-        private Dictionary<int, T> _brushIndex;
+        private Dictionary<Guid, T> _brushIndex;
 
         protected TileBrushCollection (string name)
             : base(name)
@@ -114,15 +114,15 @@ namespace Treefrog.Framework.Model
             get { return _brushes.Count; }
         }
 
-        protected override TileBrush GetBrushCore (int id)
+        protected override TileBrush GetBrushCore (Guid uid)
         {
-            return GetBrush(id);
+            return GetBrush(uid);
         }
 
-        public new T GetBrush (int id)
+        public new T GetBrush (Guid uid)
         {
             foreach (T brush in _brushes) {
-                if (brush.Id == id)
+                if (brush.Uid == uid)
                     return brush;
             }
 
@@ -131,29 +131,27 @@ namespace Treefrog.Framework.Model
 
         public void AddBrush (T brush)
         {
-            int id = _manager.TakeKey();
-            AddBrush(brush, id);
+            Guid uid = _manager.TakeKey();
+            AddBrush(brush, uid);
         }
 
-        public void AddBrush (T brush, int id)
+        public void AddBrush (T brush, Guid uid)
         {
             if (_brushes.Contains(brush.Name))
                 throw new ArgumentException("Brush collection already contains a brush with the same name as brush.");
 
-            brush.Id = id;
+            brush.Uid = uid;
 
             _brushes.Add(brush);
 
-            _manager.LinkItemKey(id, this);
-            if (_manager.LastKey < id)
-                _manager.LastKey = id;
+            _manager.LinkItemKey(uid, this);
         }
 
         public void RemoveBrush (string name)
         {
             if (_brushes.Contains(name)) {
                 T objClass = _brushes[name];
-                _manager.UnlinkItemKey(objClass.Id);
+                _manager.UnlinkItemKey(objClass.Uid);
 
                 _brushes.Remove(name);
             }
@@ -233,7 +231,7 @@ namespace Treefrog.Framework.Model
 
             foreach (TProxy brush in proxy.Brushes) {
                 T inst = itemXmlFunc(brush);
-                brushCollection.AddBrush(inst, brush.Id);
+                //brushCollection.AddBrush(inst, brush.Id);
             }
 
             return brushCollection;
@@ -248,7 +246,7 @@ namespace Treefrog.Framework.Model
             if (proxy.Brushes != null) {
                 foreach (TProxy brush in proxy.Brushes) {
                     T inst = itemXmlFunc(brush);
-                    brushCollection.AddBrush(inst, brush.Id);
+                    brushCollection.AddBrush(inst, brush.Uid);
                 }
             }
 

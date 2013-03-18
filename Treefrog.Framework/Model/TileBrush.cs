@@ -17,7 +17,7 @@ namespace Treefrog.Framework.Model
 
     public abstract class TileBrush : IKeyProvider<string>
     {
-        private int _id;
+        private Guid _id;
         private string _name;
 
         private int _tileHeight;
@@ -28,6 +28,12 @@ namespace Treefrog.Framework.Model
             _name = name;
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
+        }
+
+        protected TileBrush (string name, int tileWidth, int tileHeight, Guid uid)
+            : this(name, tileWidth, tileHeight)
+        {
+            _id = uid;
         }
 
         public int TileHeight
@@ -50,7 +56,7 @@ namespace Treefrog.Framework.Model
             get { return 1; }
         }
 
-        public int Id
+        public Guid Uid
         {
             get { return _id; }
             set { _id = value; }

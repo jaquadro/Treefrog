@@ -160,7 +160,8 @@ namespace Treefrog.Framework.Model
                 if (ts.Stack != null && ts.Stack.Count > 0) {
                     List<string> ids = new List<string>();
                     foreach (Tile tile in ts.Stack) {
-                        ids.Add(tile.Uid.ToString());
+                        if (layer.Level.TileIndex.ContainsValue(tile.Uid))
+                            ids.Add(layer.Level.TileIndex[tile.Uid].ToString());
                     }
                     string idSet = String.Join(",", ids.ToArray());
 

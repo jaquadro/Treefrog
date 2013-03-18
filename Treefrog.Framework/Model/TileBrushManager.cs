@@ -8,18 +8,16 @@ namespace Treefrog.Framework.Model
 {
     public class TileBrushManager
     {
-        private int _lastId;
         private TileBrushCollection<StaticTileBrush> _staticBrushCollection;
         private TileBrushCollection<DynamicTileBrush> _dynamicBrushCollection;
 
-        private Dictionary<int, TileBrushCollection> _indexMap;
+        private Dictionary<Guid, TileBrushCollection> _indexMap;
 
         public TileBrushManager ()
         {
-            _lastId = 0;
             _staticBrushCollection = new TileBrushCollection<StaticTileBrush>("Static Brushes", this);
             _dynamicBrushCollection = new TileBrushCollection<DynamicTileBrush>("Dynamic Brushes", this);
-            _indexMap = new Dictionary<int, TileBrushCollection>();
+            _indexMap = new Dictionary<Guid, TileBrushCollection>();
         }
 
         public TileBrushCollection<StaticTileBrush> StaticBrushes
@@ -34,7 +32,6 @@ namespace Treefrog.Framework.Model
 
         public void Reset ()
         {
-            _lastId = 0;
             _staticBrushCollection.Brushes.Clear();
             _dynamicBrushCollection.Brushes.Clear();
         }
@@ -48,7 +45,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public TileBrush GetBrush (int key)
+        public TileBrush GetBrush (Guid key)
         {
             TileBrushCollection collection;
             if (!_indexMap.TryGetValue(key, out collection))
@@ -57,24 +54,17 @@ namespace Treefrog.Framework.Model
             return collection.GetBrush(key);
         }
 
-        internal int LastKey
+        internal Guid TakeKey ()
         {
-            get { return _lastId; }
-            set { _lastId = value; }
+            return Guid.NewGuid();
         }
 
-        internal int TakeKey ()
-        {
-            LastKey++;
-            return LastKey;
-        }
-
-        internal void LinkItemKey (int key, TileBrushCollection collection)
+        internal void LinkItemKey (Guid key, TileBrushCollection collection)
         {
             _indexMap[key] = collection;
         }
 
-        internal void UnlinkItemKey (int key)
+        internal void UnlinkItemKey (Guid key)
         {
             _indexMap.Remove(key);
         }
@@ -86,7 +76,6 @@ namespace Treefrog.Framework.Model
                 return null;
 
             return new TileBrushManagerXmlProxy() {
-                LastKey = manager.LastKey,
                 StaticBrushes = TileBrushCollection<StaticTileBrush>.ToXmlProxy<StaticTileBrushXmlProxy>(manager.StaticBrushes, StaticTileBrush.ToXmlProxy),
                 DynamicBrushes = TileBrushCollection<DynamicTileBrush>.ToXmlProxy<DynamicTileBrushXmlProxy>(manager.DynamicBrushes, DynamicTileBrush.ToXmlProxy),
             };

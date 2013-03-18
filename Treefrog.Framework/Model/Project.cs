@@ -467,7 +467,7 @@ namespace Treefrog.Framework.Model
 
         public override Stream OutputStream (string relativePath)
         {
-            return File.OpenWrite(Path.Combine(_basePath, relativePath));
+            return File.Open(Path.Combine(_basePath, relativePath), FileMode.Create, FileAccess.Write);
         }
     }
 
@@ -675,9 +675,6 @@ namespace Treefrog.Framework.Model
 
         public class TileBrushX
         {
-            [XmlAttribute]
-            public int Id { get; set; }
-
             [XmlAttribute]
             public Guid Uid { get; set; }
 

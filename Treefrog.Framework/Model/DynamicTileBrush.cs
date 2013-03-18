@@ -173,7 +173,6 @@ namespace Treefrog.Framework.Model
             }
 
             return new DynamicTileBrushXmlProxy() {
-                Id = brush.Id,
                 Name = brush.Name,
                 Type = brush.BrushClass.ClassName,
                 TileWidth = brush.TileWidth,
@@ -198,7 +197,7 @@ namespace Treefrog.Framework.Model
             }
 
             return new LibraryX.DynamicTileBrushX() {
-                Id = brush.Id,
+                Uid = brush.Uid,
                 Name = brush.Name,
                 Type = brush.BrushClass.ClassName,
                 TileWidth = brush.TileWidth,

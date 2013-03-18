@@ -110,9 +110,9 @@ namespace Treefrog.Windows.Panels
         {
             if (_controller != null) {
                 if (!e.IsSelected)
-                    _controller.ActionSelectBrush(-1);
+                    _controller.ActionSelectBrush(Guid.Empty);
                 else
-                    _controller.ActionSelectBrush((int)e.Item.Tag);
+                    _controller.ActionSelectBrush((Guid)e.Item.Tag);
             }
         }
 
@@ -120,7 +120,7 @@ namespace Treefrog.Windows.Panels
         {
             if (_controller != null) {
                 foreach (ListViewItem item in _listView.SelectedItems) {
-                    _controller.ActionSelectBrush((int)item.Tag);
+                    _controller.ActionSelectBrush((Guid)item.Tag);
                     return;
                 }
             }
@@ -130,7 +130,7 @@ namespace Treefrog.Windows.Panels
         {
             if (_controller != null) {
                 foreach (ListViewItem item in _listView.SelectedItems) {
-                    _controller.ActionEditBrush((int)item.Tag);
+                    _controller.ActionEditBrush((Guid)item.Tag);
                     return;
                 }
             }
@@ -157,10 +157,10 @@ namespace Treefrog.Windows.Panels
             if (_controller != null) {
                 if (_controller.SelectedBrush == null)
                     _listView.SelectedItems.Clear();
-                else if (_listView.SelectedItems.Count == 0 || (int)_listView.SelectedItems[0].Tag != _controller.SelectedBrush.Id) {
+                else if (_listView.SelectedItems.Count == 0 || (Guid)_listView.SelectedItems[0].Tag != _controller.SelectedBrush.Uid) {
                     _listView.SelectedItems.Clear();
                     foreach (ListViewItem item in _listView.Items) {
-                        if (_controller.SelectedBrush.Id == (int)item.Tag)
+                        if (_controller.SelectedBrush.Uid == (Guid)item.Tag)
                             item.Selected = true;
                     }
                 }
@@ -179,7 +179,7 @@ namespace Treefrog.Windows.Panels
             _listView.LargeImageList = imgList;
 
             foreach (TileBrush brush in _controller.TileBrushManager.Brushes) {
-                _listView.Items.Add(new ListViewItem(brush.Name, brush.Id.ToString()) { Tag = brush.Id });
+                _listView.Items.Add(new ListViewItem(brush.Name, brush.Uid.ToString()) { Tag = brush.Uid });
             }
         }
 
@@ -193,10 +193,10 @@ namespace Treefrog.Windows.Panels
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
             foreach (DynamicTileBrush brush in _controller.TileBrushManager.DynamicBrushes) {
-                imgList.Images.Add(brush.Id.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
+                imgList.Images.Add(brush.Uid.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
             }
             foreach (StaticTileBrush brush in _controller.TileBrushManager.StaticBrushes) {
-                imgList.Images.Add(brush.Id.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
+                imgList.Images.Add(brush.Uid.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
             }
 
             return imgList;
