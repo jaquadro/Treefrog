@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Security.Cryptography;
 using Treefrog.Framework.Compat;
 using Ionic.Zlib;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
@@ -735,7 +736,7 @@ namespace Treefrog.Framework.Model
             foreach (Tile tile in pool._tiles.Values)
                 tiledefs.Add(ToXmlProxyX(tile));
 
-            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
             foreach (Property prop in pool.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
@@ -841,7 +842,7 @@ namespace Treefrog.Framework.Model
             if (tile == null)
                 return null;
 
-            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
             foreach (Property prop in tile.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 

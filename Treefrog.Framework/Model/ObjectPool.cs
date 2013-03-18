@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Compat;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {

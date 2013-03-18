@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model.Collections;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
@@ -411,7 +412,7 @@ namespace Treefrog.Framework.Model
             if (inst == null)
                 return null;
 
-            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
             foreach (Property prop in inst.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 

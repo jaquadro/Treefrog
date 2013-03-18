@@ -4,6 +4,7 @@ using Treefrog.Framework.Imaging;
 using System.Xml;
 using Treefrog.Framework.Compat;
 using Treefrog.Framework;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
@@ -142,7 +143,7 @@ namespace Treefrog.Framework.Model
             foreach (ObjectInstance inst in layer.Objects)
                 objs.Add(ObjectInstance.ToXmlProxyX(inst));
 
-            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
             foreach (Property prop in layer.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 

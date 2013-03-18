@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Treefrog.Framework.Imaging;
 using System.Xml.Serialization;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {

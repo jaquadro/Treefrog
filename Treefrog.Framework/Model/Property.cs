@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
@@ -199,7 +200,7 @@ namespace Treefrog.Framework.Model
             return new StringProperty(proxy.Name, proxy.Value);
         }
 
-        public static Property FromXmlProxy (LibraryX.PropertyX proxy)
+        public static Property FromXmlProxy (CommonX.PropertyX proxy)
         {
             if (proxy == null)
                 return null;
@@ -220,12 +221,12 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static LibraryX.PropertyX ToXmlProxyX (Property property)
+        public static CommonX.PropertyX ToXmlProxyX (Property property)
         {
             if (property == null)
                 return null;
 
-            return new LibraryX.PropertyX() {
+            return new CommonX.PropertyX() {
                 Name = property.Name,
                 Value = property.ToString(),
             };

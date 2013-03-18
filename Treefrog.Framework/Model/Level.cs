@@ -5,6 +5,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Model.Support;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {

@@ -184,13 +184,13 @@ namespace Treefrog.Framework.Model
             if (brush == null)
                 return null;
 
-            List<LibraryX.TileStackX> stacks = new List<LibraryX.TileStackX>();
+            List<CommonX.TileStackX> stacks = new List<CommonX.TileStackX>();
             foreach (var kv in brush._tiles) {
                 List<string> tileIds = new List<string>();
                 foreach (Tile tile in kv.Value)
                     tileIds.Add(tile.Uid.ToString());
 
-                stacks.Add(new LibraryX.TileStackX() {
+                stacks.Add(new CommonX.TileStackX() {
                     At = kv.Key.X + "," + kv.Key.Y,
                     Items = String.Join(",", tileIds.ToArray()),
                 });

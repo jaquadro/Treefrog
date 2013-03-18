@@ -6,6 +6,7 @@ namespace Treefrog.Framework.Model
 {
     using Support;
     using Treefrog.Framework.Imaging;
+    using Treefrog.Framework.Model.Proxy;
 
     public class MultiTileGridLayer : TileGridLayer
     {
@@ -155,7 +156,7 @@ namespace Treefrog.Framework.Model
             if (layer == null)
                 return null;
 
-            List<LibraryX.TileStackX> tiles = new List<LibraryX.TileStackX>();
+            List<CommonX.TileStackX> tiles = new List<CommonX.TileStackX>();
             foreach (LocatedTileStack ts in layer.TileStacks) {
                 if (ts.Stack != null && ts.Stack.Count > 0) {
                     List<string> ids = new List<string>();
@@ -165,14 +166,14 @@ namespace Treefrog.Framework.Model
                     }
                     string idSet = String.Join(",", ids.ToArray());
 
-                    tiles.Add(new LibraryX.TileStackX() {
+                    tiles.Add(new CommonX.TileStackX() {
                         At = ts.X + "," + ts.Y,
                         Items = idSet,
                     });
                 }
             }
 
-            List<LibraryX.PropertyX> props = new List<LibraryX.PropertyX>();
+            List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
             foreach (Property prop in layer.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
