@@ -807,45 +807,4 @@ namespace Treefrog.Framework.Model
             return tile;
         }
     }
-
-    [XmlRoot("TilePool")]
-    public class TilePoolXmlProxy
-    {
-        [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlAttribute]
-        public int TileWidth { get; set; }
-
-        [XmlAttribute]
-        public int TileHeight { get; set; }
-
-        [XmlAttribute]
-        public int Texture { get; set; }
-
-        //[XmlElement(IsNullable = true)]
-        //public TextureResource.XmlProxy Source { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem("TileDef")]
-        public List<TileDefXmlProxy> TileDefinitions { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem("Property")]
-        public List<PropertyXmlProxy> Properties { get; set; }
-    }
-
-    [XmlRoot("TileDef")]
-    public class TileDefXmlProxy
-    {
-        [XmlAttribute]
-        public int Id { get; set; }
-
-        [XmlAttribute]
-        public string Loc { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem("Property")]
-        public List<PropertyXmlProxy> Properties { get; set; }
-    }
 }

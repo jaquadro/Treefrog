@@ -7,16 +7,6 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    [XmlRoot("TilePools")]
-    public class TilePoolManagerXmlProxy
-    {
-        [XmlAttribute]
-        public int LastKey { get; set; }
-
-        [XmlElement("TilePool")]
-        public TilePoolXmlProxy[] Pools { get; set; }
-    }
-
     public class TilePoolManager
     {
         private NamedResourceCollection<TilePool> _pools;

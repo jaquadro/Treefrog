@@ -7,15 +7,6 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class PropertyXmlProxy
-    {
-        [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlText]
-        public string Value { get; set; }
-    }
-
     /// <summary>
     /// A generic named property base class.
     /// </summary>

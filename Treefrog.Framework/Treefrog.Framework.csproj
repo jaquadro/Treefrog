@@ -70,6 +70,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractXmlSerializer.cs" />
     <Compile Include="Compat\Action.cs" />
     <Compile Include="Compat\ExtensionAttribute.cs" />
     <Compile Include="Compat\Func.cs" />
@@ -107,15 +108,9 @@
     <Compile Include="Model\Project.cs" />
     <Compile Include="Model\Property.cs" />
     <Compile Include="Model\Proxy\CommonX.cs" />
-    <Compile Include="Model\Proxy\DynamicTileBrushXmlProxy.cs" />
     <Compile Include="Model\Proxy\LevelX.cs" />
     <Compile Include="Model\Proxy\LibraryX.cs" />
     <Compile Include="Model\Proxy\ProjectX.cs" />
-    <Compile Include="Model\Proxy\StaticTileBrushXmlProxy.cs" />
-    <Compile Include="Model\Proxy\TileBrushCollectionXmlProxy.cs" />
-    <Compile Include="Model\Proxy\TileBrushEntryXmlProxy.cs" />
-    <Compile Include="Model\Proxy\TileBrushManagerXmlProxy.cs" />
-    <Compile Include="Model\Proxy\TileBrushXmlProxy.cs" />
     <Compile Include="Model\StaticTileBrush.cs" />
     <Compile Include="Model\Support\LocatedTile.cs" />
     <Compile Include="Model\Support\LocatedTileStack.cs" />

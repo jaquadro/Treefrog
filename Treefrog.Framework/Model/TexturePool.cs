@@ -132,20 +132,4 @@ namespace Treefrog.Framework.Model
             return pool;
         }
     }
-
-    public class TexturePoolXmlProxy
-    {
-        [XmlArray]
-        [XmlArrayItem("Texture")]
-        public List<TextureDefinitionXmlProxy> Textures { get; set; }
-    }
-
-    public class TextureDefinitionXmlProxy
-    {
-        [XmlAttribute]
-        public int Id { get; set; }
-
-        [XmlElement]
-        public TextureResource.XmlProxy TextureData { get; set; }
-    }
 }

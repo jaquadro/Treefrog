@@ -13,34 +13,6 @@ namespace Treefrog.Framework.Model
 
     }
 
-    public class ObjectClassXmlProxy
-    {
-        [XmlAttribute]
-        public int Id { get; set; }
-
-        [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlAttribute]
-        public int Texture { get; set; }
-
-        [XmlElement]
-        public Rectangle ImageBounds { get; set; }
-
-        [XmlElement]
-        public Rectangle MaskBounds { get; set; }
-
-        [XmlElement]
-        public Point Origin { get; set; }
-
-        //[XmlElement]
-        //public TextureResource.XmlProxy Image { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem("Property")]
-        public List<PropertyXmlProxy> Properties { get; set; }
-    }
-
     /* INamedResource, IPropertyProvider */
     public class ObjectClass : IKeyProvider<string>, INotifyPropertyChanged, IPropertyProvider
     {

@@ -8,17 +8,6 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    [XmlRoot("ObjectPool")]
-    public class ObjectPoolXmlProxy
-    {
-        [XmlAttribute]
-        public string Name { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem("ObjectClass")]
-        public List<ObjectClassXmlProxy> ObjectClasses { get; set; }
-    }
-
     public class ObjectPool : IKeyProvider<string>, IEnumerable<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
         private static string[] _reservedPropertyNames = new string[] { "Name" };
@@ -165,51 +154,6 @@ namespace Treefrog.Framework.Model
 
             return true;
         }
-
-        /*#region INamedResource Members
-
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                if (_name != value) {
-                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
-                    OnNameChanging(ea);
-                    if (ea.Cancel)
-                        return;
-
-                    string oldName = _name;
-                    _name = value;
-
-                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
-                    OnPropertyProviderNameChanged(EventArgs.Empty);
-                }
-            }
-        }
-
-        public event EventHandler<NameChangingEventArgs> NameChanging = (s, e) => { };
-
-        public event EventHandler<NameChangedEventArgs> NameChanged = (s, e) => { };
-
-        public event EventHandler Modified = (s, e) => { };
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
-        {
-            NameChanging(this, e);
-        }
-
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            NameChanged(this, e);
-        }
-
-        protected virtual void OnModified (EventArgs e)
-        {
-            Modified(this, e);
-        }
-
-        #endregion*/
 
         #region IEnumerable<ObjectClass> Members
 

@@ -5,16 +5,6 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    [XmlRoot("ObjectPools")]
-    public class ObjectPoolManagerXmlProxy
-    {
-        [XmlAttribute]
-        public int LastKey { get; set; }
-
-        [XmlElement("ObjectPool")]
-        public ObjectPoolXmlProxy[] Pools { get; set; }
-    }
-
     public class ObjectPoolManager : PoolManager<ObjectPool, Guid>
     {
         private TexturePool _texPool;
