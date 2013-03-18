@@ -133,6 +133,7 @@
     <Compile Include="Model\Collections\PropertyCollection.cs" />
     <Compile Include="ObjectRegistry.cs" />
     <Compile Include="ObservableDictionary.cs" />
+    <Compile Include="ProjectResolver.cs" />
     <Compile Include="ServiceContainer.cs" />
     <Compile Include="TileCoord.cs" />
     <Compile Include="Model\TileGridLayer.cs" />
