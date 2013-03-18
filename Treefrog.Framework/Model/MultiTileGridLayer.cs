@@ -63,10 +63,10 @@ namespace Treefrog.Framework.Model
                 foreach (string id in ids) {
                     int tileId = Convert.ToInt32(id);
 
-                    TilePool pool = manager.PoolFromTileId(tileId);
-                    Tile tile = pool.GetTile(tileId);
+                    //TilePool pool = manager.PoolFromTileId(tileId);
+                    //Tile tile = pool.GetTile(tileId);
 
-                    AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
+                    //AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
                 }
             }
 
@@ -74,7 +74,7 @@ namespace Treefrog.Framework.Model
                 CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
         }
 
-        public MultiTileGridLayer (LevelX.MultiTileGridLayerX proxy, Level level)
+        public MultiTileGridLayer (LevelX.MultiTileGridLayerX proxy, Level level, Dictionary<int, Guid> tileIndex)
             : base(proxy.Name, proxy.TileWidth, proxy.TileHeight, level)
         {
             _tiles = new TileStack[TilesHigh, TilesWide];
@@ -92,9 +92,13 @@ namespace Treefrog.Framework.Model
 
                 foreach (string id in ids) {
                     int tileId = Convert.ToInt32(id);
+                    
+                    Guid tileUid;
+                    if (!tileIndex.TryGetValue(tileId, out tileUid))
+                        continue;
 
-                    TilePool pool = manager.PoolFromTileId(tileId);
-                    Tile tile = pool.GetTile(tileId);
+                    TilePool pool = manager.PoolFromTileId(tileUid);
+                    Tile tile = pool.GetTile(tileUid);
 
                     AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
                 }
@@ -117,7 +121,7 @@ namespace Treefrog.Framework.Model
                 if (ts.Stack != null && ts.Stack.Count > 0) {
                     List<string> ids = new List<string>();
                     foreach (Tile tile in ts.Stack) {
-                        ids.Add(tile.Id.ToString());
+                        ids.Add(tile.Uid.ToString());
                     }
                     string idSet = String.Join(",", ids.ToArray());
 
@@ -156,7 +160,7 @@ namespace Treefrog.Framework.Model
                 if (ts.Stack != null && ts.Stack.Count > 0) {
                     List<string> ids = new List<string>();
                     foreach (Tile tile in ts.Stack) {
-                        ids.Add(tile.Id.ToString());
+                        ids.Add(tile.Uid.ToString());
                     }
                     string idSet = String.Join(",", ids.ToArray());
 

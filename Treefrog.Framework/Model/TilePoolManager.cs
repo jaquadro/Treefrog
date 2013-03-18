@@ -18,9 +18,9 @@ namespace Treefrog.Framework.Model
 
     public class TilePoolManager
     {
-        private int _lastId = 0;
+        //private int _lastId = 0;
         private NamedResourceCollection<TilePool> _pools;
-        private Dictionary<int, TilePool> _tileIndexMap;
+        private Dictionary<Guid, TilePool> _tileIndexMap;
 
         private TexturePool _texPool;
 
@@ -31,18 +31,18 @@ namespace Treefrog.Framework.Model
             _pools = new NamedResourceCollection<TilePool>();
             _pools.ResourceRemoved += PoolRemovedHandler;
 
-            _tileIndexMap = new Dictionary<int, TilePool>();
+            _tileIndexMap = new Dictionary<Guid, TilePool>();
         }
 
         private void PoolRemovedHandler (object sender, NamedResourceEventArgs<TilePool> e)
         {
-            List<int> removeQueue = new List<int>();
+            List<Guid> removeQueue = new List<Guid>();
             foreach (var item in _tileIndexMap) {
                 if (item.Value == e.Resource)
                     removeQueue.Add(item.Key);
             }
 
-            foreach (int key in removeQueue)
+            foreach (Guid key in removeQueue)
                 _tileIndexMap.Remove(key);
         }
 
@@ -91,7 +91,7 @@ namespace Treefrog.Framework.Model
                 dst = CreateTilePool(name, pool.TileWidth, pool.TileHeight);
 
             foreach (Tile srcTile in pool) {
-                dst.AddTile(pool.GetTileTexture(srcTile.Id));
+                dst.AddTile(pool.GetTileTexture(srcTile.Uid));
             }
 
             return dst;
@@ -99,38 +99,37 @@ namespace Treefrog.Framework.Model
 
         public void Reset ()
         {
-            _lastId = 0;
+            //_lastId = 0;
             _pools.Clear();
-            _tileIndexMap = new Dictionary<int, TilePool>();
+            _tileIndexMap = new Dictionary<Guid, TilePool>();
         }
 
-        public TilePool PoolFromTileId (int id)
+        public TilePool PoolFromTileId (Guid uid)
         {
             TilePool pool = null;
-            _tileIndexMap.TryGetValue(id, out pool);
+            _tileIndexMap.TryGetValue(uid, out pool);
             return pool;
         }
 
-        internal int LastId
+        /*internal int LastId
         {
             get { return _lastId; }
             set { _lastId = value; }
+        }*/
+
+        internal Guid TakeId ()
+        {
+            return Guid.NewGuid();
         }
 
-        internal int TakeId ()
+        internal void LinkTile (Guid uid, TilePool pool)
         {
-            _lastId++;
-            return _lastId;
+            _tileIndexMap[uid] = pool;
         }
 
-        internal void LinkTile (int id, TilePool pool)
+        internal void UnlinkTile (Guid uid)
         {
-            _tileIndexMap[id] = pool;
-        }
-
-        internal void UnlinkTile (int id)
-        {
-            _tileIndexMap.Remove(id);
+            _tileIndexMap.Remove(uid);
         }
 
         [Obsolete]
@@ -145,7 +144,7 @@ namespace Treefrog.Framework.Model
 
             return new TilePoolManagerXmlProxy()
             {
-                LastKey = manager.LastId,
+                //LastKey = manager.LastId,
                 Pools = pools.ToArray(),
             };
         }

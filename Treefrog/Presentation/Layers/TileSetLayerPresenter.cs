@@ -49,7 +49,7 @@ namespace Treefrog.Presentation.Layers
                 int pointY = 0;
 
                 foreach (Tile tile in _layer.Tiles) {
-                    TileCoord tileLoc = tile.Pool.GetTileLocation(tile.Id);
+                    TileCoord tileLoc = tile.Pool.GetTileLocation(tile.Uid);
 
                     yield return new DrawCommand() {
                         Texture = tile.Pool.TextureId,

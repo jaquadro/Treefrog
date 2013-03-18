@@ -99,7 +99,7 @@ namespace Treefrog.Pipeline
                 output.Write((short)stack.Stack.Count);
 
                 foreach (Tile tile in stack.Stack) {
-                    output.Write((short)tile.Id);
+                    output.Write((short)tile.Uid);
                 }
             }
         }

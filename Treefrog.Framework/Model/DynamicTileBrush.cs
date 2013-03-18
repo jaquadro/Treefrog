@@ -42,7 +42,7 @@ namespace Treefrog.Framework.Model
             if (tile == null)
                 return null;
 
-            return tile.Pool.GetTileTexture(tile.Id);
+            return tile.Pool.GetTileTexture(tile.Uid);
         }
 
         public override TextureResource MakePreview (int maxWidth, int maxHeight)
@@ -53,7 +53,7 @@ namespace Treefrog.Framework.Model
         public bool IsMemberTile (LocatedTile tile)
         {
             foreach (TileProxy proxy in _tiles) {
-                if (proxy.Tile != null && proxy.Tile.Id == tile.Tile.Id)
+                if (proxy.Tile != null && proxy.Tile.Uid == tile.Tile.Uid)
                     return true;
             }
 
@@ -164,12 +164,12 @@ namespace Treefrog.Framework.Model
 
             List<TileBrushEntryXmlProxy> brushEntries = new List<TileBrushEntryXmlProxy>();
             for (int i = 0; i < brush.BrushClass.SlotCount; i++) {
-                Tile tile = brush.GetTile(i);
+                /*Tile tile = brush.GetTile(i);
                 if (tile != null)
                     brushEntries.Add(new TileBrushEntryXmlProxy() {
                         Slot = i,
-                        TileId = tile.Id,
-                    });
+                        TileId = tile.Uid,
+                    });*/
             }
 
             return new DynamicTileBrushXmlProxy() {
@@ -193,7 +193,7 @@ namespace Treefrog.Framework.Model
                 if (tile != null)
                     brushEntries.Add(new LibraryX.BrushEntryX() {
                         Slot = i,
-                        TileId = tile.Id,
+                        TileId = tile.Uid,
                     });
             }
 
@@ -219,13 +219,13 @@ namespace Treefrog.Framework.Model
 
             DynamicTileBrush brush = new DynamicTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
 
-            foreach (TileBrushEntryXmlProxy entry in proxy.BrushEntries) {
+            /*foreach (TileBrushEntryXmlProxy entry in proxy.BrushEntries) {
                 TilePool pool = manager.PoolFromTileId(entry.TileId);
                 if (pool == null)
                     continue;
 
                 brush.SetTile(entry.Slot, pool.GetTile(entry.TileId));
-            }
+            }*/
 
             return brush;
         }

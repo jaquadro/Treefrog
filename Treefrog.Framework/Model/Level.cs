@@ -451,12 +451,16 @@ namespace Treefrog.Framework.Model
             if (proxy == null)
                 return null;
 
+            Dictionary<int, Guid> tileIndex = new Dictionary<int, Guid>();
+            foreach (var entry in proxy.TileIndex)
+                tileIndex.Add(entry.Id, entry.Uid);
+
             Level level = new Level(proxy.Name, proxy.OriginX, proxy.OriginY, proxy.Width, proxy.Height);
             level.Project = project;
 
             foreach (LevelX.LayerX layerProxy in proxy.Layers) {
                 if (layerProxy is LevelX.MultiTileGridLayerX)
-                    level.Layers.Add(new MultiTileGridLayer(layerProxy as LevelX.MultiTileGridLayerX, level));
+                    level.Layers.Add(new MultiTileGridLayer(layerProxy as LevelX.MultiTileGridLayerX, level, tileIndex));
                 else if (layerProxy is LevelX.ObjectLayerX)
                     level.Layers.Add(new ObjectLayer(layerProxy as LevelX.ObjectLayerX, level));
             }

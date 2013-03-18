@@ -57,7 +57,7 @@ namespace Treefrog.Framework.Tests.Model
         {
             Tile tile = new PhysicalTile(1, _pool);
 
-            Assert.AreEqual(1, tile.Id);
+            Assert.AreEqual(1, tile.Uid);
             Assert.AreEqual(_pool, tile.Pool);
             Assert.AreEqual(_pool.TileWidth, tile.Width);
             Assert.AreEqual(_pool.TileHeight, tile.Height);

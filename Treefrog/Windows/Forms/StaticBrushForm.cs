@@ -215,7 +215,7 @@ namespace Treefrog.Windows.Forms
             if (_layer != null) {
                 List<LocatedTile> removeQueue = new List<LocatedTile>();
                 foreach (LocatedTile tile in _layer.Tiles) {
-                    if (_tileController.TilePoolManager.PoolFromTileId(tile.Tile.Id) == null)
+                    if (_tileController.TilePoolManager.PoolFromTileId(tile.Tile.Uid) == null)
                         removeQueue.Add(tile);
                 }
 

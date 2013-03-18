@@ -99,7 +99,7 @@ namespace Treefrog.Framework.Tests.Model
             _pool.TileRemoved += (s, e) =>
             {
                 Assert.AreEqual(_pool, e.Tile.Pool);
-                Assert.AreEqual(id, e.Tile.Id);
+                Assert.AreEqual(id, e.Tile.Uid);
                 Assert.AreEqual(tex.Width, e.Tile.Width);
                 Assert.AreEqual(tex.Height, e.Tile.Height);
             };
@@ -138,7 +138,7 @@ namespace Treefrog.Framework.Tests.Model
             _pool.TileModified += (s, e) =>
             {
                 Assert.AreEqual(_pool, e.Tile.Pool);
-                Assert.AreEqual(id, e.Tile.Id);
+                Assert.AreEqual(id, e.Tile.Uid);
                 Assert.IsTrue(TexturesEqual(tex2, e.Tile.Pool.GetTileTexture(id)));
             };
 
@@ -166,7 +166,7 @@ namespace Treefrog.Framework.Tests.Model
             _pool.TileModified += (s, e) =>
             {
                 Assert.AreEqual(_pool, e.Tile.Pool);
-                Assert.AreEqual(id, e.Tile.Id);
+                Assert.AreEqual(id, e.Tile.Uid);
                 Assert.IsTrue(TexturesEqual(tex2, e.Tile.Pool.GetTileTexture(id)));
             };
 
@@ -222,7 +222,7 @@ namespace Treefrog.Framework.Tests.Model
             _pool.TileModified += (s, e) =>
             {
                 Assert.AreEqual(_pool, e.Tile.Pool);
-                Assert.AreEqual(id, e.Tile.Id);
+                Assert.AreEqual(id, e.Tile.Uid);
                 Assert.IsTrue(TexturesEqual(tex2, e.Tile.Pool.GetTileTexture(id)));
             };
 

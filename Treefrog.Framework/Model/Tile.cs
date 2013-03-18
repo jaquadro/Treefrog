@@ -8,15 +8,15 @@ namespace Treefrog.Framework.Model
     public abstract class Tile : IPropertyProvider
     {
         protected TilePool _pool;
-        private int _id;
+        private Guid _id;
         private PropertyCollection _properties;
         private TileProperties _predefinedProperties;
 
         protected List<DependentTile> _dependents;
 
-        protected Tile (int id, TilePool pool)
+        protected Tile (Guid uid, TilePool pool)
         {
-            _id = id;
+            _id = uid;
             _pool = pool;
             _dependents = new List<DependentTile>();
 
@@ -26,7 +26,7 @@ namespace Treefrog.Framework.Model
             _properties.Modified += CustomProperties_Modified;
         }
 
-        public int Id
+        public Guid Uid
         {
             get { return _id; }
         }
@@ -184,13 +184,13 @@ namespace Treefrog.Framework.Model
 
     public class PhysicalTile : Tile
     {
-        public PhysicalTile (int id, TilePool pool)
-            : base(id, pool)
+        public PhysicalTile (Guid uid, TilePool pool)
+            : base(uid, pool)
         { }
 
         public override void Update (TextureResource textureData)
         {
-            _pool.SetTileTexture(Id, textureData);
+            _pool.SetTileTexture(Uid, textureData);
             base.Update(textureData);
         }
 
@@ -205,8 +205,8 @@ namespace Treefrog.Framework.Model
         Tile _base;
         TileTransform _transform;
 
-        public DependentTile (int id, TilePool pool, Tile baseTile, TileTransform xform)
-            : base(id, pool)
+        public DependentTile (Guid uid, TilePool pool, Tile baseTile, TileTransform xform)
+            : base(uid, pool)
         {
             _base = baseTile;
             _transform = xform;
@@ -220,7 +220,7 @@ namespace Treefrog.Framework.Model
         public virtual void UpdateFromBase (TextureResource textureData)
         {
             TextureResource xform = _transform.Transform(textureData, _pool.TileWidth, _pool.TileHeight);
-            _pool.SetTileTexture(Id, xform);
+            _pool.SetTileTexture(Uid, xform);
         }
 
         /*public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)

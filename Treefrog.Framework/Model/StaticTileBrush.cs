@@ -96,7 +96,7 @@ namespace Treefrog.Framework.Model
                 int x = (tile.X - _minX) * TileWidth;
                 int y = (tile.Y - _minY) * TileHeight;
                 if (tile.Tile != null)
-                    resource.SetComposite(tile.Tile.Pool.GetTileTexture(tile.Tile.Id), new Point(x, y));
+                    resource.SetComposite(tile.Tile.Pool.GetTileTexture(tile.Tile.Uid), new Point(x, y));
             }
 
             return resource;
@@ -163,7 +163,7 @@ namespace Treefrog.Framework.Model
             foreach (var kv in brush._tiles) {
                 List<string> tileIds = new List<string>();
                 foreach (Tile tile in kv.Value)
-                    tileIds.Add(tile.Id.ToString());
+                    tileIds.Add(tile.Uid.ToString());
 
                 stacks.Add(new TileStackXmlProxy() {
                     At = kv.Key.X + "," + kv.Key.Y,
@@ -189,7 +189,7 @@ namespace Treefrog.Framework.Model
             foreach (var kv in brush._tiles) {
                 List<string> tileIds = new List<string>();
                 foreach (Tile tile in kv.Value)
-                    tileIds.Add(tile.Id.ToString());
+                    tileIds.Add(tile.Uid.ToString());
 
                 stacks.Add(new LibraryX.TileStackX() {
                     At = kv.Key.X + "," + kv.Key.Y,
@@ -222,13 +222,13 @@ namespace Treefrog.Framework.Model
                 int y = (coord.Length > 1) ? Convert.ToInt32(coord[1].Trim()) : 0;
 
                 foreach (string tileId in tileIds) {
-                    int id = Convert.ToInt32(tileId.Trim());
+                    //int id = Convert.ToInt32(tileId.Trim());
 
-                    TilePool pool = manager.PoolFromTileId(id);
+                    /*TilePool pool = manager.PoolFromTileId(id);
                     if (pool == null)
                         continue;
 
-                    brush.AddTile(new TileCoord(x, y), pool.GetTile(id));
+                    brush.AddTile(new TileCoord(x, y), pool.GetTile(id));*/
                 }
             }
 
@@ -252,7 +252,7 @@ namespace Treefrog.Framework.Model
                 int y = (coord.Length > 1) ? Convert.ToInt32(coord[1].Trim()) : 0;
 
                 foreach (string tileId in tileIds) {
-                    int id = Convert.ToInt32(tileId.Trim());
+                    Guid id = new Guid(tileId.Trim());
 
                     TilePool pool = manager.PoolFromTileId(id);
                     if (pool == null)

@@ -26,9 +26,9 @@ namespace Treefrog.Pipeline
 
             output.Write((short)pool.Count);
             foreach (Tile tile in pool) {
-                TileCoord coord = pool.GetTileLocation(tile.Id);
+                TileCoord coord = pool.GetTileLocation(tile.Uid);
 
-                output.Write((short)tile.Id);
+                output.Write((short)tile.Uid);
                 output.Write((short)coord.X);
                 output.Write((short)coord.Y);
 

@@ -644,9 +644,6 @@ namespace Treefrog.Framework.Model
         public class TileDefX
         {
             [XmlAttribute]
-            public int Id { get; set; }
-
-            [XmlAttribute]
             public Guid Uid { get; set; }
 
             [XmlAttribute("Loc")]
@@ -731,7 +728,7 @@ namespace Treefrog.Framework.Model
             public int Slot { get; set; }
 
             [XmlAttribute]
-            public int TileId { get; set; }
+            public Guid TileId { get; set; }
         }
 
         public class TileStackX
@@ -838,6 +835,15 @@ namespace Treefrog.Framework.Model
             public List<LibraryX.PropertyX> Properties { get; set; }
         }
 
+        public class TileIndexEntryX
+        {
+            [XmlAttribute]
+            public int Id { get; set; }
+
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+        }
+
         [XmlAttribute]
         public string Name { get; set; }
 
@@ -858,6 +864,10 @@ namespace Treefrog.Framework.Model
 
         [XmlElement("ItemGroup")]
         public ItemGroupX[] ItemGroups { get; set; }
+
+        [XmlArray]
+        [XmlArrayItem("Entry")]
+        public List<TileIndexEntryX> TileIndex { get; set; }
 
         [XmlArray]
         [XmlArrayItem("Layer", Type = typeof(AbstractXmlSerializer<LayerX>))]

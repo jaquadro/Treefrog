@@ -48,8 +48,8 @@ namespace Treefrog.Framework.Model
         private int _tileWidth;
         private int _tileHeight;
 
-        private Dictionary<int, Tile> _tiles;
-        private Dictionary<int, TileCoord> _locations;
+        private Dictionary<Guid, Tile> _tiles;
+        private Dictionary<Guid, TileCoord> _locations;
         private List<TileCoord> _openLocations;
 
         //private NamedResourceCollection<Property> _properties;
@@ -62,8 +62,8 @@ namespace Treefrog.Framework.Model
 
         protected TilePool ()
         {
-            _tiles = new Dictionary<int, Tile>();
-            _locations = new Dictionary<int, TileCoord>();
+            _tiles = new Dictionary<Guid, Tile>();
+            _locations = new Dictionary<Guid, TileCoord>();
             _openLocations = new List<TileCoord>();
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new TilePool.TilePoolProperties(this);
@@ -193,21 +193,21 @@ namespace Treefrog.Framework.Model
             return _tiles.Values.GetEnumerator();
         }
 
-        public int AddTile (TextureResource texture)
+        public Guid AddTile (TextureResource texture)
         {
-            int id = _manager.TakeId();
-            AddTile(texture, id);
+            Guid uid = _manager.TakeId();
+            AddTile(texture, uid);
 
-            return id;
+            return uid;
         }
 
-        public void AddTile (TextureResource texture, int id)
+        public void AddTile (TextureResource texture, Guid uid)
         {
             if (texture.Width != _tileWidth || texture.Height != _tileHeight) {
                 throw new ArgumentException("Supplied texture does not have tile dimensions", "texture");
             }
 
-            if (_tiles.ContainsKey(id)) {
+            if (_tiles.ContainsKey(uid)) {
                 throw new ArgumentException("A tile with the given id already exists");
             }
 
@@ -221,56 +221,54 @@ namespace Treefrog.Framework.Model
             _tileSource.Set(texture, new Point(coord.X * _tileWidth, coord.Y * _tileHeight));
             _manager.TexturePool.Invalidate(_textureId);
 
-            _locations[id] = coord;
-            _tiles[id] = new PhysicalTile(id, this);
-            _tiles[id].Modified += TileModifiedHandler;
+            _locations[uid] = coord;
+            _tiles[uid] = new PhysicalTile(uid, this);
+            _tiles[uid].Modified += TileModifiedHandler;
 
-            _manager.LinkTile(id, this);
-            if (_manager.LastId < id)
-                _manager.LastId = id;
+            _manager.LinkTile(uid, this);
 
-            OnTileAdded(new TileEventArgs(_tiles[id]));
+            OnTileAdded(new TileEventArgs(_tiles[uid]));
         }
 
-        public int AddTile (byte[] data)
+        public Guid AddTile (byte[] data)
         {
-            int id = _manager.TakeId();
-            AddTile(data, id);
+            Guid uid = _manager.TakeId();
+            AddTile(data, uid);
 
-            return id;
+            return uid;
         }
 
-        public void AddTile (byte[] data, int id)
+        public void AddTile (byte[] data, Guid uid)
         {
             if (data.Length != _tileWidth * _tileHeight * 4) {
                 throw new ArgumentException("Supplied color data is incorrect size for tile dimensions", "data");
             }
 
             TextureResource texture = new TextureResource(_tileWidth, _tileHeight, data);
-            AddTile(texture, id);
+            AddTile(texture, uid);
         }
 
-        public void RemoveTile (int id)
+        public void RemoveTile (Guid uid)
         {
-            if (!_tiles.ContainsKey(id)) {
+            if (!_tiles.ContainsKey(uid)) {
                 return;
             }
 
-            TileCoord coord = _locations[id];
+            TileCoord coord = _locations[uid];
 
             Rectangle dest = new Rectangle(coord.X * _tileWidth, coord.Y * _tileHeight, _tileWidth, _tileHeight);
             _tileSource.Clear(dest);
             _manager.TexturePool.Invalidate(_textureId);
 
-            _openLocations.Add(_locations[id]);
+            _openLocations.Add(_locations[uid]);
 
-            Tile tile = _tiles[id];
+            Tile tile = _tiles[uid];
             tile.Modified -= TileModifiedHandler;
 
-            _tiles.Remove(id);
-            _locations.Remove(id);
+            _tiles.Remove(uid);
+            _locations.Remove(uid);
 
-            _manager.UnlinkTile(id);
+            _manager.UnlinkTile(uid);
 
             if (ShouldReduceTexture()) {
                 ReduceTexture();
@@ -279,48 +277,48 @@ namespace Treefrog.Framework.Model
             OnTileRemoved(new TileEventArgs(tile));
         }
 
-        public Tile GetTile (int id)
+        public Tile GetTile (Guid uid)
         {
-            if (!_tiles.ContainsKey(id)) {
+            if (!_tiles.ContainsKey(uid)) {
                 return null;
             }
 
-            return _tiles[id];
+            return _tiles[uid];
         }
 
-        public TextureResource GetTileTexture (int id)
+        public TextureResource GetTileTexture (Guid uid)
         {
-            if (!_tiles.ContainsKey(id))
+            if (!_tiles.ContainsKey(uid))
                 return null;
 
             if (_tileSource == null)
                 return null;
 
-            Rectangle src = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
+            Rectangle src = new Rectangle(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight, _tileWidth, _tileHeight);
             return _tileSource.Crop(src);
         }
 
-        public void SetTileTexture (int id, TextureResource texture)
+        public void SetTileTexture (Guid uid, TextureResource texture)
         {
             if (texture.Width != _tileWidth || texture.Height != _tileHeight) {
                 throw new ArgumentException("Supplied texture does not match tile dimensions", "data");
             }
 
-            if (!_tiles.ContainsKey(id)) {
+            if (!_tiles.ContainsKey(uid)) {
                 throw new ArgumentException("No tile with the given id exists in this tile pool", "id");
             }
 
-            Rectangle dest = new Rectangle(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight, _tileWidth, _tileHeight);
-            _tileSource.Set(texture, new Point(_locations[id].X * _tileWidth, _locations[id].Y * _tileHeight));
+            Rectangle dest = new Rectangle(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight, _tileWidth, _tileHeight);
+            _tileSource.Set(texture, new Point(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight));
             _manager.TexturePool.Invalidate(_textureId);
 
-            OnTileModified(new TileEventArgs(_tiles[id]));
+            OnTileModified(new TileEventArgs(_tiles[uid]));
         }
 
-        public TileCoord GetTileLocation (int id)
+        public TileCoord GetTileLocation (Guid uid)
         {
-            if (_locations.ContainsKey(id)) {
-                return _locations[id];
+            if (_locations.ContainsKey(uid)) {
+                return _locations[uid];
             }
             return new TileCoord(0, 0);
         }
@@ -395,8 +393,8 @@ namespace Treefrog.Framework.Model
                 width /= 2;
             }
 
-            Queue<KeyValuePair<int, TileCoord>> locs = new Queue<KeyValuePair<int, TileCoord>>();
-            foreach (KeyValuePair<int, TileCoord> kv in _locations) {
+            Queue<KeyValuePair<Guid, TileCoord>> locs = new Queue<KeyValuePair<Guid, TileCoord>>();
+            foreach (KeyValuePair<Guid, TileCoord> kv in _locations) {
                 locs.Enqueue(kv);
             }
 
@@ -415,7 +413,7 @@ namespace Treefrog.Framework.Model
                         continue;
                     }
 
-                    KeyValuePair<int, TileCoord> loc = locs.Dequeue();
+                    KeyValuePair<Guid, TileCoord> loc = locs.Dequeue();
                     Rectangle src = new Rectangle(loc.Value.X * _tileWidth, loc.Value.Y * _tileHeight, _tileWidth, _tileHeight);
 
                     newTex.Set(_tileSource.Crop(src), new Point(x * _tileWidth, y * _tileHeight));
@@ -497,7 +495,7 @@ namespace Treefrog.Framework.Model
 
             using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider()) {
                 foreach (Tile tile in _tiles.Values) {
-                    TextureResource tileTex = GetTileTexture(tile.Id);
+                    TextureResource tileTex = GetTileTexture(tile.Uid);
                     string hash = Convert.ToBase64String(sha1.ComputeHash(tileTex.RawData));
                     existingHashes[hash] = tile;
                 }
@@ -517,7 +515,7 @@ namespace Treefrog.Framework.Model
                         else if (options.ImportPolicty == TileImportPolicy.SetUnique && existingHashes.ContainsKey(hash))
                             continue;
 
-                        int newTileId = _manager.TakeId();
+                        Guid newTileId = _manager.TakeId();
                         AddTile(tileTex, newTileId);
 
                         Tile newTile = _tiles[newTileId];
@@ -615,274 +613,6 @@ namespace Treefrog.Framework.Model
         private void TileModifiedHandler (object sender, EventArgs e)
         {
             OnTileModified(new TileEventArgs(sender as Tile));
-        }
-
-        #endregion
-
-        #region XML Import / Export
-
-        public static TilePool FromXml (XmlReader reader, TilePoolManager manager)
-        {
-            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "name", "tilewidth", "tileheight",
-            });
-
-            TilePool pool = manager.CreateTilePool(attribs["name"], Convert.ToInt32(attribs["tilewidth"]), Convert.ToInt32(attribs["tileheight"]));
-
-            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "source":
-                        pool.XmlLoadSource(xmlr);
-                        return false;
-                    case "tiles":
-                        pool.XmlLoadTiles(xmlr);
-                        return false;
-                    case "properties":
-                        AddPropertyFromXml(xmlr, pool.CustomProperties);
-                        return false;
-                    default:
-                        return true; // Advance reader
-                }
-            });
-
-            return pool;
-        }
-
-        private void XmlLoadTiles (XmlReader reader)
-        {
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "tile":
-                        XmlLoadTile(xmlr);
-                        break;
-                }
-            });
-
-            RebuildOpenLocations();
-        }
-
-        private void XmlLoadTile (XmlReader reader)
-        {
-            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "id", "loc",
-            });
-
-            string[] loc = attribs["loc"].Split(new char[] { ',' });
-
-            if (loc.Length != 2) {
-                throw new Exception("Malformed location: " + attribs["loc"]);
-            }
-
-            int id = Convert.ToInt32(attribs["id"]);
-            int x = Convert.ToInt32(loc[0]);
-            int y = Convert.ToInt32(loc[1]);
-
-            if (x < 0 || y < 0) {
-                throw new Exception("Invalid location: " + attribs["loc"]);
-            }
-
-            TileCoord coord = new TileCoord(x, y);
-
-            _locations[id] = coord;
-            _tiles[id] = new PhysicalTile(id, this);
-            _tiles[id].Modified += TileModifiedHandler;
-
-            _manager.LinkTile(id, this);
-
-            XmlHelper.SwitchAll(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "properties":
-                        AddPropertyFromXml(xmlr, _tiles[id].CustomProperties);
-                        break;
-                }
-            });
-        }
-
-        private void RebuildOpenLocations ()
-        {
-            HashSet<TileCoord> used = new HashSet<TileCoord>();
-            foreach (TileCoord coord in _locations.Values) {
-                used.Add(coord);
-            }
-
-            int w = _tileSource.Width / _tileWidth;
-            int h = _tileSource.Height / _tileHeight;
-
-            _openLocations.Clear();
-
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
-                    TileCoord coord = new TileCoord(x, y);
-                    if (!used.Contains(coord)) {
-                        _openLocations.Add(coord);
-                    }
-                }
-            }
-        }
-
-        private void XmlLoadSource (XmlReader reader)
-        {
-            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "width", "height", "format",
-            });
-
-            if (attribs["format"] != "Color") {
-                throw new Exception("Unsupported tile source format: '" + attribs["format"] + "'");
-            }
-
-            int width = Convert.ToInt32(attribs["width"]);
-            int height = Convert.ToInt32(attribs["height"]);
-
-            if (width <= 0 || height <= 0) {
-                throw new Exception("Invalid tile source dimensions: " + width + " x " + height);
-            }
-
-            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "data":
-                        XmlLoadSourceData(xmlr, width, height);
-                        return false;
-                    default:
-                        return true; // Advance reader
-                }
-            });
-        }
-
-        private void XmlLoadSourceData (XmlReader reader, int width, int height)
-        {
-            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "encoding", "compression",
-            });
-
-            if (attribs["compression"] != "deflate") {
-                throw new Exception("Unsupported compression option: '" + attribs["compression"] + "'");
-            }
-
-            if (attribs["encoding"] != "base64") {
-                throw new Exception("Unsupported encoding option: '" + attribs["encoding"] + "'");
-            }
-
-            using (MemoryStream inStr = new MemoryStream()) {
-                byte[] buffer = new byte[1000];
-                int count = 0;
-
-                while ((count = reader.ReadElementContentAsBase64(buffer, 0, buffer.Length)) > 0) {
-                    inStr.Write(buffer, 0, count);
-                }
-
-                inStr.Position = 0;
-                using (MemoryStream outStr = new MemoryStream(TileWidth * TileHeight * 4)) {
-                    using (DeflateStream zStr = new DeflateStream(inStr, CompressionMode.Decompress)) {
-                        byte[] data = new byte[zStr.Length];
-                        zStr.Write(data, 0, data.Length);
-                        outStr.Read(data, 0, data.Length);
-                        //zstr.CopyTo(outStr);
-                    }
-                    
-                    byte[] czData = outStr.GetBuffer();
-                    if (czData.Length != width * height * 4) {
-                        throw new Exception("Unexpected length of payload");
-                    }
-
-                    _tileSource = new TextureResource(width, height, czData);
-                }
-            }
-        }
-
-        private static void AddPropertyFromXml (XmlReader reader, PropertyCollection pp)
-        {
-            XmlHelper.SwitchAllAdvance(reader, (xmlr, s) =>
-            {
-                switch (s) {
-                    case "property":
-                        pp.Add(Property.FromXml(xmlr));
-                        return false;
-                    default:
-                        return true;
-                }
-            });
-        }
-
-        public void WriteXml (XmlWriter writer)
-        {
-            // <tileset>
-            writer.WriteStartElement("tileset");
-            writer.WriteAttributeString("name", _name);
-            writer.WriteAttributeString("tilewidth", _tileWidth.ToString());
-            writer.WriteAttributeString("tileheight", _tileHeight.ToString());
-
-            // . <source>
-            writer.WriteStartElement("source");
-            writer.WriteAttributeString("width", _tileSource.Width.ToString());
-            writer.WriteAttributeString("height", _tileSource.Height.ToString());
-            writer.WriteAttributeString("format", "Color");
-
-            // . . <data>
-            writer.WriteStartElement("data");
-            writer.WriteAttributeString("encoding", "base64");
-            writer.WriteAttributeString("compression", "deflate");
-
-            using (MemoryStream inStr = new MemoryStream(_tileSource.RawData)) {
-                using (MemoryStream outStr = new MemoryStream()) {
-                    using (DeflateStream zstr = new DeflateStream(outStr, CompressionMode.Compress)) {
-                        inStr.WriteTo(zstr);
-                    }
-
-                    byte[] czData = outStr.GetBuffer();
-                    writer.WriteBase64(czData, 0, czData.Length);
-                }
-            }
-
-            writer.WriteEndElement();
-            // . . </data>
-
-            writer.WriteEndElement();
-            // . </source>
-
-            // . <tiles>
-            writer.WriteStartElement("tiles");
-            foreach (int id in _tiles.Keys) {
-                TileCoord loc = _locations[id];
-                Tile tile = _tiles[id];
-
-                // . . <tile>
-                writer.WriteStartElement("tile");
-                writer.WriteAttributeString("id", id.ToString());
-                writer.WriteAttributeString("loc", loc.X + "," + loc.Y);
-
-                // . . . <properties>
-                if (tile.CustomProperties.Count > 0) {
-                    writer.WriteStartElement("properties");
-
-                    foreach (Property property in tile.CustomProperties) {
-                        property.WriteXml(writer);
-                    }
-                    writer.WriteEndElement();
-                }
-                // . . . </properties>
-
-                writer.WriteEndElement();
-                // . . </tile>
-            }
-            writer.WriteEndElement();
-            // . </tiles>
-
-            // . <properties>
-            if (_properties.Count > 0) {
-                writer.WriteStartElement("properties");
-
-                foreach (Property property in _properties) {
-                    property.WriteXml(writer);
-                }
-                writer.WriteEndElement();
-            }
-            // . </properties>
-
-            writer.WriteEndElement();
         }
 
         #endregion
@@ -1097,10 +827,10 @@ namespace Treefrog.Framework.Model
             foreach (Property prop in tile.CustomProperties)
                 props.Add(Property.ToXmlProxy(prop));
 
-            TileCoord loc = tile.Pool.GetTileLocation(tile.Id);
+            TileCoord loc = tile.Pool.GetTileLocation(tile.Uid);
             return new TileDefXmlProxy()
             {
-                Id = tile.Id,
+                //Id = tile.Uid,
                 Loc = loc.X + "," + loc.Y,
                 Properties = props.Count > 0 ? props : null,
             };
@@ -1115,9 +845,9 @@ namespace Treefrog.Framework.Model
             foreach (Property prop in tile.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
-            TileCoord loc = tile.Pool.GetTileLocation(tile.Id);
+            TileCoord loc = tile.Pool.GetTileLocation(tile.Uid);
             return new LibraryX.TileDefX() {
-                Id = tile.Id,
+                Uid = tile.Uid,
                 Location = loc.X + "," + loc.Y,
                 Properties = props.Count > 0 ? props : null,
             };
@@ -1139,7 +869,7 @@ namespace Treefrog.Framework.Model
                 throw new Exception("Invalid location: " + proxy.Loc);
 
             TileCoord coord = new TileCoord(x, y);
-            Tile tile = new PhysicalTile(proxy.Id, pool);
+            /*Tile tile = new PhysicalTile(proxy.Uid, pool);
 
             foreach (PropertyXmlProxy propertyProxy in proxy.Properties)
                 tile.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
@@ -1150,9 +880,10 @@ namespace Treefrog.Framework.Model
 
             pool._manager.LinkTile(proxy.Id, pool);
             if (pool._manager.LastId < proxy.Id)
-                pool._manager.LastId = proxy.Id;
+                pool._manager.LastId = proxy.Id;*/
 
-            return tile;
+            //return tile;
+            return null;
         }
 
         public static Tile FromXmlProxy (LibraryX.TileDefX proxy, TilePool pool)
@@ -1170,20 +901,18 @@ namespace Treefrog.Framework.Model
                 throw new Exception("Invalid location: " + proxy.Location);
 
             TileCoord coord = new TileCoord(x, y);
-            Tile tile = new PhysicalTile(proxy.Id, pool);
+            Tile tile = new PhysicalTile(proxy.Uid, pool);
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
                     tile.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
 
-            pool._locations[proxy.Id] = coord;
-            pool._tiles[proxy.Id] = tile;
-            pool._tiles[proxy.Id].Modified += pool.TileModifiedHandler;
+            pool._locations[proxy.Uid] = coord;
+            pool._tiles[proxy.Uid] = tile;
+            pool._tiles[proxy.Uid].Modified += pool.TileModifiedHandler;
 
-            pool._manager.LinkTile(proxy.Id, pool);
-            if (pool._manager.LastId < proxy.Id)
-                pool._manager.LastId = proxy.Id;
+            pool._manager.LinkTile(proxy.Uid, pool);
 
             return tile;
         }

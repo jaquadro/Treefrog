@@ -89,7 +89,7 @@ namespace Treefrog.Presentation.Tools
 
             if (Info != null) {
                 if (type == TileSourceType.Tile && ActiveTile != null)
-                    Info.InfoString = "Source: Tile " + ActiveTile.Id;
+                    Info.InfoString = "Source: Tile " + ActiveTile.Uid;
                 else if (type == TileSourceType.Brush && ActiveBrush != null)
                     Info.InfoString = "Source: Brush " + ActiveBrush.Name;
             }
@@ -146,7 +146,7 @@ namespace Treefrog.Presentation.Tools
 
         private TextureResource BuildTileMarker ()
         {
-            return ActiveTile.Pool.GetTileTexture(ActiveTile.Id);
+            return ActiveTile.Pool.GetTileTexture(ActiveTile.Uid);
         }
 
         private TextureResource BuildBrushMarker ()

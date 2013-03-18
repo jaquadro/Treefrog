@@ -231,7 +231,7 @@ namespace Treefrog.Framework.Model
                 return false;
 
             for (int i = 0; i < _tiles.Count; i++) {
-                if (_tiles[i].Id != other[i].Id)
+                if (_tiles[i].Uid != other[i].Uid)
                     return false;
             }
 
@@ -253,7 +253,7 @@ namespace Treefrog.Framework.Model
         {
             int hash = 23;
             foreach (Tile t in _tiles) {
-                hash = hash * 37 + t.Id;
+                hash = hash * 37 + t.Uid.GetHashCode();
             }
             return hash;
         }
