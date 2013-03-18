@@ -9,6 +9,8 @@ namespace Treefrog.Framework.Model
     [Serializable]
     public class ObjectInstance : IPropertyProvider, ICloneable, ISerializable
     {
+        private Guid _uid;
+
         [NonSerialized]
         private ObjectClass _class;
 
@@ -23,6 +25,7 @@ namespace Treefrog.Framework.Model
 
         public ObjectInstance (ObjectClass objClass, int posX, int posY)
         {
+            _uid = Guid.NewGuid();
             _class = objClass;
             _posX = posX;
             _posY = posY;
@@ -55,6 +58,11 @@ namespace Treefrog.Framework.Model
             }
 
             UpdateBounds();
+        }
+
+        public Guid Uid
+        {
+            get { return _uid; }
         }
 
         public ObjectClass ObjectClass
@@ -353,6 +361,7 @@ namespace Treefrog.Framework.Model
 
         public ObjectInstance (SerializationInfo info, StreamingContext context)
         {
+            _uid = (Guid)info.GetValue("Uid", typeof(Guid));
             _classId = (Guid)info.GetValue("ClassID", typeof(Guid));
             _posX = info.GetInt32("PosX");
             _posY = info.GetInt32("PosY");
@@ -366,6 +375,7 @@ namespace Treefrog.Framework.Model
 
         public void GetObjectData (SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("Uid", _uid);
             info.AddValue("ClassID", _class.Uid);
             info.AddValue("PosX", _posX);
             info.AddValue("PosY", _posY);
@@ -406,6 +416,7 @@ namespace Treefrog.Framework.Model
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LevelX.ObjectInstanceX() {
+                Uid = inst.Uid,
                 Class = inst.ObjectClass.Uid,
                 At = inst.X + "," + inst.Y,
                 Rotation = MathEx.RadToDeg(inst.Rotation),
@@ -450,6 +461,7 @@ namespace Treefrog.Framework.Model
             foreach (ObjectClass objClass in pool) {
                 if (objClass.Uid == proxy.Class) {
                     ObjectInstance inst = new ObjectInstance(objClass);
+                    inst._uid = proxy.Uid.ValueOrNew();
                     inst.X = Convert.ToInt32(coords[0]);
                     inst.Y = Convert.ToInt32(coords[1]);
                     inst.Rotation = MathEx.DegToRad(proxy.Rotation);

@@ -819,6 +819,9 @@ namespace Treefrog.Framework.Model
         public class ObjectInstanceX
         {
             [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
             public Guid Class { get; set; }
 
             [XmlAttribute]
