@@ -14,12 +14,13 @@ namespace Treefrog.Framework.Model
     /// </summary>
     public class Level : INamedResource, IPropertyProvider
     {
-        #region Fields
-
         private static string[] _reservedPropertyNames = { "Name", "OriginX", "OriginY", "Height", "Width" };
 
         private Project _project;
         private string _name;
+
+        private Guid _uid;
+        private List<XmlElement> _extra;
 
         private int _x;
         private int _y;
@@ -29,8 +30,6 @@ namespace Treefrog.Framework.Model
         private OrderedResourceCollection<Layer> _layers;
         private PropertyCollection _properties;
         private LevelProperties _predefinedProperties;
-
-        #endregion
 
         #region Constructors
 
@@ -74,6 +73,12 @@ namespace Treefrog.Framework.Model
         #endregion
 
         #region Properties
+
+        public Guid Uid
+        {
+            get { return _uid; }
+            set { _uid = value; }
+        }
 
         public Project Project
         {
@@ -442,6 +447,11 @@ namespace Treefrog.Framework.Model
             Level level = new Level(proxy.Name, proxy.OriginX, proxy.OriginY, proxy.Width, proxy.Height);
             level.Project = project;
 
+            if (proxy.PropertyGroup != null) {
+                level.Uid = proxy.PropertyGroup.LevelGuid;
+                level._extra = proxy.PropertyGroup.Extra;
+            }
+
             Dictionary<int, Guid> tileIndex = new Dictionary<int, Guid>();
             foreach (var entry in proxy.TileIndex) {
                 level._localTileIndex.Add(entry.Id, entry.Uid);
@@ -493,7 +503,16 @@ namespace Treefrog.Framework.Model
                     layers.Add(ObjectLayer.ToXmlProxyX(layer as ObjectLayer));
             }
 
+            LevelX.PropertyGroupX propGroup = new LevelX.PropertyGroupX() {
+                LevelGuid = level.Uid,
+                Extra = level._extra,
+            };
+
+            if (level.Project != null)
+                propGroup.ProjectGuid = level.Project.Uid;
+
             return new LevelX() {
+                PropertyGroup = propGroup,
                 Name = level.Name,
                 OriginX = level.OriginX,
                 OriginY = level.OriginY,

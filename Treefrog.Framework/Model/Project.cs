@@ -21,8 +21,7 @@ namespace Treefrog.Framework.Model
 
     public class Project
     {
-        #region Fields
-
+        private Guid _uid;
         private ServiceContainer _services;
 
         private NamedResourceCollection<Level> _levels;
@@ -31,6 +30,8 @@ namespace Treefrog.Framework.Model
         private ObjectPoolManager _objectPools;
         private TileBrushManager _tileBrushes;
         private TexturePool _texturePool;
+
+        private List<XmlElement> _extra;
 
         private static TileBrushRegistry _tileBrushRegistry = new TileBrushRegistry();
         public static TileBrushRegistry TileBrushRegistry
@@ -44,12 +45,9 @@ namespace Treefrog.Framework.Model
             get { return _dynamicBrushRegistry; }
         }
 
-        #endregion
-
-        #region Constructors
-
         public Project () 
         {
+            _uid = Guid.NewGuid();
             _services = new ServiceContainer();
             _texturePool = new TexturePool();
 
@@ -67,9 +65,10 @@ namespace Treefrog.Framework.Model
             _services.AddService(typeof(TilePoolManager), _tilePools);
         }
 
-        #endregion
-
-        #region Properties
+        public Guid Uid
+        {
+            get { return _uid; }
+        }
 
         public bool Initialized
         {
@@ -110,8 +109,6 @@ namespace Treefrog.Framework.Model
         {
             get { return _services; }
         }
-
-        #endregion
 
         #region Events
 
@@ -196,6 +193,10 @@ namespace Treefrog.Framework.Model
 
             ProjectX proxy = new ProjectX() {
                 ItemGroups = new List<ProjectX.ItemGroupX>(),
+                PropertyGroup = new ProjectX.PropertyGroupX() {
+                    ProjectGuid = _uid,
+                    Extra = _extra.Count > 0 ? _extra : null,
+                },
             };
 
             proxy.ItemGroups.Add(new ProjectX.ItemGroupX() {
@@ -239,6 +240,9 @@ namespace Treefrog.Framework.Model
                     }
                 }
             }
+
+            project._uid = proxy.PropertyGroup.ProjectGuid;
+            project._extra = proxy.PropertyGroup.Extra;
 
             project._tilePools.Pools.Modified += project.TilePoolsModifiedHandler;
             project._objectPools.Pools.PropertyChanged += project.HandleObjectPoolManagerPropertyChanged;

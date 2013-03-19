@@ -9,12 +9,6 @@ namespace Treefrog.Framework.Model.Proxy
     {
         private const string Namespace = "http://jaquadro.com/schemas/treefrog/common";
 
-        public class PropertyGroupX
-        {
-            [XmlAnyElement]
-            public List<XmlElement> Properties { get; set; }
-        }
-
         public class PropertyX
         {
             [XmlAttribute]

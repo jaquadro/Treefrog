@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using System.Xml;
 
 namespace Treefrog.Framework.Model.Proxy
 {
@@ -8,6 +9,18 @@ namespace Treefrog.Framework.Model.Proxy
     public class LevelX
     {
         private const string Namespace = "http://jaquadro.com/schemas/treefrog/level";
+
+        public class PropertyGroupX
+        {
+            [XmlElement]
+            public Guid ProjectGuid { get; set; }
+
+            [XmlElement]
+            public Guid LevelGuid { get; set; }
+
+            [XmlAnyElement]
+            public List<XmlElement> Extra { get; set; }
+        }
 
         public class ItemGroupX
         {
@@ -107,7 +120,7 @@ namespace Treefrog.Framework.Model.Proxy
         public int Height { get; set; }
 
         [XmlElement]
-        public CommonX.PropertyGroupX PropertyGroup { get; set; }
+        public PropertyGroupX PropertyGroup { get; set; }
 
         [XmlElement("ItemGroup")]
         public ItemGroupX[] ItemGroups { get; set; }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Treefrog.Framework.Imaging;
+using System.Xml;
 
 namespace Treefrog.Framework.Model.Proxy
 {
@@ -9,6 +10,15 @@ namespace Treefrog.Framework.Model.Proxy
     public class LibraryX
     {
         private const string Namespace = "http://jaquadro.com/schemas/treefrog/library";
+
+        public class PropertyGroupX
+        {
+            [XmlElement]
+            public Guid LibraryGuid { get; set; }
+
+            [XmlAnyElement]
+            public List<XmlElement> Extra { get; set; }
+        }
 
         public class TextureGroupX
         {
@@ -193,7 +203,7 @@ namespace Treefrog.Framework.Model.Proxy
         }
 
         [XmlElement]
-        public CommonX.PropertyGroupX PropertyGroup { get; set; }
+        public PropertyGroupX PropertyGroup { get; set; }
 
         [XmlElement]
         public TextureGroupX TextureGroup { get; set; }
