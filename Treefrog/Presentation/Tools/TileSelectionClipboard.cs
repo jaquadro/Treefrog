@@ -51,7 +51,7 @@ namespace Treefrog.Presentation.Tools
                 TileStack stack = new TileStack();
 
                 foreach (Guid tileId in item.Value) {
-                    TilePool pool = project.TilePoolManager.PoolFromTileId(tileId);
+                    TilePool pool = project.TilePoolManager.PoolFromItemKey(tileId);
                     Tile tile = pool.GetTile(tileId);
                     stack.Add(tile);
                 }

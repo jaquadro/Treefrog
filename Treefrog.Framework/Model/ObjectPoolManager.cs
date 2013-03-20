@@ -5,7 +5,12 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectPoolManager : PoolManager<ObjectPool, Guid>
+    public interface IObjectPoolManager : IPoolManager<ObjectPool, Guid>
+    {
+        TexturePool TexturePool { get; }
+    }
+
+    public class ObjectPoolManager : PoolManager<ObjectPool, Guid>, IPoolManager<ObjectPool, Guid>
     {
         private TexturePool _texPool;
 
@@ -56,6 +61,14 @@ namespace Treefrog.Framework.Model
             }
 
             return manager;
+        }
+    }
+
+    public class MetaObjectPoolManager : MetaPoolManager<ObjectPool, Guid, ObjectPoolManager>, IObjectPoolManager
+    {
+        public TexturePool TexturePool
+        {
+            get { return GetManager(Default).TexturePool; }
         }
     }
 }

@@ -196,7 +196,7 @@ namespace Treefrog.Framework.Model
                 foreach (string tileId in tileIds) {
                     Guid id = new Guid(tileId.Trim());
 
-                    TilePool pool = manager.PoolFromTileId(id);
+                    TilePool pool = manager.PoolFromItemKey(id);
                     if (pool == null)
                         continue;
 

@@ -407,7 +407,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static ObjectInstance FromXmlProxy (LevelX.ObjectInstanceX proxy, ObjectPoolManager manager)
+        public static ObjectInstance FromXmlProxy (LevelX.ObjectInstanceX proxy, IObjectPoolManager manager)
         {
             if (proxy == null)
                 return null;

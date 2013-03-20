@@ -16,6 +16,9 @@ namespace Treefrog.Framework.Model.Proxy
             [XmlElement]
             public Guid LibraryGuid { get; set; }
 
+            [XmlElement]
+            public string LibraryName { get; set; }
+
             [XmlAnyElement]
             public List<XmlElement> Extra { get; set; }
         }
@@ -164,21 +167,6 @@ namespace Treefrog.Framework.Model.Proxy
 
         public class StaticTileBrushX : TileBrushX
         {
-            [XmlAttribute]
-            public int Id { get; set; }
-
-            [XmlAttribute]
-            public Guid Uid { get; set; }
-
-            [XmlAttribute]
-            public string Name { get; set; }
-
-            [XmlAttribute]
-            public int TileWidth { get; set; }
-
-            [XmlAttribute]
-            public int TileHeight { get; set; }
-
             [XmlArray]
             [XmlArrayItem("Tile")]
             public List<CommonX.TileStackX> Tiles { get; set; }

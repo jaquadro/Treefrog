@@ -130,7 +130,7 @@ namespace Treefrog.Windows.Forms
         private TilePool _previewPool;
         private TextureResource _originalResource;
 
-        private TilePool LoadFile (TilePoolManager manager)
+        private TilePool LoadFile (ITilePoolManager manager)
         {
             if (_fileStream == null) {
                 return null;
@@ -154,7 +154,7 @@ namespace Treefrog.Windows.Forms
                 ImportPolicty = TileImportPolicy.SetUnique,
             };
 
-            _previewPool = _localManager.ImportTilePool(_textName.Text, resource, options);
+            _previewPool = _localManager.ImportPool(_textName.Text, resource, options);
             _originalResource = _previewPool.TileSource.Crop(_previewPool.TileSource.Bounds);
 
             if (_useTransColor)
@@ -289,14 +289,14 @@ namespace Treefrog.Windows.Forms
         private void CheckValid ()
         {
             string txt = _textName.Text.Trim();
-            if (txt.Length > 0 && !_project.TilePools.Contains(txt) && _fileStream != null) {
+            if (txt.Length > 0 && !_project.TilePoolManager.Pools.Contains(txt) && _fileStream != null) {
                 _buttonOK.Enabled = true;
             }
             else {
                 _buttonOK.Enabled = false;
             }
 
-            if (_project.TilePools.Contains(txt)) {
+            if (_project.TilePoolManager.Pools.Contains(txt)) {
                 _message.Text = "A resouce with the given name already exists.";
             }
             else {

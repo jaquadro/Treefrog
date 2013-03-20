@@ -7,38 +7,24 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class TilePoolManager
+    public interface ITilePoolManager : IPoolManager<TilePool, Guid>
     {
-        private NamedResourceCollection<TilePool> _pools;
-        private Dictionary<Guid, TilePool> _tileIndexMap;
+        TexturePool TexturePool { get; }
+        TilePool CreatePool (string name, int tileWidth, int tileHeight);
+        TilePool ImportPool (string name, TextureResource source, TilePool.TileImportOptions options);
+        TilePool MergePool (string name, TilePool pool);
+    }
+
+    public class TilePoolManager : PoolManager<TilePool, Guid>, ITilePoolManager
+    {
+        public static int DefaultTileWidth = 16;
+        public static int DefaultTileHeight = 16;
 
         private TexturePool _texPool;
 
         public TilePoolManager (TexturePool texPool)
         {
             _texPool = texPool;
-
-            _pools = new NamedResourceCollection<TilePool>();
-            _pools.ResourceRemoved += PoolRemovedHandler;
-
-            _tileIndexMap = new Dictionary<Guid, TilePool>();
-        }
-
-        private void PoolRemovedHandler (object sender, NamedResourceEventArgs<TilePool> e)
-        {
-            List<Guid> removeQueue = new List<Guid>();
-            foreach (var item in _tileIndexMap) {
-                if (item.Value == e.Resource)
-                    removeQueue.Add(item.Key);
-            }
-
-            foreach (Guid key in removeQueue)
-                _tileIndexMap.Remove(key);
-        }
-
-        public NamedResourceCollection<TilePool> Pools
-        {
-            get { return _pools; }
         }
 
         public TexturePool TexturePool
@@ -46,25 +32,30 @@ namespace Treefrog.Framework.Model
             get { return _texPool; }
         }
 
-        public TilePool CreateTilePool (string name, int tileWidth, int tileHeight)
+        protected override TilePool CreatePoolCore (string name)
         {
-            if (_pools.Contains(name))
+            return new TilePool(this, name, DefaultTileWidth, DefaultTileHeight);
+        }
+
+        public TilePool CreatePool (string name, int tileWidth, int tileHeight)
+        {
+            if (Pools.Contains(name))
                 throw new ArgumentException("Manager already contains a pool with the given name.", "name");
 
             TilePool pool = new TilePool(this, name, tileWidth, tileHeight);
-            _pools.Add(pool);
+            Pools.Add(pool);
 
             return pool;
         }
 
-        public TilePool ImportTilePool (string name, TextureResource source, TilePool.TileImportOptions options)
+        public TilePool ImportPool (string name, TextureResource source, TilePool.TileImportOptions options)
         {
-            if (_pools.Contains(name))
+            if (Pools.Contains(name))
                 throw new ArgumentException("Manager already contains a pool with the given name.", "name");
 
             TilePool pool = new TilePool(this, name, options.TileWidth, options.TileHeight);
             pool.ImportMerge(source, options);
-            _pools.Add(pool);
+            Pools.Add(pool);
 
             return pool;
         }
@@ -72,13 +63,13 @@ namespace Treefrog.Framework.Model
         public TilePool MergePool (string name, TilePool pool)
         {
             TilePool dst = null;
-            if (_pools.Contains(name)) {
-                dst = _pools[name];
+            if (Pools.Contains(name)) {
+                dst = Pools[name];
                 if (dst.TileWidth != pool.TileWidth || dst.TileHeight != pool.TileHeight)
                     throw new ArgumentException("Source pool tile dimensions do not match destination pool tile dimensions.");
             }
             else
-                dst = CreateTilePool(name, pool.TileWidth, pool.TileHeight);
+                dst = CreatePool(name, pool.TileWidth, pool.TileHeight);
 
             foreach (Tile srcTile in pool) {
                 dst.AddTile(pool.GetTileTexture(srcTile.Uid));
@@ -87,32 +78,14 @@ namespace Treefrog.Framework.Model
             return dst;
         }
 
-        public void Reset ()
+        internal override Guid TakeKey ()
         {
-            _pools.Clear();
-            _tileIndexMap = new Dictionary<Guid, TilePool>();
-        }
-
-        public TilePool PoolFromTileId (Guid uid)
-        {
-            TilePool pool = null;
-            _tileIndexMap.TryGetValue(uid, out pool);
-            return pool;
+            return Guid.NewGuid();
         }
 
         internal Guid TakeId ()
         {
             return Guid.NewGuid();
-        }
-
-        internal void LinkTile (Guid uid, TilePool pool)
-        {
-            _tileIndexMap[uid] = pool;
-        }
-
-        internal void UnlinkTile (Guid uid)
-        {
-            _tileIndexMap.Remove(uid);
         }
 
         public static LibraryX.TileGroupX ToXmlProxyX (TilePoolManager manager)
@@ -141,6 +114,29 @@ namespace Treefrog.Framework.Model
                     TilePool.FromXmlProxy(pool, manager);
 
             return manager;
+        }
+    }
+
+    public class MetaTilePoolManager : MetaPoolManager<TilePool, Guid, TilePoolManager>, ITilePoolManager
+    {
+        public TexturePool TexturePool
+        {
+            get { return GetManager(Default).TexturePool; }
+        }
+
+        public TilePool CreatePool (string name, int tileWidth, int tileHeight)
+        {
+            return GetManager(Default).CreatePool(name, tileWidth, tileHeight);
+        }
+
+        public TilePool ImportPool (string name, TextureResource source, TilePool.TileImportOptions options)
+        {
+            return GetManager(Default).ImportPool(name, source, options);
+        }
+
+        public TilePool MergePool (string name, TilePool pool)
+        {
+            return GetManager(Default).MergePool(name, pool);
         }
     }
 }

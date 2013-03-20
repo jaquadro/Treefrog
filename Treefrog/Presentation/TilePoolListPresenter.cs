@@ -14,6 +14,7 @@ using Treefrog.Presentation.Annotations;
 using System.Collections.ObjectModel;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework.Compat;
 
 namespace Treefrog.Presentation
 {
@@ -33,7 +34,7 @@ namespace Treefrog.Presentation
         //bool CanRemoveSelectedTilePool { get; }
         //bool CanShowSelectedTilePoolProperties { get; }
 
-        TilePoolManager TilePoolManager { get; }
+        ITilePoolManager TilePoolManager { get; }
 
         IEnumerable<TilePoolPresenter> TilePoolList { get; }
         TilePoolPresenter SelectedTilePool { get; }
@@ -199,7 +200,7 @@ namespace Treefrog.Presentation
     public class TilePoolListPresenter : IDisposable, ITilePoolListPresenter, ICommandSubscriber
     {
         private IEditorPresenter _editor;
-        private TilePoolManager _poolManager;
+        private ITilePoolManager _poolManager;
 
         private Dictionary<string, TilePoolPresenter> _tilePoolPresenters;
         private string _selectedPool;
@@ -241,19 +242,21 @@ namespace Treefrog.Presentation
                 BindTilePoolManager(null);
         }
 
-        public void BindTilePoolManager (TilePoolManager manager)
+        public void BindTilePoolManager (ITilePoolManager manager)
         {
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded -= TilePoolAdded;
+                /*_poolManager.Pools.ResourceAdded -= TilePoolAdded;
                 _poolManager.Pools.ResourceRemoved -= TilePoolRemoved;
-                _poolManager.Pools.ResourceRemapped -= TilePoolRemapped;
+                _poolManager.Pools.ResourceRemapped -= TilePoolRemapped;*/
+                _poolManager.Pools.CollectionChanged -= TilePoolManagerChanged;
             }
 
             _poolManager = manager;
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded += TilePoolAdded;
+                /*_poolManager.Pools.ResourceAdded += TilePoolAdded;
                 _poolManager.Pools.ResourceRemoved += TilePoolRemoved;
-                _poolManager.Pools.ResourceRemapped += TilePoolRemapped;
+                _poolManager.Pools.ResourceRemapped += TilePoolRemapped;*/
+                _poolManager.Pools.CollectionChanged += TilePoolManagerChanged;
 
                 InitializePoolPresenters();
             }
@@ -264,7 +267,7 @@ namespace Treefrog.Presentation
             OnSyncTilePoolManager(EventArgs.Empty);
         }
 
-        public TilePoolManager TilePoolManager
+        public ITilePoolManager TilePoolManager
         {
             get { return _poolManager; }
         }
@@ -365,7 +368,29 @@ namespace Treefrog.Presentation
             OnSelectedTilePoolChanged(EventArgs.Empty);
         }
 
-        private void TilePoolAdded (object sender, NamedResourceEventArgs<TilePool> e)
+        private void TilePoolManagerChanged (object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (TilePool pool in e.NewItems)
+                        AddPoolPresenter(pool);
+                    break;
+
+                case NotifyCollectionChangedAction.Replace:
+                    foreach (TilePool pool in e.OldItems)
+                        RemovePoolPresenter(pool.Name);
+                    foreach (TilePool pool in e.NewItems)
+                        AddPoolPresenter(pool);
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (TilePool pool in e.OldItems)
+                        RemovePoolPresenter(pool.Name);
+                    break;
+            }
+        }
+
+        /*private void TilePoolAdded (object sender, NamedResourceEventArgs<TilePool> e)
         {
             AddPoolPresenter(e.Resource);
         }
@@ -384,7 +409,7 @@ namespace Treefrog.Presentation
 
             if (_selectedPool == e.OldName)
                 _selectedPool = e.NewName;
-        }
+        }*/
 
         #region Command Handling
 
@@ -442,14 +467,14 @@ namespace Treefrog.Presentation
         {
             if (CommandCanImport()) {
                 List<string> currentNames = new List<string>();
-                foreach (TilePool pool in _editor.Project.TilePools) {
+                foreach (TilePool pool in _editor.Project.TilePoolManager.Pools) {
                     currentNames.Add(pool.Name);
                 }
 
                 ImportTilePool form = new ImportTilePool(_editor.Project);
                 form.ShowDialog();
 
-                foreach (TilePool pool in _editor.Project.TilePools) {
+                foreach (TilePool pool in _editor.Project.TilePoolManager.Pools) {
                     if (!currentNames.Contains(pool.Name)) {
                         SelectTilePool(pool.Name);
                     }
@@ -468,7 +493,7 @@ namespace Treefrog.Presentation
         private void CommandDelete ()
         {
             if (CommandCanDelete()) {
-                if (_selectedPool != null && _editor.Project.TilePools.Contains(_selectedPool)) {
+                if (_selectedPool != null && _editor.Project.TilePoolManager.Pools.Contains(_selectedPool)) {
                     _poolManager.Pools.Remove(_selectedPool);
                 }
 

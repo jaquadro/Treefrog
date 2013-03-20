@@ -129,7 +129,7 @@ namespace Treefrog.Windows
             RebuildPoolList();
         }
 
-        private void BindTilePoolManager (TilePoolManager manager)
+        private void BindTilePoolManager (ITilePoolManager manager)
         {
             if (manager != null) {
                 _layerControl.TextureCache.SourcePool = manager.TexturePool;

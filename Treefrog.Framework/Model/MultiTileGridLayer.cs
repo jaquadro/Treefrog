@@ -58,7 +58,7 @@ namespace Treefrog.Framework.Model
                 string[] coords = tileProxy.At.Split(new char[] { ',' });
                 string[] ids = tileProxy.Items.Split(new char[] { ',' });
 
-                TilePoolManager manager = Level.Project.TilePoolManager;
+                ITilePoolManager manager = Level.Project.TilePoolManager;
 
                 foreach (string id in ids) {
                     int tileId = Convert.ToInt32(id);
@@ -67,7 +67,7 @@ namespace Treefrog.Framework.Model
                     if (!tileIndex.TryGetValue(tileId, out tileUid))
                         continue;
 
-                    TilePool pool = manager.PoolFromTileId(tileUid);
+                    TilePool pool = manager.PoolFromItemKey(tileUid);
                     Tile tile = pool.GetTile(tileUid);
 
                     AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);

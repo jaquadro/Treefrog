@@ -39,7 +39,7 @@ namespace Treefrog.Presentation
         bool CanRemoveSelectedObjectPool { get; }
         bool CanShowSelectedObjectPoolProperties { get; }
 
-        ObjectPoolManager ObjectPoolManager { get; }
+        IObjectPoolManager ObjectPoolManager { get; }
 
         IEnumerable<ObjectPool> ObjectPoolCollection { get; }
         ObjectPool SelectedObjectPool { get; }
@@ -234,7 +234,7 @@ namespace Treefrog.Presentation
             get { return SelectedObjectPool != null; }
         }
 
-        public ObjectPoolManager ObjectPoolManager
+        public IObjectPoolManager ObjectPoolManager
         {
             get { return _editor.Project.ObjectPoolManager; }
         }

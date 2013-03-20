@@ -26,8 +26,11 @@ namespace Treefrog.Framework.Model
 
         private NamedResourceCollection<Level> _levels;
 
-        private TilePoolManager _tilePools;
-        private ObjectPoolManager _objectPools;
+        private Guid _defaultLibraryUid;
+        private Dictionary<Guid, Library> _libraries;
+
+        private MetaTilePoolManager _tilePools;
+        private MetaObjectPoolManager _objectPools;
         private TileBrushManager _tileBrushes;
         private TexturePool _texturePool;
 
@@ -47,17 +50,25 @@ namespace Treefrog.Framework.Model
 
         public Project () 
         {
+            Guid _defaultLibraryUid = Guid.NewGuid();
+
             _uid = Guid.NewGuid();
             _services = new ServiceContainer();
             _texturePool = new TexturePool();
 
-            _tilePools = new TilePoolManager(_texturePool);
-            _objectPools = new ObjectPoolManager(_texturePool);
+            //_tilePools = new TilePoolManager(_texturePool);
+            //ObjectPoolManager defaultObjectPool = new ObjectPoolManager(_texturePool);
             _tileBrushes = new TileBrushManager();
             _levels = new NamedResourceCollection<Level>();
-            
 
-            _tilePools.Pools.Modified += TilePoolsModifiedHandler;
+            _libraries = new Dictionary<Guid, Library>();
+
+            _tilePools = new MetaTilePoolManager();
+            _tilePools.AddManager(_defaultLibraryUid, new TilePoolManager(_texturePool));
+            _objectPools = new MetaObjectPoolManager();
+            _objectPools.AddManager(_defaultLibraryUid, new ObjectPoolManager(_texturePool));
+
+            _tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
             _objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
             _tileBrushes.DynamicBrushes.PropertyChanged += HandleTileBrushManagerPropertyChanged;
             _levels.ResourceModified += LevelsModifiedHandler;
@@ -75,17 +86,17 @@ namespace Treefrog.Framework.Model
             get { return true; }
         }
 
-        public NamedResourceCollection<TilePool> TilePools
+        /*public NamedResourceCollection<TilePool> TilePools
         {
             get { return _tilePools.Pools; }
-        }
+        }*/
 
-        public TilePoolManager TilePoolManager
+        public ITilePoolManager TilePoolManager
         {
             get { return _tilePools; }
         }
 
-        public ObjectPoolManager ObjectPoolManager
+        public IObjectPoolManager ObjectPoolManager
         {
             get { return _objectPools; }
         }
@@ -178,7 +189,11 @@ namespace Treefrog.Framework.Model
 
         public void Save (Stream stream, ProjectResolver resolver)
         {
-            WriteLibrary(this, resolver, "test.tlbx");
+            foreach (Library library in _libraries.Values) {
+                using (Stream libStream = resolver.OutputStream("test.tlbx")) {
+                    library.Save(libStream);
+                }
+            }
 
             foreach (Level level in Levels) {
                 WriteLevel(resolver, level, level.Name + "_test.tlvx");
@@ -227,10 +242,15 @@ namespace Treefrog.Framework.Model
 
             Project project = new Project();
 
+            project._tilePools = new MetaTilePoolManager();
+            project._objectPools = new MetaObjectPoolManager();
+
             foreach (var itemGroup in proxy.ItemGroups) {
                 if (itemGroup.Libraries != null) {
-                    foreach (var library in itemGroup.Libraries) {
-                        LoadLibrary(project, resolver, library.Include);
+                    foreach (var libProxy in itemGroup.Libraries) {
+                        using (Stream stream = resolver.InputStream(libProxy.Include)) {
+                            project.AddLibrary(new Library(stream));
+                        }
                     }
                 }
 
@@ -244,41 +264,25 @@ namespace Treefrog.Framework.Model
             project._uid = proxy.PropertyGroup.ProjectGuid;
             project._extra = proxy.PropertyGroup.Extra;
 
-            project._tilePools.Pools.Modified += project.TilePoolsModifiedHandler;
+            project._tilePools.Pools.PropertyChanged += project.TilePoolsModifiedHandler;
             project._objectPools.Pools.PropertyChanged += project.HandleObjectPoolManagerPropertyChanged;
 
             return project;
         }
 
-        private static void LoadLibrary (Project project, ProjectResolver resolver, string libraryPath)
+        private void AddLibrary (Library library)
         {
-            using (Stream stream = resolver.InputStream(libraryPath)) {
-                XmlReaderSettings settings = new XmlReaderSettings() {
-                    CloseInput = true,
-                    IgnoreComments = true,
-                    IgnoreWhitespace = true,
-                };
+            _libraries.Add(library.Uid, library);
 
-                XmlReader reader = XmlTextReader.Create(stream, settings);
+            _texturePool = library.TexturePool;
+            _tilePools.AddManager(library.Uid, library.TilePoolManager);
+            _objectPools.AddManager(library.Uid, library.ObjectPoolManager);
+            _tileBrushes = library.TileBrushManager;
 
-                XmlSerializer serializer = new XmlSerializer(typeof(LibraryX));
-                LibraryX proxy = serializer.Deserialize(reader) as LibraryX;
-
-                project._texturePool = TexturePool.FromXmlProxy(proxy.TextureGroup);
-                if (project._texturePool == null)
-                    project._texturePool = new TexturePool();
-
-                project._objectPools = ObjectPoolManager.FromXmlProxy(proxy.ObjectGroup, project._texturePool);
-                if (project._objectPools == null)
-                    project._objectPools = new ObjectPoolManager(project._texturePool);
-
-                project._tilePools = TilePoolManager.FromXmlProxy(proxy.TileGroup, project._texturePool);
-                if (project._tilePools == null)
-                    project._tilePools = new TilePoolManager(project._texturePool);
-
-                project._tileBrushes = TileBrushManager.FromXmlProxy(proxy.TileBrushGroup, project._tilePools, Project.DynamicBrushClassRegistry);
-                if (project._tileBrushes == null)
-                    project._tileBrushes = new TileBrushManager();
+            if (_defaultLibraryUid == Guid.Empty) {
+                _defaultLibraryUid = library.Uid;
+                _tilePools.Default = library.Uid;
+                _objectPools.Default = library.Uid;
             }
         }
 
@@ -313,30 +317,6 @@ namespace Treefrog.Framework.Model
                 LevelX proxy = Level.ToXmlProxyX(level);
                 XmlSerializer serializer = new XmlSerializer(typeof(LevelX));
                 serializer.Serialize(writer, proxy);
-
-                writer.Close();
-            }
-        }
-
-        private static void WriteLibrary (Project project, ProjectResolver resolver, string libraryPath)
-        {
-            using (Stream stream = resolver.OutputStream(libraryPath)) {
-                XmlWriterSettings settings = new XmlWriterSettings() {
-                    CloseOutput = true,
-                    Indent = true,
-                };
-
-                XmlWriter writer = XmlTextWriter.Create(stream, settings);
-
-                LibraryX library = new LibraryX() {
-                    TextureGroup = TexturePool.ToXmlProxyX(project.TexturePool),
-                    ObjectGroup = ObjectPoolManager.ToXmlProxyX(project.ObjectPoolManager),
-                    TileGroup = TilePoolManager.ToXmlProxyX(project.TilePoolManager),
-                    TileBrushGroup = TileBrushManager.ToXmlProxyX(project.TileBrushManager),
-                };
-
-                XmlSerializer serializer = new XmlSerializer(typeof(LibraryX));
-                serializer.Serialize(writer, library);
 
                 writer.Close();
             }

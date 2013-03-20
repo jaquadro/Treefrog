@@ -31,7 +31,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class TilePool : INamedResource, IEnumerable<Tile>, IPropertyProvider
+    public class TilePool : IKeyProvider<string>, IEnumerable<Tile>, IPropertyProvider, INotifyPropertyChanged
     {
         private const int _initFactor = 4;
 
@@ -225,7 +225,7 @@ namespace Treefrog.Framework.Model
             _tiles[uid] = new PhysicalTile(uid, this);
             _tiles[uid].Modified += TileModifiedHandler;
 
-            _manager.LinkTile(uid, this);
+            _manager.LinkItemKey(uid, this);
 
             OnTileAdded(new TileEventArgs(_tiles[uid]));
         }
@@ -268,7 +268,7 @@ namespace Treefrog.Framework.Model
             _tiles.Remove(uid);
             _locations.Remove(uid);
 
-            _manager.UnlinkTile(uid);
+            _manager.UnlinkItemKey(uid);
 
             if (ShouldReduceTexture()) {
                 ReduceTexture();
@@ -561,9 +561,71 @@ namespace Treefrog.Framework.Model
             });
         }
 
-        #region INamedResource Members
+        public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
+        public event EventHandler<KeyProviderEventArgs<string>> KeyChanged;
+
+        protected virtual void OnKeyChanging (KeyProviderEventArgs<string> e)
+        {
+            if (KeyChanging != null)
+                KeyChanging(this, e);
+        }
+
+        protected virtual void OnKeyChanged (KeyProviderEventArgs<string> e)
+        {
+            if (KeyChanged != null)
+                KeyChanged(this, e);
+        }
+
+        public string GetKey ()
+        {
+            return Name;
+        }
 
         public string Name
+        {
+            get { return _name; }
+        }
+
+        public bool SetName (string name)
+        {
+            if (_name != name) {
+                KeyProviderEventArgs<string> e = new KeyProviderEventArgs<string>(_name, name);
+                try {
+                    OnKeyChanging(e);
+                }
+                catch (KeyProviderException) {
+                    return false;
+                }
+
+                _name = name;
+                OnKeyChanged(e);
+                OnPropertyProviderNameChanged(EventArgs.Empty);
+                RaisePropertyChanged("Name");
+            }
+
+            return true;
+        }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged (PropertyChangedEventArgs e)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, e);
+        }
+
+        private void RaisePropertyChanged (string name)
+        {
+            OnPropertyChanged(new PropertyChangedEventArgs(name));
+        }
+
+        #endregion
+
+        #region INamedResource Members
+
+        /*public string Name
         {
             get { return _name; }
             set
@@ -587,7 +649,7 @@ namespace Treefrog.Framework.Model
 
         public event EventHandler<NameChangedEventArgs> NameChanged;
 
-        public event EventHandler Modified;
+        
 
         protected virtual void OnNameChanging (NameChangingEventArgs e)
         {
@@ -602,6 +664,9 @@ namespace Treefrog.Framework.Model
                 NameChanged(this, e);
             }
         }
+        */
+
+        public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
         {
@@ -697,7 +762,7 @@ namespace Treefrog.Framework.Model
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {
             StringProperty property = sender as StringProperty;
-            Name = property.Value;
+            SetName(property.Value);
         }
 
         public static LibraryX.TilePoolX ToXmlProxyX (TilePool pool)
@@ -729,7 +794,7 @@ namespace Treefrog.Framework.Model
             if (proxy == null)
                 return null;
 
-            TilePool pool = manager.CreateTilePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
+            TilePool pool = manager.CreatePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
             manager.TexturePool.RemoveResource(pool._textureId);
 
             pool._textureId = proxy.Texture;
@@ -802,7 +867,7 @@ namespace Treefrog.Framework.Model
             pool._tiles[proxy.Uid] = tile;
             pool._tiles[proxy.Uid].Modified += pool.TileModifiedHandler;
 
-            pool._manager.LinkTile(proxy.Uid, pool);
+            pool._manager.LinkItemKey(proxy.Uid, pool);
 
             return tile;
         }

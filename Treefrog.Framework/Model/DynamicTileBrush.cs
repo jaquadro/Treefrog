@@ -193,7 +193,7 @@ namespace Treefrog.Framework.Model
             DynamicTileBrush brush = new DynamicTileBrush(proxy.Name, proxy.TileWidth, proxy.TileHeight, brushClass);
 
             foreach (var entry in proxy.Entries) {
-                TilePool pool = manager.PoolFromTileId(entry.TileId);
+                TilePool pool = manager.PoolFromItemKey(entry.TileId);
                 if (pool == null)
                     continue;
 
