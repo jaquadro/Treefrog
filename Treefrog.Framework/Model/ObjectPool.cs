@@ -27,6 +27,8 @@ namespace Treefrog.Framework.Model
 
         protected ObjectPool ()
         {
+            Uid = Guid.NewGuid();
+
             _objects = new NamedObservableCollection<ObjectClass>();
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectPoolProperties(this);
@@ -41,6 +43,8 @@ namespace Treefrog.Framework.Model
             _name = name;
             _manager = manager;
         }
+
+        public Guid Uid { get; private set; }
 
         public TexturePool TexturePool
         {
@@ -280,6 +284,7 @@ namespace Treefrog.Framework.Model
             }
 
             return new LibraryX.ObjectPoolX() {
+                Uid = pool.Uid,
                 Name = pool._name,
                 ObjectClasses = objects,
             };
@@ -291,6 +296,8 @@ namespace Treefrog.Framework.Model
                 return null;
 
             ObjectPool pool = manager.CreatePool(proxy.Name);
+            pool.Uid = proxy.Uid;
+
             foreach (var objClass in proxy.ObjectClasses) {
                 ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
                 pool.AddObject(inst, objClass.Uid);

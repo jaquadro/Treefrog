@@ -62,7 +62,7 @@ namespace Treefrog.Framework.Model
             ResetExtants();
         }
 
-        public void Normalize ()
+        public override void Normalize ()
         {
             ResetExtants();
             if (_minX == 0 && _minY == 0)

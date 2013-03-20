@@ -26,11 +26,7 @@ namespace Treefrog.Framework.Model
         private bool _canRotate;
         private bool _canScale;
 
-        private int _width;
-        private int _height;
         private TextureResource _image;
-        private int _originX;
-        private int _originY;
 
         private Point _origin;
         private Rectangle _maskBounds;

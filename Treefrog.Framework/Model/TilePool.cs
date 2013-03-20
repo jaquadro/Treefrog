@@ -62,6 +62,8 @@ namespace Treefrog.Framework.Model
 
         protected TilePool ()
         {
+            Uid = Guid.NewGuid();
+
             _tiles = new Dictionary<Guid, Tile>();
             _locations = new Dictionary<Guid, TileCoord>();
             _openLocations = new List<TileCoord>();
@@ -92,6 +94,8 @@ namespace Treefrog.Framework.Model
         #endregion
 
         #region Properties
+
+        public Guid Uid { get; private set; }
 
         public int Capacity
         {
@@ -779,9 +783,9 @@ namespace Treefrog.Framework.Model
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LibraryX.TilePoolX() {
+                Uid = pool.Uid,
                 Name = pool.Name,
                 Texture = pool._textureId,
-                //Source = TextureResource.ToXmlProxy(pool._tileSource),
                 TileWidth = pool._tileWidth,
                 TileHeight = pool._tileHeight,
                 TileDefinitions = tiledefs.Count > 0 ? tiledefs : null,
@@ -797,10 +801,9 @@ namespace Treefrog.Framework.Model
             TilePool pool = manager.CreatePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
             manager.TexturePool.RemoveResource(pool._textureId);
 
+            pool.Uid = proxy.Uid;
             pool._textureId = proxy.Texture;
             pool._tileSource = manager.TexturePool.GetResource(pool._textureId);
-
-            //pool._tileSource = TextureResource.FromXmlProxy(proxy.Source);
 
             if (pool._tileSource != null) {
                 pool._tileSource.Apply(c => {

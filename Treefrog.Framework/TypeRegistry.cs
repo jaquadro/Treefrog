@@ -38,7 +38,7 @@ namespace Treefrog.Framework
                 return null;
         }
 
-        public void Register (string name, Type type)
+        public virtual void Register (string name, Type type)
         {
             _registry[name] = type;
         }
@@ -52,7 +52,7 @@ namespace Treefrog.Framework
             return base.Create(type) as T;
         }
 
-        public void Register (string name, Type type)
+        public override void Register (string name, Type type)
         {
             if (!type.IsSubclassOf(typeof(T)) && Array.IndexOf(type.GetInterfaces(), typeof(T)) == -1)
                 throw new ArgumentException("Not a valid subtype");

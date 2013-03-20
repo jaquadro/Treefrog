@@ -94,7 +94,6 @@ namespace Treefrog.Framework.Model
     {
         private TileBrushManager _manager;
         private NamedObservableCollection<T> _brushes;
-        private Dictionary<Guid, T> _brushIndex;
 
         protected TileBrushCollection (string name)
             : base(name)

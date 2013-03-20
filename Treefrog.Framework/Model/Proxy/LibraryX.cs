@@ -68,6 +68,9 @@ namespace Treefrog.Framework.Model.Proxy
         public class ObjectPoolX
         {
             [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
             public string Name { get; set; }
 
             [XmlArray]
@@ -106,6 +109,9 @@ namespace Treefrog.Framework.Model.Proxy
 
         public class TilePoolX
         {
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
             [XmlAttribute]
             public string Name { get; set; }
 
