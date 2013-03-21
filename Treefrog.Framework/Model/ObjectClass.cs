@@ -14,12 +14,12 @@ namespace Treefrog.Framework.Model
     }
 
     /* INamedResource, IPropertyProvider */
-    public class ObjectClass : IKeyProvider<string>, INotifyPropertyChanged, IPropertyProvider
+    public class ObjectClass : IResource, IKeyProvider<string>, INotifyPropertyChanged, IPropertyProvider
     {
         private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
 
         private ObjectPool _pool;
-        private Guid _id;
+        private Guid _uid;
         private string _name;
         private Guid _textureId;
 
@@ -37,6 +37,7 @@ namespace Treefrog.Framework.Model
 
         public ObjectClass (string name)
         {
+            _uid = Guid.NewGuid();
             _name = name;
             _origin = Point.Zero;
 
@@ -66,8 +67,8 @@ namespace Treefrog.Framework.Model
 
         public Guid Uid
         {
-            get { return _id; }
-            set { _id = value; }
+            get { return _uid; }
+            internal set { _uid = value; }
         }
 
         public ObjectPool Pool
@@ -221,6 +222,15 @@ namespace Treefrog.Framework.Model
             return true;
         }
 
+        public event EventHandler Modified;
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            var ev = Modified;
+            if (ev != null)
+                ev(this, e);
+        }
+
         /*#region INamedResource Members
 
         public string Name
@@ -371,6 +381,7 @@ namespace Treefrog.Framework.Model
         private void RaisePropertyChanged (string name)
         {
             OnPropertyChanged(new PropertyChangedEventArgs(name));
+            OnModified(EventArgs.Empty);
         }
 
         #endregion
@@ -401,7 +412,7 @@ namespace Treefrog.Framework.Model
                 return null;
 
             ObjectClass objClass = new ObjectClass(proxy.Name);
-            objClass._id = proxy.Uid;
+            objClass._uid = proxy.Uid;
             objClass._textureId = proxy.Texture;
             objClass._imageBounds = proxy.ImageBounds;
             objClass._maskBounds = proxy.MaskBounds;

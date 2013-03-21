@@ -10,6 +10,8 @@ namespace Treefrog.Framework.Model
 {
     public class Library
     {
+        private string _name;
+
         public Library ()
         {
             Extra = new List<XmlElement>();
@@ -42,7 +44,11 @@ namespace Treefrog.Framework.Model
 
         public List<XmlElement> Extra { get; private set; }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get { return _name; }
+            set { SetField(ref _name, value); }
+        }
 
         public string Path { get; set; }
 
@@ -53,6 +59,30 @@ namespace Treefrog.Framework.Model
         public TilePoolManager TilePoolManager { get; private set; }
 
         public TileBrushManager TileBrushManager { get; private set; }
+
+        public bool IsModified { get; set; }
+
+        public event EventHandler Modified;
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            var ev = Modified;
+            if (ev != null)
+                ev(this, e);
+
+            IsModified = true;
+        }
+
+        private bool SetField<T> (ref T field, T value)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) 
+                return false;
+
+            field = value;
+            
+            OnModified(EventArgs.Empty);
+            return true;
+        }
 
         public void Save (Stream stream)
         {
@@ -67,6 +97,8 @@ namespace Treefrog.Framework.Model
                 XmlSerializer serializer = new XmlSerializer(typeof(LibraryX));
                 serializer.Serialize(writer, proxy);
             }
+
+            IsModified = false;
         }
 
         public static Library FromXProxy (LibraryX proxy)
