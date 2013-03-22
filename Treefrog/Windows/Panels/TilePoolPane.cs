@@ -82,6 +82,8 @@ namespace Treefrog.Windows
 
             // Setup control
 
+            _poolComboBox.ComboBox.DisplayMember = "Name";
+
             _layerControl.BackColor = System.Drawing.Color.SlateGray;
             _layerControl.WidthSynced = true;
             _layerControl.CanvasAlignment = CanvasAlignment.UpperLeft;
@@ -195,7 +197,7 @@ namespace Treefrog.Windows
         private void SelectTilePoolHandler (object sender, EventArgs e)
         {
             if (_controller != null)
-                _controller.ActionSelectTilePool((string)_poolComboBox.SelectedItem);
+                _controller.ActionSelectTilePool(((TilePool)_poolComboBox.SelectedItem).Uid);
         }
 
         private void SyncTilePoolManagerHandler (object sender, EventArgs e)
@@ -217,10 +219,10 @@ namespace Treefrog.Windows
                 return;
 
             foreach (TilePoolPresenter pool in _controller.TilePoolList) {
-                _poolComboBox.Items.Add(pool.TilePool.Name);
+                _poolComboBox.Items.Add(pool.TilePool);
 
                 if (pool == _controller.SelectedTilePool) {
-                    _poolComboBox.SelectedItem = pool.TilePool.Name;
+                    _poolComboBox.SelectedItem = pool.TilePool;
                 }
             }
         }

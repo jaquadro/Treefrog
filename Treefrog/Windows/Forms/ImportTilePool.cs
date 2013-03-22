@@ -288,7 +288,7 @@ namespace Treefrog.Windows.Forms
 
         private void CheckValid ()
         {
-            string txt = _textName.Text.Trim();
+            /*string txt = _textName.Text.Trim();
             if (txt.Length > 0 && !_project.TilePoolManager.Pools.Contains(txt) && _fileStream != null) {
                 _buttonOK.Enabled = true;
             }
@@ -301,7 +301,7 @@ namespace Treefrog.Windows.Forms
             }
             else {
                 _message.Text = "";
-            }
+            }*/
         }
 
         private void TranspButtonPaintHandler (object sender, PaintEventArgs e)

@@ -5,46 +5,34 @@ using Treefrog.Framework.Compat;
 namespace Treefrog.Framework.Model
 {
     public interface IPoolManager<TPool, TItemKey>
-        where TPool : class, IKeyProvider<string>
+        where TPool : class, IResource
     {
-        NamedObservableCollection<TPool> Pools { get; }
+        ResourceCollection<TPool> Pools { get; }
         TPool CreatePool (string name);
         void Reset ();
         TPool PoolFromItemKey (TItemKey key);
     }
 
     public abstract class PoolManager<TPool, TItemKey> : IPoolManager<TPool, TItemKey>
-        where TPool : class, IKeyProvider<string>
+        where TPool : class, IResource
     {
-        private TItemKey _lastId;
-        private NamedObservableCollection<TPool> _pools;
+        private ResourceCollection<TPool> _pools;
         private Dictionary<TItemKey, TPool> _poolIndexMap;
 
         protected PoolManager ()
         {
-            _lastId = default(TItemKey);
-            _pools = new NamedObservableCollection<TPool>();
+            _pools = new ResourceCollection<TPool>();
             _poolIndexMap = new Dictionary<TItemKey, TPool>();
 
-            _pools.CollectionChanged += PoolCollectionChangedHandler;
+            _pools.ResourceAdded += HandleResourceAdded;
+            _pools.ResourceRemoved += HandleResourceRemoved;
         }
 
-        private void PoolCollectionChangedHandler (object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action) {
-                case NotifyCollectionChangedAction.Remove:
-                case NotifyCollectionChangedAction.Replace:
-                    foreach (TPool pool in e.OldItems)
-                        RemovePool(pool);
-                    break;
-            }
-        }
-
-        private void RemovePool (TPool pool)
+        private void HandleResourceRemoved (object sender, ResourceEventArgs<TPool> e)
         {
             List<TItemKey> removeQueue = new List<TItemKey>();
             foreach (var item in _poolIndexMap) {
-                if (item.Value == pool)
+                if (item.Value == e.Resource)
                     removeQueue.Add(item.Key);
             }
 
@@ -52,15 +40,20 @@ namespace Treefrog.Framework.Model
                 _poolIndexMap.Remove(key);
         }
 
-        public virtual NamedObservableCollection<TPool> Pools
+        private void HandleResourceAdded (object sender, ResourceEventArgs<TPool> e)
+        {
+            // Would be nice to map pool items wouldn't it?
+        }
+
+        public virtual ResourceCollection<TPool> Pools
         {
             get { return _pools; }
         }
 
         public virtual TPool CreatePool (string name)
         {
-            if (_pools.Contains(name))
-                throw new ArgumentException("Manager already contains a pool with the given name.", "name");
+            //if (_pools.Contains(name))
+            //    throw new ArgumentException("Manager already contains a pool with the given name.", "name");
 
             TPool pool = CreatePoolCore(name);
             _pools.Add(pool);
@@ -72,7 +65,6 @@ namespace Treefrog.Framework.Model
 
         public virtual void Reset ()
         {
-            _lastId = default(TItemKey);
             _pools.Clear();
             _poolIndexMap.Clear();
         }
@@ -83,12 +75,6 @@ namespace Treefrog.Framework.Model
             if (_poolIndexMap.TryGetValue(key, out item))
                 return item;
             return null;
-        }
-
-        internal virtual TItemKey LastKey
-        {
-            get { return _lastId; }
-            set { _lastId = value; }
         }
 
         internal abstract TItemKey TakeKey ();

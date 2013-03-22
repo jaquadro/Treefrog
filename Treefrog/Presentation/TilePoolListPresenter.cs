@@ -52,7 +52,7 @@ namespace Treefrog.Presentation
 
         //void ActionImportTilePool ();
         //void ActionRemoveSelectedTilePool ();
-        void ActionSelectTilePool (string name);
+        void ActionSelectTilePool (Guid poolUid);
         //void ActionSelectTile (Tile tile);              // Send to ITilePoolPresenter
         //void ActionShowTilePoolProperties ();
 
@@ -202,8 +202,9 @@ namespace Treefrog.Presentation
         private IEditorPresenter _editor;
         private ITilePoolManager _poolManager;
 
-        private Dictionary<string, TilePoolPresenter> _tilePoolPresenters;
-        private string _selectedPool;
+        private Dictionary<Guid, TilePoolPresenter> _tilePoolPresenters;
+        //private string _selectedPool;
+        private Guid _selectedPool;
         private TilePoolPresenter _selectedPoolRef;
 
         public TilePoolListPresenter (IEditorPresenter editor)
@@ -211,7 +212,7 @@ namespace Treefrog.Presentation
             _editor = editor;
             _editor.SyncCurrentProject += EditorSyncCurrentProject;
 
-            _tilePoolPresenters = new Dictionary<string, TilePoolPresenter>();
+            _tilePoolPresenters = new Dictionary<Guid, TilePoolPresenter>();
 
             InitializeCommandManager();
         }
@@ -245,18 +246,18 @@ namespace Treefrog.Presentation
         public void BindTilePoolManager (ITilePoolManager manager)
         {
             if (_poolManager != null) {
-                /*_poolManager.Pools.ResourceAdded -= TilePoolAdded;
+                _poolManager.Pools.ResourceAdded -= TilePoolAdded;
                 _poolManager.Pools.ResourceRemoved -= TilePoolRemoved;
-                _poolManager.Pools.ResourceRemapped -= TilePoolRemapped;*/
-                _poolManager.Pools.CollectionChanged -= TilePoolManagerChanged;
+                //_poolManager.Pools.ResourceRemapped -= TilePoolRemapped;
+                //_poolManager.Pools.CollectionChanged -= TilePoolManagerChanged;
             }
 
             _poolManager = manager;
             if (_poolManager != null) {
-                /*_poolManager.Pools.ResourceAdded += TilePoolAdded;
+                _poolManager.Pools.ResourceAdded += TilePoolAdded;
                 _poolManager.Pools.ResourceRemoved += TilePoolRemoved;
-                _poolManager.Pools.ResourceRemapped += TilePoolRemapped;*/
-                _poolManager.Pools.CollectionChanged += TilePoolManagerChanged;
+                //_poolManager.Pools.ResourceRemapped += TilePoolRemapped;
+                //_poolManager.Pools.CollectionChanged += TilePoolManagerChanged;
 
                 InitializePoolPresenters();
             }
@@ -293,7 +294,7 @@ namespace Treefrog.Presentation
                 presenter.Dispose();
 
             _tilePoolPresenters.Clear();
-            _selectedPool = null;
+            _selectedPool = Guid.Empty;
             _selectedPoolRef = null;
         }
 
@@ -315,16 +316,16 @@ namespace Treefrog.Presentation
             TilePoolPresenter presenter = new TilePoolPresenter(pool);
             presenter.SelectedTileChanged += SelectedTileChanged;
 
-            _tilePoolPresenters[pool.Name] = presenter;
+            _tilePoolPresenters[pool.Uid] = presenter;
         }
 
-        private void RemovePoolPresenter (string name)
+        private void RemovePoolPresenter (Guid poolUid)
         {
             TilePoolPresenter presenter;
-            if (_tilePoolPresenters.TryGetValue(name, out presenter))
+            if (_tilePoolPresenters.TryGetValue(poolUid, out presenter))
                 presenter.Dispose();
 
-            _tilePoolPresenters.Remove(name);
+            _tilePoolPresenters.Remove(poolUid);
         }
 
         private void SelectedTileChanged (object sender, EventArgs e)
@@ -339,36 +340,36 @@ namespace Treefrog.Presentation
 
         private void SelectTilePool ()
         {
-            SelectTilePool(null);
+            SelectTilePool(Guid.Empty);
 
             foreach (TilePool pool in _poolManager.Pools) {
-                SelectTilePool(pool.Name);
+                SelectTilePool(pool.Uid);
                 return;
             }
         }
 
-        private void SelectTilePool (string poolName)
+        private void SelectTilePool (Guid poolUid)
         {
-            if (_selectedPool == poolName)
+            if (_selectedPool == poolUid)
                 return;
 
-            if (poolName == null || !_tilePoolPresenters.ContainsKey(poolName)) {
-                _selectedPool = null;
+            if (poolUid == null || !_tilePoolPresenters.ContainsKey(poolUid)) {
+                _selectedPool = Guid.Empty;
                 _selectedPoolRef = null;
                 _commandManager.Invalidate(CommandKey.TilePoolProperties);
 
                 return;
             }
 
-            _selectedPool = poolName;
-            _selectedPoolRef = _tilePoolPresenters[poolName];
+            _selectedPool = poolUid;
+            _selectedPoolRef = _tilePoolPresenters[poolUid];
 
             _commandManager.Invalidate(CommandKey.TilePoolProperties);
 
             OnSelectedTilePoolChanged(EventArgs.Empty);
         }
 
-        private void TilePoolManagerChanged (object sender, NotifyCollectionChangedEventArgs e)
+        /*private void TilePoolManagerChanged (object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Add:
@@ -388,19 +389,19 @@ namespace Treefrog.Presentation
                         RemovePoolPresenter(pool.Name);
                     break;
             }
-        }
+        }*/
 
-        /*private void TilePoolAdded (object sender, NamedResourceEventArgs<TilePool> e)
+        private void TilePoolAdded (object sender, ResourceEventArgs<TilePool> e)
         {
             AddPoolPresenter(e.Resource);
         }
 
-        private void TilePoolRemoved (object sender, NamedResourceEventArgs<TilePool> e)
+        private void TilePoolRemoved (object sender, ResourceEventArgs<TilePool> e)
         {
-            RemovePoolPresenter(e.Resource.Name);
+            RemovePoolPresenter(e.Resource.Uid);
         }
 
-        private void TilePoolRemapped (object sender, NamedResourceRemappedEventArgs<TilePool> e)
+        /*private void TilePoolRemapped (object sender, NamedResourceRemappedEventArgs<TilePool> e)
         {
             if (_tilePoolPresenters.ContainsKey(e.OldName)) {
                 _tilePoolPresenters[e.NewName] = _tilePoolPresenters[e.OldName];
@@ -476,7 +477,7 @@ namespace Treefrog.Presentation
 
                 foreach (TilePool pool in _editor.Project.TilePoolManager.Pools) {
                     if (!currentNames.Contains(pool.Name)) {
-                        SelectTilePool(pool.Name);
+                        SelectTilePool(pool.Uid);
                     }
                 }
 
@@ -562,10 +563,10 @@ namespace Treefrog.Presentation
 
         #endregion
 
-        public void ActionSelectTilePool (string name)
+        public void ActionSelectTilePool (Guid poolUid)
         {
-            if (_selectedPool != name) {
-                SelectTilePool(name);
+            if (_selectedPool != poolUid) {
+                SelectTilePool(poolUid);
 
                 OnSyncTilePoolList(EventArgs.Empty);
 

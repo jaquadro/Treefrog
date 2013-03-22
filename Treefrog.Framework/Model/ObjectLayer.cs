@@ -76,7 +76,7 @@ namespace Treefrog.Framework.Model
             RasterMode = proxy.RasterMode;
             Level = level;
 
-            NamedObservableCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
+            ResourceCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
             foreach (var objProxy in proxy.Objects) {
                 ObjectInstance inst = ObjectInstance.FromXmlProxy(objProxy, Level.Project.ObjectPoolManager);
                 if (inst != null)

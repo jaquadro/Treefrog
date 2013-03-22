@@ -35,8 +35,8 @@ namespace Treefrog.Framework
         }
     }
 
-    public class OrderedResourceEventArgs<T> : NamedResourceEventArgs<T>
-        where T : INamedResource
+    public class OrderedResourceEventArgs<T> : ResourceEventArgs<T>
+        where T : IResource
     {
         public int Order { get; private set; }
 

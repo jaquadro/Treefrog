@@ -100,14 +100,14 @@ namespace Treefrog.Windows
             }
 
             if (_controller != null) {
-                _controller.ActionSelectLayer(e.Item.Name);
+                _controller.ActionSelectLayer((Guid)e.Item.Tag);
             }
         }
 
         private void ItemCheckedHandler (object sender, ItemCheckedEventArgs e)
         {
             if (_controller != null) {
-                _controller.ActionShowHideLayer(e.Item.Name, e.Item.Checked ? LayerVisibility.Show : LayerVisibility.Hide);
+                _controller.ActionShowHideLayer((Guid)e.Item.Tag, e.Item.Checked ? LayerVisibility.Show : LayerVisibility.Hide);
             }
         }
 
@@ -124,6 +124,7 @@ namespace Treefrog.Windows
                     ListViewItem layerItem = new ListViewItem(layer.LayerName, 0) {
                         Name = layer.LayerName,
                         Checked = layer.IsVisible,
+                        Tag = layer.Layer.Uid,
                     };
 
                     if (layer is ObjectLayerPresenter)

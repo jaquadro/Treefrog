@@ -31,7 +31,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class TilePool : IKeyProvider<string>, IEnumerable<Tile>, IPropertyProvider, INotifyPropertyChanged
+    public class TilePool : IResource, IKeyProvider<string>, IEnumerable<Tile>, IPropertyProvider, INotifyPropertyChanged
     {
         private const int _initFactor = 4;
 
@@ -674,9 +674,9 @@ namespace Treefrog.Framework.Model
 
         protected virtual void OnModified (EventArgs e)
         {
-            if (Modified != null) {
-                Modified(this, e);
-            }
+            var ev = Modified;
+            if (ev != null)
+                ev(this, e);
         }
 
         private void TileModifiedHandler (object sender, EventArgs e)

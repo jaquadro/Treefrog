@@ -39,8 +39,8 @@ namespace Treefrog.Framework.Model
 
         public TilePool CreatePool (string name, int tileWidth, int tileHeight)
         {
-            if (Pools.Contains(name))
-                throw new ArgumentException("Manager already contains a pool with the given name.", "name");
+            //if (Pools.Contains(name))
+            //    throw new ArgumentException("Manager already contains a pool with the given name.", "name");
 
             TilePool pool = new TilePool(this, name, tileWidth, tileHeight);
             Pools.Add(pool);
@@ -50,8 +50,8 @@ namespace Treefrog.Framework.Model
 
         public TilePool ImportPool (string name, TextureResource source, TilePool.TileImportOptions options)
         {
-            if (Pools.Contains(name))
-                throw new ArgumentException("Manager already contains a pool with the given name.", "name");
+            //if (Pools.Contains(name))
+            //    throw new ArgumentException("Manager already contains a pool with the given name.", "name");
 
             TilePool pool = new TilePool(this, name, options.TileWidth, options.TileHeight);
             pool.ImportMerge(source, options);
@@ -63,12 +63,12 @@ namespace Treefrog.Framework.Model
         public TilePool MergePool (string name, TilePool pool)
         {
             TilePool dst = null;
-            if (Pools.Contains(name)) {
-                dst = Pools[name];
-                if (dst.TileWidth != pool.TileWidth || dst.TileHeight != pool.TileHeight)
-                    throw new ArgumentException("Source pool tile dimensions do not match destination pool tile dimensions.");
-            }
-            else
+            //if (Pools.Contains(name)) {
+            //    dst = Pools[name];
+            //    if (dst.TileWidth != pool.TileWidth || dst.TileHeight != pool.TileHeight)
+            //        throw new ArgumentException("Source pool tile dimensions do not match destination pool tile dimensions.");
+            //}
+            //else
                 dst = CreatePool(name, pool.TileWidth, pool.TileHeight);
 
             foreach (Tile srcTile in pool) {

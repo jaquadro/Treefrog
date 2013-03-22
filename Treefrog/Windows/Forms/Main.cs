@@ -76,7 +76,9 @@ namespace Treefrog.Windows.Forms
             tabControlEx1.TabPages.Clear();
 
             foreach (LevelPresenter lp in _editor.OpenContent) {
-                TabPage page = new TabPage(lp.Level.Name);
+                TabPage page = new TabPage(lp.Level.Name) {
+                    Tag = lp.Level.Uid
+                };
                 tabControlEx1.TabPages.Add(page);
 
                 LevelPanel lpanel = new LevelPanel();
@@ -151,7 +153,7 @@ namespace Treefrog.Windows.Forms
         {
             if (_editor != null) {
                 if (e.TabPage != null)
-                    _editor.ActionSelectContent(e.TabPage.Text);
+                    _editor.ActionSelectContent((Guid)e.TabPage.Tag);
             }
         }
 

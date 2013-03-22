@@ -13,8 +13,6 @@ namespace Treefrog.Framework.Model
 
     public abstract class Layer : INamedResource, IPropertyProvider, ICloneable
     {
-        #region Fields
-
         private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible", "RasterMode" };
 
         private Level _level;
@@ -27,12 +25,12 @@ namespace Treefrog.Framework.Model
         private PropertyCollection _properties;
         private LayerProperties _predefinedProperties;
 
-        #endregion
-
         #region Constructors
 
         protected Layer (string name)
         {
+            Uid = Guid.NewGuid();
+
             _opacity = 1f;
             _visible = true;
             _rasterMode = RasterMode.Point;
@@ -59,6 +57,8 @@ namespace Treefrog.Framework.Model
         #endregion
 
         #region Properties
+
+        public Guid Uid { get; private set; }
 
         public Level Level
         {

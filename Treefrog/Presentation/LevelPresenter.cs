@@ -49,10 +49,10 @@ namespace Treefrog.Presentation
         private GroupLayerPresenter _rootContentLayer;
         private GridLayerPresenter _gridLayer;
 
-        private string _selectedLayer;
+        private Guid _selectedLayer;
         private LevelLayerPresenter _selectedLayerRef;
 
-        private Dictionary<string, LevelLayerPresenter> _layerPresenters;
+        private Dictionary<Guid, LevelLayerPresenter> _layerPresenters;
 
         private CommandHistory _history;
         private ObservableCollection<Annotation> _annotations;
@@ -67,7 +67,7 @@ namespace Treefrog.Presentation
 
             _info = new LevelInfoPresenter(this);
 
-            _layerPresenters = new Dictionary<string, LevelLayerPresenter>();
+            _layerPresenters = new Dictionary<Guid, LevelLayerPresenter>();
 
             _history = new CommandHistory();
             _history.HistoryChanged += HistoryChangedHandler;
@@ -220,7 +220,7 @@ namespace Treefrog.Presentation
             LevelLayerPresenter layerp = LayerPresenterFactory.Default.Create(layer, this);
             layerp.Info = _info;
 
-            _layerPresenters[layer.Name] = layerp;
+            _layerPresenters[layer.Uid] = layerp;
             _rootContentLayer.Layers.Add(layerp);
 
             BindingHelper.TryBind<ITilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
@@ -230,13 +230,13 @@ namespace Treefrog.Presentation
             BindLayerEvents(layer);
         }
 
-        private void RemoveLayer (string layerName)
+        private void RemoveLayer (Guid layerUid)
         {
-            if (layerName == null || !_layerPresenters.ContainsKey(layerName))
+            if (layerUid == null || !_layerPresenters.ContainsKey(layerUid))
                 return;
 
-            LevelLayerPresenter layerp = _layerPresenters[layerName];
-            _layerPresenters.Remove(layerName);
+            LevelLayerPresenter layerp = _layerPresenters[layerUid];
+            _layerPresenters.Remove(layerUid);
             _rootContentLayer.Layers.Remove(layerp);
 
             UnbindLayerEvents(layerp);
@@ -245,17 +245,17 @@ namespace Treefrog.Presentation
 
         private void SelectLayer ()
         {
-            SelectLayer(null);
+            SelectLayer(Guid.Empty);
 
             foreach (Layer layer in _level.Layers) {
-                SelectLayer(layer.Name);
+                SelectLayer(layer.Uid);
                 return;
             }
         }
 
-        private void SelectLayer (string layerName)
+        private void SelectLayer (Guid layerUid)
         {
-            if (_selectedLayer == layerName)
+            if (_selectedLayer == layerUid)
                 return;
 
             if (_selectedLayerRef != null) {
@@ -269,8 +269,8 @@ namespace Treefrog.Presentation
                 _selectedLayerRef.Deactivate();
             }
 
-            if (layerName == null || !_layerPresenters.ContainsKey(layerName)) {
-                _selectedLayer = null;
+            if (layerUid == null || !_layerPresenters.ContainsKey(layerUid)) {
+                _selectedLayer = Guid.Empty;
                 _selectedLayerRef = null;
 
                 InvalidateLayerCommands();
@@ -279,7 +279,7 @@ namespace Treefrog.Presentation
                 return;
             }
 
-            _selectedLayer = layerName;
+            _selectedLayer = layerUid;
             _selectedLayerRef = _layerPresenters[_selectedLayer];
 
             _info.ActionUpdateCoordinates("");
@@ -309,18 +309,10 @@ namespace Treefrog.Presentation
         }
 
         private void BindLayerEvents (Layer layer)
-        {
-            if (layer != null) {
-                layer.NameChanged += LayerNameChanged;
-            }
-        }
+        { }
 
         private void UnbindLayerEvents (Layer layer)
-        {
-            if (layer != null) {
-                layer.NameChanged -= LayerNameChanged;
-            }
-        }
+        { }
 
         private void UnbindLayerEvents (LevelLayerPresenter layer)
         {
@@ -344,17 +336,6 @@ namespace Treefrog.Presentation
         private void SelectedLayerPointerEventResponderChanged (object sender, EventArgs e)
         {
             OnPointerEventResponderChanged(EventArgs.Empty);
-        }
-
-        private void LayerNameChanged (object sender, NameChangedEventArgs e)
-        {
-            if (_layerPresenters.ContainsKey(e.OldName)) {
-                _layerPresenters[e.NewName] = _layerPresenters[e.OldName];
-                _layerPresenters.Remove(e.OldName);
-            }
-
-            if (_selectedLayer == e.OldName)
-                _selectedLayer = e.NewName;
         }
 
         #region Commands
@@ -550,7 +531,7 @@ namespace Treefrog.Presentation
                         // Intercept event instead
                         AddLayer(form.Layer);
 
-                        SelectLayer(name);
+                        SelectLayer(form.Layer.Uid);
 
                         OnSyncLayerList(EventArgs.Empty);
                         OnSyncLayerSelection(EventArgs.Empty);
@@ -575,7 +556,7 @@ namespace Treefrog.Presentation
                 // Intercept event instead
                 AddLayer(layer);
 
-                SelectLayer(name);
+                SelectLayer(layer.Uid);
 
                 OnSyncLayerList(EventArgs.Empty);
                 OnSyncLayerSelection(EventArgs.Empty);
@@ -590,7 +571,7 @@ namespace Treefrog.Presentation
         private void CommandCloneLayer ()
         {
             if (CommandCanCloneLayer() && _layerPresenters.ContainsKey(_selectedLayer)) {
-                string name = FindCloneLayerName(_selectedLayer);
+                string name = FindCloneLayerName(SelectedLayer.LayerName);
 
                 Layer layer = null;
                 if (_selectedLayerRef is TileLayerPresenter)
@@ -605,7 +586,7 @@ namespace Treefrog.Presentation
                 // Intercept event instead
                 AddLayer(layer);
 
-                SelectLayer(name);
+                SelectLayer(layer.Uid);
 
                 OnSyncLayerList(EventArgs.Empty);
                 OnSyncLayerSelection(EventArgs.Empty);
@@ -892,9 +873,9 @@ namespace Treefrog.Presentation
                 ev(this, e);
         }
 
-        public void ActionSelectLayer (string name)
+        public void ActionSelectLayer (Guid layerUid)
         {
-            SelectLayer(name);
+            SelectLayer(layerUid);
 
             if (SelectedLayer != null)
                 _editor.Presentation.PropertyList.Provider = SelectedLayer.Layer;
@@ -902,12 +883,12 @@ namespace Treefrog.Presentation
             OnSyncLayerSelection(EventArgs.Empty);
         }
 
-        public void ActionShowHideLayer (string name, LayerVisibility visibility)
+        public void ActionShowHideLayer (Guid layerUid, LayerVisibility visibility)
         {
-            if (!_level.Layers.Contains(name))
+            if (!_level.Layers.Contains(layerUid))
                 return;
 
-            _level.Layers[name].IsVisible = (visibility == LayerVisibility.Show);
+            _level.Layers[layerUid].IsVisible = (visibility == LayerVisibility.Show);
         }
 
         public void SetPropertyProvider (IPropertyProvider provider)

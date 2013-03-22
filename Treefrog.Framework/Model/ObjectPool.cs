@@ -8,7 +8,7 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectPool : IKeyProvider<string>, IEnumerable<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
+    public class ObjectPool : IResource, IEnumerable<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
@@ -18,7 +18,7 @@ namespace Treefrog.Framework.Model
 
         private ObjectPoolManager _manager;
 
-        private NamedObservableCollection<ObjectClass> _objects;
+        private ResourceCollection<ObjectClass> _objects;
 
         private PropertyCollection _properties;
         private ObjectPoolProperties _predefinedProperties;
@@ -29,12 +29,11 @@ namespace Treefrog.Framework.Model
         {
             Uid = Guid.NewGuid();
 
-            _objects = new NamedObservableCollection<ObjectClass>();
+            _objects = new ResourceCollection<ObjectClass>();
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectPoolProperties(this);
 
             _properties.Modified += Properties_Modified;
-            _objects.CollectionChanged += HandleCollectionChanged;
         }
 
         public ObjectPool (string name, ObjectPoolManager manager)
@@ -74,8 +73,8 @@ namespace Treefrog.Framework.Model
 
         public void AddObject (ObjectClass objClass, Guid uid)
         {
-            if (_objects.Contains(objClass.Name))
-                throw new ArgumentException("Object Pool already contains an object with the same name as objClass.");
+            if (_objects.Contains(uid))
+                throw new ArgumentException("Object Pool already contains an object with the same uid as objClass.");
 
             objClass.Uid = uid;
             objClass.Pool = this;
@@ -85,33 +84,49 @@ namespace Treefrog.Framework.Model
             _manager.LinkItemKey(uid, this);
         }
 
-        public void RemoveObject (string name)
+        public void RemoveObject (Guid uid)
         {
-            if (_objects.Contains(name)) {
-                ObjectClass objClass = _objects[name];
+            if (_objects.Contains(uid)) {
+                ObjectClass objClass = _objects[uid];
                 objClass.Pool = null;
 
                 _manager.UnlinkItemKey(objClass.Uid);
 
-                _objects.Remove(name);
+                _objects.Remove(uid);
             }
         }
 
-        public NamedObservableCollection<ObjectClass> Objects
+        public ResourceCollection<ObjectClass> Objects
         {
             get { return _objects; }
         }
 
-        private void HandleCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
-        {
-            //OnModified(EventArgs.Empty);
-            RaisePropertyChanged("Objects");
-        }
-
         private void Properties_Modified (object sender, EventArgs e)
         {
-            //OnModified(e);
-            RaisePropertyChanged("Objects");
+            RaisePropertyChanged("CustomProperties");
+        }
+
+        private EventHandler _eventModified;
+        public event EventHandler Modified
+        {
+            add
+            {
+                _eventModified += value;
+                //_objects.Modified += value;
+            }
+
+            remove
+            {
+                _eventModified -= value;
+                //_objects.Modified -= value;
+            }
+        }
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            var ev = _eventModified;
+            if (ev != null)
+                ev(this, e);
         }
 
         public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
@@ -268,6 +283,7 @@ namespace Treefrog.Framework.Model
         private void RaisePropertyChanged (string name)
         {
             OnPropertyChanged(new PropertyChangedEventArgs(name));
+            OnModified(EventArgs.Empty);
         }
 
         #endregion

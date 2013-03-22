@@ -59,12 +59,12 @@ namespace Treefrog.Presentation
 
         void ActionCreateObjectPool ();
         void ActionRemoveSelectedObjectPool ();
-        void ActionSelectObjectPool (string name);
+        void ActionSelectObjectPool (Guid name);
         void ActionShowObjectPoolProperties ();
 
         void ActionImportObject ();                             // Send to IObjectPoolPresenter
         void ActionRemoveSelectedObject ();                     // Send to IObjectPoolPresenter
-        void ActionSelectObject (string objectClass);      // Send to IObjectPoolPresenter
+        void ActionSelectObject (Guid objectClass);      // Send to IObjectPoolPresenter
 
         void RefreshObjectPoolCollection ();
     }
@@ -73,10 +73,10 @@ namespace Treefrog.Presentation
     {
         private IEditorPresenter _editor;
 
-        private string _selectedPool;
+        private Guid _selectedPool;
         private ObjectPool _selectedPoolRef;
 
-        private Dictionary<string, ObjectClass> _selectedObjects;
+        private Dictionary<Guid, ObjectClass> _selectedObjects;
 
         //private string _selectedObject;
         //private ObjectClass _selectedObjectRef;
@@ -91,7 +91,7 @@ namespace Treefrog.Presentation
 
         private void SyncCurrentProjectHandler (object sender, SyncProjectEventArgs e)
         {
-            _selectedObjects = new Dictionary<string, ObjectClass>();
+            _selectedObjects = new Dictionary<Guid, ObjectClass>();
 
             //_selectedObject = null;
             //_selectedObjectRef = null;
@@ -186,7 +186,7 @@ namespace Treefrog.Presentation
         private void CommandRemoveObject ()
         {
             if (CommandCanRemoveObject()) {
-                SelectedObjectPool.RemoveObject(SelectedObject.Name);
+                SelectedObjectPool.RemoveObject(SelectedObject.Uid);
 
                 RefreshObjectPoolCollection();
                 InvalidateObjectProtoCommands();
@@ -399,10 +399,10 @@ namespace Treefrog.Presentation
             OnSyncObjectPoolControl(EventArgs.Empty);
         }
 
-        public void ActionSelectObjectPool (string name)
+        public void ActionSelectObjectPool (Guid objectPoolUid)
         {
-            if (_selectedPool != name) {
-                SelectObjectPool(name);
+            if (_selectedPool != objectPoolUid) {
+                SelectObjectPool(objectPoolUid);
 
                 OnSyncObjectPoolActions(EventArgs.Empty);
                 OnSyncObjectPoolCollection(EventArgs.Empty);
@@ -427,7 +427,7 @@ namespace Treefrog.Presentation
         public void ActionRemoveSelectedObject ()
         {
             if (SelectedObject != null && SelectedObjectPool.Objects.Contains(SelectedObject)) {
-                SelectedObjectPool.Objects.Remove(SelectedObject);
+                SelectedObjectPool.Objects.Remove(SelectedObject.Uid);
                 _selectedObjects.Remove(_selectedPool);
 
                 InvalidateObjectProtoCommands();
@@ -440,9 +440,9 @@ namespace Treefrog.Presentation
             OnSyncObjectPoolControl(EventArgs.Empty);
         }
 
-        public void ActionSelectObject (string objectClass)
+        public void ActionSelectObject (Guid objectClassUid)
         {
-            if (objectClass == null) {
+            if (objectClassUid == null) {
                 if (_selectedPool != null)
                     _selectedObjects.Remove(_selectedPool);
 
@@ -451,13 +451,13 @@ namespace Treefrog.Presentation
 
                 _editor.Presentation.PropertyList.Provider = null;
             }
-            else if (SelectedObjectPool != null && SelectedObjectPool.Objects.Contains(objectClass)) {
-                _selectedObjects[_selectedPool] = SelectedObjectPool.Objects[objectClass];
+            else if (SelectedObjectPool != null && SelectedObjectPool.Objects.Contains(objectClassUid)) {
+                _selectedObjects[_selectedPool] = SelectedObjectPool.Objects[objectClassUid];
 
                 OnSyncObjectPoolControl(EventArgs.Empty);
                 OnObjectSelectionChanged(EventArgs.Empty);
 
-                _editor.Presentation.PropertyList.Provider = SelectedObjectPool.Objects[objectClass];
+                _editor.Presentation.PropertyList.Provider = SelectedObjectPool.Objects[objectClassUid];
             }
 
             InvalidateObjectProtoCommands();
@@ -474,28 +474,28 @@ namespace Treefrog.Presentation
 
         private void SelectObjectPool ()
         {
-            SelectObjectPool(null);
+            SelectObjectPool(Guid.Empty);
 
             foreach (ObjectPool pool in _editor.Project.ObjectPoolManager.Pools) {
-                SelectObjectPool(pool.Name);
+                SelectObjectPool(pool.Uid);
                 return;
             }
         }
 
-        private void SelectObjectPool (string objectPool)
+        private void SelectObjectPool (Guid objectPoolUid)
         {
             ObjectPool prevPool = _selectedPoolRef;
 
-            if (objectPool == _selectedPool)
+            if (objectPoolUid == _selectedPool)
                 return;
 
-            _selectedPool = null;
+            _selectedPool = Guid.Empty;
             _selectedPoolRef = null;
 
             // Bind new pool
-            if (objectPool != null && _editor.Project.ObjectPoolManager.Pools.Contains(objectPool)) {
-                _selectedPool = objectPool;
-                _selectedPoolRef = _editor.Project.ObjectPoolManager.Pools[objectPool];
+            if (objectPoolUid != null && _editor.Project.ObjectPoolManager.Pools.Contains(objectPoolUid)) {
+                _selectedPool = objectPoolUid;
+                _selectedPoolRef = _editor.Project.ObjectPoolManager.Pools[objectPoolUid];
             }
 
             InvalidateObjectProtoCommands();
@@ -503,34 +503,34 @@ namespace Treefrog.Presentation
             OnSyncCurrentObjectPool(new SyncObjectPoolEventArgs(prevPool));
         }
 
-        private void SelectObject (string objectPool)
+        private void SelectObject (Guid objectPoolUid)
         {
-            SelectObject(objectPool, null);
+            SelectObject(objectPoolUid, Guid.Empty);
 
-            if (_editor.Project.ObjectPoolManager.Pools.Contains(objectPool)) {
-                foreach (ObjectClass objClass in _editor.Project.ObjectPoolManager.Pools[objectPool].Objects) {
-                    SelectObject(objectPool, objClass.Name);
+            if (_editor.Project.ObjectPoolManager.Pools.Contains(objectPoolUid)) {
+                foreach (ObjectClass objClass in _editor.Project.ObjectPoolManager.Pools[objectPoolUid].Objects) {
+                    SelectObject(objectPoolUid, objClass.Uid);
                     return;
                 }
             }
         }
 
-        private void SelectObject (string objectPool, string objectClass)
+        private void SelectObject (Guid objectPoolUid, Guid objectClassUid)
         {
-            ObjectClass prevClass = _selectedObjects.ContainsKey(objectPool)
-                ? _selectedObjects[objectPool]
+            ObjectClass prevClass = _selectedObjects.ContainsKey(objectPoolUid)
+                ? _selectedObjects[objectPoolUid]
                 : null;
 
-            if (prevClass.Name == objectClass)
+            if (prevClass.Uid == objectClassUid)
                 return;
 
-            _selectedObjects.Remove(objectPool);
+            _selectedObjects.Remove(objectPoolUid);
 
             // Bind new object
-            if (objectClass != null && _editor.Project.ObjectPoolManager.Pools.Contains(objectPool)
-                && _editor.Project.ObjectPoolManager.Pools[objectPool].Objects.Contains(objectClass)) 
+            if (objectClassUid != null && _editor.Project.ObjectPoolManager.Pools.Contains(objectPoolUid)
+                && _editor.Project.ObjectPoolManager.Pools[objectPoolUid].Objects.Contains(objectClassUid)) 
             {
-                _selectedObjects[objectPool] = _editor.Project.ObjectPoolManager.Pools[objectPool].Objects[objectClass];
+                _selectedObjects[objectPoolUid] = _editor.Project.ObjectPoolManager.Pools[objectPoolUid].Objects[objectClassUid];
             }
 
             InvalidateObjectProtoCommands();

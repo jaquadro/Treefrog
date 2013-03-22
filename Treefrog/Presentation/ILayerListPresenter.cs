@@ -20,7 +20,7 @@ namespace Treefrog.Presentation
         event EventHandler SyncLayerSelection;
         //event EventHandler<ContextMenuEventArgs> ContextMenuActivated;
 
-        void ActionSelectLayer (string name);
-        void ActionShowHideLayer (string name, LayerVisibility visibility);
+        void ActionSelectLayer (Guid name);
+        void ActionShowHideLayer (Guid name, LayerVisibility visibility);
     }
 }

@@ -68,8 +68,8 @@ namespace Treefrog.Framework.Model
             _objectPools = new MetaObjectPoolManager();
             _objectPools.AddManager(_defaultLibraryUid, new ObjectPoolManager(_texturePool));
 
-            _tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
-            _objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
+            //_tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
+            //_objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
             _tileBrushes.DynamicBrushes.PropertyChanged += HandleTileBrushManagerPropertyChanged;
             _levels.ResourceModified += LevelsModifiedHandler;
 
@@ -264,8 +264,8 @@ namespace Treefrog.Framework.Model
             project._uid = proxy.PropertyGroup.ProjectGuid;
             project._extra = proxy.PropertyGroup.Extra;
 
-            project._tilePools.Pools.PropertyChanged += project.TilePoolsModifiedHandler;
-            project._objectPools.Pools.PropertyChanged += project.HandleObjectPoolManagerPropertyChanged;
+            //project._tilePools.Pools.PropertyChanged += project.TilePoolsModifiedHandler;
+            //project._objectPools.Pools.PropertyChanged += project.HandleObjectPoolManagerPropertyChanged;
 
             return project;
         }

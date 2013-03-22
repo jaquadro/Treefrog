@@ -31,6 +31,8 @@ namespace Treefrog.Framework.Model
                 throw new ArgumentNullException("Property names cannot be null.");
             }
             _name = name;
+
+            Uid = Guid.NewGuid();
         }
 
         protected Property (string name, Property property)
@@ -49,6 +51,8 @@ namespace Treefrog.Framework.Model
         public event EventHandler ValueChanged;
 
         #endregion
+
+        public Guid Uid { get; private set; }
 
         #region Event Dispatchers
 

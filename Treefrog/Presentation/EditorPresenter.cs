@@ -60,7 +60,7 @@ namespace Treefrog.Presentation
 
         IEnumerable<LevelPresenter> OpenContent { get; }
 
-        void ActionSelectContent (string name);
+        void ActionSelectContent (Guid uid);
 
         event EventHandler SyncContentTabs;
         event EventHandler SyncContentView;
@@ -160,8 +160,8 @@ namespace Treefrog.Presentation
     {
         private Project _project;
 
-        private Dictionary<string, LevelPresenter> _levels;
-        private string _currentLevel;
+        private Dictionary<Guid, LevelPresenter> _levels;
+        private Guid _currentLevel;
         private LevelPresenter _currentLevelRef;
 
         private Presentation _presentation;
@@ -190,12 +190,12 @@ namespace Treefrog.Presentation
 
             _project = EmptyProject();
             _project.Modified += ProjectModifiedHandler;
-            _project.Levels.ResourceRemapped += LevelNameChangedHandler;
+            //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             _project.ObjectPoolManager.CreatePool("Default");
 
-            _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter>();
+            _openContent = new List<Guid>();
+            _levels = new Dictionary<Guid, LevelPresenter>();
 
             Level level = new Level("Level 1", 0, 0, 800, 480);
             level.Project = _project;
@@ -206,18 +206,18 @@ namespace Treefrog.Presentation
             level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 32, 32, 25, 15));
 
             LevelPresenter pres = new LevelPresenter(this, level);
-            _levels[level.Name] = pres;
+            _levels[level.Uid] = pres;
 
             LevelPresenter pres2 = new LevelPresenter(this, level2);
-            _levels[level2.Name] = pres2;
+            _levels[level2.Uid] = pres2;
 
-            _openContent.Add(level.Name);
-            _openContent.Add(level2.Name);
+            _openContent.Add(level.Uid);
+            _openContent.Add(level2.Uid);
 
             _project.Levels.Add(level);
             _project.Levels.Add(level2);
 
-            SelectLevel("Level 1");
+            SelectLevel(level.Uid);
 
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
             propList.Provider = level;
@@ -234,7 +234,7 @@ namespace Treefrog.Presentation
 
         public void New ()
         {
-            SelectLevel("");
+            SelectLevel(Guid.Empty);
 
             Project project = EmptyProject();
 
@@ -251,21 +251,21 @@ namespace Treefrog.Presentation
 
             _project = project;
             _project.Modified += ProjectModifiedHandler;
-            _project.Levels.ResourceRemapped += LevelNameChangedHandler;
+            //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
-            _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter>();
+            _openContent = new List<Guid>();
+            _levels = new Dictionary<Guid, LevelPresenter>();
 
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
                 LevelPresenter pres = new LevelPresenter(this, level);
-                _levels[level.Name] = pres;
+                _levels[level.Uid] = pres;
 
-                _openContent.Add(level.Name);
+                _openContent.Add(level.Uid);
 
                 if (_currentLevel == null) {
-                    SelectLevel(level.Name);
+                    SelectLevel(level.Uid);
                     propList.Provider = level; // Initial Property Provider
                 }
             }
@@ -296,23 +296,23 @@ namespace Treefrog.Presentation
 
             _project = project;
             _project.Modified += ProjectModifiedHandler;
-            _project.Levels.ResourceRemapped += LevelNameChangedHandler;
+            //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
-            _currentLevel = null;
+            _currentLevel = Guid.Empty;
 
-            _openContent = new List<string>();
-            _levels = new Dictionary<string, LevelPresenter>();
+            _openContent = new List<Guid>();
+            _levels = new Dictionary<Guid, LevelPresenter>();
 
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
                 LevelPresenter pres = new LevelPresenter(this, level);
-                _levels[level.Name] = pres;
+                _levels[level.Uid] = pres;
 
-                _openContent.Add(level.Name);
+                _openContent.Add(level.Uid);
 
                 if (_currentLevel == null) {
-                    SelectLevel(level.Name);
+                    SelectLevel(level.Uid);
                     propList.Provider = level; // Initial Property Provider
                 }
             }
@@ -374,7 +374,7 @@ namespace Treefrog.Presentation
 
         #region IEditorPresenter Members
 
-        List<string> _openContent;
+        List<Guid> _openContent;
 
         private bool _modified;
 
@@ -431,15 +431,15 @@ namespace Treefrog.Presentation
         {
             get 
             {
-                foreach (string name in _openContent) {
-                    yield return _levels[name];
+                foreach (Guid uid in _openContent) {
+                    yield return _levels[uid];
                 }
             }
         }
 
-        public void ActionSelectContent (string name)
+        public void ActionSelectContent (Guid uid)
         {
-            SelectLevel(name);
+            SelectLevel(uid);
         }
 
         private void ProjectModifiedHandler (object sender, EventArgs e)
@@ -668,10 +668,10 @@ namespace Treefrog.Presentation
                 NewLevel form = new NewLevel(_project);
                 if (form.ShowDialog() == DialogResult.OK) {
                     LevelPresenter pres = new LevelPresenter(this, form.Level);
-                    _levels[form.Level.Name] = pres;
+                    _levels[form.Level.Uid] = pres;
 
-                    _openContent.Add(form.Level.Name);
-                    SelectLevel(form.Level.Name);
+                    _openContent.Add(form.Level.Uid);
+                    SelectLevel(form.Level.Uid);
                     Presentation.PropertyList.Provider = form.Level;
 
                     Modified = true;
@@ -699,12 +699,12 @@ namespace Treefrog.Presentation
                 CommandManager.Perform(CommandKey.TileToolDraw);
         }
 
-        private void SelectLevel (string level)
+        private void SelectLevel (Guid levelUid)
         {
-            Level prev = _project.Levels.Contains(level) ? _project.Levels[level] : null;
+            Level prev = _project.Levels.Contains(levelUid) ? _project.Levels[levelUid] : null;
             LevelPresenter prevLevel = _currentLevelRef;
             
-            if (_currentLevel == level) {
+            if (_currentLevel == levelUid) {
                 return;
             }
 
@@ -714,18 +714,18 @@ namespace Treefrog.Presentation
                 _commandManager.RemoveCommandSubscriber(_currentLevelRef);
             }
 
-            _currentLevel = null;
+            _currentLevel = Guid.Empty;
             _currentLevelRef = null;
 
             // Bind new layer
-            if (level != null && _levels.ContainsKey(level)) {
-                _currentLevel = level;
+            if (levelUid != null && _levels.ContainsKey(levelUid)) {
+                _currentLevel = levelUid;
                 _currentLevelRef = CurrentLevel;
 
                 _commandManager.AddCommandSubscriber(_currentLevelRef);
 
-                if (!_project.Levels.Contains(level)) {
-                    throw new InvalidOperationException("Selected a LevelPresenter with no corresponding model Level!  Selected name: " + level);
+                if (!_project.Levels.Contains(levelUid)) {
+                    throw new InvalidOperationException("Selected a LevelPresenter with no corresponding model Level!  Selected name: " + levelUid);
                 }
 
                 ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
@@ -747,7 +747,7 @@ namespace Treefrog.Presentation
             OnSyncContentView(EventArgs.Empty);
         }
 
-        private void LevelNameChangedHandler (object sender, NamedResourceRemappedEventArgs<Level> e)
+        /*private void LevelNameChangedHandler (object sender, NamedResourceRemappedEventArgs<Level> e)
         {
             if (_levels.ContainsKey(e.OldName)) {
                 LevelPresenter lp = _levels[e.OldName];
@@ -762,6 +762,6 @@ namespace Treefrog.Presentation
             }
 
             OnSyncContentTabs(EventArgs.Empty);
-        }
+        }*/
     }
 }

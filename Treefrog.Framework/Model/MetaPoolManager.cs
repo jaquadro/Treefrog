@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Treefrog.Framework.Model
 {
     public abstract class MetaPoolManager<TPool, TItemKey, TSubType> : PoolManager<TPool, TItemKey>
-        where TPool : class, IKeyProvider<string>
+        where TPool : class, IResource
         where TSubType : PoolManager<TPool, TItemKey>
     {
         private Guid _default;
@@ -49,7 +49,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public override NamedObservableCollection<TPool> Pools
+        public override ResourceCollection<TPool> Pools
         {
             get { return _managers[MapAndCheckUid(_default)].Pools; }
         }
@@ -72,12 +72,6 @@ namespace Treefrog.Framework.Model
         public override TPool PoolFromItemKey (TItemKey key)
         {
             return _managers[MapAndCheckUid(_default)].PoolFromItemKey(key);
-        }
-
-        internal override TItemKey LastKey
-        {
-            get { return _managers[MapAndCheckUid(_default)].LastKey; }
-            set { _managers[MapAndCheckUid(_default)].LastKey = value; }
         }
 
         internal override void LinkItemKey (TItemKey key, TPool pool)

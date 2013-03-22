@@ -39,6 +39,7 @@ namespace Treefrog.Framework.Model
         /// <param name="name">A uniquely identifying name for the <see cref="Level"/>.</param>
         public Level (string name)
         {
+            _uid = Guid.NewGuid();
             _name = name;
 
             _layers = new OrderedResourceCollection<Layer>();
@@ -153,12 +154,12 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Occurs when a new layer is added to the level.
         /// </summary>
-        public event EventHandler<NamedResourceEventArgs<Layer>> LayerAdded;
+        public event EventHandler<ResourceEventArgs<Layer>> LayerAdded;
 
         /// <summary>
         /// Occurs when a layer is removed from the level.
         /// </summary>
-        public event EventHandler<NamedResourceEventArgs<Layer>> LayerRemoved;
+        public event EventHandler<ResourceEventArgs<Layer>> LayerRemoved;
 
         /// <summary>
         /// Occurs when the internal state of the Level is modified.
@@ -197,7 +198,7 @@ namespace Treefrog.Framework.Model
         /// Raises the <see cref="LayerAdded"/> event.
         /// </summary>
         /// <param name="e">A <see cref="NamedResourceEventArgs{Layer}"/> containing the name of the added layer.</param>
-        protected virtual void OnLayerAdded (NamedResourceEventArgs<Layer> e)
+        protected virtual void OnLayerAdded (ResourceEventArgs<Layer> e)
         {
             if (LayerAdded != null) {
                 LayerAdded(this, e);
@@ -209,7 +210,7 @@ namespace Treefrog.Framework.Model
         /// Raises the <see cref="LayerRemoved"/> event.
         /// </summary>
         /// <param name="e">A <see cref="NamedResourceEventArgs{Layer}"/> containing the name of the removed layer.</param>
-        protected virtual void OnLayerRemoved (NamedResourceEventArgs<Layer> e)
+        protected virtual void OnLayerRemoved (ResourceEventArgs<Layer> e)
         {
             if (LayerRemoved != null) {
                 LayerRemoved(this, e);
@@ -238,12 +239,12 @@ namespace Treefrog.Framework.Model
             Name = property.Value;
         }
 
-        private void LayerAddedHandler (object sender, NamedResourceEventArgs<Layer> e)
+        private void LayerAddedHandler (object sender, ResourceEventArgs<Layer> e)
         {
             OnLayerAdded(e);
         }
 
-        private void LayerRemovedHandler (object sender, NamedResourceEventArgs<Layer> e)
+        private void LayerRemovedHandler (object sender, ResourceEventArgs<Layer> e)
         {
             OnLayerRemoved(e);
         }

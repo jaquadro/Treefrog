@@ -3,87 +3,73 @@ using System.Collections.Generic;
 
 namespace Treefrog.Framework
 {
-    public class OrderedResourceCollection<T> : NamedResourceCollection<T>
-        where T : INamedResource
+    public class OrderedResourceCollection<T> : ResourceCollection<T>
+        where T : IResource
     {
-        private List<string> _order;
+        private List<Guid> _order;
 
         public event EventHandler<OrderedResourceEventArgs<T>> ResourceOrderChanged;
 
         public OrderedResourceCollection ()
             : base()
         {
-            _order = new List<string>();
+            _order = new List<Guid>();
         }
 
-        public int IndexOf (string name)
+        public int IndexOf (Guid uid)
         {
-            if (!_order.Contains(name)) {
-                throw new ArgumentException("No resource with the given name", "name");
+            if (!_order.Contains(uid)) {
+                throw new ArgumentException("No resource with the given uid", "uid");
             }
 
-            return _order.IndexOf(name);
+            return _order.IndexOf(uid);
         }
 
-        protected override void OnResourceAdded (NamedResourceEventArgs<T> e)
+        protected override void AddCore (T item)
         {
-            if (e.Resource != null) {
-                _order.Add(e.Resource.Name);
-                base.OnResourceAdded(e);
-            }
+            _order.Add(item.Uid);
+
+            base.AddCore(item);
         }
 
-        protected override void OnResourceRemoved (NamedResourceEventArgs<T> e)
+        protected override void RemoveCore (T item)
         {
-            if (e.Resource != null) {
-                _order.Remove(e.Resource.Name);
-                base.OnResourceRemoved(e);
-            }
-        }
+            base.RemoveCore(item);
 
-        protected override void OnResourceRemapped (NamedResourceRemappedEventArgs<T> e)
-        {
-            int index = _order.IndexOf(e.OldName);
-            _order.Insert(index, e.NewName);
-            _order.Remove(e.OldName);
-
-            base.OnResourceRemapped(e);
+            _order.Remove(item.Uid);
         }
 
         protected virtual void OnResourceOrderChanged (OrderedResourceEventArgs<T> e)
         {
-            if (ResourceOrderChanged != null) {
-                ResourceOrderChanged(this, e);
-            }
-            OnModified(EventArgs.Empty);
+            var ev = ResourceOrderChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         public override IEnumerator<T> GetEnumerator ()
         {
-            foreach (string name in _order) {
-                yield return this[name];
-            }
+            foreach (Guid uid in _order)
+                yield return this[uid];
         }
 
-        public void ChangeIndexRelative (string name, int offset)
+        public void ChangeIndexRelative (Guid uid, int offset)
         {
-            if (offset == 0) {
+            if (offset == 0)
                 return;
-            }
 
-            if (!_order.Contains(name)) {
-                throw new ArgumentException("No resource with the given name", "name");
-            }
+            if (!_order.Contains(uid))
+                throw new ArgumentException("No resource with the given uid", "uid");
 
-            int index = _order.IndexOf(name);
+            int index = _order.IndexOf(uid);
             if (index + offset < 0 || index + offset >= _order.Count) {
                 throw new ArgumentOutOfRangeException("offset", "The relative offset results in an invalid index for this item");
             }
 
-            _order.Remove(name);
-            _order.Insert(index + offset, name);
+            _order.Remove(uid);
+            _order.Insert(index + offset, uid);
 
-            OnResourceOrderChanged(new OrderedResourceEventArgs<T>(this[name], index));
+            OnResourceOrderChanged(new OrderedResourceEventArgs<T>(this[uid], index));
+            OnModified(EventArgs.Empty);
         }
     }
 }

@@ -82,9 +82,9 @@ namespace Treefrog.Windows.Panels
         {
             if (_controller != null) {
                 if (!e.IsSelected)
-                    _controller.ActionSelectObject(null);
+                    _controller.ActionSelectObject(Guid.Empty);
                 else
-                    _controller.ActionSelectObject(e.Item.Text);
+                    _controller.ActionSelectObject((Guid)e.Item.Tag);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Treefrog.Windows.Panels
         private void SyncObjectPoolManagerHandler (object sender, EventArgs e)
         {
             if (_controller != null && _controller.SelectedObjectPool != null) {
-                ImageList imgList = BuildImageList(_controller.SelectedObjectPool.Name);
+                ImageList imgList = BuildImageList(_controller.SelectedObjectPool.Uid);
                 PopulateList(imgList);
             }
         }
@@ -125,18 +125,21 @@ namespace Treefrog.Windows.Panels
 
         #endregion
 
-        private ImageList BuildImageList (string objectPool)
+        private ImageList BuildImageList (Guid objectPoolUid)
         {
-            if (!_controller.ObjectPoolManager.Pools.Contains(objectPool))
+            if (!_controller.ObjectPoolManager.Pools.Contains(objectPoolUid))
                 return null;
 
             ImageList imgList = new ImageList();
             imgList.ImageSize = new Size(64, 64);
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
-            foreach (ObjectClass obj in _controller.ObjectPoolManager.Pools[objectPool].Objects) {
-                if (obj.Image != null)
-                    imgList.Images.Add(obj.Name, CreateCenteredBitmap(obj.Image, 64, 64));
+            foreach (ObjectClass obj in _controller.ObjectPoolManager.Pools[objectPoolUid].Objects) {
+                if (obj.Image != null) {
+                    Bitmap image = CreateCenteredBitmap(obj.Image, 64, 64);
+                    image.Tag = obj.Uid;
+                    imgList.Images.Add(obj.Name, image);
+                }
             }
 
             return imgList;
@@ -148,7 +151,7 @@ namespace Treefrog.Windows.Panels
             _listView.LargeImageList = imgList;
             
             foreach (string name in imgList.Images.Keys) {
-                _listView.Items.Add(new ListViewItem(name, name));
+                _listView.Items.Add(new ListViewItem(name, name) { Tag = imgList.Images[name].Tag });
             }
         }
 
