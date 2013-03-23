@@ -311,7 +311,7 @@ namespace Treefrog.Presentation
 
                 _openContent.Add(level.Uid);
 
-                if (_currentLevel == null) {
+                if (_currentLevel == Guid.Empty) {
                     SelectLevel(level.Uid);
                     propList.Provider = level; // Initial Property Provider
                 }

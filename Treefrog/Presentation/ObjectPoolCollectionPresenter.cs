@@ -493,7 +493,7 @@ namespace Treefrog.Presentation
             _selectedPoolRef = null;
 
             // Bind new pool
-            if (objectPoolUid != null && _editor.Project.ObjectPoolManager.Pools.Contains(objectPoolUid)) {
+            if (objectPoolUid != Guid.Empty && _editor.Project.ObjectPoolManager.Pools.Contains(objectPoolUid)) {
                 _selectedPool = objectPoolUid;
                 _selectedPoolRef = _editor.Project.ObjectPoolManager.Pools[objectPoolUid];
             }

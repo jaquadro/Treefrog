@@ -311,8 +311,10 @@ namespace Treefrog.Framework.Model
             if (proxy == null)
                 return null;
 
-            ObjectPool pool = manager.CreatePool(proxy.Name);
-            pool.Uid = proxy.Uid;
+            ObjectPool pool = new ObjectPool(proxy.Name, manager) { 
+                Uid = proxy.Uid
+            };
+            manager.Pools.Add(pool);
 
             foreach (var objClass in proxy.ObjectClasses) {
                 ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);

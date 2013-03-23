@@ -101,7 +101,7 @@ namespace Treefrog.Windows.Panels
         private void SyncObjectPoolManagerHandler (object sender, EventArgs e)
         {
             if (_controller != null && _controller.SelectedObjectPool != null) {
-                ImageList imgList = BuildImageList(_controller.SelectedObjectPool.Uid);
+                Dictionary<string, Image> imgList = BuildImageList(_controller.SelectedObjectPool.Uid);
                 PopulateList(imgList);
             }
         }
@@ -125,33 +125,38 @@ namespace Treefrog.Windows.Panels
 
         #endregion
 
-        private ImageList BuildImageList (Guid objectPoolUid)
+        private Dictionary<string, Image> BuildImageList (Guid objectPoolUid)
         {
             if (!_controller.ObjectPoolManager.Pools.Contains(objectPoolUid))
                 return null;
 
-            ImageList imgList = new ImageList();
-            imgList.ImageSize = new Size(64, 64);
-            imgList.ColorDepth = ColorDepth.Depth32Bit;
+            Dictionary<string, Image> imgList = new Dictionary<string, Image>();
 
             foreach (ObjectClass obj in _controller.ObjectPoolManager.Pools[objectPoolUid].Objects) {
                 if (obj.Image != null) {
                     Bitmap image = CreateCenteredBitmap(obj.Image, 64, 64);
                     image.Tag = obj.Uid;
-                    imgList.Images.Add(obj.Name, image);
+                    imgList.Add(obj.Name, image);
                 }
             }
 
             return imgList;
         }
 
-        private void PopulateList (ImageList imgList)
+        private void PopulateList (Dictionary<string, Image> list)
         {
+            ImageList imgList = new ImageList();
+            imgList.ImageSize = new Size(64, 64);
+            imgList.ColorDepth = ColorDepth.Depth32Bit;
+
+            foreach (var item in list)
+                imgList.Images.Add(item.Key, item.Value);
+
             _listView.Clear();
             _listView.LargeImageList = imgList;
             
-            foreach (string name in imgList.Images.Keys) {
-                _listView.Items.Add(new ListViewItem(name, name) { Tag = imgList.Images[name].Tag });
+            foreach (var item in list) {
+                _listView.Items.Add(new ListViewItem(item.Key, item.Key) { Tag = item.Value.Tag });
             }
         }
 
