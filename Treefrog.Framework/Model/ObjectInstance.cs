@@ -415,7 +415,7 @@ namespace Treefrog.Framework.Model
             string[] coords = proxy.At.Split(new char[] { ',' });
 
             ObjectPool pool = manager.PoolFromItemKey(proxy.Class);
-            foreach (ObjectClass objClass in pool) {
+            foreach (ObjectClass objClass in pool.Objects) {
                 if (objClass.Uid == proxy.Class) {
                     ObjectInstance inst = new ObjectInstance(objClass);
                     inst._uid = proxy.Uid.ValueOrNew();

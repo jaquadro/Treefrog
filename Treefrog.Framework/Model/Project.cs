@@ -86,11 +86,6 @@ namespace Treefrog.Framework.Model
             get { return true; }
         }
 
-        /*public NamedResourceCollection<TilePool> TilePools
-        {
-            get { return _tilePools.Pools; }
-        }*/
-
         public ITilePoolManager TilePoolManager
         {
             get { return _tilePools; }

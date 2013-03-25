@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class MetaPoolManager<TPool, TItemKey, TSubType> : PoolManager<TPool, TItemKey>
-        where TPool : class, IResource
-        where TSubType : PoolManager<TPool, TItemKey>
+    public abstract class MetaPoolManager<TPool, TPoolItem, TSubType> : PoolManager<TPool, TPoolItem>
+        where TPool : class, IResource, IResourceManager<TPoolItem>
+        where TPoolItem : IResource
+        where TSubType : PoolManager<TPool, TPoolItem>
     {
         private Guid _default;
         private Dictionary<Guid, TSubType> _managers;
@@ -69,25 +70,25 @@ namespace Treefrog.Framework.Model
             _managers[MapAndCheckUid(_default)].Reset();
         }
 
-        public override TPool PoolFromItemKey (TItemKey key)
+        public override TPool PoolFromItemKey (Guid key)
         {
             return _managers[MapAndCheckUid(_default)].PoolFromItemKey(key);
         }
 
-        internal override void LinkItemKey (TItemKey key, TPool pool)
-        {
-            _managers[MapAndCheckUid(_default)].LinkItemKey(key, pool);
-        }
+        //internal override void LinkItemKey (Guid key, TPool pool)
+        //{
+        //    _managers[MapAndCheckUid(_default)].LinkItemKey(key, pool);
+        //}
 
-        internal override void UnlinkItemKey (TItemKey key)
-        {
-            _managers[MapAndCheckUid(_default)].UnlinkItemKey(key);
-        }
+        //internal override void UnlinkItemKey (Guid key)
+        //{
+        //    _managers[MapAndCheckUid(_default)].UnlinkItemKey(key);
+        //}
 
-        internal override TItemKey TakeKey ()
-        {
-            return _managers[MapAndCheckUid(_default)].TakeKey();
-        }
+        //internal override TItemKey TakeKey ()
+        //{
+        //    return _managers[MapAndCheckUid(_default)].TakeKey();
+        //}
 
         private Guid MapAndCheckUid (Guid libraryUid)
         {

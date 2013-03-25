@@ -41,37 +41,6 @@ namespace Treefrog.Framework
         }
     }
 
-    public class ResourceEventArgs : EventArgs
-    {
-        public static new ResourceEventArgs Empty = new ResourceEventArgs(Guid.Empty);
-
-        public Guid Uid { get; private set; }
-
-        public ResourceEventArgs (Guid uid)
-        {
-            Uid = uid;
-        }
-    }
-
-    public class ResourceEventArgs<T> : ResourceEventArgs
-        where T : IResource
-    {
-        public T Resource { get; private set; }
-
-        public ResourceEventArgs (T resource)
-            : base(resource.Uid)
-        {
-            Resource = resource;
-        }
-    }
-
-    public interface IResource
-    {
-        Guid Uid { get; }
-
-        event EventHandler Modified;
-    }
-
     public interface INamedResource : IResource
     {
         string Name { get; }
@@ -79,27 +48,4 @@ namespace Treefrog.Framework
         event EventHandler<NameChangingEventArgs> NameChanging;
         event EventHandler<NameChangedEventArgs> NameChanged;
     }
-
-    /// <summary>
-    /// An interface that treats objects as named resources and provides events for signalling changes to the resource.
-    /// </summary>
-    /*public interface INamedResource
-    {
-        /// <summary>
-        /// Gets the name of the resource.
-        /// </summary>
-        string Name { get; }
-
-        event EventHandler<NameChangingEventArgs> NameChanging;
-
-        /// <summary>
-        /// Occurs when the resource's name is changed.
-        /// </summary>
-        event EventHandler<NameChangedEventArgs> NameChanged;
-
-        /// <summary>
-        /// Occurs when the resource's content is modified, excluding changes to its name.
-        /// </summary>
-        event EventHandler Modified;
-    }*/
 }

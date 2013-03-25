@@ -551,7 +551,7 @@ namespace Treefrog.Presentation
                             return;
                         }
 
-                        _selectedPoolRef.TilePool.ReplaceTexture(import);
+                        _selectedPoolRef.TilePool.Tiles.ReplaceTexture(import);
                     }
                     catch {
                         MessageBox.Show("Could not read selected image file.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);

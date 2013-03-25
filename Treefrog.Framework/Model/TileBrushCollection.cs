@@ -7,7 +7,7 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class TileBrushCollection : IKeyProvider<string>, INotifyPropertyChanged
+    public abstract class TileBrushCollection :  IKeyProvider<string>, INotifyPropertyChanged
     {
         private string _name;
 

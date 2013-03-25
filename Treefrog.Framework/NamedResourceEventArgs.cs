@@ -2,23 +2,12 @@
 
 namespace Treefrog.Framework
 {
-    public class NamedResourceEventArgs<T> : EventArgs
+    public class NamedResourceEventArgs<T> : ResourceEventArgs<T>
         where T : INamedResource
     {
-        //public string Name { get; private set; }
-        public T Resource { get; private set; }
-
         public NamedResourceEventArgs (T resource)
-        {
-            //Name = resource.Name;
-            Resource = resource;
-        }
-
-        //public NamedResourceEventArgs (T resource)
-        //{
-            //Name = name;
-        //    Resource = resource;
-        //}
+            : base(resource)
+        { }
     }
 
     public class NamedResourceRemappedEventArgs<T> : NamedResourceEventArgs<T>

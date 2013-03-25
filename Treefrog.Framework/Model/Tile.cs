@@ -5,7 +5,7 @@ using Treefrog.Framework.Model.Collections;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class Tile : IPropertyProvider
+    public abstract class Tile : IResource, IPropertyProvider
     {
         protected TilePool _pool;
         private Guid _id;
@@ -14,16 +14,21 @@ namespace Treefrog.Framework.Model
 
         protected List<DependentTile> _dependents;
 
-        protected Tile (Guid uid, TilePool pool)
+        protected Tile ()
         {
-            _id = uid;
-            _pool = pool;
+            _id = Guid.NewGuid();
             _dependents = new List<DependentTile>();
 
             _properties = new PropertyCollection(new string[0]);
             _predefinedProperties = new Tile.TileProperties(this);
 
             _properties.Modified += CustomProperties_Modified;
+        }
+
+        protected Tile (Guid uid)
+            : this()
+        {
+            _id = uid;
         }
 
         public Guid Uid
@@ -34,6 +39,7 @@ namespace Treefrog.Framework.Model
         public TilePool Pool
         {
             get { return _pool; }
+            internal set { _pool = value; }
         }
 
         public int Height
@@ -184,13 +190,17 @@ namespace Treefrog.Framework.Model
 
     public class PhysicalTile : Tile
     {
-        public PhysicalTile (Guid uid, TilePool pool)
-            : base(uid, pool)
+        public PhysicalTile ()
+            : base()
+        { }
+
+        public PhysicalTile (Guid uid)
+            : base(uid)
         { }
 
         public override void Update (TextureResource textureData)
         {
-            _pool.SetTileTexture(Uid, textureData);
+            _pool.Tiles.SetTileTexture(Uid, textureData);
             base.Update(textureData);
         }
 
@@ -205,8 +215,8 @@ namespace Treefrog.Framework.Model
         Tile _base;
         TileTransform _transform;
 
-        public DependentTile (Guid uid, TilePool pool, Tile baseTile, TileTransform xform)
-            : base(uid, pool)
+        public DependentTile (Guid uid, Tile baseTile, TileTransform xform)
+            : base(uid)
         {
             _base = baseTile;
             _transform = xform;
@@ -220,7 +230,7 @@ namespace Treefrog.Framework.Model
         public virtual void UpdateFromBase (TextureResource textureData)
         {
             TextureResource xform = _transform.Transform(textureData, _pool.TileWidth, _pool.TileHeight);
-            _pool.SetTileTexture(Uid, xform);
+            _pool.Tiles.SetTileTexture(Uid, xform);
         }
 
         /*public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)

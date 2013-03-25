@@ -186,7 +186,7 @@ namespace Treefrog.Windows.Forms
         {
             if (_previewPool != null) {
                 SetTransparentColor(_previewPool.TileSource);
-                _previewPool.ReplaceTexture(_previewPool.TileSource);
+                _previewPool.Tiles.ReplaceTexture(_previewPool.TileSource);
             }
         }
 
@@ -205,7 +205,7 @@ namespace Treefrog.Windows.Forms
         {
             if (_previewPool != null) {
                 ClearTransparentColor(_previewPool.TileSource);
-                _previewPool.ReplaceTexture(_previewPool.TileSource);
+                _previewPool.Tiles.ReplaceTexture(_previewPool.TileSource);
             }
         }
 

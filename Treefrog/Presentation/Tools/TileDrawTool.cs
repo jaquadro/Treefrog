@@ -146,7 +146,7 @@ namespace Treefrog.Presentation.Tools
 
         private TextureResource BuildTileMarker ()
         {
-            return ActiveTile.Pool.GetTileTexture(ActiveTile.Uid);
+            return ActiveTile.Pool.Tiles.GetTileTexture(ActiveTile.Uid);
         }
 
         private TextureResource BuildBrushMarker ()

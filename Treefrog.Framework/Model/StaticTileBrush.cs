@@ -96,7 +96,7 @@ namespace Treefrog.Framework.Model
                 int x = (tile.X - _minX) * TileWidth;
                 int y = (tile.Y - _minY) * TileHeight;
                 if (tile.Tile != null)
-                    resource.SetComposite(tile.Tile.Pool.GetTileTexture(tile.Tile.Uid), new Point(x, y));
+                    resource.SetComposite(tile.Tile.Pool.Tiles.GetTileTexture(tile.Tile.Uid), new Point(x, y));
             }
 
             return resource;

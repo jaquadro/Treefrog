@@ -32,7 +32,7 @@ namespace Treefrog.Presentation.Layers
 
                 Rectangle tileRegion = ComputeTileRegion();
                 foreach (LocatedTile tile in Layer.TilesAt(tileRegion)) {
-                    TileCoord scoord = tile.Tile.Pool.GetTileLocation(tile.Tile.Uid);
+                    TileCoord scoord = tile.Tile.Pool.Tiles.GetTileLocation(tile.Tile.Uid);
 
                     yield return new DrawCommand() {
                         Texture = tile.Tile.Pool.TextureId,
@@ -49,7 +49,7 @@ namespace Treefrog.Presentation.Layers
                 if (TileSelection != null && TileSelection.Floating) {
                     foreach (KeyValuePair<TileCoord, TileStack> item in TileSelection.Tiles) {
                         foreach (Tile tile in item.Value) {
-                            TileCoord scoord = tile.Pool.GetTileLocation(tile.Uid);
+                            TileCoord scoord = tile.Pool.Tiles.GetTileLocation(tile.Uid);
                             TileCoord dcoord = item.Key;
 
                             yield return new DrawCommand() {

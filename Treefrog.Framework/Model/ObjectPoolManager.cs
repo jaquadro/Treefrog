@@ -5,12 +5,12 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public interface IObjectPoolManager : IPoolManager<ObjectPool, Guid>
+    public interface IObjectPoolManager : IPoolManager<ObjectPool>
     {
         TexturePool TexturePool { get; }
     }
 
-    public class ObjectPoolManager : PoolManager<ObjectPool, Guid>, IPoolManager<ObjectPool, Guid>
+    public class ObjectPoolManager : PoolManager<ObjectPool, ObjectClass>, IPoolManager<ObjectPool>
     {
         private TexturePool _texPool;
 
@@ -28,11 +28,6 @@ namespace Treefrog.Framework.Model
         protected override ObjectPool CreatePoolCore (string name)
         {
             return new ObjectPool(name, this);
-        }
-
-        internal override Guid TakeKey ()
-        {
-            return Guid.NewGuid();
         }
 
         public static LibraryX.ObjectGroupX ToXmlProxyX (ObjectPoolManager manager)
@@ -64,7 +59,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class MetaObjectPoolManager : MetaPoolManager<ObjectPool, Guid, ObjectPoolManager>, IObjectPoolManager
+    public class MetaObjectPoolManager : MetaPoolManager<ObjectPool, ObjectClass, ObjectPoolManager>, IObjectPoolManager
     {
         public TexturePool TexturePool
         {

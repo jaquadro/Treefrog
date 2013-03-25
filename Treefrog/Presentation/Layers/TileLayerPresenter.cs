@@ -553,7 +553,7 @@ namespace Treefrog.Presentation.Layers
         {
             Rectangle levelBounds = LayerContext.Geometry.LevelBounds;
 
-            using (SysDrawing.Bitmap tileBmp = tile.Tile.Pool.GetTileTexture(tile.Tile.Uid).CreateBitmap()) {
+            using (SysDrawing.Bitmap tileBmp = tile.Tile.Pool.Tiles.GetTileTexture(tile.Tile.Uid).CreateBitmap()) {
                 SysDrawing.Point location = new SysDrawing.Point(tile.X * Layer.TileWidth - levelBounds.X, tile.Y * Layer.TileHeight - levelBounds.Y);
                 surface.DrawImage(tileBmp, location);
             }

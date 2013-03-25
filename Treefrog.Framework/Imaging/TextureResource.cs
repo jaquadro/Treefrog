@@ -77,6 +77,7 @@ namespace Treefrog.Framework.Imaging
 
         public TextureResource (int width, int height)
         {
+            Uid = Guid.NewGuid();
             _width = width;
             _height = height;
             _data = new byte[width * height * _bytesPerPixel];
@@ -110,6 +111,8 @@ namespace Treefrog.Framework.Imaging
             : this(size.Width, size.Height, data, dataOffset)
         {
         }
+
+        public Guid Uid { get; private set; }
 
         public int Height
         {

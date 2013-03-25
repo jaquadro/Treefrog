@@ -42,7 +42,7 @@ namespace Treefrog.Framework.Model
             if (tile == null)
                 return null;
 
-            return tile.Pool.GetTileTexture(tile.Uid);
+            return tile.Pool.Tiles.GetTileTexture(tile.Uid);
         }
 
         public override TextureResource MakePreview (int maxWidth, int maxHeight)

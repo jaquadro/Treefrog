@@ -7,7 +7,7 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public interface ITilePoolManager : IPoolManager<TilePool, Guid>
+    public interface ITilePoolManager : IPoolManager<TilePool>
     {
         TexturePool TexturePool { get; }
         TilePool CreatePool (string name, int tileWidth, int tileHeight);
@@ -15,7 +15,7 @@ namespace Treefrog.Framework.Model
         TilePool MergePool (string name, TilePool pool);
     }
 
-    public class TilePoolManager : PoolManager<TilePool, Guid>, ITilePoolManager
+    public class TilePoolManager : PoolManager<TilePool, Tile>, ITilePoolManager
     {
         public static int DefaultTileWidth = 16;
         public static int DefaultTileHeight = 16;
@@ -71,22 +71,22 @@ namespace Treefrog.Framework.Model
             //else
                 dst = CreatePool(name, pool.TileWidth, pool.TileHeight);
 
-            foreach (Tile srcTile in pool) {
-                dst.AddTile(pool.GetTileTexture(srcTile.Uid));
+            foreach (Tile srcTile in pool.Tiles) {
+                dst.Tiles.Add(pool.Tiles.GetTileTexture(srcTile.Uid));
             }
 
             return dst;
         }
 
-        internal override Guid TakeKey ()
-        {
-            return Guid.NewGuid();
-        }
+        //internal override Guid TakeKey ()
+        //{
+        //    return Guid.NewGuid();
+        //}
 
-        internal Guid TakeId ()
-        {
-            return Guid.NewGuid();
-        }
+        //internal Guid TakeId ()
+        //{
+        //    return Guid.NewGuid();
+        //}
 
         public static LibraryX.TileGroupX ToXmlProxyX (TilePoolManager manager)
         {
@@ -117,7 +117,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class MetaTilePoolManager : MetaPoolManager<TilePool, Guid, TilePoolManager>, ITilePoolManager
+    public class MetaTilePoolManager : MetaPoolManager<TilePool, Tile, TilePoolManager>, ITilePoolManager
     {
         public TexturePool TexturePool
         {

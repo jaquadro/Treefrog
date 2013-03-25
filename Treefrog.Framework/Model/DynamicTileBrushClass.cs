@@ -214,7 +214,7 @@ namespace Treefrog.Framework.Model
             for (int y = 0; y < tilesHigh; y++) {
                 for (int x = 0; x < tilesWide; x++) {
                     if (previewTiles[y, x] != null) {
-                        TextureResource tex = previewTiles[y, x].Pool.GetTileTexture(previewTiles[y, x].Uid);
+                        TextureResource tex = previewTiles[y, x].Pool.Tiles.GetTileTexture(previewTiles[y, x].Uid);
                         resource.Set(tex, new Point(previewX + x * tileWidth, previewY + y * tileHeight));
                     }
                 }
@@ -334,7 +334,7 @@ namespace Treefrog.Framework.Model
             for (int y = 0; y < tilesHigh; y++) {
                 for (int x = 0; x < tilesWide; x++) {
                     if (previewTiles[y, x] != null) {
-                        TextureResource tex = previewTiles[y, x].Pool.GetTileTexture(previewTiles[y, x].Uid);
+                        TextureResource tex = previewTiles[y, x].Pool.Tiles.GetTileTexture(previewTiles[y, x].Uid);
                         resource.Set(tex, new Point(previewX + x * tileWidth, previewY + y * tileHeight));
                     }
                 }

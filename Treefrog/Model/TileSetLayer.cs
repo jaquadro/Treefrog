@@ -62,12 +62,12 @@ namespace Treefrog.Model
 
         public int Count
         {
-            get { return _pool.Count; }
+            get { return _pool.Tiles.Count; }
         }
 
         public int Capacity
         {
-            get { return _pool.Capacity; }
+            get { return _pool.Tiles.Capacity; }
         }
 
         public Tile this[int index]
@@ -91,7 +91,7 @@ namespace Treefrog.Model
 
         public virtual IEnumerable<Tile> Tiles
         {
-            get { return _pool; }
+            get { return _pool.Tiles; }
         }
 
         #endregion
@@ -100,7 +100,7 @@ namespace Treefrog.Model
         {
             _index = new List<Tile>();
 
-            foreach (Tile t in _pool) {
+            foreach (Tile t in _pool.Tiles) {
                 _index.Add(t);
             }
         }

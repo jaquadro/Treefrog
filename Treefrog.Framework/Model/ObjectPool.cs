@@ -8,7 +8,7 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectPool : IResource, IEnumerable<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
+    public class ObjectPool : IResource, IResourceManager<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
@@ -43,6 +43,11 @@ namespace Treefrog.Framework.Model
             _manager = manager;
         }
 
+        IResourceCollection<ObjectClass> IResourceManager<ObjectClass>.Items
+        {
+            get { return _objects; }
+        }
+
         public Guid Uid { get; private set; }
 
         public TexturePool TexturePool
@@ -67,21 +72,14 @@ namespace Treefrog.Framework.Model
 
         public void AddObject (ObjectClass objClass)
         {
-            Guid id = _manager.TakeKey();
-            AddObject(objClass, id);
-        }
-
-        public void AddObject (ObjectClass objClass, Guid uid)
-        {
-            if (_objects.Contains(uid))
+            if (_objects.Contains(objClass.Uid))
                 throw new ArgumentException("Object Pool already contains an object with the same uid as objClass.");
 
-            objClass.Uid = uid;
             objClass.Pool = this;
 
             _objects.Add(objClass);
 
-            _manager.LinkItemKey(uid, this);
+            //_manager.LinkItemKey(uid, this);
         }
 
         public void RemoveObject (Guid uid)
@@ -90,7 +88,7 @@ namespace Treefrog.Framework.Model
                 ObjectClass objClass = _objects[uid];
                 objClass.Pool = null;
 
-                _manager.UnlinkItemKey(objClass.Uid);
+                //_manager.UnlinkItemKey(objClass.Uid);
 
                 _objects.Remove(uid);
             }
@@ -174,23 +172,23 @@ namespace Treefrog.Framework.Model
             return true;
         }
 
-        #region IEnumerable<ObjectClass> Members
+        /*#region IEnumerable<ObjectClass> Members
 
         public IEnumerator<ObjectClass> GetEnumerator ()
         {
             return _objects.GetEnumerator();
         }
 
-        #endregion
+        #endregion*/
 
-        #region IEnumerable Members
+        /*#region IEnumerable Members
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
         {
             return _objects.GetEnumerator();
         }
 
-        #endregion
+        #endregion*/
 
         #region IPropertyProvider Members
 
@@ -318,7 +316,7 @@ namespace Treefrog.Framework.Model
 
             foreach (var objClass in proxy.ObjectClasses) {
                 ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
-                pool.AddObject(inst, objClass.Uid);
+                pool.AddObject(inst);
             }
 
             return pool;
