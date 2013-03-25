@@ -264,7 +264,7 @@ namespace Treefrog.Presentation
 
                 _openContent.Add(level.Uid);
 
-                if (_currentLevel == null) {
+                if (_currentLevel == Guid.Empty) {
                     SelectLevel(level.Uid);
                     propList.Provider = level; // Initial Property Provider
                 }
@@ -346,7 +346,9 @@ namespace Treefrog.Presentation
             //Form form = new Form();
             //GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
 
-            Project project = new Project();
+            Project project = new Project() {
+                Name = "New Project"
+            };
             //project.Initialize(gds.GraphicsDevice);
 
             return project;
@@ -628,13 +630,15 @@ namespace Treefrog.Presentation
             if (CommandCanSaveProjectAs()) {
                 SaveFileDialog ofd = new SaveFileDialog();
                 ofd.Title = "Save Project File";
-                ofd.Filter = "Treefrog Project Files|*.tlp";
+                ofd.Filter = "Treefrog Project Files|*.tlpx";
                 ofd.OverwritePrompt = true;
                 ofd.RestoreDirectory = false;
 
                 if (ofd.ShowDialog() == DialogResult.OK) {
                     try {
                         using (FileStream fs = File.Open(ofd.FileName, FileMode.Create, FileAccess.Write)) {
+                            _project.Name = Path.GetFileNameWithoutExtension(ofd.FileName);
+                            _project.FileName = Path.GetFileName(ofd.FileName);
                             Save(fs, new FileProjectResolver(ofd.FileName));
                         }
                     }

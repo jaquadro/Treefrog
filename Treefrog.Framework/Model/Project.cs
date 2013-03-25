@@ -27,7 +27,8 @@ namespace Treefrog.Framework.Model
         private NamedResourceCollection<Level> _levels;
 
         private Guid _defaultLibraryUid;
-        private Dictionary<Guid, Library> _libraries;
+        //private Dictionary<Guid, Library> _libraries;
+        private LibraryManager _libraryManager;
 
         private MetaTilePoolManager _tilePools;
         private MetaObjectPoolManager _objectPools;
@@ -50,23 +51,29 @@ namespace Treefrog.Framework.Model
 
         public Project () 
         {
-            Guid _defaultLibraryUid = Guid.NewGuid();
-
             _uid = Guid.NewGuid();
             _services = new ServiceContainer();
-            _texturePool = new TexturePool();
+            //_texturePool = new TexturePool();
+
+            Name = "Project";
 
             //_tilePools = new TilePoolManager(_texturePool);
             //ObjectPoolManager defaultObjectPool = new ObjectPoolManager(_texturePool);
             _tileBrushes = new TileBrushManager();
             _levels = new NamedResourceCollection<Level>();
 
-            _libraries = new Dictionary<Guid, Library>();
+            _libraryManager = new LibraryManager();
 
+            Library defaultLibrary = new Library();
+            _libraryManager.Libraries.Add(defaultLibrary);
+
+            _extra = new List<XmlElement>();
+
+            _texturePool = defaultLibrary.TexturePool;
             _tilePools = new MetaTilePoolManager();
-            _tilePools.AddManager(_defaultLibraryUid, new TilePoolManager(_texturePool));
+            _tilePools.AddManager(defaultLibrary.Uid, defaultLibrary.TilePoolManager);
             _objectPools = new MetaObjectPoolManager();
-            _objectPools.AddManager(_defaultLibraryUid, new ObjectPoolManager(_texturePool));
+            _objectPools.AddManager(defaultLibrary.Uid, defaultLibrary.ObjectPoolManager);
 
             //_tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
             //_objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
@@ -80,6 +87,10 @@ namespace Treefrog.Framework.Model
         {
             get { return _uid; }
         }
+
+        public string Name { get; set; }
+
+        public string FileName { get; set; }
 
         public bool Initialized
         {
@@ -109,6 +120,11 @@ namespace Treefrog.Framework.Model
         public NamedResourceCollection<Level> Levels
         {
             get { return _levels; }
+        }
+
+        public LibraryManager LibraryManager
+        {
+            get { return _libraryManager; }
         }
 
         public IServiceProvider Services
@@ -184,8 +200,14 @@ namespace Treefrog.Framework.Model
 
         public void Save (Stream stream, ProjectResolver resolver)
         {
-            foreach (Library library in _libraries.Values) {
-                using (Stream libStream = resolver.OutputStream("test.tlbx")) {
+            foreach (Library library in _libraryManager.Libraries) {
+                if (library.Name == null)
+                    library.Name = Name;
+
+                if (library.FileName == null)
+                    library.FileName = library.Name + ".tlbx";
+
+                using (Stream libStream = resolver.OutputStream(library.FileName)) {
                     library.Save(libStream);
                 }
             }
@@ -244,7 +266,9 @@ namespace Treefrog.Framework.Model
                 if (itemGroup.Libraries != null) {
                     foreach (var libProxy in itemGroup.Libraries) {
                         using (Stream stream = resolver.InputStream(libProxy.Include)) {
-                            project.AddLibrary(new Library(stream));
+                            project.AddLibrary(new Library(stream) {
+                                FileName = libProxy.Include,
+                            });
                         }
                     }
                 }
@@ -267,7 +291,7 @@ namespace Treefrog.Framework.Model
 
         private void AddLibrary (Library library)
         {
-            _libraries.Add(library.Uid, library);
+            _libraryManager.Libraries.Add(library);
 
             _texturePool = library.TexturePool;
             _tilePools.AddManager(library.Uid, library.TilePoolManager);

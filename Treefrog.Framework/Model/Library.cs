@@ -8,12 +8,33 @@ using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
-    public class Library
+    public class LibraryManager : IResourceManager<Library>
+    {
+        private ResourceCollection<Library> _libraries;
+
+        public LibraryManager ()
+        {
+            _libraries = new ResourceCollection<Library>();
+        }
+
+        IResourceCollection<Library> IResourceManager<Library>.Items
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IResourceCollection<Library> Libraries
+        {
+            get { return _libraries; }
+        }
+    }
+
+    public class Library : IResource
     {
         private string _name;
 
         public Library ()
         {
+            Uid = Guid.NewGuid();
             Extra = new List<XmlElement>();
 
             TexturePool = new TexturePool();
@@ -49,6 +70,8 @@ namespace Treefrog.Framework.Model
             get { return _name; }
             set { SetField(ref _name, value); }
         }
+
+        public string FileName { get; set; }
 
         public string Path { get; set; }
 
