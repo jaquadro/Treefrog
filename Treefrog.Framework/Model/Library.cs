@@ -168,6 +168,10 @@ namespace Treefrog.Framework.Model
                 return null;
 
             return new LibraryX() {
+                TextureGroup = TexturePool.ToXmlProxyX(library.TexturePool),
+                ObjectGroup = ObjectPoolManager.ToXmlProxyX(library.ObjectPoolManager),
+                TileGroup = TilePoolManager.ToXmlProxyX(library.TilePoolManager),
+                TileBrushGroup = TileBrushManager.ToXmlProxyX(library.TileBrushManager),
                 PropertyGroup = new LibraryX.PropertyGroupX() {
                     LibraryGuid = library.Uid,
                     LibraryName = library.Name,

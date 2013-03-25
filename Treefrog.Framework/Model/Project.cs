@@ -200,6 +200,8 @@ namespace Treefrog.Framework.Model
 
         public void Save (Stream stream, ProjectResolver resolver)
         {
+            List<ProjectX.LibraryX> libraries = new List<ProjectX.LibraryX>();
+
             foreach (Library library in _libraryManager.Libraries) {
                 if (library.Name == null)
                     library.Name = Name;
@@ -210,6 +212,10 @@ namespace Treefrog.Framework.Model
                 using (Stream libStream = resolver.OutputStream(library.FileName)) {
                     library.Save(libStream);
                 }
+
+                libraries.Add(new ProjectX.LibraryX() {
+                    Include = library.FileName,
+                });
             }
 
             foreach (Level level in Levels) {
@@ -232,9 +238,7 @@ namespace Treefrog.Framework.Model
             };
 
             proxy.ItemGroups.Add(new ProjectX.ItemGroupX() {
-                Libraries = new List<ProjectX.LibraryX>() {
-                    new ProjectX.LibraryX() { Include = "test.tlbx" },
-                }
+                Libraries = libraries,
             });
 
             ProjectX.ItemGroupX levelGroup = new ProjectX.ItemGroupX() {

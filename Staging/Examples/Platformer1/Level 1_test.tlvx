@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Level xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Level 1" OriginX="0" OriginY="0" Width="800" Height="480" xmlns="http://jaquadro.com/schemas/treefrog/level">
+  <PropertyGroup>
+    <ProjectGuid>77df02ac-0a8f-4b0c-99fd-2898b3528b4d</ProjectGuid>
+    <LevelGuid>7963f15f-f8e2-4244-8400-43e92d54194c</LevelGuid>
+  </PropertyGroup>
+</Level>
