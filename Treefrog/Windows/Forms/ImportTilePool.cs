@@ -288,6 +288,12 @@ namespace Treefrog.Windows.Forms
 
         private void CheckValid ()
         {
+            string txt = _textName.Text.Trim();
+            if (txt.Length > 0 && _fileStream != null)
+                _buttonOK.Enabled = true;
+            else
+                _buttonOK.Enabled = false;
+
             /*string txt = _textName.Text.Trim();
             if (txt.Length > 0 && !_project.TilePoolManager.Pools.Contains(txt) && _fileStream != null) {
                 _buttonOK.Enabled = true;

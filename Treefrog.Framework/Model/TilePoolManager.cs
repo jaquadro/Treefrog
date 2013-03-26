@@ -95,7 +95,7 @@ namespace Treefrog.Framework.Model
 
             List<LibraryX.TilePoolX> pools = new List<LibraryX.TilePoolX>();
             foreach (TilePool pool in manager.Pools)
-                pools.Add(TilePool.ToXmlProxyX(pool));
+                pools.Add(TilePool.ToXProxy(pool));
 
             return new LibraryX.TileGroupX() {
                 TilePools = pools,
@@ -111,7 +111,7 @@ namespace Treefrog.Framework.Model
 
             if (proxy.TilePools != null)
                 foreach (var pool in proxy.TilePools)
-                    TilePool.FromXmlProxy(pool, manager);
+                    TilePool.FromXProxy(pool, manager);
 
             return manager;
         }

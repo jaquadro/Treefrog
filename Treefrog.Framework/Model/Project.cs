@@ -21,7 +21,6 @@ namespace Treefrog.Framework.Model
 
     public class Project
     {
-        private Guid _uid;
         private ServiceContainer _services;
 
         private NamedResourceCollection<Level> _levels;
@@ -34,8 +33,6 @@ namespace Treefrog.Framework.Model
         private MetaObjectPoolManager _objectPools;
         private TileBrushManager _tileBrushes;
         private TexturePool _texturePool;
-
-        private List<XmlElement> _extra;
 
         private static TileBrushRegistry _tileBrushRegistry = new TileBrushRegistry();
         public static TileBrushRegistry TileBrushRegistry
@@ -51,7 +48,7 @@ namespace Treefrog.Framework.Model
 
         public Project () 
         {
-            _uid = Guid.NewGuid();
+            Uid = Guid.NewGuid();
             _services = new ServiceContainer();
             //_texturePool = new TexturePool();
 
@@ -67,7 +64,7 @@ namespace Treefrog.Framework.Model
             Library defaultLibrary = new Library();
             _libraryManager.Libraries.Add(defaultLibrary);
 
-            _extra = new List<XmlElement>();
+            Extra = new List<XmlElement>();
 
             _texturePool = defaultLibrary.TexturePool;
             _tilePools = new MetaTilePoolManager();
@@ -83,10 +80,32 @@ namespace Treefrog.Framework.Model
             _services.AddService(typeof(TilePoolManager), _tilePools);
         }
 
-        public Guid Uid
+        public Project (Stream stream, ProjectResolver resolver)
         {
-            get { return _uid; }
+            _services = new ServiceContainer();
+            _tileBrushes = new TileBrushManager();
+            _levels = new NamedResourceCollection<Level>();
+            _libraryManager = new LibraryManager();
+
+            Extra = new List<XmlElement>();
+
+            XmlReaderSettings settings = new XmlReaderSettings() {
+                CloseInput = true,
+                IgnoreComments = true,
+                IgnoreWhitespace = true,
+            };
+
+            using (XmlReader reader = XmlTextReader.Create(stream, settings)) {
+                XmlSerializer serializer = new XmlSerializer(typeof(ProjectX));
+                ProjectX proxy = serializer.Deserialize(reader) as ProjectX;
+
+                FromXProxy(proxy, resolver, this);
+            }
         }
+
+        public Guid Uid { get; private set; }
+
+        public List<XmlElement> Extra { get; private set; }
 
         public string Name { get; set; }
 
@@ -178,26 +197,6 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        public static Project Open (Stream stream, ProjectResolver resolver)
-        {
-            XmlReaderSettings settings = new XmlReaderSettings()
-            {
-                CloseInput = true,
-                IgnoreComments = true,
-                IgnoreWhitespace = true,
-            };
-
-            XmlReader reader = XmlTextReader.Create(stream, settings);
-
-            XmlSerializer serializer = new XmlSerializer(typeof(ProjectX));
-            ProjectX proxy = serializer.Deserialize(reader) as ProjectX;
-            Project project = Project.FromXmlProxy(proxy, resolver);
-
-            reader.Close();
-
-            return project;
-        }
-
         public void Save (Stream stream, ProjectResolver resolver)
         {
             List<ProjectX.LibraryX> libraries = new List<ProjectX.LibraryX>();
@@ -232,8 +231,10 @@ namespace Treefrog.Framework.Model
             ProjectX proxy = new ProjectX() {
                 ItemGroups = new List<ProjectX.ItemGroupX>(),
                 PropertyGroup = new ProjectX.PropertyGroupX() {
-                    ProjectGuid = _uid,
-                    Extra = _extra.Count > 0 ? _extra : null,
+                    ProjectGuid = Uid,
+                    ProjectName = Name,
+                    DefaultLibrary = _defaultLibraryUid,
+                    Extra = Extra.Count > 0 ? Extra : null,
                 },
             };
 
@@ -256,12 +257,25 @@ namespace Treefrog.Framework.Model
             writer.Close();
         }
 
-        public static Project FromXmlProxy (ProjectX proxy, ProjectResolver resolver)
+        public static Project FromXProxy (ProjectX proxy, ProjectResolver resolver)
         {
             if (proxy == null)
                 return null;
 
-            Project project = new Project();
+            return FromXProxy(proxy, resolver, new Project());
+        }
+
+        public static Project FromXProxy (ProjectX proxy, ProjectResolver resolver, Project project)
+        {
+            if (proxy == null)
+                return null;
+
+            if (proxy.PropertyGroup != null) {
+                project.Uid = proxy.PropertyGroup.ProjectGuid;
+                project.Name = proxy.PropertyGroup.ProjectName;
+                project._defaultLibraryUid = proxy.PropertyGroup.DefaultLibrary;
+                project.Extra = proxy.PropertyGroup.Extra;
+            }
 
             project._tilePools = new MetaTilePoolManager();
             project._objectPools = new MetaObjectPoolManager();
@@ -284,9 +298,6 @@ namespace Treefrog.Framework.Model
                 }
             }
 
-            project._uid = proxy.PropertyGroup.ProjectGuid;
-            project._extra = proxy.PropertyGroup.Extra;
-
             //project._tilePools.Pools.PropertyChanged += project.TilePoolsModifiedHandler;
             //project._objectPools.Pools.PropertyChanged += project.HandleObjectPoolManagerPropertyChanged;
 
@@ -302,8 +313,10 @@ namespace Treefrog.Framework.Model
             _objectPools.AddManager(library.Uid, library.ObjectPoolManager);
             _tileBrushes = library.TileBrushManager;
 
-            if (_defaultLibraryUid == Guid.Empty) {
+            if (_defaultLibraryUid == Guid.Empty)
                 _defaultLibraryUid = library.Uid;
+
+            if (_defaultLibraryUid == library.Uid) {
                 _tilePools.Default = library.Uid;
                 _objectPools.Default = library.Uid;
             }

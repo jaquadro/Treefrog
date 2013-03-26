@@ -60,14 +60,6 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        internal void ReplaceResource (Guid uid, TextureResource resource)
-        {
-            if (GetResource(uid) != resource) {
-                _resources[uid] = resource;
-                Invalidate(uid);
-            }
-        }
-
         public void Invalidate (Guid uid)
         {
             OnResourceInvalidated(new ResourceEventArgs(uid));

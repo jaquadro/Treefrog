@@ -15,6 +15,12 @@ namespace Treefrog.Framework.Model.Proxy
             [XmlElement]
             public Guid ProjectGuid { get; set; }
 
+            [XmlElement]
+            public string ProjectName { get; set; }
+
+            [XmlElement]
+            public Guid DefaultLibrary { get; set; }
+
             [XmlAnyElement]
             public List<XmlElement> Extra { get; set; }
         }

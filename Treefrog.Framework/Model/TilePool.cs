@@ -36,9 +36,6 @@ namespace Treefrog.Framework.Model
         private const int _initFactor = 4;
         private const int _minTiles = _initFactor * _initFactor;
 
-        private int _tileWidth;
-        private int _tileHeight;
-
         private TextureResource _tileSource;
         private Dictionary<Guid, TileCoord> _locations;
         private List<TileCoord> _openLocations;
@@ -51,13 +48,13 @@ namespace Treefrog.Framework.Model
         {
             _pool = pool;
             _texturePool = texturePool;
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
+            TileWidth = tileWidth;
+            TileHeight = tileHeight;
 
             _locations = new Dictionary<Guid, TileCoord>();
             _openLocations = new List<TileCoord>();
 
-            _tileSource = new TextureResource(_tileWidth * _initFactor, _tileHeight * _initFactor);
+            _tileSource = new TextureResource(TileWidth * _initFactor, TileHeight * _initFactor);
             _textureId = _texturePool.AddResource(_tileSource);
 
             for (int x = 0; x < _initFactor; x++) {
@@ -78,6 +75,9 @@ namespace Treefrog.Framework.Model
             set { _textureId = value; }
         }
 
+        public int TileWidth { get; private set; }
+        public int TileHeight { get; private set; }
+
         public int Capacity
         {
             get { return _openLocations.Count + _locations.Count; }
@@ -94,7 +94,7 @@ namespace Treefrog.Framework.Model
 
             TileCoord coord = _locations[item.Uid];
 
-            Rectangle dest = new Rectangle(coord.X * _tileWidth, coord.Y * _tileHeight, _tileWidth, _tileHeight);
+            Rectangle dest = new Rectangle(coord.X * TileWidth, coord.Y * TileHeight, TileWidth, TileHeight);
             _tileSource.Clear(dest);
             _texturePool.Invalidate(_textureId);
 
@@ -107,16 +107,16 @@ namespace Treefrog.Framework.Model
 
         public Tile Add (byte[] data)
         {
-            if (data.Length != _tileWidth * _tileHeight * 4)
+            if (data.Length != TileWidth * TileHeight * 4)
                 throw new ArgumentException("Supplied color data is incorrect size for tile dimensions", "data");
 
-            TextureResource texture = new TextureResource(_tileWidth, _tileHeight, data);
+            TextureResource texture = new TextureResource(TileWidth, TileHeight, data);
             return Add(texture);
         }
 
         public Tile Add (TextureResource texture)
         {
-            if (texture.Width != _tileWidth || texture.Height != _tileHeight)
+            if (texture.Width != TileWidth || texture.Height != TileHeight)
                 throw new ArgumentException("Supplied texture does not have tile dimensions", "texture");
 
             Tile tile = new PhysicalTile() {
@@ -129,7 +129,7 @@ namespace Treefrog.Framework.Model
             TileCoord coord = _openLocations[_openLocations.Count - 1];
             _openLocations.RemoveAt(_openLocations.Count - 1);
 
-            _tileSource.Set(texture, new Point(coord.X * _tileWidth, coord.Y * _tileHeight));
+            _tileSource.Set(texture, new Point(coord.X * TileWidth, coord.Y * TileHeight));
             _texturePool.Invalidate(_textureId);
 
             _locations[tile.Uid] = coord;
@@ -147,13 +147,13 @@ namespace Treefrog.Framework.Model
             if (_tileSource == null)
                 return null;
 
-            Rectangle src = new Rectangle(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight, _tileWidth, _tileHeight);
+            Rectangle src = new Rectangle(_locations[uid].X * TileWidth, _locations[uid].Y * TileHeight, TileWidth, TileHeight);
             return _tileSource.Crop(src);
         }
 
         public void SetTileTexture (Guid uid, TextureResource texture)
         {
-            if (texture.Width != _tileWidth || texture.Height != _tileHeight) {
+            if (texture.Width != TileWidth || texture.Height != TileHeight) {
                 throw new ArgumentException("Supplied texture does not match tile dimensions", "data");
             }
 
@@ -161,8 +161,8 @@ namespace Treefrog.Framework.Model
                 throw new ArgumentException("No tile with the given id exists in this tile pool", "id");
             }
 
-            Rectangle dest = new Rectangle(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight, _tileWidth, _tileHeight);
-            _tileSource.Set(texture, new Point(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight));
+            Rectangle dest = new Rectangle(_locations[uid].X * TileWidth, _locations[uid].Y * TileHeight, TileWidth, TileHeight);
+            _tileSource.Set(texture, new Point(_locations[uid].X * TileWidth, _locations[uid].Y * TileHeight));
             _texturePool.Invalidate(_textureId);
 
             OnResourceModified(new ResourceEventArgs<Tile>(this[uid]));
@@ -213,10 +213,10 @@ namespace Treefrog.Framework.Model
             TextureResource newTex = new TextureResource(width, height);
             newTex.Set(_tileSource, new Point(0, 0));
 
-            int factorX = newTex.Width / _tileWidth;
-            int factorY = newTex.Height / _tileHeight;
-            int threshX = _tileSource.Width / _tileWidth;
-            int threshY = _tileSource.Height / _tileHeight;
+            int factorX = newTex.Width / TileWidth;
+            int factorY = newTex.Height / TileHeight;
+            int threshX = _tileSource.Width / TileWidth;
+            int threshY = _tileSource.Height / TileHeight;
 
             for (int y = 0; y < factorY; y++) {
                 for (int x = 0; x < factorX; x++) {
@@ -227,7 +227,8 @@ namespace Treefrog.Framework.Model
             }
 
             _tileSource = newTex;
-            _texturePool.ReplaceResource(_textureId, _tileSource);
+            _texturePool.RemoveResource(_textureId);
+            _textureId = _texturePool.AddResource(_tileSource);
         }
 
         private void ReduceTexture ()
@@ -249,8 +250,8 @@ namespace Treefrog.Framework.Model
 
             TextureResource newTex = new TextureResource(width, height);
 
-            int factorX = newTex.Width / _tileWidth;
-            int factorY = newTex.Height / _tileHeight;
+            int factorX = newTex.Width / TileWidth;
+            int factorY = newTex.Height / TileHeight;
 
             _locations.Clear();
             _openLocations.Clear();
@@ -263,24 +264,25 @@ namespace Treefrog.Framework.Model
                     }
 
                     KeyValuePair<Guid, TileCoord> loc = locs.Dequeue();
-                    Rectangle src = new Rectangle(loc.Value.X * _tileWidth, loc.Value.Y * _tileHeight, _tileWidth, _tileHeight);
+                    Rectangle src = new Rectangle(loc.Value.X * TileWidth, loc.Value.Y * TileHeight, TileWidth, TileHeight);
 
-                    newTex.Set(_tileSource.Crop(src), new Point(x * _tileWidth, y * _tileHeight));
+                    newTex.Set(_tileSource.Crop(src), new Point(x * TileWidth, y * TileHeight));
 
                     _locations[loc.Key] = new TileCoord(x, y);
                 }
             }
 
             _tileSource = newTex;
-            _texturePool.ReplaceResource(_textureId, _tileSource);
+            _texturePool.RemoveResource(_textureId);
+            _textureId = _texturePool.AddResource(_tileSource);
         }
 
         internal void RecalculateOpenLocations ()
         {
             _openLocations.Clear();
 
-            int factorX = _tileSource.Width / _tileWidth;
-            int factorY = _tileSource.Height / _tileHeight;
+            int factorX = _tileSource.Width / TileWidth;
+            int factorY = _tileSource.Height / TileHeight;
 
             HashSet<TileCoord> usedKeys = new HashSet<TileCoord>();
             foreach (TileCoord coord in _locations.Values)
@@ -380,20 +382,8 @@ namespace Treefrog.Framework.Model
 
         private string _name;
 
-        private TilePoolManager _manager;
-        private Guid _textureId;
-        private TextureResource _tileSource;
-
-        private int _tileWidth;
-        private int _tileHeight;
-
-        //private Dictionary<Guid, Tile> _tiles;
-        //private ResourceCollection<Tile> _tiles;
         private TileResourceCollection _tiles;
-        //private Dictionary<Guid, TileCoord> _locations;
-        //private List<TileCoord> _openLocations;
 
-        //private NamedResourceCollection<Property> _properties;
         private PropertyCollection _properties;
         private TilePoolProperties _predefinedProperties;
 
@@ -401,9 +391,6 @@ namespace Treefrog.Framework.Model
         {
             Uid = Guid.NewGuid();
 
-            //_tiles = new Dictionary<Guid, Tile>();
-            //_locations = new Dictionary<Guid, TileCoord>();
-            //_openLocations = new List<TileCoord>();
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new TilePool.TilePoolProperties(this);
 
@@ -413,21 +400,24 @@ namespace Treefrog.Framework.Model
         internal TilePool (TilePoolManager manager, string name, int tileWidth, int tileHeight)
             : this()
         {
-            _name = name;
-            _manager = manager;
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
-
-            _tileSource = new TextureResource(_tileWidth * _initFactor, _tileHeight * _initFactor);
-            _textureId = _manager.TexturePool.AddResource(_tileSource);
+            Name = name;
 
             _tiles = new TileResourceCollection(tileWidth, tileHeight, this, manager.TexturePool);
+        }
 
-            /*for (int x = 0; x < _initFactor; x++) {
-                for (int y = 0; y < _initFactor; y++) {
-                    _openLocations.Add(new TileCoord(x, y));
-                }
-            }*/
+        private TilePool (LibraryX.TilePoolX proxy, TilePoolManager manager)
+            : this()
+        {
+            Uid = proxy.Uid;
+            Name = proxy.Name;
+            Tiles = TileResourceCollection.FromXmlProxy(proxy, this, manager.TexturePool);
+
+            manager.Pools.Add(this);
+
+            if (proxy.Properties != null) {
+                foreach (var propertyProxy in proxy.Properties)
+                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+            }
         }
 
         public TileResourceCollection Tiles
@@ -452,12 +442,12 @@ namespace Treefrog.Framework.Model
 
         public int TileWidth
         {
-            get { return _tileWidth; }
+            get { return _tiles.TileWidth; }
         }
 
         public int TileHeight
         {
-            get { return _tileHeight; }
+            get { return _tiles.TileHeight; }
         }
 
         public Guid TextureId
@@ -530,105 +520,6 @@ namespace Treefrog.Framework.Model
             OnModified(e);
         }
 
-        /*IEnumerator IEnumerable.GetEnumerator ()
-        {
-            return _tiles.GetEnumerator();
-        }
-
-        public IEnumerator<Tile> GetEnumerator ()
-        {
-            return _tiles.GetEnumerator();
-        }*/
-
-        /*public Guid AddTile (TextureResource texture)
-        {
-            Guid uid = _manager.TakeId();
-            AddTile(texture, uid);
-
-            return uid;
-        }
-
-        public void AddTile (TextureResource texture, Guid uid)
-        {
-            if (texture.Width != _tileWidth || texture.Height != _tileHeight) {
-                throw new ArgumentException("Supplied texture does not have tile dimensions", "texture");
-            }
-
-            if (_tiles.ContainsKey(uid)) {
-                throw new ArgumentException("A tile with the given id already exists");
-            }
-
-            if (ShouldExpandTexture()) {
-                ExpandTexture();
-            }
-
-            TileCoord coord = _openLocations[_openLocations.Count - 1];
-            _openLocations.RemoveAt(_openLocations.Count - 1);
-
-            _tileSource.Set(texture, new Point(coord.X * _tileWidth, coord.Y * _tileHeight));
-            _manager.TexturePool.Invalidate(_textureId);
-
-            _locations[uid] = coord;
-            _tiles[uid] = new PhysicalTile(uid, this);
-            _tiles[uid].Modified += TileModifiedHandler;
-
-            //_manager.LinkItemKey(uid, this);
-
-            OnTileAdded(new TileEventArgs(_tiles[uid]));
-        }
-
-        public Guid AddTile (byte[] data)
-        {
-            Guid uid = _manager.TakeId();
-            AddTile(data, uid);
-
-            return uid;
-        }
-
-        public void AddTile (byte[] data, Guid uid)
-        {
-            if (data.Length != _tileWidth * _tileHeight * 4) {
-                throw new ArgumentException("Supplied color data is incorrect size for tile dimensions", "data");
-            }
-
-            TextureResource texture = new TextureResource(_tileWidth, _tileHeight, data);
-            AddTile(texture, uid);
-        }
-
-        public void Add (Tile tile)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveTile (Guid uid)
-        {
-            if (!_tiles.ContainsKey(uid)) {
-                return;
-            }
-
-            TileCoord coord = _locations[uid];
-
-            Rectangle dest = new Rectangle(coord.X * _tileWidth, coord.Y * _tileHeight, _tileWidth, _tileHeight);
-            _tileSource.Clear(dest);
-            _manager.TexturePool.Invalidate(_textureId);
-
-            _openLocations.Add(_locations[uid]);
-
-            Tile tile = _tiles[uid];
-            tile.Modified -= TileModifiedHandler;
-
-            _tiles.Remove(uid);
-            _locations.Remove(uid);
-
-            //_manager.UnlinkItemKey(uid);
-
-            if (ShouldReduceTexture()) {
-                ReduceTexture();
-            }
-
-            OnTileRemoved(new TileEventArgs(tile));
-        }*/
-
         public Tile GetTile (Guid uid)
         {
             if (!_tiles.Contains(uid)) {
@@ -637,168 +528,6 @@ namespace Treefrog.Framework.Model
 
             return _tiles[uid];
         }
-
-        /*public TextureResource GetTileTexture (Guid uid)
-        {
-            if (!_tiles.Contains(uid))
-                return null;
-
-            if (_tileSource == null)
-                return null;
-
-            Rectangle src = new Rectangle(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight, _tileWidth, _tileHeight);
-            return _tileSource.Crop(src);
-        }*/
-
-        /*public void SetTileTexture (Guid uid, TextureResource texture)
-        {
-            if (texture.Width != _tileWidth || texture.Height != _tileHeight) {
-                throw new ArgumentException("Supplied texture does not match tile dimensions", "data");
-            }
-
-            if (!_tiles.Contains(uid)) {
-                throw new ArgumentException("No tile with the given id exists in this tile pool", "id");
-            }
-
-            Rectangle dest = new Rectangle(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight, _tileWidth, _tileHeight);
-            _tileSource.Set(texture, new Point(_locations[uid].X * _tileWidth, _locations[uid].Y * _tileHeight));
-            _manager.TexturePool.Invalidate(_textureId);
-
-            OnTileModified(new TileEventArgs(_tiles[uid]));
-        }
-
-        public TileCoord GetTileLocation (Guid uid)
-        {
-            if (_locations.ContainsKey(uid)) {
-                return _locations[uid];
-            }
-            return new TileCoord(0, 0);
-        }*/
-
-        #region Texture Management
-
-        /*private const int _minTiles = 4 * 4;
-
-        public void ReplaceTexture (TextureResource data)
-        {
-            if (_tileSource.Width != data.Width || _tileSource.Height != data.Height)
-                throw new ArgumentException("Replacement texture has different dimensions than internal texture.");
-
-            _tileSource.Set(data, Point.Zero);
-            _manager.TexturePool.Invalidate(_textureId);
-
-            OnTileSourceInvalidated(EventArgs.Empty);
-            OnModified(EventArgs.Empty);
-        }
-
-        private bool ShouldExpandTexture ()
-        {
-            return _openLocations.Count == 0;
-        }
-
-        private bool ShouldReduceTexture ()
-        {
-            return _openLocations.Count >= _tiles.Count && (_openLocations.Count + _tiles.Count) > _minTiles;
-        }
-
-        private void ExpandTexture ()
-        {
-            int width = _tileSource.Width;
-            int height = _tileSource.Height;
-
-            if (width == height) {
-                width *= 2;
-            }
-            else {
-                height *= 2;
-            }
-
-            TextureResource newTex = new TextureResource(width, height);
-            newTex.Set(_tileSource, new Point(0, 0));
-
-            int factorX = newTex.Width / _tileWidth;
-            int factorY = newTex.Height / _tileHeight;
-            int threshX = _tileSource.Width / _tileWidth;
-            int threshY = _tileSource.Height / _tileHeight;
-
-            for (int y = 0; y < factorY; y++) {
-                for (int x = 0; x < factorX; x++) {
-                    if (x >= threshX || y >= threshY) {
-                        _openLocations.Add(new TileCoord(x, y));
-                    }
-                }
-            }
-
-            _tileSource = newTex;
-            _manager.TexturePool.ReplaceResource(_textureId, _tileSource);
-        }
-
-        private void ReduceTexture ()
-        {
-            int width = _tileSource.Width;
-            int height = _tileSource.Height;
-
-            if (width == height) {
-                height /= 2;
-            }
-            else {
-                width /= 2;
-            }
-
-            Queue<KeyValuePair<Guid, TileCoord>> locs = new Queue<KeyValuePair<Guid, TileCoord>>();
-            foreach (KeyValuePair<Guid, TileCoord> kv in _locations) {
-                locs.Enqueue(kv);
-            }
-
-            TextureResource newTex = new TextureResource(width, height);
-
-            int factorX = newTex.Width / _tileWidth;
-            int factorY = newTex.Height / _tileHeight;
-
-            _locations.Clear();
-            _openLocations.Clear();
-
-            for (int y = 0; y < factorY; y++) {
-                for (int x = 0; x < factorX; x++) {
-                    if (locs.Count == 0) {
-                        _openLocations.Add(new TileCoord(x, y));
-                        continue;
-                    }
-
-                    KeyValuePair<Guid, TileCoord> loc = locs.Dequeue();
-                    Rectangle src = new Rectangle(loc.Value.X * _tileWidth, loc.Value.Y * _tileHeight, _tileWidth, _tileHeight);
-
-                    newTex.Set(_tileSource.Crop(src), new Point(x * _tileWidth, y * _tileHeight));
-
-                    _locations[loc.Key] = new TileCoord(x, y);
-                }
-            }
-
-            _tileSource = newTex;
-            _manager.TexturePool.ReplaceResource(_textureId, _tileSource);
-        }*/
-
-        /*private void RecalculateOpenLocations ()
-        {
-            _openLocations.Clear();
-
-            int factorX = _tileSource.Width / _tileWidth;
-            int factorY = _tileSource.Height / _tileHeight;
-
-            HashSet<TileCoord> usedKeys = new HashSet<TileCoord>();
-            foreach (TileCoord coord in _locations.Values)
-                usedKeys.Add(coord);
-
-            for (int y = 0; y < factorY; y++) {
-                for (int x = 0; x < factorX; x++) {
-                    if (!usedKeys.Contains(new TileCoord(x, y))) {
-                        _openLocations.Add(new TileCoord(x, y));
-                    }
-                }
-            }
-        }*/
-
-        #endregion
 
         public class TileImportOptions
         {
@@ -818,8 +547,8 @@ namespace Treefrog.Framework.Model
 
         public void ImportMerge (TextureResource image, TileImportOptions options)
         {
-            int tilesWide = (image.Width - options.MarginX) / (_tileWidth + options.SpaceX);
-            int tilesHigh = (image.Height - options.MarginY) / (_tileHeight + options.SpaceY);
+            int tilesWide = (image.Width - options.MarginX) / (TileWidth + options.SpaceX);
+            int tilesHigh = (image.Height - options.MarginY) / (TileHeight + options.SpaceY);
 
             Dictionary<string, Tile> existingHashes = new Dictionary<string, Tile>();
             Dictionary<string, Tile> newHashes = new Dictionary<string,Tile>();
@@ -834,9 +563,9 @@ namespace Treefrog.Framework.Model
                 for (int y = 0; y < tilesHigh; y++) {
                     for (int x = 0; x < tilesWide; x++) {
                         Rectangle srcLoc = new Rectangle(
-                            options.MarginX + x * (_tileWidth + options.SpaceX),
-                            options.MarginY + y * (_tileHeight + options.SpaceY),
-                            _tileWidth, _tileHeight);
+                            options.MarginX + x * (TileWidth + options.SpaceX),
+                            options.MarginY + y * (TileHeight + options.SpaceY),
+                            TileWidth, TileHeight);
 
                         TextureResource tileTex = image.Crop(srcLoc);
                         string hash = Convert.ToBase64String(sha1.ComputeHash(tileTex.RawData));
@@ -889,6 +618,7 @@ namespace Treefrog.Framework.Model
         public string Name
         {
             get { return _name; }
+            private set { _name = value; }
         }
 
         /*public bool SetName (string name)
@@ -1070,7 +800,7 @@ namespace Treefrog.Framework.Model
             //SetName(property.Value);
         }
 
-        public static LibraryX.TilePoolX ToXmlProxyX (TilePool pool)
+        public static LibraryX.TilePoolX ToXProxy (TilePool pool)
         {
             if (pool == null)
                 return null;
@@ -1086,101 +816,20 @@ namespace Treefrog.Framework.Model
             return new LibraryX.TilePoolX() {
                 Uid = pool.Uid,
                 Name = pool.Name,
-                Texture = pool._textureId,
-                TileWidth = pool._tileWidth,
-                TileHeight = pool._tileHeight,
+                Texture = pool.Tiles.TextureId,
+                TileWidth = pool.TileWidth,
+                TileHeight = pool.TileHeight,
                 TileDefinitions = tiledefs.Count > 0 ? tiledefs : null,
                 Properties = props.Count > 0 ? props : null,
             };
         }
 
-        public static TilePool FromXmlProxy (LibraryX.TilePoolX proxy, TilePoolManager manager)
+        public static TilePool FromXProxy (LibraryX.TilePoolX proxy, TilePoolManager manager)
         {
             if (proxy == null)
                 return null;
 
-            //TilePool pool = manager.CreatePool(proxy.Name, proxy.TileWidth, proxy.TileHeight);
-            //manager.TexturePool.RemoveResource(pool._textureId);
-            TilePool pool = new TilePool(manager, proxy.Name, proxy.TileWidth, proxy.TileHeight) {
-                Uid = proxy.Uid,
-            };
-            pool.Tiles = TileResourceCollection.FromXmlProxy(proxy, pool, manager.TexturePool);
-            manager.Pools.Add(pool);
-
-            //pool.Uid = proxy.Uid;
-            //pool._textureId = proxy.Texture;
-            //pool._tileSource = manager.TexturePool.GetResource(pool._textureId);
-
-            /*if (pool._tileSource != null) {
-                pool._tileSource.Apply(c => {
-                    return (c.A == 0) ? Colors.Transparent : c;
-                });
-            }
-
-            if (proxy.TileDefinitions != null) {
-                foreach (var tiledef in proxy.TileDefinitions)
-                    TileResourceCollection.FromXmlProxy(tiledef, pool._tiles);
-            }*/
-
-            //pool._tiles = TileResourceCollection.FromXmlProxy(proxy, pool, manager.TexturePool);
-
-            if (proxy.Properties != null) {
-                foreach (var propertyProxy in proxy.Properties)
-                    pool.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-            }
-
-            //if (pool.Tiles.TextureResource != null)
-            //    pool.Tiles.RecalculateOpenLocations();
-
-            return pool;
+            return new TilePool(proxy, manager);
         }
-
-        /*public static LibraryX.TileDefX ToXmlProxyX (Tile tile)
-        {
-            if (tile == null)
-                return null;
-
-            List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in tile.CustomProperties)
-                props.Add(Property.ToXmlProxyX(prop));
-
-            TileCoord loc = tile.Pool.GetTileLocation(tile.Uid);
-            return new LibraryX.TileDefX() {
-                Uid = tile.Uid,
-                Location = loc.X + "," + loc.Y,
-                Properties = props.Count > 0 ? props : null,
-            };
-        }
-
-        public static Tile FromXmlProxy (LibraryX.TileDefX proxy, TilePool pool)
-        {
-            if (proxy == null)
-                return null;
-
-            string[] loc = proxy.Location.Split(new char[] { ',' });
-            if (loc.Length != 2)
-                throw new Exception("Malformed location: " + proxy.Location);
-
-            int x = Convert.ToInt32(loc[0]);
-            int y = Convert.ToInt32(loc[1]);
-            if (x < 0 || y < 0)
-                throw new Exception("Invalid location: " + proxy.Location);
-
-            TileCoord coord = new TileCoord(x, y);
-            Tile tile = new PhysicalTile(proxy.Uid, pool);
-
-            if (proxy.Properties != null) {
-                foreach (var propertyProxy in proxy.Properties)
-                    tile.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-            }
-
-            pool._locations[proxy.Uid] = coord;
-            pool._tiles[proxy.Uid] = tile;
-            pool._tiles[proxy.Uid].Modified += pool.TileModifiedHandler;
-
-            pool._manager.LinkItemKey(proxy.Uid, pool);
-
-            return tile;
-        }*/
     }
 }

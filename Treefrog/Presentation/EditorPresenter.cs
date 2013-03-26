@@ -583,7 +583,7 @@ namespace Treefrog.Presentation
 
                     try {
                         using (FileStream fs = File.Open(ofd.FileName, FileMode.Open, FileAccess.Read)) {
-                            Project project = Project.Open(fs, new FileProjectResolver(ofd.FileName));
+                            Project project = new Project(fs, new FileProjectResolver(ofd.FileName));
                             Open(project);
 
                             _projectPath = ofd.FileName;

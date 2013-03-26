@@ -148,8 +148,10 @@ namespace Treefrog.Framework.Model
                         _pool.TexturePool.RemoveResource(_textureId);
                         _textureId = Guid.Empty;
                     }
-                    else
-                        _pool.TexturePool.ReplaceResource(_textureId, value);
+                    else {
+                        _pool.TexturePool.RemoveResource(_textureId);
+                        _textureId = _pool.TexturePool.AddResource(value);
+                    }
 
                     _image = value;
                     if (_image == null) {
