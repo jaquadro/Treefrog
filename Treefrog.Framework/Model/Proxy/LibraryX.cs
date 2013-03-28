@@ -147,6 +147,9 @@ namespace Treefrog.Framework.Model.Proxy
             where TProxy : TileBrushX
         {
             [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
             public string Name { get; set; }
 
             [XmlElement("Brush")]

@@ -140,55 +140,30 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
-
-        //#endregion
-
-        /*#region INotifyPropertyChanged Members
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged (PropertyChangedEventArgs e)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, e);
-        }
-
-        protected void RaisePropertyChanged (string name)
-        {
-            OnPropertyChanged(new PropertyChangedEventArgs(name));
-        }
-
-        #endregion*/
     }
 
     public class TileBrushCollection<T> : TileBrushCollection
         where T : TileBrush
     {
-        private TileBrushManager _manager;
-        private NamedResourceCollection<T> _brushes;
-        //private NamedObservableCollection<T> _brushes;
-
-        protected TileBrushCollection (string name)
-            : base(Guid.NewGuid(), name)
+        protected TileBrushCollection (Guid uid, string name)
+            : base(uid, name)
         {
-            _brushes = new NamedResourceCollection<T>();
-            //_brushes = new NamedObservableCollection<T>();
-            //_brushes.CollectionChanged += HandleCollectionChanged;
+            Brushes = new NamedResourceCollection<T>();
 
-            _brushes.ResourceAdded += (s, e) => OnResourceAdded(e.Resource);
-            _brushes.ResourceRemoved += (s, e) => OnResourceRemoved(e.Resource);
-            _brushes.ResourceModified += (s, e) => OnResourceModified(e.Resource);
+            Brushes.ResourceAdded += (s, e) => OnResourceAdded(e.Resource);
+            Brushes.ResourceRemoved += (s, e) => OnResourceRemoved(e.Resource);
+            Brushes.ResourceModified += (s, e) => OnResourceModified(e.Resource);
         }
 
-        public TileBrushCollection (string name, TileBrushManager manager)
-            : this(name)
-        {
-            _manager = manager;
-        }
+        public TileBrushCollection (string name)
+            : this(Guid.NewGuid(), name)
+        { }
+
+        public NamedResourceCollection<T> Brushes { get; private set; }
 
         public int Count
         {
-            get { return _brushes.Count; }
+            get { return Brushes.Count; }
         }
 
         protected override TileBrush GetBrushCore (Guid uid)
@@ -198,45 +173,12 @@ namespace Treefrog.Framework.Model
 
         public new T GetBrush (Guid uid)
         {
-            foreach (T brush in _brushes) {
+            foreach (T brush in Brushes) {
                 if (brush.Uid == uid)
                     return brush;
             }
 
             return null;
-        }
-
-        /*public void AddBrush (T brush)
-        {
-            Guid uid = _manager.TakeKey();
-            AddBrush(brush, uid);
-        }
-
-        public void AddBrush (T brush, Guid uid)
-        {
-            if (_brushes.Contains(brush.Name))
-                throw new ArgumentException("Brush collection already contains a brush with the same name as brush.");
-
-            brush.Uid = uid;
-
-            _brushes.Add(brush);
-
-            _manager.LinkItemKey(uid, this);
-        }
-
-        public void RemoveBrush (string name)
-        {
-            if (_brushes.Contains(name)) {
-                T objClass = _brushes[name];
-                _manager.UnlinkItemKey(objClass.Uid);
-
-                _brushes.Remove(name);
-            }
-        }*/
-
-        public NamedResourceCollection<T> Brushes
-        {
-            get { return _brushes; }
         }
 
         protected override IEnumerator<TileBrush> GetTileBrushEnumerator ()
@@ -245,7 +187,7 @@ namespace Treefrog.Framework.Model
                 yield return brush;
         }
 
-        public static LibraryX.TileBrushCollectionX<TProxy> ToXmlProxyX<TProxy> (TileBrushCollection<T> brushCollection, Func<T, TProxy> itemXmlFunc)
+        public static LibraryX.TileBrushCollectionX<TProxy> ToXProxy<TProxy> (TileBrushCollection<T> brushCollection, Func<T, TProxy> itemXmlFunc)
             where TProxy : LibraryX.TileBrushX
         {
             if (brushCollection == null)
@@ -258,25 +200,60 @@ namespace Treefrog.Framework.Model
             }
 
             return new LibraryX.TileBrushCollectionX<TProxy>() {
+                Uid = brushCollection.Uid,
                 Name = brushCollection.Name,
                 Brushes = objects,
             };
         }
+    }
 
-        public static TileBrushCollection<T> FromXmlProxy<TProxy> (LibraryX.TileBrushCollectionX<TProxy> proxy, TileBrushCollection<T> brushCollection, Func<TProxy, T> itemXmlFunc)
-            where TProxy : LibraryX.TileBrushX
+    public class StaticTileBrushCollection : TileBrushCollection<StaticTileBrush>
+    {
+        public StaticTileBrushCollection (LibraryX.TileBrushCollectionX<LibraryX.StaticTileBrushX> proxy, TilePoolManager tileManager)
+            : base(proxy.Uid, proxy.Name)
+        {
+            if (proxy.Brushes != null) {
+                foreach (var brush in proxy.Brushes)
+                    Brushes.Add(StaticTileBrush.FromXmlProxy(brush, tileManager));
+            }
+        }
+
+        public static StaticTileBrushCollection FromXProxy (LibraryX.TileBrushCollectionX<LibraryX.StaticTileBrushX> proxy, TilePoolManager tileManager)
         {
             if (proxy == null)
                 return null;
 
-            if (proxy.Brushes != null) {
-                foreach (TProxy brush in proxy.Brushes) {
-                    T inst = itemXmlFunc(brush);
-                    brushCollection.Brushes.Add(inst);
-                }
-            }
+            return new StaticTileBrushCollection(proxy, tileManager);
+        }
 
-            return brushCollection;
+        public static LibraryX.TileBrushCollectionX<LibraryX.StaticTileBrushX> ToXProxy (StaticTileBrushCollection brushCollection)
+        {
+            return TileBrushCollection<StaticTileBrush>.ToXProxy<LibraryX.StaticTileBrushX>(brushCollection, StaticTileBrush.ToXmlProxyX);
+        }
+    }
+
+    public class DynamicTileBrushCollection : TileBrushCollection<DynamicTileBrush>
+    {
+        public DynamicTileBrushCollection (LibraryX.TileBrushCollectionX<LibraryX.DynamicTileBrushX> proxy, TilePoolManager tileManager, DynamicTileBrushClassRegistry registry)
+            : base(proxy.Uid, proxy.Name)
+        {
+            if (proxy.Brushes != null) {
+                foreach (var brush in proxy.Brushes)
+                    Brushes.Add(DynamicTileBrush.FromXmlProxy(brush, tileManager, registry));
+            }
+        }
+
+        public static DynamicTileBrushCollection FromXProxy (LibraryX.TileBrushCollectionX<LibraryX.DynamicTileBrushX> proxy, TilePoolManager tileManager, DynamicTileBrushClassRegistry registry)
+        {
+            if (proxy == null)
+                return null;
+
+            return new DynamicTileBrushCollection(proxy, tileManager, registry);
+        }
+
+        public static LibraryX.TileBrushCollectionX<LibraryX.DynamicTileBrushX> ToXProxy (DynamicTileBrushCollection brushCollection)
+        {
+            return TileBrushCollection<DynamicTileBrush>.ToXProxy<LibraryX.DynamicTileBrushX>(brushCollection, DynamicTileBrush.ToXmlProxyX);
         }
     }
 }

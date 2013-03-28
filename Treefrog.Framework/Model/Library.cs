@@ -155,7 +155,7 @@ namespace Treefrog.Framework.Model
             if (library.TilePoolManager == null)
                 library.TilePoolManager = new TilePoolManager(library.TexturePool);
 
-            library.TileBrushManager = TileBrushManager.FromXmlProxy(proxy.TileBrushGroup, library.TilePoolManager, Project.DynamicBrushClassRegistry);
+            library.TileBrushManager = TileBrushManager.FromXProxy(proxy.TileBrushGroup, library.TilePoolManager, Project.DynamicBrushClassRegistry);
             if (library.TileBrushManager == null)
                 library.TileBrushManager = new TileBrushManager();
 
@@ -171,7 +171,7 @@ namespace Treefrog.Framework.Model
                 TextureGroup = TexturePool.ToXmlProxyX(library.TexturePool),
                 ObjectGroup = ObjectPoolManager.ToXmlProxyX(library.ObjectPoolManager),
                 TileGroup = TilePoolManager.ToXmlProxyX(library.TilePoolManager),
-                TileBrushGroup = TileBrushManager.ToXmlProxyX(library.TileBrushManager),
+                TileBrushGroup = TileBrushManager.ToXProxy(library.TileBrushManager),
                 PropertyGroup = new LibraryX.PropertyGroupX() {
                     LibraryGuid = library.Uid,
                     LibraryName = library.Name,
