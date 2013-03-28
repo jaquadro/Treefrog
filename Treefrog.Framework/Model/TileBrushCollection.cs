@@ -4,17 +4,21 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using Treefrog.Framework.Compat;
 using Treefrog.Framework.Model.Proxy;
+using System.Collections;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class TileBrushCollection :  IKeyProvider<string>, INotifyPropertyChanged
+    public abstract class TileBrushCollection : INamedResource, IResourceManager2<TileBrush>
     {
         private string _name;
 
-        protected TileBrushCollection (string name)
+        protected TileBrushCollection (Guid uid, string name)
         {
+            Uid = uid;
             _name = name;
         }
+
+        public Guid Uid { get; private set; }
 
         public TileBrush GetBrush (Guid uid)
         {
@@ -23,55 +27,123 @@ namespace Treefrog.Framework.Model
 
         protected abstract TileBrush GetBrushCore (Guid uid);
 
-        #region IKeyProvider<string> Members
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+        public event EventHandler<NameChangedEventArgs> NameChanged;
 
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanged;
-
-        protected virtual void OnKeyChanging (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
         {
-            if (KeyChanging != null)
-                KeyChanging(this, e);
+            var ev = NameChanging;
+            if (ev != null)
+                ev(this, e);
         }
 
-        protected virtual void OnKeyChanged (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
-            if (KeyChanged != null)
-                KeyChanged(this, e);
-        }
-
-        public string GetKey ()
-        {
-            return Name;
+            var ev = NameChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         public string Name
         {
             get { return _name; }
+            private set { _name = value; }
         }
 
-        public bool SetName (string name)
+        public bool TrySetName (string name)
         {
-            if (_name != name) {
-                KeyProviderEventArgs<string> e = new KeyProviderEventArgs<string>(_name, name);
+            if (Name != name) {
                 try {
-                    OnKeyChanging(e);
+                    OnNameChanging(new NameChangingEventArgs(Name, name));
                 }
                 catch (KeyProviderException) {
                     return false;
                 }
 
-                _name = name;
-                OnKeyChanged(e);
-                RaisePropertyChanged("Name");
+                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
+                Name = name;
+
+                OnNameChanged(e);
+                OnModified(EventArgs.Empty);
             }
 
             return true;
         }
 
+        public event EventHandler Modified;
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            var ev = Modified;
+            if ((ev = Modified) != null)
+                ev(this, e);
+        }
+
+        #region Resource Manager Explicit Interface
+
+        private EventHandler<ResourceEventArgs<TileBrush>> _tileBrushResourceAdded;
+        private EventHandler<ResourceEventArgs<TileBrush>> _tileBrushResourceRemoved;
+        private EventHandler<ResourceEventArgs<TileBrush>> _tileBrushResourceModified;
+
+        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager2<TileBrush>.ResourceAdded
+        {
+            add { _tileBrushResourceAdded += value; }
+            remove { _tileBrushResourceAdded -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager2<TileBrush>.ResourceRemoved
+        {
+            add { _tileBrushResourceRemoved += value; }
+            remove { _tileBrushResourceRemoved -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager2<TileBrush>.ResourceModified
+        {
+            add { _tileBrushResourceModified += value; }
+            remove { _tileBrushResourceModified -= value; }
+        }
+
+        IEnumerator<TileBrush> System.Collections.Generic.IEnumerable<TileBrush>.GetEnumerator ()
+        {
+            return GetTileBrushEnumerator();
+        }
+
+        IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        {
+            return GetTileBrushEnumerator();
+        }
+
+        protected virtual void OnResourceAdded (TileBrush resource)
+        {
+            var ev = _tileBrushResourceAdded;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<TileBrush>(resource));
+        }
+
+        protected virtual void OnResourceRemoved (TileBrush resource)
+        {
+            var ev = _tileBrushResourceRemoved;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<TileBrush>(resource));
+        }
+
+        protected virtual void OnResourceModified (TileBrush resource)
+        {
+            var ev = _tileBrushResourceModified;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<TileBrush>(resource));
+        }
+
+        protected virtual IEnumerator<TileBrush> GetTileBrushEnumerator ()
+        {
+            yield break;
+        }
+
         #endregion
 
-        #region INotifyPropertyChanged Members
+        //#endregion
+
+        /*#region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -86,20 +158,26 @@ namespace Treefrog.Framework.Model
             OnPropertyChanged(new PropertyChangedEventArgs(name));
         }
 
-        #endregion
+        #endregion*/
     }
 
-    public class TileBrushCollection<T> : TileBrushCollection, IEnumerable<T>
+    public class TileBrushCollection<T> : TileBrushCollection
         where T : TileBrush
     {
         private TileBrushManager _manager;
-        private NamedObservableCollection<T> _brushes;
+        private NamedResourceCollection<T> _brushes;
+        //private NamedObservableCollection<T> _brushes;
 
         protected TileBrushCollection (string name)
-            : base(name)
+            : base(Guid.NewGuid(), name)
         {
-            _brushes = new NamedObservableCollection<T>();
-            _brushes.CollectionChanged += HandleCollectionChanged;
+            _brushes = new NamedResourceCollection<T>();
+            //_brushes = new NamedObservableCollection<T>();
+            //_brushes.CollectionChanged += HandleCollectionChanged;
+
+            _brushes.ResourceAdded += (s, e) => OnResourceAdded(e.Resource);
+            _brushes.ResourceRemoved += (s, e) => OnResourceRemoved(e.Resource);
+            _brushes.ResourceModified += (s, e) => OnResourceModified(e.Resource);
         }
 
         public TileBrushCollection (string name, TileBrushManager manager)
@@ -128,7 +206,7 @@ namespace Treefrog.Framework.Model
             return null;
         }
 
-        public void AddBrush (T brush)
+        /*public void AddBrush (T brush)
         {
             Guid uid = _manager.TakeKey();
             AddBrush(brush, uid);
@@ -154,35 +232,18 @@ namespace Treefrog.Framework.Model
 
                 _brushes.Remove(name);
             }
-        }
+        }*/
 
-        public NamedObservableCollection<T> Brushes
+        public NamedResourceCollection<T> Brushes
         {
             get { return _brushes; }
         }
 
-        private void HandleCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+        protected override IEnumerator<TileBrush> GetTileBrushEnumerator ()
         {
-            RaisePropertyChanged("Brushes");
+            foreach (TileBrush brush in Brushes)
+                yield return brush;
         }
-
-        #region IEnumerable<ObjectClass> Members
-
-        public IEnumerator<T> GetEnumerator ()
-        {
-            return _brushes.GetEnumerator();
-        }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
-        {
-            return _brushes.GetEnumerator();
-        }
-
-        #endregion
 
         public static LibraryX.TileBrushCollectionX<TProxy> ToXmlProxyX<TProxy> (TileBrushCollection<T> brushCollection, Func<T, TProxy> itemXmlFunc)
             where TProxy : LibraryX.TileBrushX
@@ -211,7 +272,7 @@ namespace Treefrog.Framework.Model
             if (proxy.Brushes != null) {
                 foreach (TProxy brush in proxy.Brushes) {
                     T inst = itemXmlFunc(brush);
-                    brushCollection.AddBrush(inst, brush.Uid);
+                    brushCollection.Brushes.Add(inst);
                 }
             }
 

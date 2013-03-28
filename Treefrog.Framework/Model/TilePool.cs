@@ -374,7 +374,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class TilePool : IResource, IResourceManager<Tile>, IPropertyProvider, INotifyPropertyChanged
+    public class TilePool : IResource, IResourceManager2<Tile>, IPropertyProvider, INotifyPropertyChanged
     {
         private const int _initFactor = 4;
 
@@ -426,10 +426,10 @@ namespace Treefrog.Framework.Model
             private set { _tiles = value; }
         }
 
-        IResourceCollection<Tile> IResourceManager<Tile>.Items
+        /*IResourceCollection<Tile> IResourceManager<Tile>.Items
         {
             get { return _tiles; }
-        }
+        }*/
 
         #region Properties
 
@@ -640,6 +640,38 @@ namespace Treefrog.Framework.Model
 
             return true;
         }*/
+
+        #region Resource Manager Explicit Interface
+
+        event EventHandler<ResourceEventArgs<Tile>> IResourceManager2<Tile>.ResourceAdded
+        {
+            add { Tiles.ResourceAdded += value; }
+            remove { Tiles.ResourceAdded -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<Tile>> IResourceManager2<Tile>.ResourceRemoved
+        {
+            add { Tiles.ResourceRemoved += value; }
+            remove { Tiles.ResourceRemoved -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<Tile>> IResourceManager2<Tile>.ResourceModified
+        {
+            add { Tiles.ResourceModified += value; }
+            remove { Tiles.ResourceModified -= value; }
+        }
+
+        IEnumerator<Tile> System.Collections.Generic.IEnumerable<Tile>.GetEnumerator ()
+        {
+            return Tiles.GetEnumerator();
+        }
+
+        IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        {
+            return Tiles.GetEnumerator();
+        }
+
+        #endregion
 
         #region INotifyPropertyChanged Members
 

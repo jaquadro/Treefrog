@@ -15,7 +15,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public abstract class TileBrush : IKeyProvider<string>
+    public abstract class TileBrush : INamedResource
     {
         private Guid _id;
         private string _name;
@@ -67,43 +67,56 @@ namespace Treefrog.Framework.Model
             return Name;
         }
 
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+        public event EventHandler<NameChangedEventArgs> NameChanged;
+
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        {
+            var ev = NameChanging;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnNameChanged (NameChangedEventArgs e)
+        {
+            var ev = NameChanged;
+            if (ev != null)
+                ev(this, e);
+        }
+
         public string Name
         {
             get { return _name; }
+            private set { _name = value; }
         }
 
-        public bool SetName (string name)
+        public bool TrySetName (string name)
         {
-            if (_name != name) {
-                KeyProviderEventArgs<string> e = new KeyProviderEventArgs<string>(_name, name);
+            if (Name != name) {
                 try {
-                    OnKeyChanging(e);
+                    OnNameChanging(new NameChangingEventArgs(Name, name));
                 }
                 catch (KeyProviderException) {
                     return false;
                 }
 
-                _name = name;
-                OnKeyChanged(e);
+                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
+                Name = name;
+
+                OnNameChanged(e);
+                OnModified(EventArgs.Empty);
             }
 
             return true;
         }
 
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
+        public event EventHandler Modified;
 
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanged;
-
-        protected virtual void OnKeyChanging (KeyProviderEventArgs<string> e)
+        protected virtual void OnModified (EventArgs e)
         {
-            if (KeyChanging != null)
-                KeyChanging(this, e);
-        }
-
-        protected virtual void OnKeyChanged (KeyProviderEventArgs<string> e)
-        {
-            if (KeyChanged != null)
-                KeyChanged(this, e);
+            var ev = Modified;
+            if ((ev = Modified) != null)
+                ev(this, e);
         }
 
         public abstract void ApplyBrush (TileGridLayer tileLayer, int x, int y);

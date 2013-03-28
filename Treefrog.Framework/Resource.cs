@@ -9,7 +9,7 @@ namespace Treefrog.Framework
         event EventHandler Modified;
     }
 
-    public class ResourceEventArgs : EventArgs
+    public class ResourceEventArgs : EventArgs, IResourceEventArgs
     {
         public static new ResourceEventArgs Empty = new ResourceEventArgs(Guid.Empty);
 
@@ -21,7 +21,18 @@ namespace Treefrog.Framework
         }
     }
 
-    public class ResourceEventArgs<T> : ResourceEventArgs
+    public interface IResourceEventArgs
+    {
+        Guid Uid { get; }
+    }
+
+    public interface IResourceEventArgs<out T> : IResourceEventArgs
+        where T : IResource
+    {
+        T Resource { get; }
+    }
+
+    public class ResourceEventArgs<T> : ResourceEventArgs, IResourceEventArgs<T>
         where T : IResource
     {
         public T Resource { get; private set; }

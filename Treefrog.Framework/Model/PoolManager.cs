@@ -14,7 +14,7 @@ namespace Treefrog.Framework.Model
     }
 
     public abstract class PoolManager<TPool, TPoolItem> : IPoolManager<TPool>
-        where TPool : class, IResource, IResourceManager<TPoolItem>
+        where TPool : class, IResource, IResourceManager2<TPoolItem>
         where TPoolItem : IResource
     {
         private ResourceCollection<TPool> _pools;
@@ -38,12 +38,14 @@ namespace Treefrog.Framework.Model
         private void HandleResourceRemoved (object sender, ResourceEventArgs<TPool> e)
         {
             if (_poolResourceAddHandlers.ContainsKey(e.Uid)) {
-                e.Resource.Items.ResourceAdded -= _poolResourceAddHandlers[e.Uid];
+                //e.Resource.Items.ResourceAdded -= _poolResourceAddHandlers[e.Uid];
+                e.Resource.ResourceAdded -= _poolResourceAddHandlers[e.Uid];
                 _poolResourceAddHandlers.Remove(e.Uid);
             }
 
             if (_poolResourceRemoveHandlers.ContainsKey(e.Uid)) {
-                e.Resource.Items.ResourceRemoved -= _poolResourceRemoveHandlers[e.Uid];
+                //e.Resource.Items.ResourceRemoved -= _poolResourceRemoveHandlers[e.Uid];
+                e.Resource.ResourceRemoved -= _poolResourceRemoveHandlers[e.Uid];
                 _poolResourceRemoveHandlers.Remove(e.Uid);
             }
 
@@ -62,16 +64,23 @@ namespace Treefrog.Framework.Model
             _poolResourceAddHandlers[e.Uid] = (s, es) => { _poolIndexMap.Add(es.Uid, e.Resource); };
             _poolResourceRemoveHandlers[e.Uid] = (s, es) => { _poolIndexMap.Remove(es.Uid); };
 
-            e.Resource.Items.ResourceAdded += _poolResourceAddHandlers[e.Uid];
-            e.Resource.Items.ResourceRemoved += _poolResourceRemoveHandlers[e.Uid];
+            //e.Resource.Items.ResourceAdded += _poolResourceAddHandlers[e.Uid];
+            //e.Resource.Items.ResourceRemoved += _poolResourceRemoveHandlers[e.Uid];
+            e.Resource.ResourceAdded += _poolResourceAddHandlers[e.Uid];
+            e.Resource.ResourceRemoved += _poolResourceRemoveHandlers[e.Uid];
 
-            foreach (TPoolItem item in e.Resource.Items)
+            foreach (TPoolItem item in e.Resource)
                 _poolIndexMap.Add(item.Uid, e.Resource);
         }
 
         public virtual ResourceCollection<TPool> Pools
         {
             get { return _pools; }
+        }
+
+        public virtual IEnumerable<Guid> Keys
+        {
+            get { return _poolIndexMap.Keys; }
         }
 
         public virtual TPool CreatePool (string name)

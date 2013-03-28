@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Treefrog.Framework.Model
 {
     public abstract class MetaPoolManager<TPool, TPoolItem, TSubType> : PoolManager<TPool, TPoolItem>
-        where TPool : class, IResource, IResourceManager<TPoolItem>
+        where TPool : class, IResource, IResourceManager2<TPoolItem>
         where TPoolItem : IResource
         where TSubType : PoolManager<TPool, TPoolItem>
     {

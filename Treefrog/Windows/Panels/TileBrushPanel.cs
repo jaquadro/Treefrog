@@ -192,10 +192,10 @@ namespace Treefrog.Windows.Panels
             imgList.ImageSize = new Size(64, 64);
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
-            foreach (DynamicTileBrush brush in _controller.TileBrushManager.DynamicBrushes) {
+            foreach (DynamicTileBrush brush in _controller.TileBrushManager.DynamicBrushes.Brushes) {
                 imgList.Images.Add(brush.Uid.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
             }
-            foreach (StaticTileBrush brush in _controller.TileBrushManager.StaticBrushes) {
+            foreach (StaticTileBrush brush in _controller.TileBrushManager.StaticBrushes.Brushes) {
                 imgList.Images.Add(brush.Uid.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
             }
 

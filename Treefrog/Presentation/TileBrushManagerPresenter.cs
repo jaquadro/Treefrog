@@ -101,7 +101,7 @@ namespace Treefrog.Presentation
 
                         if (form.ShowDialog() == DialogResult.OK) {
                             if (TileBrushManager.StaticBrushes.GetBrush(form.Brush.Uid) == null)
-                                TileBrushManager.StaticBrushes.AddBrush(form.Brush);
+                                TileBrushManager.StaticBrushes.Brushes.Add(form.Brush);
 
                             OnSyncTileBrushCollection(EventArgs.Empty);
                             SelectBrush(form.Brush.Uid);
@@ -130,7 +130,7 @@ namespace Treefrog.Presentation
 
                         if (form.ShowDialog() == DialogResult.OK) {
                             if (TileBrushManager.DynamicBrushes.GetBrush(form.Brush.Uid) == null)
-                                TileBrushManager.DynamicBrushes.AddBrush(form.Brush);
+                                TileBrushManager.DynamicBrushes.Brushes.Add(form.Brush);
 
                             OnSyncTileBrushCollection(EventArgs.Empty);
                             SelectBrush(form.Brush.Uid);
@@ -158,7 +158,7 @@ namespace Treefrog.Presentation
                     for (int i = 0; i < oldBrush.BrushClass.SlotCount; i++)
                         newBrush.SetTile(i, oldBrush.GetTile(i));
 
-                    TileBrushManager.DynamicBrushes.AddBrush(newBrush);
+                    TileBrushManager.DynamicBrushes.Brushes.Add(newBrush);
                     newBrushId = newBrush.Uid;
                 }
                 else if (SelectedBrush is StaticTileBrush) {
@@ -168,7 +168,7 @@ namespace Treefrog.Presentation
                         newBrush.AddTile(tile.Location, tile.Tile);
                     newBrush.Normalize();
 
-                    TileBrushManager.StaticBrushes.AddBrush(newBrush);
+                    TileBrushManager.StaticBrushes.Brushes.Add(newBrush);
                     newBrushId = newBrush.Uid;
                 }
                 else
@@ -189,9 +189,9 @@ namespace Treefrog.Presentation
         {
             if (CommandCanDeleteBrush()) {
                 if (SelectedBrush is DynamicTileBrush)
-                    TileBrushManager.DynamicBrushes.RemoveBrush(SelectedBrush.Name);
+                    TileBrushManager.DynamicBrushes.Brushes.Remove(SelectedBrush.Uid);
                 else if (SelectedBrush is StaticTileBrush)
-                    TileBrushManager.StaticBrushes.RemoveBrush(SelectedBrush.Name);
+                    TileBrushManager.StaticBrushes.Brushes.Remove(SelectedBrush.Uid);
 
                 OnSyncTileBrushCollection(EventArgs.Empty);
                 SelectBrush(Guid.Empty);

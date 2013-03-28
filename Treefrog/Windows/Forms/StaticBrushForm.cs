@@ -391,7 +391,7 @@ namespace Treefrog.Windows.Forms
             if (!_validateController.ValidateForm())
                 return;
 
-            _brush.SetName(_nameField.Text);
+            _brush.TrySetName(_nameField.Text);
             _brush.Clear();
 
             foreach (LocatedTile tile in _layer.Tiles) {

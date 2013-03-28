@@ -53,9 +53,6 @@ namespace Treefrog.Framework.Model.Proxy
         public class TextureX
         {
             [XmlAttribute]
-            public int Id { get; set; }
-
-            [XmlAttribute]
             public Guid Uid { get; set; }
 
             [XmlAttribute]

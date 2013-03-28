@@ -56,7 +56,7 @@ namespace Treefrog.Framework.Model
 
             //_tilePools = new TilePoolManager(_texturePool);
             //ObjectPoolManager defaultObjectPool = new ObjectPoolManager(_texturePool);
-            _tileBrushes = new TileBrushManager();
+            //_tileBrushes = new TileBrushManager();
             _levels = new NamedResourceCollection<Level>();
 
             _libraryManager = new LibraryManager();
@@ -72,9 +72,11 @@ namespace Treefrog.Framework.Model
             _objectPools = new MetaObjectPoolManager();
             _objectPools.AddManager(defaultLibrary.Uid, defaultLibrary.ObjectPoolManager);
 
+            _tileBrushes = defaultLibrary.TileBrushManager;
+
             //_tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
             //_objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
-            _tileBrushes.DynamicBrushes.PropertyChanged += HandleTileBrushManagerPropertyChanged;
+            //_tileBrushes.DynamicBrushes.PropertyChanged += HandleTileBrushManagerPropertyChanged;
             _levels.ResourceModified += LevelsModifiedHandler;
 
             _services.AddService(typeof(TilePoolManager), _tilePools);
@@ -83,7 +85,6 @@ namespace Treefrog.Framework.Model
         public Project (Stream stream, ProjectResolver resolver)
         {
             _services = new ServiceContainer();
-            _tileBrushes = new TileBrushManager();
             _levels = new NamedResourceCollection<Level>();
             _libraryManager = new LibraryManager();
 
@@ -308,17 +309,21 @@ namespace Treefrog.Framework.Model
         {
             _libraryManager.Libraries.Add(library);
 
-            _texturePool = library.TexturePool;
+            //_texturePool = library.TexturePool;
             _tilePools.AddManager(library.Uid, library.TilePoolManager);
             _objectPools.AddManager(library.Uid, library.ObjectPoolManager);
-            _tileBrushes = library.TileBrushManager;
+            //_tileBrushes = library.TileBrushManager;
 
             if (_defaultLibraryUid == Guid.Empty)
                 _defaultLibraryUid = library.Uid;
 
             if (_defaultLibraryUid == library.Uid) {
+                _texturePool = library.TexturePool;
+
                 _tilePools.Default = library.Uid;
                 _objectPools.Default = library.Uid;
+
+                _tileBrushes = library.TileBrushManager;
             }
         }
 

@@ -5,10 +5,11 @@ using System.Xml.Serialization;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Compat;
 using Treefrog.Framework.Model.Proxy;
+using System.Collections;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectPool : IResource, IResourceManager<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
+    public class ObjectPool : IResource, IResourceManager2<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
@@ -43,10 +44,10 @@ namespace Treefrog.Framework.Model
             _manager = manager;
         }
 
-        IResourceCollection<ObjectClass> IResourceManager<ObjectClass>.Items
+        /*IResourceCollection<ObjectClass> IResourceManager<ObjectClass>.Items
         {
             get { return _objects; }
-        }
+        }*/
 
         public Guid Uid { get; private set; }
 
@@ -171,6 +172,38 @@ namespace Treefrog.Framework.Model
 
             return true;
         }
+
+        #region Resource Manager Explicit Interface
+
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager2<ObjectClass>.ResourceAdded
+        {
+            add { Objects.ResourceAdded += value; }
+            remove { Objects.ResourceAdded -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager2<ObjectClass>.ResourceRemoved
+        {
+            add { Objects.ResourceRemoved += value; }
+            remove { Objects.ResourceRemoved -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager2<ObjectClass>.ResourceModified
+        {
+            add { Objects.ResourceModified += value; }
+            remove { Objects.ResourceModified -= value; }
+        }
+
+        IEnumerator<ObjectClass> System.Collections.Generic.IEnumerable<ObjectClass>.GetEnumerator ()
+        {
+            return Objects.GetEnumerator();
+        }
+
+        IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        {
+            return Objects.GetEnumerator();
+        }
+
+        #endregion
 
         /*#region IEnumerable<ObjectClass> Members
 

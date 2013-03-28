@@ -3,6 +3,21 @@ using System.Collections.Generic;
 
 namespace Treefrog.Framework
 {
+    public delegate void EventHandler2<in T> (object sender, T e);
+
+    /*public interface IResourceCollectionEvents<out T>
+        where T : IResource
+    {
+        event EventHandler2<IResourceEventArgs<T>> ResourceAdded;
+        event EventHandler2<IResourceEventArgs<T>> ResourceRemoved;
+        event EventHandler2<IResourceEventArgs<T>> ResourceModified;
+
+        event EventHandler Modified;
+
+
+        event EventHandler2<IResourceEventArgs<T>> ResourceExists;
+    }*/
+
     public interface IResourceCollection<T> : IEnumerable<T>
         where T : IResource
     {
@@ -25,6 +40,14 @@ namespace Treefrog.Framework
         where T : IResource
     {
         IResourceCollection<T> Items { get; }
+    }
+
+    public interface IResourceManager2<T> : IEnumerable<T>
+        where T : IResource
+    {
+        event EventHandler<ResourceEventArgs<T>> ResourceAdded;
+        event EventHandler<ResourceEventArgs<T>> ResourceRemoved;
+        event EventHandler<ResourceEventArgs<T>> ResourceModified;
     }
 
     public class ResourceCollection<T> : IResourceCollection<T>
