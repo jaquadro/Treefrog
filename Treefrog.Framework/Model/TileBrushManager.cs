@@ -20,18 +20,13 @@ namespace Treefrog.Framework.Model
             Pools.Add(_dynamicBrushCollection);
         }
 
-        public TileBrushManager (LibraryX.TileBrushGroupX proxy, TilePoolManager tileManager, DynamicTileBrushClassRegistry registry)
+        private TileBrushManager (LibraryX.TileBrushGroupX proxy, TilePoolManager tileManager, DynamicTileBrushClassRegistry registry)
         {
             _staticBrushCollection = StaticTileBrushCollection.FromXProxy(proxy.StaticBrushes, tileManager);
             _dynamicBrushCollection = DynamicTileBrushCollection.FromXProxy(proxy.DynamicBrushes, tileManager, registry);
 
             Pools.Add(_staticBrushCollection);
             Pools.Add(_dynamicBrushCollection);
-        }
-
-        protected override TileBrushCollection CreatePoolCore (string name)
-        {
-            throw new NotImplementedException();
         }
 
         public TileBrushCollection<StaticTileBrush> StaticBrushes

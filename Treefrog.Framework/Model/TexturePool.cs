@@ -32,6 +32,11 @@ namespace Treefrog.Framework.Model
             get { return _resources.Count; }
         }
 
+        public bool Contains (Guid uid)
+        {
+            return _resources.ContainsKey(uid);
+        }
+
         public TextureResource GetResource (Guid uid)
         {
             TextureResource resource;

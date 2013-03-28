@@ -55,16 +55,6 @@ namespace Treefrog.Framework.Model
             get { return _managers[MapAndCheckUid(_default)].Pools; }
         }
 
-        public override TPool CreatePool (string name)
-        {
-            return _managers[MapAndCheckUid(_default)].CreatePool(name);
-        }
-
-        protected override TPool CreatePoolCore (string name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Reset ()
         {
             _managers[MapAndCheckUid(_default)].Reset();

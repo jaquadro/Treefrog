@@ -192,7 +192,7 @@ namespace Treefrog.Presentation
             _project.Modified += ProjectModifiedHandler;
             //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
-            _project.ObjectPoolManager.CreatePool("Default");
+            _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
 
             _openContent = new List<Guid>();
             _levels = new Dictionary<Guid, LevelPresenter>();
@@ -270,7 +270,7 @@ namespace Treefrog.Presentation
                 }
             }
 
-            _project.ObjectPoolManager.CreatePool("Default");
+            //_project.ObjectPoolManager.CreatePool("Default");
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
             info.BindInfoPresenter(CurrentLevel.InfoPresenter);

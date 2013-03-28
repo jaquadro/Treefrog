@@ -17,7 +17,7 @@ namespace Treefrog.Framework.Model
 
         private string _name;
 
-        private ObjectPoolManager _manager;
+        //private ObjectPoolManager _manager;
 
         private ResourceCollection<ObjectClass> _objects;
 
@@ -29,32 +29,37 @@ namespace Treefrog.Framework.Model
         protected ObjectPool ()
         {
             Uid = Guid.NewGuid();
+            Objects = new ResourceCollection<ObjectClass>();
 
-            _objects = new ResourceCollection<ObjectClass>();
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectPoolProperties(this);
 
             _properties.Modified += Properties_Modified;
         }
 
-        public ObjectPool (string name, ObjectPoolManager manager)
+        public ObjectPool (string name)
             : this()
         {
-            _name = name;
-            _manager = manager;
+            Name = name;
+            TexturePool = new TexturePool();
         }
 
-        /*IResourceCollection<ObjectClass> IResourceManager<ObjectClass>.Items
+        private ObjectPool (LibraryX.ObjectPoolX proxy, ObjectPoolManager manager)
+            : this()
         {
-            get { return _objects; }
-        }*/
+            Uid = proxy.Uid;
+            Name = proxy.Name;
+            TexturePool = manager.TexturePool;
+
+            foreach (var objClass in proxy.ObjectClasses)
+                Objects.Add(ObjectClass.FromXmlProxy(objClass, TexturePool));
+
+            manager.Pools.Add(this);
+        }
 
         public Guid Uid { get; private set; }
 
-        public TexturePool TexturePool
-        {
-            get { return _manager.TexturePool; }
-        }
+        public TexturePool TexturePool { get; internal set; }
 
         public int Count
         {
@@ -98,6 +103,7 @@ namespace Treefrog.Framework.Model
         public ResourceCollection<ObjectClass> Objects
         {
             get { return _objects; }
+            private set { _objects = value; }
         }
 
         private void Properties_Modified (object sender, EventArgs e)
@@ -151,6 +157,7 @@ namespace Treefrog.Framework.Model
         public string Name
         {
             get { return _name; }
+            private set { _name = value; }
         }
 
         public bool SetName (string name)
@@ -319,40 +326,30 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        public static LibraryX.ObjectPoolX ToXmlProxyX (ObjectPool pool)
+        public static LibraryX.ObjectPoolX ToXProxy (ObjectPool pool)
         {
             if (pool == null)
                 return null;
 
             List<LibraryX.ObjectClassX> objects = new List<LibraryX.ObjectClassX>();
-            foreach (ObjectClass objClass in pool._objects) {
+            foreach (ObjectClass objClass in pool.Objects) {
                 LibraryX.ObjectClassX classProxy = ObjectClass.ToXmlProxyX(objClass);
                 objects.Add(classProxy);
             }
 
             return new LibraryX.ObjectPoolX() {
                 Uid = pool.Uid,
-                Name = pool._name,
+                Name = pool.Name,
                 ObjectClasses = objects,
             };
         }
 
-        public static ObjectPool FromXmlProxy (LibraryX.ObjectPoolX proxy, ObjectPoolManager manager)
+        public static ObjectPool FromXProxy (LibraryX.ObjectPoolX proxy, ObjectPoolManager manager)
         {
             if (proxy == null)
                 return null;
 
-            ObjectPool pool = new ObjectPool(proxy.Name, manager) { 
-                Uid = proxy.Uid
-            };
-            manager.Pools.Add(pool);
-
-            foreach (var objClass in proxy.ObjectClasses) {
-                ObjectClass inst = ObjectClass.FromXmlProxy(objClass, manager.TexturePool);
-                pool.AddObject(inst);
-            }
-
-            return pool;
+            return new ObjectPool(proxy, manager);
         }
     }
 }

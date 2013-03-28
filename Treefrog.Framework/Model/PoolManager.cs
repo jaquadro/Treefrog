@@ -8,7 +8,6 @@ namespace Treefrog.Framework.Model
         where TPool : class, IResource
     {
         ResourceCollection<TPool> Pools { get; }
-        TPool CreatePool (string name);
         void Reset ();
         TPool PoolFromItemKey (Guid key);
     }
@@ -57,6 +56,8 @@ namespace Treefrog.Framework.Model
 
             foreach (Guid key in removeQueue)
                 _poolIndexMap.Remove(key);
+
+            OnPoolAdded(e.Resource);
         }
 
         private void HandleResourceAdded (object sender, ResourceEventArgs<TPool> e)
@@ -71,6 +72,8 @@ namespace Treefrog.Framework.Model
 
             foreach (TPoolItem item in e.Resource)
                 _poolIndexMap.Add(item.Uid, e.Resource);
+
+            OnPoolRemoved(e.Resource);
         }
 
         public virtual ResourceCollection<TPool> Pools
@@ -83,18 +86,11 @@ namespace Treefrog.Framework.Model
             get { return _poolIndexMap.Keys; }
         }
 
-        public virtual TPool CreatePool (string name)
-        {
-            //if (_pools.Contains(name))
-            //    throw new ArgumentException("Manager already contains a pool with the given name.", "name");
+        protected virtual void OnPoolAdded (TPool pool)
+        { }
 
-            TPool pool = CreatePoolCore(name);
-            _pools.Add(pool);
-
-            return pool;
-        }
-
-        protected abstract TPool CreatePoolCore (string name);
+        protected virtual void OnPoolRemoved (TPool pool)
+        { }
 
         public virtual void Reset ()
         {

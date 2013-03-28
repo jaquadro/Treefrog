@@ -32,11 +32,6 @@ namespace Treefrog.Framework.Model
             get { return _texPool; }
         }
 
-        protected override TilePool CreatePoolCore (string name)
-        {
-            return new TilePool(this, name, DefaultTileWidth, DefaultTileHeight);
-        }
-
         public TilePool CreatePool (string name, int tileWidth, int tileHeight)
         {
             //if (Pools.Contains(name))

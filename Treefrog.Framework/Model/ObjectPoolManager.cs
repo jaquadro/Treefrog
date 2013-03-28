@@ -25,9 +25,16 @@ namespace Treefrog.Framework.Model
             get { return _texPool; }
         }
 
-        protected override ObjectPool CreatePoolCore (string name)
+        protected override void OnPoolAdded (ObjectPool pool)
         {
-            return new ObjectPool(name, this);
+            if (pool.TexturePool != _texPool) {
+                foreach (ObjectClass objClass in pool.Objects) {
+                    if (!_texPool.Contains(objClass.Image.Uid))
+                        _texPool.AddResource(objClass.Image);
+                }
+
+                pool.TexturePool = _texPool;
+            }
         }
 
         public static LibraryX.ObjectGroupX ToXmlProxyX (ObjectPoolManager manager)
@@ -37,7 +44,7 @@ namespace Treefrog.Framework.Model
 
             List<LibraryX.ObjectPoolX> pools = new List<LibraryX.ObjectPoolX>();
             foreach (ObjectPool pool in manager.Pools)
-                pools.Add(ObjectPool.ToXmlProxyX(pool));
+                pools.Add(ObjectPool.ToXProxy(pool));
 
             return new LibraryX.ObjectGroupX() {
                 ObjectPools = pools,
@@ -52,7 +59,7 @@ namespace Treefrog.Framework.Model
             ObjectPoolManager manager = new ObjectPoolManager(texturePool);
             if (proxy.ObjectPools != null) {
                 foreach (var pool in proxy.ObjectPools)
-                    ObjectPool.FromXmlProxy(pool, manager);
+                    ObjectPool.FromXProxy(pool, manager);
             }
 
             return manager;
