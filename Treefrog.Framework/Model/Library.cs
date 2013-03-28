@@ -8,18 +8,13 @@ using System.Xml.Serialization;
 
 namespace Treefrog.Framework.Model
 {
-    public class LibraryManager : IResourceManager<Library>
+    public class LibraryManager
     {
         private ResourceCollection<Library> _libraries;
 
         public LibraryManager ()
         {
             _libraries = new ResourceCollection<Library>();
-        }
-
-        IResourceCollection<Library> IResourceManager<Library>.Items
-        {
-            get { throw new NotImplementedException(); }
         }
 
         public IResourceCollection<Library> Libraries

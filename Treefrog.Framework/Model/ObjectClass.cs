@@ -13,8 +13,7 @@ namespace Treefrog.Framework.Model
 
     }
 
-    /* INamedResource, IPropertyProvider */
-    public class ObjectClass : IResource, IKeyProvider<string>, INotifyPropertyChanged, IPropertyProvider
+    public class ObjectClass : INamedResource, INotifyPropertyChanged, IPropertyProvider
     {
         private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
 
@@ -179,46 +178,44 @@ namespace Treefrog.Framework.Model
             }*/
         }
 
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanged;
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+        public event EventHandler<NameChangedEventArgs> NameChanged;
 
-        protected virtual void OnKeyChanging (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
         {
-            if (KeyChanging != null)
-                KeyChanging(this, e);
+            var ev = NameChanging;
+            if (ev != null)
+                ev(this, e);
         }
 
-        protected virtual void OnKeyChanged (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
-            if (KeyChanged != null)
-                KeyChanged(this, e);
-        }
-
-        public string GetKey ()
-        {
-            return Name;
+            var ev = NameChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         public string Name
         {
             get { return _name; }
+            private set { _name = value; }
         }
 
-        public bool SetName (string name)
+        public bool TrySetName (string name)
         {
-            if (_name != name) {
-                KeyProviderEventArgs<string> e = new KeyProviderEventArgs<string>(_name, name);
+            if (Name != name) {
                 try {
-                    OnKeyChanging(e);
+                    OnNameChanging(new NameChangingEventArgs(Name, name));
                 }
-                catch (KeyProviderException) {
+                catch (NameChangeException) {
                     return false;
                 }
 
-                _name = name;
-                OnKeyChanged(e);
-                OnPropertyProviderNameChanged(EventArgs.Empty);
-                RaisePropertyChanged("Name");
+                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
+                Name = name;
+
+                OnNameChanged(e);
+                OnModified(EventArgs.Empty);
             }
 
             return true;
@@ -232,52 +229,6 @@ namespace Treefrog.Framework.Model
             if (ev != null)
                 ev(this, e);
         }
-
-        /*#region INamedResource Members
-
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                if (_name != value) {
-                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
-                    OnNameChanging(ea);
-                    if (ea.Cancel)
-                        return;
-
-                    string oldName = _name;
-                    _name = value;
-
-                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
-                    OnPropertyProviderNameChanged(EventArgs.Empty);
-                }
-            }
-        }
-
-        public event EventHandler<NameChangingEventArgs> NameChanging = (s, e) => { };
-
-        public event EventHandler<NameChangedEventArgs> NameChanged = (s, e) => { };
-
-        public event EventHandler Modified;
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
-        {
-            NameChanging(this, e);
-        }
-
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            NameChanged(this, e);
-        }
-
-        protected virtual void OnModified (EventArgs e)
-        {
-            Modified(this, e);
-        }
-
-        #endregion*/
-
 
         #region IPropertyProvider Members
 
@@ -365,7 +316,7 @@ namespace Treefrog.Framework.Model
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {
             StringProperty property = sender as StringProperty;
-            SetName(property.Value);
+            TrySetName(property.Value);
         }
 
         #endregion

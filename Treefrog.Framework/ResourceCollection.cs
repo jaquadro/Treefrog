@@ -36,13 +36,7 @@ namespace Treefrog.Framework
         void Clear ();
     }
 
-    public interface IResourceManager<T>
-        where T : IResource
-    {
-        IResourceCollection<T> Items { get; }
-    }
-
-    public interface IResourceManager2<T> : IEnumerable<T>
+    public interface IResourceManager<T> : IEnumerable<T>
         where T : IResource
     {
         event EventHandler<ResourceEventArgs<T>> ResourceAdded;

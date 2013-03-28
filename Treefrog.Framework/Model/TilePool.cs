@@ -374,7 +374,7 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class TilePool : IResource, IResourceManager2<Tile>, IPropertyProvider, INotifyPropertyChanged
+    public class TilePool : INamedResource, IResourceManager<Tile>, IPropertyProvider, INotifyPropertyChanged
     {
         private const int _initFactor = 4;
 
@@ -595,25 +595,22 @@ namespace Treefrog.Framework.Model
             });
         }*/
 
-        /*public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanged;
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+        public event EventHandler<NameChangedEventArgs> NameChanged;
 
-        protected virtual void OnKeyChanging (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
         {
-            if (KeyChanging != null)
-                KeyChanging(this, e);
+            var ev = NameChanging;
+            if (ev != null)
+                ev(this, e);
         }
 
-        protected virtual void OnKeyChanged (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
-            if (KeyChanged != null)
-                KeyChanged(this, e);
+            var ev = NameChanged;
+            if (ev != null)
+                ev(this, e);
         }
-
-        public string GetKey ()
-        {
-            return Name;
-        }*/
 
         public string Name
         {
@@ -621,41 +618,41 @@ namespace Treefrog.Framework.Model
             private set { _name = value; }
         }
 
-        /*public bool SetName (string name)
+        public bool TrySetName (string name)
         {
-            if (_name != name) {
-                KeyProviderEventArgs<string> e = new KeyProviderEventArgs<string>(_name, name);
+            if (Name != name) {
                 try {
-                    OnKeyChanging(e);
+                    OnNameChanging(new NameChangingEventArgs(Name, name));
                 }
-                catch (KeyProviderException) {
+                catch (NameChangeException) {
                     return false;
                 }
 
-                _name = name;
-                OnKeyChanged(e);
-                OnPropertyProviderNameChanged(EventArgs.Empty);
-                RaisePropertyChanged("Name");
+                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
+                Name = name;
+
+                OnNameChanged(e);
+                OnModified(EventArgs.Empty);
             }
 
             return true;
-        }*/
+        }
 
         #region Resource Manager Explicit Interface
 
-        event EventHandler<ResourceEventArgs<Tile>> IResourceManager2<Tile>.ResourceAdded
+        event EventHandler<ResourceEventArgs<Tile>> IResourceManager<Tile>.ResourceAdded
         {
             add { Tiles.ResourceAdded += value; }
             remove { Tiles.ResourceAdded -= value; }
         }
 
-        event EventHandler<ResourceEventArgs<Tile>> IResourceManager2<Tile>.ResourceRemoved
+        event EventHandler<ResourceEventArgs<Tile>> IResourceManager<Tile>.ResourceRemoved
         {
             add { Tiles.ResourceRemoved += value; }
             remove { Tiles.ResourceRemoved -= value; }
         }
 
-        event EventHandler<ResourceEventArgs<Tile>> IResourceManager2<Tile>.ResourceModified
+        event EventHandler<ResourceEventArgs<Tile>> IResourceManager<Tile>.ResourceModified
         {
             add { Tiles.ResourceModified += value; }
             remove { Tiles.ResourceModified -= value; }
@@ -690,49 +687,6 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        #region INamedResource Members
-
-        /*public string Name
-        {
-            get { return _name; }
-            set
-            {
-                if (_name != value) {
-                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
-                    OnNameChanging(ea);
-                    if (ea.Cancel)
-                        return;
-
-                    string oldName = _name;
-                    _name = value;
-
-                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
-                    OnPropertyProviderNameChanged(EventArgs.Empty);
-                }
-            }
-        }
-
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-
-        public event EventHandler<NameChangedEventArgs> NameChanged;
-
-        
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
-        {
-            if (NameChanging != null) {
-                NameChanging(this, e);
-            }
-        }
-
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            if (NameChanged != null) {
-                NameChanged(this, e);
-            }
-        }
-        */
-
         public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
@@ -746,8 +700,6 @@ namespace Treefrog.Framework.Model
         {
             OnTileModified(new TileEventArgs(sender as Tile));
         }
-
-        #endregion
 
         #region IPropertyProvider Members
 
@@ -829,7 +781,7 @@ namespace Treefrog.Framework.Model
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {
             StringProperty property = sender as StringProperty;
-            //SetName(property.Value);
+            TrySetName(property.Value);
         }
 
         public static LibraryX.TilePoolX ToXProxy (TilePool pool)

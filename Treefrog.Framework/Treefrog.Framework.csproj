@@ -88,7 +88,6 @@
     <Compile Include="Imaging\Size.cs" />
     <Compile Include="Imaging\TextureResource.cs" />
     <Compile Include="Imaging\Vector.cs" />
-    <Compile Include="KeyedObservableCollection.cs" />
     <Compile Include="ListEx.cs" />
     <Compile Include="Mapper.cs" />
     <Compile Include="MathEx.cs" />

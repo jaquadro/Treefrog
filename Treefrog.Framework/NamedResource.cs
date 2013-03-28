@@ -48,4 +48,13 @@ namespace Treefrog.Framework
         event EventHandler<NameChangingEventArgs> NameChanging;
         event EventHandler<NameChangedEventArgs> NameChanged;
     }
+
+    public class NameChangeException : Exception
+    {
+        public NameChangeException ()
+            : base() { }
+
+        public NameChangeException (string message)
+            : base(message) { }
+    }
 }

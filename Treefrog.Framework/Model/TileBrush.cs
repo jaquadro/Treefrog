@@ -96,7 +96,7 @@ namespace Treefrog.Framework.Model
                 try {
                     OnNameChanging(new NameChangingEventArgs(Name, name));
                 }
-                catch (KeyProviderException) {
+                catch (NameChangeException) {
                     return false;
                 }
 

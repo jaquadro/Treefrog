@@ -13,7 +13,7 @@ namespace Treefrog.Framework.Model
     }
 
     public abstract class PoolManager<TPool, TPoolItem> : IPoolManager<TPool>
-        where TPool : class, IResource, IResourceManager2<TPoolItem>
+        where TPool : class, IResource, IResourceManager<TPoolItem>
         where TPoolItem : IResource
     {
         private ResourceCollection<TPool> _pools;

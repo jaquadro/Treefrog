@@ -9,15 +9,13 @@ using System.Collections;
 
 namespace Treefrog.Framework.Model
 {
-    public class ObjectPool : IResource, IResourceManager2<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
+    public class ObjectPool : INamedResource, IResourceManager<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
         #region Fields
 
         private string _name;
-
-        //private ObjectPoolManager _manager;
 
         private ResourceCollection<ObjectClass> _objects;
 
@@ -134,24 +132,21 @@ namespace Treefrog.Framework.Model
                 ev(this, e);
         }
 
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanging;
-        public event EventHandler<KeyProviderEventArgs<string>> KeyChanged;
+        public event EventHandler<NameChangingEventArgs> NameChanging;
+        public event EventHandler<NameChangedEventArgs> NameChanged;
 
-        protected virtual void OnKeyChanging (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanging (NameChangingEventArgs e)
         {
-            if (KeyChanging != null)
-                KeyChanging(this, e);
+            var ev = NameChanging;
+            if (ev != null)
+                ev(this, e);
         }
 
-        protected virtual void OnKeyChanged (KeyProviderEventArgs<string> e)
+        protected virtual void OnNameChanged (NameChangedEventArgs e)
         {
-            if (KeyChanged != null)
-                KeyChanged(this, e);
-        }
-
-        public string GetKey ()
-        {
-            return Name;
+            var ev = NameChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         public string Name
@@ -160,21 +155,21 @@ namespace Treefrog.Framework.Model
             private set { _name = value; }
         }
 
-        public bool SetName (string name)
+        public bool TrySetName (string name)
         {
-            if (_name != name) {
-                KeyProviderEventArgs<string> e = new KeyProviderEventArgs<string>(_name, name);
+            if (Name != name) {
                 try {
-                    OnKeyChanging(e);
+                    OnNameChanging(new NameChangingEventArgs(Name, name));
                 }
-                catch (KeyProviderException) {
+                catch (NameChangeException) {
                     return false;
                 }
 
-                _name = name;
-                OnKeyChanged(e);
-                OnPropertyProviderNameChanged(EventArgs.Empty);
-                RaisePropertyChanged("Name");
+                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
+                Name = name;
+
+                OnNameChanged(e);
+                OnModified(EventArgs.Empty);
             }
 
             return true;
@@ -182,19 +177,19 @@ namespace Treefrog.Framework.Model
 
         #region Resource Manager Explicit Interface
 
-        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager2<ObjectClass>.ResourceAdded
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager<ObjectClass>.ResourceAdded
         {
             add { Objects.ResourceAdded += value; }
             remove { Objects.ResourceAdded -= value; }
         }
 
-        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager2<ObjectClass>.ResourceRemoved
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager<ObjectClass>.ResourceRemoved
         {
             add { Objects.ResourceRemoved += value; }
             remove { Objects.ResourceRemoved -= value; }
         }
 
-        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager2<ObjectClass>.ResourceModified
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager<ObjectClass>.ResourceModified
         {
             add { Objects.ResourceModified += value; }
             remove { Objects.ResourceModified -= value; }
@@ -303,7 +298,7 @@ namespace Treefrog.Framework.Model
         private void NameProperty_ValueChanged (object sender, EventArgs e)
         {
             StringProperty property = sender as StringProperty;
-            SetName(property.Value);
+            TrySetName(property.Value);
         }
 
         #endregion

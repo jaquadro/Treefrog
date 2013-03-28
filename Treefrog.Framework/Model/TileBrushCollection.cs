@@ -8,7 +8,7 @@ using System.Collections;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class TileBrushCollection : INamedResource, IResourceManager2<TileBrush>
+    public abstract class TileBrushCollection : INamedResource, IResourceManager<TileBrush>
     {
         private string _name;
 
@@ -56,7 +56,7 @@ namespace Treefrog.Framework.Model
                 try {
                     OnNameChanging(new NameChangingEventArgs(Name, name));
                 }
-                catch (KeyProviderException) {
+                catch (NameChangeException) {
                     return false;
                 }
 
@@ -85,19 +85,19 @@ namespace Treefrog.Framework.Model
         private EventHandler<ResourceEventArgs<TileBrush>> _tileBrushResourceRemoved;
         private EventHandler<ResourceEventArgs<TileBrush>> _tileBrushResourceModified;
 
-        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager2<TileBrush>.ResourceAdded
+        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager<TileBrush>.ResourceAdded
         {
             add { _tileBrushResourceAdded += value; }
             remove { _tileBrushResourceAdded -= value; }
         }
 
-        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager2<TileBrush>.ResourceRemoved
+        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager<TileBrush>.ResourceRemoved
         {
             add { _tileBrushResourceRemoved += value; }
             remove { _tileBrushResourceRemoved -= value; }
         }
 
-        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager2<TileBrush>.ResourceModified
+        event EventHandler<ResourceEventArgs<TileBrush>> IResourceManager<TileBrush>.ResourceModified
         {
             add { _tileBrushResourceModified += value; }
             remove { _tileBrushResourceModified -= value; }
