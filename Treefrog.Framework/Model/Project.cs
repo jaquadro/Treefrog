@@ -31,7 +31,7 @@ namespace Treefrog.Framework.Model
 
         private MetaTilePoolManager _tilePools;
         private MetaObjectPoolManager _objectPools;
-        private TileBrushManager _tileBrushes;
+        private MetaTileBrushManager _tileBrushes;
         private TexturePool _texturePool;
 
         private static TileBrushRegistry _tileBrushRegistry = new TileBrushRegistry();
@@ -71,8 +71,8 @@ namespace Treefrog.Framework.Model
             _tilePools.AddManager(defaultLibrary.Uid, defaultLibrary.TilePoolManager);
             _objectPools = new MetaObjectPoolManager();
             _objectPools.AddManager(defaultLibrary.Uid, defaultLibrary.ObjectPoolManager);
-
-            _tileBrushes = defaultLibrary.TileBrushManager;
+            _tileBrushes = new MetaTileBrushManager();
+            _tileBrushes.AddManager(defaultLibrary.Uid, defaultLibrary.TileBrushManager);
 
             //_tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
             //_objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
@@ -127,7 +127,7 @@ namespace Treefrog.Framework.Model
             get { return _objectPools; }
         }
 
-        public TileBrushManager TileBrushManager
+        public ITileBrushManager TileBrushManager
         {
             get { return _tileBrushes; }
         }
@@ -280,6 +280,7 @@ namespace Treefrog.Framework.Model
 
             project._tilePools = new MetaTilePoolManager();
             project._objectPools = new MetaObjectPoolManager();
+            project._tileBrushes = new MetaTileBrushManager();
 
             foreach (var itemGroup in proxy.ItemGroups) {
                 if (itemGroup.Libraries != null) {
@@ -312,7 +313,7 @@ namespace Treefrog.Framework.Model
             //_texturePool = library.TexturePool;
             _tilePools.AddManager(library.Uid, library.TilePoolManager);
             _objectPools.AddManager(library.Uid, library.ObjectPoolManager);
-            //_tileBrushes = library.TileBrushManager;
+            _tileBrushes.AddManager(library.Uid, library.TileBrushManager);
 
             if (_defaultLibraryUid == Guid.Empty)
                 _defaultLibraryUid = library.Uid;
@@ -322,8 +323,6 @@ namespace Treefrog.Framework.Model
 
                 _tilePools.Default = library.Uid;
                 _objectPools.Default = library.Uid;
-
-                _tileBrushes = library.TileBrushManager;
             }
         }
 

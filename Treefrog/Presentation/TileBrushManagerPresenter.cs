@@ -22,7 +22,7 @@ namespace Treefrog.Presentation
 
     public interface ITileBrushManagerPresenter : ICommandSubscriber
     {
-        TileBrushManager TileBrushManager { get; }
+        ITileBrushManager TileBrushManager { get; }
 
         TileBrush SelectedBrush { get; }
 
@@ -200,7 +200,7 @@ namespace Treefrog.Presentation
 
         #endregion
 
-        public TileBrushManager TileBrushManager
+        public ITileBrushManager TileBrushManager
         {
             get { return _editor.Project.TileBrushManager; }
         }

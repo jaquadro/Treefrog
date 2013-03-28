@@ -6,7 +6,16 @@ using System;
 
 namespace Treefrog.Framework.Model
 {
-    public class TileBrushManager : PoolManager<TileBrushCollection, TileBrush>
+    public interface ITileBrushManager : IPoolManager<TileBrushCollection>
+    {
+        TileBrushCollection<StaticTileBrush> StaticBrushes { get; }
+        TileBrushCollection<DynamicTileBrush> DynamicBrushes { get; }
+        IEnumerable<TileBrush> Brushes { get; }
+
+        TileBrush GetBrush (Guid key);
+    }
+
+    public class TileBrushManager : PoolManager<TileBrushCollection, TileBrush>, IPoolManager<TileBrushCollection>
     {
         private TileBrushCollection<StaticTileBrush> _staticBrushCollection;
         private TileBrushCollection<DynamicTileBrush> _dynamicBrushCollection;
@@ -74,6 +83,29 @@ namespace Treefrog.Framework.Model
                 return null;
 
             return new TileBrushManager(proxy, tileManager, registry);
+        }
+    }
+
+    public class MetaTileBrushManager : MetaPoolManager<TileBrushCollection, TileBrush, TileBrushManager>, ITileBrushManager
+    {
+        public TileBrushCollection<StaticTileBrush> StaticBrushes
+        {
+            get { return GetManager(Default).StaticBrushes; }
+        }
+
+        public TileBrushCollection<DynamicTileBrush> DynamicBrushes
+        {
+            get { return GetManager(Default).DynamicBrushes; }
+        }
+
+        public IEnumerable<TileBrush> Brushes
+        {
+            get { return GetManager(Default).Brushes; }
+        }
+
+        public TileBrush GetBrush (Guid key)
+        {
+            return GetManager(Default).GetBrush(key);
         }
     }
 }

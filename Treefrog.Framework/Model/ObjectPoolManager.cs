@@ -10,7 +10,7 @@ namespace Treefrog.Framework.Model
         TexturePool TexturePool { get; }
     }
 
-    public class ObjectPoolManager : PoolManager<ObjectPool, ObjectClass>, IPoolManager<ObjectPool>
+    public class ObjectPoolManager : PoolManager<ObjectPool, ObjectClass>, IObjectPoolManager
     {
         private TexturePool _texPool;
 
