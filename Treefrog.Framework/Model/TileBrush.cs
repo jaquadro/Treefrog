@@ -17,18 +17,24 @@ namespace Treefrog.Framework.Model
 
     public abstract class TileBrush : INamedResource
     {
-        private Guid _id;
-        private string _name;
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
 
         private int _tileHeight;
         private int _tileWidth;
 
         protected TileBrush (Guid uid, string name, int tileWidth, int tileHeight)
         {
-            _id = uid;
-            _name = name;
+            _uid = uid;
+            _name = new ResourceName(this, name);
+
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
+        }
+
+        public Guid Uid
+        {
+            get { return _uid; }
         }
 
         public int TileHeight
@@ -51,58 +57,30 @@ namespace Treefrog.Framework.Model
             get { return 1; }
         }
 
-        public Guid Uid
+        public event EventHandler<NameChangingEventArgs> NameChanging
         {
-            get { return _id; }
-            set { _id = value; }
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
         }
 
-        public string GetKey ()
+        public event EventHandler<NameChangedEventArgs> NameChanged
         {
-            return Name;
-        }
-
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-        public event EventHandler<NameChangedEventArgs> NameChanged;
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
-        {
-            var ev = NameChanging;
-            if (ev != null)
-                ev(this, e);
-        }
-
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            var ev = NameChanged;
-            if (ev != null)
-                ev(this, e);
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
         }
 
         public string Name
         {
-            get { return _name; }
-            private set { _name = value; }
+            get { return _name.Name; }
         }
 
         public bool TrySetName (string name)
         {
-            if (Name != name) {
-                try {
-                    OnNameChanging(new NameChangingEventArgs(Name, name));
-                }
-                catch (NameChangeException) {
-                    return false;
-                }
-
-                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
-                Name = name;
-
-                OnNameChanged(e);
+            bool result = _name.TrySetName(name);
+            if (result)
                 OnModified(EventArgs.Empty);
-            }
 
-            return true;
+            return result;
         }
 
         public event EventHandler Modified;
