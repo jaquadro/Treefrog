@@ -23,17 +23,12 @@ namespace Treefrog.Framework.Model
         private int _tileHeight;
         private int _tileWidth;
 
-        protected TileBrush (string name, int tileWidth, int tileHeight)
+        protected TileBrush (Guid uid, string name, int tileWidth, int tileHeight)
         {
+            _id = uid;
             _name = name;
             _tileWidth = tileWidth;
             _tileHeight = tileHeight;
-        }
-
-        protected TileBrush (string name, int tileWidth, int tileHeight, Guid uid)
-            : this(name, tileWidth, tileHeight)
-        {
-            _id = uid;
         }
 
         public int TileHeight

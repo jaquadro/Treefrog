@@ -72,8 +72,8 @@ namespace Treefrog.Framework.Model
                 return null;
 
             return new LibraryX.TileBrushGroupX() {
-                StaticBrushes = TileBrushCollection<StaticTileBrush>.ToXProxy<LibraryX.StaticTileBrushX>(manager.StaticBrushes, StaticTileBrush.ToXmlProxyX),
-                DynamicBrushes = TileBrushCollection<DynamicTileBrush>.ToXProxy<LibraryX.DynamicTileBrushX>(manager.DynamicBrushes, DynamicTileBrush.ToXmlProxyX),
+                StaticBrushes = TileBrushCollection<StaticTileBrush>.ToXProxy<LibraryX.StaticTileBrushX>(manager.StaticBrushes, StaticTileBrush.ToXProxy),
+                DynamicBrushes = TileBrushCollection<DynamicTileBrush>.ToXProxy<LibraryX.DynamicTileBrushX>(manager.DynamicBrushes, DynamicTileBrush.ToXProxy),
             };
         }
 

@@ -214,7 +214,7 @@ namespace Treefrog.Framework.Model
         {
             if (proxy.Brushes != null) {
                 foreach (var brush in proxy.Brushes)
-                    Brushes.Add(StaticTileBrush.FromXmlProxy(brush, tileManager));
+                    Brushes.Add(StaticTileBrush.FromXProxy(brush, tileManager));
             }
         }
 
@@ -228,7 +228,7 @@ namespace Treefrog.Framework.Model
 
         public static LibraryX.TileBrushCollectionX<LibraryX.StaticTileBrushX> ToXProxy (StaticTileBrushCollection brushCollection)
         {
-            return TileBrushCollection<StaticTileBrush>.ToXProxy<LibraryX.StaticTileBrushX>(brushCollection, StaticTileBrush.ToXmlProxyX);
+            return TileBrushCollection<StaticTileBrush>.ToXProxy<LibraryX.StaticTileBrushX>(brushCollection, StaticTileBrush.ToXProxy);
         }
     }
 
@@ -239,7 +239,7 @@ namespace Treefrog.Framework.Model
         {
             if (proxy.Brushes != null) {
                 foreach (var brush in proxy.Brushes)
-                    Brushes.Add(DynamicTileBrush.FromXmlProxy(brush, tileManager, registry));
+                    Brushes.Add(DynamicTileBrush.FromXProxy(brush, tileManager, registry));
             }
         }
 
@@ -253,7 +253,7 @@ namespace Treefrog.Framework.Model
 
         public static LibraryX.TileBrushCollectionX<LibraryX.DynamicTileBrushX> ToXProxy (DynamicTileBrushCollection brushCollection)
         {
-            return TileBrushCollection<DynamicTileBrush>.ToXProxy<LibraryX.DynamicTileBrushX>(brushCollection, DynamicTileBrush.ToXmlProxyX);
+            return TileBrushCollection<DynamicTileBrush>.ToXProxy<LibraryX.DynamicTileBrushX>(brushCollection, DynamicTileBrush.ToXProxy);
         }
     }
 }

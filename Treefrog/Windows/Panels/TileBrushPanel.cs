@@ -139,16 +139,14 @@ namespace Treefrog.Windows.Panels
         private void SyncTileBrushManagerHandler (object sender, EventArgs e)
         {
             if (_controller != null) {
-                ImageList imgList = BuildImageList();
-                PopulateList(imgList);
+                PopulateList(BuildImageList());
             }
         }
 
         private void SyncTileBrushCollectionHandler (object sender, EventArgs e)
         {
             if (_controller != null) {
-                ImageList imgList = BuildImageList();
-                PopulateList(imgList);
+                PopulateList(BuildImageList());
             }
         }
 
@@ -173,30 +171,39 @@ namespace Treefrog.Windows.Panels
             _filterSelection.Text = "";
         }
 
-        private void PopulateList (ImageList imgList)
+        private void PopulateList (Dictionary<string, Image> list)
         {
-            _listView.Clear();
-            _listView.LargeImageList = imgList;
-
-            foreach (TileBrush brush in _controller.TileBrushManager.Brushes) {
-                _listView.Items.Add(new ListViewItem(brush.Name, brush.Uid.ToString()) { Tag = brush.Uid });
-            }
-        }
-
-        private ImageList BuildImageList ()
-        {
-            if (_controller == null || _controller.TileBrushManager == null)
-                return null;
-
             ImageList imgList = new ImageList();
             imgList.ImageSize = new Size(64, 64);
             imgList.ColorDepth = ColorDepth.Depth32Bit;
 
+            foreach (var item in list)
+                imgList.Images.Add(item.Key, item.Value);
+
+            _listView.Clear();
+            _listView.LargeImageList = imgList;
+
+            foreach (var item in list) {
+                _listView.Items.Add(new ListViewItem(item.Key, item.Key) { Tag = item.Value.Tag });
+            }
+        }
+
+        private Dictionary<string, Image> BuildImageList ()
+        {
+            if (_controller == null || _controller.TileBrushManager == null)
+                return null;
+
+            Dictionary<string, Image> imgList = new Dictionary<string, Image>();
+
             foreach (DynamicTileBrush brush in _controller.TileBrushManager.DynamicBrushes.Brushes) {
-                imgList.Images.Add(brush.Uid.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
+                Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
+                image.Tag = brush.Uid;
+                imgList.Add(brush.Name, image);
             }
             foreach (StaticTileBrush brush in _controller.TileBrushManager.StaticBrushes.Brushes) {
-                imgList.Images.Add(brush.Uid.ToString(), CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64));
+                Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
+                image.Tag = brush.Uid;
+                imgList.Add(brush.Name, image);
             }
 
             return imgList;
