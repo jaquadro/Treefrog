@@ -26,5 +26,17 @@ namespace Treefrog.Framework.Model.Proxy
             [XmlText]
             public string Items { get; set; }
         }
+
+        public class TileBlockX
+        {
+            [XmlAttribute]
+            public int X { get; set; }
+
+            [XmlAttribute]
+            public int Y { get; set; }
+
+            [XmlText]
+            public string Data { get; set; }
+        }
     }
 }

@@ -66,6 +66,10 @@ namespace Treefrog.Framework.Model.Proxy
             [XmlArray]
             [XmlArrayItem("Tile")]
             public List<CommonX.TileStackX> Tiles { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Block")]
+            public List<CommonX.TileBlockX> Blocks { get; set; }
         }
 
         [XmlRoot("LayerData", Namespace = "http://jaquadro.com/schemas/treefrog/level")]

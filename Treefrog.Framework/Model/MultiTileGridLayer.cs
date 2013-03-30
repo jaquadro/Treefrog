@@ -7,6 +7,7 @@ namespace Treefrog.Framework.Model
     using Support;
     using Treefrog.Framework.Imaging;
     using Treefrog.Framework.Model.Proxy;
+    using System.Text;
 
     public class MultiTileGridLayer : TileGridLayer
     {
@@ -15,8 +16,6 @@ namespace Treefrog.Framework.Model
         private TileStack[,] _tiles;
 
         #endregion
-
-        #region Constructors
 
         public MultiTileGridLayer (string name, int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
             : base(name, tileWidth, tileHeight, tilesWide, tilesHigh)
@@ -54,25 +53,8 @@ namespace Treefrog.Framework.Model
             RasterMode = proxy.RasterMode;
             Level = level;
 
-            foreach (var tileProxy in proxy.Tiles) {
-                string[] coords = tileProxy.At.Split(new char[] { ',' });
-                string[] ids = tileProxy.Items.Split(new char[] { ',' });
-
-                ITilePoolManager manager = Level.Project.TilePoolManager;
-
-                foreach (string id in ids) {
-                    int tileId = Convert.ToInt32(id);
-                    
-                    Guid tileUid;
-                    if (!tileIndex.TryGetValue(tileId, out tileUid))
-                        continue;
-
-                    TilePool pool = manager.PoolFromItemKey(tileUid);
-                    Tile tile = pool.GetTile(tileUid);
-
-                    AddTile(Convert.ToInt32(coords[0]), Convert.ToInt32(coords[1]), tile);
-                }
-            }
+            foreach (var blockProxy in proxy.Blocks)
+                ParseTileBlockString(blockProxy.Data);
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
@@ -85,20 +67,22 @@ namespace Treefrog.Framework.Model
             if (layer == null)
                 return null;
 
-            List<CommonX.TileStackX> tiles = new List<CommonX.TileStackX>();
-            foreach (LocatedTileStack ts in layer.TileStacks) {
-                if (ts.Stack != null && ts.Stack.Count > 0) {
-                    List<string> ids = new List<string>();
-                    foreach (Tile tile in ts.Stack) {
-                        if (layer.Level.TileIndex.ContainsValue(tile.Uid))
-                            ids.Add(layer.Level.TileIndex[tile.Uid].ToString());
-                    }
-                    string idSet = String.Join(",", ids.ToArray());
+            const int blockSize = 4;
 
-                    tiles.Add(new CommonX.TileStackX() {
-                        At = ts.X + "," + ts.Y,
-                        Items = idSet,
-                    });
+            int xLimit = (layer.TilesWide + blockSize - 1) / blockSize;
+            int yLimit = (layer.TilesHigh + blockSize - 1) / blockSize;
+
+            List<CommonX.TileBlockX> blocks = new List<CommonX.TileBlockX>();
+            for (int y = 0; y < yLimit; y++) {
+                for (int x = 0; x < xLimit; x++) {
+                    string data = layer.BuildTileBlockString(x * blockSize, y * blockSize, blockSize, blockSize);
+                    if (!string.IsNullOrEmpty(data)) {
+                        blocks.Add(new CommonX.TileBlockX() {
+                            X = x * blockSize,
+                            Y = y * blockSize,
+                            Data = data,
+                        });
+                    }
                 }
             }
 
@@ -113,14 +97,68 @@ namespace Treefrog.Framework.Model
                 RasterMode = layer.RasterMode,
                 TileWidth = layer.TileWidth,
                 TileHeight = layer.TileHeight,
-                Tiles = tiles.Count > 0 ? tiles : null,
+                Blocks = blocks.Count > 0 ? blocks : null,
                 Properties = props.Count > 0 ? props : null,
             };
         }
 
-        #endregion
+        private string BuildTileBlockString (int xStart, int yStart, int width, int height)
+        {
+            StringBuilder builder = new StringBuilder();
 
-        #region Properties
+            int xLimit = Math.Min(xStart + width, TilesWide);
+            int yLimit = Math.Min(yStart + height, TilesHigh);
+
+            for (int y = yStart; y < yLimit; y++) {
+                for (int x = xStart; x < xLimit; x++) {
+                    TileStack stack = this[x, y];
+                    if (stack != null) {
+                        builder.Append(x + " " + y + " " + stack.Count + " ");
+                        foreach (Tile tile in stack)
+                            builder.Append(Level.TileIndex[tile.Uid] + " ");
+                    }
+                }
+            }
+
+            if (builder.Length > 0)
+                builder.Remove(builder.Length - 1, 1);
+
+            return builder.ToString();
+        }
+
+        private void ParseTileBlockString (string blockString)
+        {
+            string[] tokens = blockString.Split(new char[] { ' ' });
+
+            ITilePoolManager manager = Level.Project.TilePoolManager;
+
+            for (int i = 0; i < tokens.Length; i += 3) {
+                if (tokens.Length - i < 3)
+                    break;
+
+                int x = int.Parse(tokens[i + 0]);
+                int y = int.Parse(tokens[i + 1]);
+                int count = int.Parse(tokens[i + 2]);
+
+                if (tokens.Length - i < 3 + count)
+                    break;
+
+                for (int j = 0; j < count; j++) {
+                    int tileId = int.Parse(tokens[i + 3 + j]);
+
+                    if (Level.TileIndex.ContainsKey(tileId)) {
+                        Guid tileUid = Level.TileIndex[tileId];
+
+                        TilePool pool = manager.PoolFromItemKey(tileUid);
+                        Tile tile = pool.GetTile(tileUid);
+
+                        AddTile(x, y, tile);
+                    }
+                }
+
+                i += count;
+            }
+        }
 
         public TileStack this[TileCoord location]
         {
@@ -162,16 +200,10 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        #endregion
-
-        #region Event Handlers
-
         private void TileStackModifiedHandler (object sender, EventArgs e)
         {
             OnModified(e);
         }
-
-        #endregion
 
         protected override void ResizeLayer (int newOriginX, int newOriginY, int newTilesWide, int newTilesHigh)
         {
