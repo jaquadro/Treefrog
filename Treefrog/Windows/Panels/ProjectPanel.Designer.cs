@@ -107,6 +107,9 @@
             this.imageList1.Images.SetKeyName(6, "game");
             this.imageList1.Images.SetKeyName(7, "grid");
             this.imageList1.Images.SetKeyName(8, "map");
+            this.imageList1.Images.SetKeyName(9, "book");
+            this.imageList1.Images.SetKeyName(10, "book-bookmark");
+            this.imageList1.Images.SetKeyName(11, "books");
             // 
             // ProjectPanel
             // 

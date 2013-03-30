@@ -61,7 +61,9 @@ namespace Treefrog.Framework.Model
 
             _libraryManager = new LibraryManager();
 
-            Library defaultLibrary = new Library();
+            Library defaultLibrary = new Library() {
+                Name = "Default"
+            };
             _libraryManager.Libraries.Add(defaultLibrary);
 
             Extra = new List<XmlElement>();
@@ -73,6 +75,8 @@ namespace Treefrog.Framework.Model
             _objectPools.AddManager(defaultLibrary.Uid, defaultLibrary.ObjectPoolManager);
             _tileBrushes = new MetaTileBrushManager();
             _tileBrushes.AddManager(defaultLibrary.Uid, defaultLibrary.TileBrushManager);
+
+            SetDefaultLibrary(defaultLibrary);
 
             //_tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
             //_objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
@@ -145,6 +149,19 @@ namespace Treefrog.Framework.Model
         public LibraryManager LibraryManager
         {
             get { return _libraryManager; }
+        }
+
+        public Library DefaultLibrary
+        {
+            get { return _libraryManager.Libraries.Contains(_defaultLibraryUid) ? _libraryManager.Libraries[_defaultLibraryUid] : null; }
+            set
+            {
+                if (value != null) {
+                    if (!_libraryManager.Libraries.Contains(value.Uid))
+                        AddLibrary(value);
+                    SetDefaultLibrary(value);
+                }
+            }
         }
 
         public IServiceProvider Services
@@ -319,11 +336,19 @@ namespace Treefrog.Framework.Model
                 _defaultLibraryUid = library.Uid;
 
             if (_defaultLibraryUid == library.Uid) {
-                _texturePool = library.TexturePool;
-
-                _tilePools.Default = library.Uid;
-                _objectPools.Default = library.Uid;
+                SetDefaultLibrary(library);
             }
+        }
+
+        private void SetDefaultLibrary (Library library)
+        {
+            _defaultLibraryUid = library.Uid;
+
+            _texturePool = library.TexturePool;
+
+            _tilePools.Default = library.Uid;
+            _objectPools.Default = library.Uid;
+            _tileBrushes.Default = library.Uid;
         }
 
         private static void LoadLevel (Project project, ProjectResolver resolver, string levelPath)

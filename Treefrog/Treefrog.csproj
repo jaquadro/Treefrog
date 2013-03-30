@@ -358,6 +358,8 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="book-bookmark.png" />
+    <Content Include="book.png" />
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
     <EmbeddedResource Include="Icons\DynBrushOverlays\Extended.png" />
@@ -426,6 +428,9 @@
     <EmbeddedResource Include="Icons\16\arrow.png" />
     <EmbeddedResource Include="Icons\16\arrow-resize-135.png" />
     <EmbeddedResource Include="Icons\16\map.png" />
+    <EmbeddedResource Include="Icons\16\book-bookmark.png" />
+    <EmbeddedResource Include="Icons\16\book.png" />
+    <EmbeddedResource Include="Icons\16\books.png" />
     <Content Include="Icons\arrow-135-medium16.png" />
     <EmbeddedResource Include="Icons\layer-flip-vertical16.png" />
     <EmbeddedResource Include="Icons\layer-flip16.png" />

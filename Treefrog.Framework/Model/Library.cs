@@ -36,6 +36,10 @@ namespace Treefrog.Framework.Model
             ObjectPoolManager = new ObjectPoolManager(TexturePool);
             TilePoolManager = new TilePoolManager(TexturePool);
             TileBrushManager = new TileBrushManager();
+
+            ObjectPoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            TilePoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            TileBrushManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public Library (Stream stream)

@@ -24,6 +24,9 @@ namespace Treefrog.Windows.Panels
             public static int ObjectGroup = 6;
             public static int TileGroup = 7;
             public static int Level = 8;
+            public static int Library = 9;
+            public static int LibraryDefault = 10;
+            public static int LibraryGroup = 11;
         }
 
         private IEditorPresenter _controller;
@@ -34,6 +37,8 @@ namespace Treefrog.Windows.Panels
         private TreeNode _levelNode;
         private TreeNode _objectNode;
         private TreeNode _tileNode;
+
+        private TreeNode _libraryRoot;
 
         public ProjectPanel ()
         {
@@ -56,6 +61,10 @@ namespace Treefrog.Windows.Panels
             });
 
             _tree.Nodes.Add(_rootNode);
+
+            _libraryRoot = new TreeNode("Libraries", IconIndex.LibraryGroup, IconIndex.LibraryGroup);
+
+            _tree.Nodes.Add(_libraryRoot);
 
             _rootNode.Expand();
             _levelNode.Expand();
@@ -88,9 +97,31 @@ namespace Treefrog.Windows.Panels
 
         private void SyncAll ()
         {
+            SyncLibraryListHandler(null, EventArgs.Empty);
             SyncContentTabsHandler(null, EventArgs.Empty);
             SyncObjectPoolCollectionHandler(null, EventArgs.Empty);
             SyncTilePoolListHandler(null, EventArgs.Empty);
+        }
+
+        private void SyncLibraryListHandler (object sender, EventArgs e)
+        {
+            if (_controller == null)
+                return;
+
+            _libraryRoot.Nodes.Clear();
+
+            foreach (Library library in _controller.Project.LibraryManager.Libraries) {
+                TreeNode libraryNode = new TreeNode(library.Name, IconIndex.Library, IconIndex.Library);
+                if (library == _controller.Project.DefaultLibrary) {
+                    libraryNode.ImageIndex = IconIndex.LibraryDefault;
+                    libraryNode.SelectedImageIndex = IconIndex.LibraryDefault;
+                }
+
+                _libraryRoot.Nodes.Add(libraryNode);
+            }
+
+            if (_libraryRoot.Nodes.Count > 0)
+                _libraryRoot.Expand();
         }
 
         private void SyncContentTabsHandler (object sender, EventArgs e)
@@ -105,6 +136,8 @@ namespace Treefrog.Windows.Panels
 
                 _levelNode.Nodes.Add(node);
             }
+
+            SyncLibraryListHandler(null, EventArgs.Empty);
         }
 
         private void SyncObjectPoolCollectionHandler (object sender, EventArgs e)
