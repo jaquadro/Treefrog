@@ -13,20 +13,19 @@ namespace Treefrog.Framework.Model
     {
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
-        #region Fields
-
-        private string _name;
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
 
         private ResourceCollection<ObjectClass> _objects;
 
         private PropertyCollection _properties;
         private ObjectPoolProperties _predefinedProperties;
 
-        #endregion
-
         protected ObjectPool ()
         {
-            Uid = Guid.NewGuid();
+            _uid = Guid.NewGuid();
+            _name = new ResourceName(this);
+
             Objects = new ResourceCollection<ObjectClass>();
 
             _properties = new PropertyCollection(_reservedPropertyNames);
@@ -38,24 +37,29 @@ namespace Treefrog.Framework.Model
         public ObjectPool (string name)
             : this()
         {
-            Name = name;
+            _name = new ResourceName(this, name);
+
             TexturePool = new TexturePool();
         }
 
         private ObjectPool (LibraryX.ObjectPoolX proxy, ObjectPoolManager manager)
             : this()
         {
-            Uid = proxy.Uid;
-            Name = proxy.Name;
+            _uid = proxy.Uid;
+            _name = new ResourceName(this, proxy.Name);
+
             TexturePool = manager.TexturePool;
 
             foreach (var objClass in proxy.ObjectClasses)
-                Objects.Add(ObjectClass.FromXmlProxy(objClass, TexturePool));
+                Objects.Add(ObjectClass.FromXProxy(objClass, TexturePool));
 
             manager.Pools.Add(this);
         }
 
-        public Guid Uid { get; private set; }
+        public Guid Uid
+        {
+            get { return _uid; }
+        }
 
         public TexturePool TexturePool { get; internal set; }
 
@@ -82,8 +86,6 @@ namespace Treefrog.Framework.Model
             objClass.Pool = this;
 
             _objects.Add(objClass);
-
-            //_manager.LinkItemKey(uid, this);
         }
 
         public void RemoveObject (Guid uid)
@@ -91,8 +93,6 @@ namespace Treefrog.Framework.Model
             if (_objects.Contains(uid)) {
                 ObjectClass objClass = _objects[uid];
                 objClass.Pool = null;
-
-                //_manager.UnlinkItemKey(objClass.Uid);
 
                 _objects.Remove(uid);
             }
@@ -132,48 +132,35 @@ namespace Treefrog.Framework.Model
                 ev(this, e);
         }
 
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-        public event EventHandler<NameChangedEventArgs> NameChanged;
+        #region Name Interface
 
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        public event EventHandler<NameChangingEventArgs> NameChanging
         {
-            var ev = NameChanging;
-            if (ev != null)
-                ev(this, e);
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
         }
 
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
+        public event EventHandler<NameChangedEventArgs> NameChanged
         {
-            var ev = NameChanged;
-            if (ev != null)
-                ev(this, e);
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
         }
 
         public string Name
         {
-            get { return _name; }
-            private set { _name = value; }
+            get { return _name.Name; }
         }
 
         public bool TrySetName (string name)
         {
-            if (Name != name) {
-                try {
-                    OnNameChanging(new NameChangingEventArgs(Name, name));
-                }
-                catch (NameChangeException) {
-                    return false;
-                }
-
-                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
-                Name = name;
-
-                OnNameChanged(e);
+            bool result = _name.TrySetName(name);
+            if (result)
                 OnModified(EventArgs.Empty);
-            }
 
-            return true;
+            return result;
         }
+
+        #endregion
 
         #region Resource Manager Explicit Interface
 
@@ -207,24 +194,6 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        /*#region IEnumerable<ObjectClass> Members
-
-        public IEnumerator<ObjectClass> GetEnumerator ()
-        {
-            return _objects.GetEnumerator();
-        }
-
-        #endregion*/
-
-        /*#region IEnumerable Members
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
-        {
-            return _objects.GetEnumerator();
-        }
-
-        #endregion*/
-
         #region IPropertyProvider Members
 
         private class ObjectPoolProperties : PredefinedPropertyCollection
@@ -250,7 +219,7 @@ namespace Treefrog.Framework.Model
 
         public string PropertyProviderName
         {
-            get { return _name; }
+            get { return Name; }
         }
 
         public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
@@ -286,7 +255,7 @@ namespace Treefrog.Framework.Model
 
             switch (name) {
                 case "Name":
-                    prop = new StringProperty("Name", _name);
+                    prop = new StringProperty("Name", Name);
                     prop.ValueChanged += NameProperty_ValueChanged;
                     return prop;
 
@@ -328,7 +297,7 @@ namespace Treefrog.Framework.Model
 
             List<LibraryX.ObjectClassX> objects = new List<LibraryX.ObjectClassX>();
             foreach (ObjectClass objClass in pool.Objects) {
-                LibraryX.ObjectClassX classProxy = ObjectClass.ToXmlProxyX(objClass);
+                LibraryX.ObjectClassX classProxy = ObjectClass.ToXProxy(objClass);
                 objects.Add(classProxy);
             }
 

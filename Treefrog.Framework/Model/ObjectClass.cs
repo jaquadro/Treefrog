@@ -17,9 +17,10 @@ namespace Treefrog.Framework.Model
     {
         private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
 
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
+
         private ObjectPool _pool;
-        private Guid _uid;
-        private string _name;
         private Guid _textureId;
 
         private bool _canRotate;
@@ -37,7 +38,8 @@ namespace Treefrog.Framework.Model
         public ObjectClass (string name)
         {
             _uid = Guid.NewGuid();
-            _name = name;
+            _name = new ResourceName(this, name);
+
             _origin = Point.Zero;
 
             _properties = new PropertyCollection(_reservedPropertyNames);
@@ -64,10 +66,25 @@ namespace Treefrog.Framework.Model
             _origin = origin;
         }
 
+        private ObjectClass (LibraryX.ObjectClassX proxy, TexturePool texturePool)
+            : this(proxy.Name)
+        {
+            _uid = proxy.Uid;
+            _textureId = proxy.Texture;
+            _image = texturePool.GetResource(_textureId);
+            _imageBounds = proxy.ImageBounds;
+            _maskBounds = proxy.MaskBounds;
+            _origin = proxy.Origin;
+
+            if (proxy.Properties != null) {
+                foreach (var propertyProxy in proxy.Properties)
+                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+            }
+        }
+
         public Guid Uid
         {
             get { return _uid; }
-            internal set { _uid = value; }
         }
 
         public ObjectPool Pool
@@ -164,61 +181,6 @@ namespace Treefrog.Framework.Model
                     RaisePropertyChanged("Image");
                 }
             }
-            /*set
-            {
-                if (_image != value) {
-                    _image = value;
-
-                    if (_imageBounds.Width != _image.Width || _imageBounds.Height != _image.Height) {
-                        _imageBounds = _image.Bounds;
-                        RaisePropertyChanged("ImageBounds");
-                    }
-                    RaisePropertyChanged("Image");
-                }
-            }*/
-        }
-
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-        public event EventHandler<NameChangedEventArgs> NameChanged;
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
-        {
-            var ev = NameChanging;
-            if (ev != null)
-                ev(this, e);
-        }
-
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            var ev = NameChanged;
-            if (ev != null)
-                ev(this, e);
-        }
-
-        public string Name
-        {
-            get { return _name; }
-            private set { _name = value; }
-        }
-
-        public bool TrySetName (string name)
-        {
-            if (Name != name) {
-                try {
-                    OnNameChanging(new NameChangingEventArgs(Name, name));
-                }
-                catch (NameChangeException) {
-                    return false;
-                }
-
-                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
-                Name = name;
-
-                OnNameChanged(e);
-                OnModified(EventArgs.Empty);
-            }
-
-            return true;
         }
 
         public event EventHandler Modified;
@@ -229,6 +191,36 @@ namespace Treefrog.Framework.Model
             if (ev != null)
                 ev(this, e);
         }
+
+        #region Name Interface
+
+        public event EventHandler<NameChangingEventArgs> NameChanging
+        {
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
+        }
+
+        public event EventHandler<NameChangedEventArgs> NameChanged
+        {
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
+        }
+
+        public string Name
+        {
+            get { return _name.Name; }
+        }
+
+        public bool TrySetName (string name)
+        {
+            bool result = _name.TrySetName(name);
+            if (result)
+                OnModified(EventArgs.Empty);
+
+            return result;
+        }
+
+        #endregion
 
         #region IPropertyProvider Members
 
@@ -259,7 +251,7 @@ namespace Treefrog.Framework.Model
 
         public string PropertyProviderName
         {
-            get { return _name; }
+            get { return Name; }
         }
 
         public event EventHandler<EventArgs> PropertyProviderNameChanged;
@@ -299,7 +291,7 @@ namespace Treefrog.Framework.Model
 
             switch (name) {
                 case "Name":
-                    prop = new StringProperty("Name", _name);
+                    prop = new StringProperty("Name", Name);
                     prop.ValueChanged += NamePropertyChangedHandler;
                     return prop;
 
@@ -339,7 +331,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        public static LibraryX.ObjectClassX ToXmlProxyX (ObjectClass objClass)
+        public static LibraryX.ObjectClassX ToXProxy (ObjectClass objClass)
         {
             if (objClass == null)
                 return null;
@@ -350,7 +342,7 @@ namespace Treefrog.Framework.Model
 
             return new LibraryX.ObjectClassX() {
                 Uid = objClass.Uid,
-                Name = objClass._name,
+                Name = objClass.Name,
                 Texture = objClass._textureId,
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
@@ -359,26 +351,12 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static ObjectClass FromXmlProxy (LibraryX.ObjectClassX proxy, TexturePool texturePool)
+        public static ObjectClass FromXProxy (LibraryX.ObjectClassX proxy, TexturePool texturePool)
         {
             if (proxy == null)
                 return null;
 
-            ObjectClass objClass = new ObjectClass(proxy.Name);
-            objClass._uid = proxy.Uid;
-            objClass._textureId = proxy.Texture;
-            objClass._imageBounds = proxy.ImageBounds;
-            objClass._maskBounds = proxy.MaskBounds;
-            objClass._origin = proxy.Origin;
-
-            objClass._image = texturePool.GetResource(objClass._textureId);
-
-            if (proxy.Properties != null) {
-                foreach (var propertyProxy in proxy.Properties)
-                    objClass.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-            }
-
-            return objClass;
+            return new ObjectClass(proxy, texturePool);
         }
     }
 }

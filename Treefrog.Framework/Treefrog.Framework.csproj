@@ -131,6 +131,7 @@
     <Compile Include="ProjectResolver.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="ResourceCollection.cs" />
+    <Compile Include="ResourceName.cs" />
     <Compile Include="ServiceContainer.cs" />
     <Compile Include="TileCoord.cs" />
     <Compile Include="Model\TileGridLayer.cs" />

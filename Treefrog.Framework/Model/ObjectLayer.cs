@@ -78,7 +78,7 @@ namespace Treefrog.Framework.Model
 
             ResourceCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
             foreach (var objProxy in proxy.Objects) {
-                ObjectInstance inst = ObjectInstance.FromXmlProxy(objProxy, Level.Project.ObjectPoolManager);
+                ObjectInstance inst = ObjectInstance.FromXProxy(objProxy, Level.Project.ObjectPoolManager);
                 if (inst != null)
                     AddObject(inst);
             }
@@ -96,7 +96,7 @@ namespace Treefrog.Framework.Model
 
             List<LevelX.ObjectInstanceX> objs = new List<LevelX.ObjectInstanceX>();
             foreach (ObjectInstance inst in layer.Objects)
-                objs.Add(ObjectInstance.ToXmlProxyX(inst));
+                objs.Add(ObjectInstance.ToXProxy(inst));
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
             foreach (Property prop in layer.CustomProperties)

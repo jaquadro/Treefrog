@@ -19,7 +19,6 @@ namespace Treefrog.Framework.Model
 
     public class TexturePool
     {
-        //private int _lastId;
         private Dictionary<Guid, TextureResource> _resources;
 
         public TexturePool ()
@@ -122,7 +121,6 @@ namespace Treefrog.Framework.Model
                 TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData);
                 if (resource != null) {
                     pool._resources[defProxy.Uid.ValueOrNew()] = resource;
-                    //pool._lastId = Math.Max(pool._lastId, defProxy.Id);
                 }
             }
 

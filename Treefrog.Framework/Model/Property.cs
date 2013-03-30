@@ -13,13 +13,8 @@ namespace Treefrog.Framework.Model
     [Serializable]
     public abstract class Property : INamedResource, ICloneable
     {
-        #region Fields
-
-        private string _name;
-
-        #endregion
-
-        #region Constructors
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
 
         /// <summary>
         /// Creates a new <see cref="Property"/> instance with a given name.
@@ -27,12 +22,11 @@ namespace Treefrog.Framework.Model
         /// <param name="name">The name of the property.</param>
         protected Property (string name)
         {
-            if (name == null) {
-                throw new ArgumentNullException("Property names cannot be null.");
-            }
-            _name = name;
+            if (String.IsNullOrEmpty(name))
+                throw new ArgumentNullException("Property names cannot be empty.");
 
-            Uid = Guid.NewGuid();
+            _uid = Guid.NewGuid();
+            _name = new ResourceName(this, name);
         }
 
         protected Property (string name, Property property)
@@ -41,20 +35,15 @@ namespace Treefrog.Framework.Model
 
         }
 
-        #endregion
-
-        #region Events
+        public Guid Uid
+        {
+            get { return _uid; }
+        }
 
         /// <summary>
         /// Occurs when the property's underlying value is changed.
         /// </summary>
         public event EventHandler ValueChanged;
-
-        #endregion
-
-        public Guid Uid { get; private set; }
-
-        #region Event Dispatchers
 
         /// <summary>
         /// Raises the <see cref="ValueChanged"/> event.
@@ -68,8 +57,6 @@ namespace Treefrog.Framework.Model
             OnModified(EventArgs.Empty);
         }
 
-        #endregion
-
         /// <summary>
         /// Parses a given string value into the underlying data type and assign it as the property's value.
         /// </summary>
@@ -77,61 +64,10 @@ namespace Treefrog.Framework.Model
         /// <exception cref="ArgumentException">Thrown when the underlying conversion fails.  Check InnerException for specific failure information.</exception>
         public abstract void Parse (string value);
 
-        #region INamedResource Members
-
-        /// <summary>
-        /// Gets or sets the name of the property.
-        /// </summary>
-        public string  Name
-        {
-            get { return _name; }
-            set {
-                if (value == null) {
-                    throw new ArgumentNullException("Property names cannot be null.");
-                }
-                if (_name != value) {
-                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
-                    OnNameChanging(ea);
-                    if (ea.Cancel)
-                        return;
-
-                    string oldName = _name;
-                    _name = value;
-
-                    OnNameChanged(new NameChangedEventArgs(oldName, value));
-                }
-            }
-        }
-
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-
-        /// <summary>
-        /// Occurs when the property's name is changed.
-        /// </summary>
-        public event EventHandler<NameChangedEventArgs>  NameChanged;
-
         /// <summary>
         /// Occurs when the property is modified.
         /// </summary>
         public event EventHandler Modified;
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
-        {
-            if (NameChanging != null) {
-                NameChanging(this, e);
-            }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="NameChanged"/> event.
-        /// </summary>
-        /// <param name="e">An <see cref="EventArgs"/> containing the event data.</param>
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            if (NameChanged != null) {
-                NameChanged(this, e);
-            }
-        }
 
         /// <summary>
         /// Raises the <see cref="Modified"/> event.
@@ -144,45 +80,38 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        #endregion
+        public abstract object Clone ();
 
-        #region XML Import / Export
+        #region Name Interface
 
-        /// <summary>
-        /// Creates a new <see cref="Property"/> object from an XML data stream.
-        /// </summary>
-        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
-        /// <returns>A concrete <see cref="Property"/> object, dependent on the type attribute of the property element that was parsed.</returns>
-        public static Property FromXml (XmlReader reader)
+        public event EventHandler<NameChangingEventArgs> NameChanging
         {
-            Dictionary<string, string> attribs = XmlHelper.CheckAttributes(reader, new List<string> { 
-                "name",
-            });
-
-            string type = attribs.ContainsKey("type") ? attribs["type"] : "string";
-            switch (type) {
-                case "string":
-                    return StringProperty.FromXml(reader, attribs["name"]);
-                case "number":
-                    return NumberProperty.FromXml(reader, attribs["name"]);
-                case "flag":
-                    return BoolProperty.FromXml(reader, attribs["name"]);
-            }
-
-            return null;
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
         }
 
-        /// <summary>
-        /// Writes an XML representation of the concrete <see cref="Property"/> instance to the given XML data stream.
-        /// </summary>
-        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
-        public abstract void WriteXml (XmlWriter writer);
+        public event EventHandler<NameChangedEventArgs> NameChanged
+        {
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
+        }
 
-        #endregion
+        public string Name
+        {
+            get { return _name.Name; }
+        }
 
-        #region ICloneable Members
+        public bool TrySetName (string name)
+        {
+            if (String.IsNullOrEmpty(name))
+                throw new Exception("Property names cannot be empty.");
 
-        public abstract object Clone ();
+            bool result = _name.TrySetName(name);
+            if (result)
+                OnModified(EventArgs.Empty);
+
+            return result;
+        }
 
         #endregion
 
@@ -191,7 +120,7 @@ namespace Treefrog.Framework.Model
             if (proxy == null)
                 return null;
 
-            return new StringProperty(proxy.Name, proxy.Value);
+            return StringProperty.FromXProxy(proxy);
         }
 
         public static CommonX.PropertyX ToXmlProxyX (Property property)
@@ -231,6 +160,12 @@ namespace Treefrog.Framework.Model
             _value = property._value;
         }
 
+        private StringProperty (CommonX.PropertyX proxy)
+            : base(proxy.Name)
+        {
+            _value = proxy.Value;
+        }
+
         /// <summary>
         /// Gets or sets the value of the property.
         /// </summary>
@@ -261,42 +196,18 @@ namespace Treefrog.Framework.Model
             return _value;
         }
 
-        #region XML Import / Export
-
-        /// <summary>
-        /// Creates a new <see cref="StringProperty"/> object from an XML data stream.
-        /// </summary>
-        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
-        /// <param name="name">The name to give the new <see cref="StringProperty"/>.</param>
-        /// <returns>A <see cref="StringProperty"/> object with the given name and XML-derived value.</returns>
-        public static StringProperty FromXml (XmlReader reader, string name)
-        {
-            string value = reader.ReadElementContentAsString();
-            return new StringProperty(name, value);
-        }
-
-        /// <summary>
-        /// Writes an XML representation of the <see cref="StringProperty"/> instance to the given XML data stream.
-        /// </summary>
-        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
-        public override void WriteXml (XmlWriter writer)
-        {
-            writer.WriteStartElement("property");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteString(Value);
-            writer.WriteEndElement();
-        }
-
-        #endregion
-
-        #region ICloneable Members
-
         public override object Clone ()
         {
             return new StringProperty(Name, this);
         }
 
-        #endregion
+        public static StringProperty FromXProxy (CommonX.PropertyX proxy)
+        {
+            if (proxy == null)
+                return null;
+
+            return new StringProperty(proxy);
+        }
     }
 
     /// <summary>
@@ -359,43 +270,10 @@ namespace Treefrog.Framework.Model
             return _value.ToString("0.###");
         }
 
-        #region XML Import / Export
-
-        /// <summary>
-        /// Creates a new <see cref="NumberProperty"/> object from an XML data stream.
-        /// </summary>
-        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
-        /// <param name="name">The name to give the new <see cref="NumberProperty"/>.</param>
-        /// <returns>A <see cref="NumberProperty"/> object with the given name and XML-derived value.</returns>
-        public static NumberProperty FromXml (XmlReader reader, string name)
-        {
-            float value = reader.ReadElementContentAsFloat();
-            return new NumberProperty(name, value);
-        }
-
-        /// <summary>
-        /// Writes an XML representation of the <see cref="NumberProperty"/> instance to the given XML data stream.
-        /// </summary>
-        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
-        public override void WriteXml (XmlWriter writer)
-        {
-            writer.WriteStartElement("property");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("type", "number");
-            writer.WriteValue(Value);
-            writer.WriteEndElement();
-        }
-
-        #endregion
-
-        #region ICloneable Members
-
         public override object Clone ()
         {
             return new NumberProperty(Name, this);
         }
-
-        #endregion
     }
 
     /// <summary>
@@ -458,43 +336,10 @@ namespace Treefrog.Framework.Model
             return _value ? "true" : "false";
         }
 
-        #region XML Import / Export
-
-        /// <summary>
-        /// Creates a new <see cref="CoolProperty"/> object from an XML data stream.
-        /// </summary>
-        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
-        /// <param name="name">The name to give the new <see cref="BoolProperty"/>.</param>
-        /// <returns>A <see cref="BoolProperty"/> object with the given name and XML-derived value.</returns>
-        public static BoolProperty FromXml (XmlReader reader, string name)
-        {
-            bool value = reader.ReadElementContentAsBoolean();
-            return new BoolProperty(name, value);
-        }
-
-        /// <summary>
-        /// Writes an XML representation of the <see cref="BoolProperty"/> instance to the given XML data stream.
-        /// </summary>
-        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
-        public override void WriteXml (XmlWriter writer)
-        {
-            writer.WriteStartElement("property");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("type", "flag");
-            writer.WriteValue(Value);
-            writer.WriteEndElement();
-        }
-
-        #endregion
-
-        #region ICloneable Members
-
         public override object Clone ()
         {
             return new BoolProperty(Name, this);
         }
-
-        #endregion
     }
 
     /// <summary>
@@ -557,45 +402,9 @@ namespace Treefrog.Framework.Model
             return _value.ToArgbHex();
         }
 
-        #region XML Import / Export
-
-        /// <summary>
-        /// Creates a new <see cref="NumberProperty"/> object from an XML data stream.
-        /// </summary>
-        /// <param name="reader">An <see cref="XmlReader"/> object currently set to a "Property" element.</param>
-        /// <param name="name">The name to give the new <see cref="NumberProperty"/>.</param>
-        /// <returns>A <see cref="NumberProperty"/> object with the given name and XML-derived value.</returns>
-        public static ColorProperty FromXml (XmlReader reader, string name)
-        {
-            string value = reader.ReadElementContentAsString();
-            ColorProperty prop = new ColorProperty(name, Colors.Black);
-            prop.Parse(value);
-
-            return prop;
-        }
-
-        /// <summary>
-        /// Writes an XML representation of the <see cref="NumberProperty"/> instance to the given XML data stream.
-        /// </summary>
-        /// <param name="writer">An <see cref="XmlWriter"/> to write the property data into.</param>
-        public override void WriteXml (XmlWriter writer)
-        {
-            writer.WriteStartElement("property");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("type", "color");
-            writer.WriteValue(Value.ToArgbHex());
-            writer.WriteEndElement();
-        }
-
-        #endregion
-
-        #region ICloneable Members
-
         public override object Clone ()
         {
             return new ColorProperty(Name, this);
         }
-
-        #endregion
     }
 }

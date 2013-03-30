@@ -7,8 +7,9 @@ namespace Treefrog.Framework.Model
 {
     public abstract class Tile : IResource, IPropertyProvider
     {
-        protected TilePool _pool;
-        private Guid _id;
+        private readonly Guid _uid;
+
+        private TilePool _pool;
         private PropertyCollection _properties;
         private TileProperties _predefinedProperties;
 
@@ -16,7 +17,7 @@ namespace Treefrog.Framework.Model
 
         protected Tile ()
         {
-            _id = Guid.NewGuid();
+            _uid = Guid.NewGuid();
             _dependents = new List<DependentTile>();
 
             _properties = new PropertyCollection(new string[0]);
@@ -28,12 +29,12 @@ namespace Treefrog.Framework.Model
         protected Tile (Guid uid)
             : this()
         {
-            _id = uid;
+            _uid = uid;
         }
 
         public Guid Uid
         {
-            get { return _id; }
+            get { return _uid; }
         }
 
         public TilePool Pool
@@ -52,44 +53,29 @@ namespace Treefrog.Framework.Model
             get { return _pool.TileWidth; }
         }
 
-        //public NamedResourceCollection<Property> Properties
-        //{
-        //    get { return _properties; }
-        //}
-
-        public event EventHandler TextureModified = (s, e) => { };
+        public event EventHandler TextureModified;
 
         protected virtual void OnTextureModified (EventArgs e)
         {
-            TextureModified(this, e);
+            var ev = TextureModified;
+            if (ev != null)
+                ev(this, e);
+
             OnModified(e);
         }
 
         public virtual void Update (TextureResource textureData)
         {
-            foreach (DependentTile tile in _dependents) {
+            foreach (DependentTile tile in _dependents)
                 tile.UpdateFromBase(textureData);
-            }
+
             OnTextureModified(EventArgs.Empty);
         }
-
-        /*public virtual void Draw (SpriteBatch spritebatch, Rectangle dest)
-        {
-            Draw(spritebatch, dest, Color.White);
-        }
-
-        public abstract void Draw (SpriteBatch spritebatch, Rectangle dest, Color color);*/
-
-        #region Events
 
         /// <summary>
         /// Occurs when the internal state of the Layer is modified.
         /// </summary>
         public event EventHandler Modified;
-
-        #endregion
-
-        #region Event Dispatchers
 
         /// <summary>
         /// Raises the <see cref="Modified"/> event.
@@ -101,8 +87,6 @@ namespace Treefrog.Framework.Model
                 Modified(this, e);
             }
         }
-
-        #endregion
 
         private void CustomProperties_Modified (object sender, EventArgs e)
         {
@@ -141,7 +125,7 @@ namespace Treefrog.Framework.Model
 
         public string PropertyProviderName
         {
-            get { return "Tile " + _id; }
+            get { return "Tile " + _uid; }
         }
 
         public PredefinedPropertyCollection PredefinedProperties
@@ -200,14 +184,9 @@ namespace Treefrog.Framework.Model
 
         public override void Update (TextureResource textureData)
         {
-            _pool.Tiles.SetTileTexture(Uid, textureData);
+            Pool.Tiles.SetTileTexture(Uid, textureData);
             base.Update(textureData);
         }
-
-        /*public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
-        {
-            _pool.DrawTile(spritebatch, Id, dest, color);
-        }*/
     }
 
     public class DependentTile : Tile
@@ -224,18 +203,13 @@ namespace Treefrog.Framework.Model
 
         public override void Update (TextureResource textureData)
         {
-            _base.Update(_transform.InverseTransform(textureData, _pool.TileWidth, _pool.TileHeight));
+            _base.Update(_transform.InverseTransform(textureData, Pool.TileWidth, Pool.TileHeight));
         }
 
         public virtual void UpdateFromBase (TextureResource textureData)
         {
-            TextureResource xform = _transform.Transform(textureData, _pool.TileWidth, _pool.TileHeight);
-            _pool.Tiles.SetTileTexture(Uid, xform);
+            TextureResource xform = _transform.Transform(textureData, Pool.TileWidth, Pool.TileHeight);
+            Pool.Tiles.SetTileTexture(Uid, xform);
         }
-
-        /*public override void Draw (SpriteBatch spritebatch, Rectangle dest, Color color)
-        {
-            _pool.DrawTile(spritebatch, Id, dest, color);
-        }*/
     }
 }

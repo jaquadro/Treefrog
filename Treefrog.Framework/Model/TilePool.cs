@@ -380,7 +380,8 @@ namespace Treefrog.Framework.Model
 
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
-        private string _name;
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
 
         private TileResourceCollection _tiles;
 
@@ -389,7 +390,8 @@ namespace Treefrog.Framework.Model
 
         protected TilePool ()
         {
-            Uid = Guid.NewGuid();
+            _uid = Guid.NewGuid();
+            _name = new ResourceName(this);
 
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new TilePool.TilePoolProperties(this);
@@ -400,7 +402,7 @@ namespace Treefrog.Framework.Model
         internal TilePool (TilePoolManager manager, string name, int tileWidth, int tileHeight)
             : this()
         {
-            Name = name;
+            _name = new ResourceName(this, name);
 
             _tiles = new TileResourceCollection(tileWidth, tileHeight, this, manager.TexturePool);
         }
@@ -408,8 +410,9 @@ namespace Treefrog.Framework.Model
         private TilePool (LibraryX.TilePoolX proxy, TilePoolManager manager)
             : this()
         {
-            Uid = proxy.Uid;
-            Name = proxy.Name;
+            _uid = proxy.Uid;
+            _name = new ResourceName(this, proxy.Name);
+
             Tiles = TileResourceCollection.FromXmlProxy(proxy, this, manager.TexturePool);
 
             manager.Pools.Add(this);
@@ -426,14 +429,12 @@ namespace Treefrog.Framework.Model
             private set { _tiles = value; }
         }
 
-        /*IResourceCollection<Tile> IResourceManager<Tile>.Items
-        {
-            get { return _tiles; }
-        }*/
-
         #region Properties
 
-        public Guid Uid { get; private set; }
+        public Guid Uid
+        {
+            get { return _uid; }
+        }
 
         public int Count
         {
@@ -595,48 +596,35 @@ namespace Treefrog.Framework.Model
             });
         }*/
 
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-        public event EventHandler<NameChangedEventArgs> NameChanged;
+        #region Name Interface
 
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        public event EventHandler<NameChangingEventArgs> NameChanging
         {
-            var ev = NameChanging;
-            if (ev != null)
-                ev(this, e);
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
         }
 
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
+        public event EventHandler<NameChangedEventArgs> NameChanged
         {
-            var ev = NameChanged;
-            if (ev != null)
-                ev(this, e);
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
         }
 
         public string Name
         {
-            get { return _name; }
-            private set { _name = value; }
+            get { return _name.Name; }
         }
 
         public bool TrySetName (string name)
         {
-            if (Name != name) {
-                try {
-                    OnNameChanging(new NameChangingEventArgs(Name, name));
-                }
-                catch (NameChangeException) {
-                    return false;
-                }
-
-                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
-                Name = name;
-
-                OnNameChanged(e);
+            bool result = _name.TrySetName(name);
+            if (result)
                 OnModified(EventArgs.Empty);
-            }
 
-            return true;
+            return result;
         }
+
+        #endregion
 
         #region Resource Manager Explicit Interface
 
@@ -733,7 +721,7 @@ namespace Treefrog.Framework.Model
 
         public string PropertyProviderName
         {
-            get { return _name; }
+            get { return Name; }
         }
 
         public PredefinedPropertyCollection PredefinedProperties
@@ -762,7 +750,7 @@ namespace Treefrog.Framework.Model
 
             switch (name) {
                 case "Name":
-                    prop = new StringProperty("Name", _name);
+                    prop = new StringProperty("Name", Name);
                     prop.ValueChanged += NamePropertyChangedHandler;
                     return prop;
 

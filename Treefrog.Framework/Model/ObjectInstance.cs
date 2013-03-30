@@ -8,9 +8,9 @@ using Treefrog.Framework.Model.Proxy;
 namespace Treefrog.Framework.Model
 {
     [Serializable]
-    public class ObjectInstance : IPropertyProvider, ICloneable, ISerializable
+    public class ObjectInstance : IResource, IPropertyProvider, ICloneable, ISerializable
     {
-        private Guid _uid;
+        private readonly Guid _uid;
 
         [NonSerialized]
         private ObjectClass _class;
@@ -56,6 +56,20 @@ namespace Treefrog.Framework.Model
 
             foreach (Property prop in inst._properties) {
                 _properties.Add(prop.Clone() as Property);
+            }
+
+            UpdateBounds();
+        }
+
+        private ObjectInstance (LevelX.ObjectInstanceX proxy, ObjectClass objClass)
+            : this(objClass, proxy.X, proxy.Y)
+        {
+            _uid = proxy.Uid;
+            _rotation = MathEx.DegToRad(proxy.Rotation);
+
+            if (proxy.Properties != null) {
+                foreach (var propertyProxy in proxy.Properties)
+                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
 
             UpdateBounds();
@@ -389,7 +403,7 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        public static LevelX.ObjectInstanceX ToXmlProxyX (ObjectInstance inst)
+        public static LevelX.ObjectInstanceX ToXProxy (ObjectInstance inst)
         {
             if (inst == null)
                 return null;
@@ -401,38 +415,27 @@ namespace Treefrog.Framework.Model
             return new LevelX.ObjectInstanceX() {
                 Uid = inst.Uid,
                 Class = inst.ObjectClass.Uid,
-                At = inst.X + "," + inst.Y,
+                X = inst.X,
+                Y = inst.Y,
                 Rotation = MathEx.RadToDeg(inst.Rotation),
                 Properties = (props.Count > 0) ? props : null,
             };
         }
 
-        public static ObjectInstance FromXmlProxy (LevelX.ObjectInstanceX proxy, IObjectPoolManager manager)
+        public static ObjectInstance FromXProxy (LevelX.ObjectInstanceX proxy, IObjectPoolManager manager)
         {
             if (proxy == null)
                 return null;
 
-            string[] coords = proxy.At.Split(new char[] { ',' });
-
             ObjectPool pool = manager.PoolFromItemKey(proxy.Class);
-            foreach (ObjectClass objClass in pool.Objects) {
-                if (objClass.Uid == proxy.Class) {
-                    ObjectInstance inst = new ObjectInstance(objClass);
-                    inst._uid = proxy.Uid.ValueOrNew();
-                    inst.X = Convert.ToInt32(coords[0]);
-                    inst.Y = Convert.ToInt32(coords[1]);
-                    inst.Rotation = MathEx.DegToRad(proxy.Rotation);
+            if (pool == null)
+                return null;
 
-                    if (proxy.Properties != null) {
-                        foreach (var propertyProxy in proxy.Properties)
-                            inst.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
-                    }
+            ObjectClass objClass = pool.Objects[proxy.Class];
+            if (objClass == null)
+                return null;
 
-                    return inst;
-                }
-            }
-
-            return null;
+            return new ObjectInstance(proxy, objClass);
         }
     }
 }

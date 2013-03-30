@@ -223,7 +223,8 @@ namespace Treefrog.Presentation
         {
             if (CanRenameSelectedProperty && _provider.LookupProperty(name) == null) {
                 Property property = _provider.LookupProperty(_selectedProperty);
-                property.Name = name;
+                if (!property.TrySetName(name))
+                    return;
 
                 _selectedProperty = name;
 

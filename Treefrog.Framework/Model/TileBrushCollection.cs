@@ -10,15 +10,19 @@ namespace Treefrog.Framework.Model
 {
     public abstract class TileBrushCollection : INamedResource, IResourceManager<TileBrush>
     {
-        private string _name;
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
 
         protected TileBrushCollection (Guid uid, string name)
         {
-            Uid = uid;
-            _name = name;
+            _uid = uid;
+            _name = new ResourceName(this, name);
         }
 
-        public Guid Uid { get; private set; }
+        public Guid Uid
+        {
+            get { return _uid; }
+        }
 
         public TileBrush GetBrush (Guid uid)
         {
@@ -27,57 +31,44 @@ namespace Treefrog.Framework.Model
 
         protected abstract TileBrush GetBrushCore (Guid uid);
 
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-        public event EventHandler<NameChangedEventArgs> NameChanged;
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
-        {
-            var ev = NameChanging;
-            if (ev != null)
-                ev(this, e);
-        }
-
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            var ev = NameChanged;
-            if (ev != null)
-                ev(this, e);
-        }
-
-        public string Name
-        {
-            get { return _name; }
-            private set { _name = value; }
-        }
-
-        public bool TrySetName (string name)
-        {
-            if (Name != name) {
-                try {
-                    OnNameChanging(new NameChangingEventArgs(Name, name));
-                }
-                catch (NameChangeException) {
-                    return false;
-                }
-
-                NameChangedEventArgs e = new NameChangedEventArgs(Name, name);
-                Name = name;
-
-                OnNameChanged(e);
-                OnModified(EventArgs.Empty);
-            }
-
-            return true;
-        }
-
         public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
         {
             var ev = Modified;
-            if ((ev = Modified) != null)
+            if (ev != null)
                 ev(this, e);
         }
+
+        #region Name Interface
+
+        public event EventHandler<NameChangingEventArgs> NameChanging
+        {
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
+        }
+
+        public event EventHandler<NameChangedEventArgs> NameChanged
+        {
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
+        }
+
+        public string Name
+        {
+            get { return _name.Name; }
+        }
+
+        public bool TrySetName (string name)
+        {
+            bool result = _name.TrySetName(name);
+            if (result)
+                OnModified(EventArgs.Empty);
+
+            return result;
+        }
+
+        #endregion
 
         #region Resource Manager Explicit Interface
 

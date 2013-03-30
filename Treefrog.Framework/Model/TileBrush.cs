@@ -57,6 +57,26 @@ namespace Treefrog.Framework.Model
             get { return 1; }
         }
 
+        public abstract void ApplyBrush (TileGridLayer tileLayer, int x, int y);
+
+        public abstract TextureResource MakePreview ();
+
+        public abstract TextureResource MakePreview (int maxWidth, int maxHeight);
+
+        public virtual void Normalize ()
+        { }
+
+        public event EventHandler Modified;
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            var ev = Modified;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        #region Name Interface
+
         public event EventHandler<NameChangingEventArgs> NameChanging
         {
             add { _name.NameChanging += value; }
@@ -83,22 +103,6 @@ namespace Treefrog.Framework.Model
             return result;
         }
 
-        public event EventHandler Modified;
-
-        protected virtual void OnModified (EventArgs e)
-        {
-            var ev = Modified;
-            if ((ev = Modified) != null)
-                ev(this, e);
-        }
-
-        public abstract void ApplyBrush (TileGridLayer tileLayer, int x, int y);
-
-        public abstract TextureResource MakePreview ();
-
-        public abstract TextureResource MakePreview (int maxWidth, int maxHeight);
-
-        public virtual void Normalize ()
-        { }
+        #endregion
     }
 }

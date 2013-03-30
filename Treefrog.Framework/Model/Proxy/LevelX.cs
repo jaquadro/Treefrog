@@ -85,7 +85,10 @@ namespace Treefrog.Framework.Model.Proxy
             public Guid Class { get; set; }
 
             [XmlAttribute]
-            public string At { get; set; }
+            public int X { get; set; }
+
+            [XmlAttribute]
+            public int Y { get; set; }
 
             [XmlAttribute]
             public float Rotation { get; set; }
