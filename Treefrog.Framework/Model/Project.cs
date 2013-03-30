@@ -19,14 +19,13 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class Project
+    public class Project : IResource
     {
         private ServiceContainer _services;
 
         private NamedResourceCollection<Level> _levels;
 
         private Guid _defaultLibraryUid;
-        //private Dictionary<Guid, Library> _libraries;
         private LibraryManager _libraryManager;
 
         private MetaTilePoolManager _tilePools;
@@ -50,20 +49,19 @@ namespace Treefrog.Framework.Model
         {
             Uid = Guid.NewGuid();
             _services = new ServiceContainer();
-            //_texturePool = new TexturePool();
 
             Name = "Project";
 
-            //_tilePools = new TilePoolManager(_texturePool);
-            //ObjectPoolManager defaultObjectPool = new ObjectPoolManager(_texturePool);
-            //_tileBrushes = new TileBrushManager();
             _levels = new NamedResourceCollection<Level>();
+            _levels.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             _libraryManager = new LibraryManager();
+            _libraryManager.Libraries.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             Library defaultLibrary = new Library() {
                 Name = "Default"
             };
+
             _libraryManager.Libraries.Add(defaultLibrary);
 
             Extra = new List<XmlElement>();
@@ -78,19 +76,19 @@ namespace Treefrog.Framework.Model
 
             SetDefaultLibrary(defaultLibrary);
 
-            //_tilePools.Pools.PropertyChanged += TilePoolsModifiedHandler;
-            //_objectPools.Pools.PropertyChanged += HandleObjectPoolManagerPropertyChanged;
-            //_tileBrushes.DynamicBrushes.PropertyChanged += HandleTileBrushManagerPropertyChanged;
-            _levels.ResourceModified += LevelsModifiedHandler;
-
             _services.AddService(typeof(TilePoolManager), _tilePools);
+
+            ResetModified();
         }
 
         public Project (Stream stream, ProjectResolver resolver)
         {
             _services = new ServiceContainer();
             _levels = new NamedResourceCollection<Level>();
+            _levels.Modified += (s, e) => OnModified(EventArgs.Empty);
+
             _libraryManager = new LibraryManager();
+            _libraryManager.Libraries.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             Extra = new List<XmlElement>();
 
@@ -106,6 +104,8 @@ namespace Treefrog.Framework.Model
 
                 FromXProxy(proxy, resolver, this);
             }
+
+            ResetModified();
         }
 
         public Guid Uid { get; private set; }
@@ -169,16 +169,21 @@ namespace Treefrog.Framework.Model
             get { return _services; }
         }
 
-        #region Events
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var level in Levels)
+                level.ResetModified();
+            foreach (var library in LibraryManager.Libraries)
+                library.ResetModified();
+        }
 
         /// <summary>
         /// Occurs when the internal state of the Project is modified.
         /// </summary>
-        public event EventHandler Modified = (s, e) => { };
-
-        #endregion
-
-        #region Event Dispatchers
+        public event EventHandler Modified;
 
         /// <summary>
         /// Raises the <see cref="Modified"/> event.
@@ -186,34 +191,13 @@ namespace Treefrog.Framework.Model
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnModified (EventArgs e)
         {
-            Modified(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
-
-        #endregion
-
-        #region Event Handlers
-
-        private void HandleObjectPoolManagerPropertyChanged (object sender, PropertyChangedEventArgs e)
-        {
-            OnModified(e);
-        }
-
-        private void HandleTileBrushManagerPropertyChanged (object sender, PropertyChangedEventArgs e)
-        {
-            OnModified(e);
-        }
-
-        private void TilePoolsModifiedHandler (object sender, EventArgs e)
-        {
-            OnModified(e);
-        }
-
-        private void LevelsModifiedHandler (object sender, EventArgs e)
-        {
-            OnModified(e);
-        }
-
-        #endregion
 
         public void Save (Stream stream, ProjectResolver resolver)
         {
@@ -273,6 +257,8 @@ namespace Treefrog.Framework.Model
             serializer.Serialize(writer, proxy);
 
             writer.Close();
+
+            ResetModified();
         }
 
         public static Project FromXProxy (ProjectX proxy, ProjectResolver resolver)

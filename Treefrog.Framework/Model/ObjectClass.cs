@@ -44,6 +44,8 @@ namespace Treefrog.Framework.Model
 
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectClass.ObjectClassProperties(this);
+
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public ObjectClass (string name, TextureResource image)
@@ -183,13 +185,25 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var property in CustomProperties)
+                property.ResetModified();
+        }
+
         public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
         {
-            var ev = Modified;
-            if (ev != null)
-                ev(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
 
         #region Name Interface

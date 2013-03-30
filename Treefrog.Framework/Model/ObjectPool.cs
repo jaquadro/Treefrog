@@ -27,11 +27,12 @@ namespace Treefrog.Framework.Model
             _name = new ResourceName(this);
 
             Objects = new ResourceCollection<ObjectClass>();
+            Objects.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectPoolProperties(this);
 
-            _properties.Modified += Properties_Modified;
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public ObjectPool (string name)
@@ -108,32 +109,27 @@ namespace Treefrog.Framework.Model
             private set { _objects = value; }
         }
 
-        private void Properties_Modified (object sender, EventArgs e)
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
         {
-            RaisePropertyChanged("CustomProperties");
+            IsModified = false;
+            foreach (var obj in Objects)
+                obj.ResetModified();
+            foreach (var property in CustomProperties)
+                property.ResetModified();
         }
 
-        private EventHandler _eventModified;
-        public event EventHandler Modified
-        {
-            add
-            {
-                _eventModified += value;
-                //_objects.Modified += value;
-            }
-
-            remove
-            {
-                _eventModified -= value;
-                //_objects.Modified -= value;
-            }
-        }
+        public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
         {
-            var ev = _eventModified;
-            if (ev != null)
-                ev(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
 
         #region Name Interface

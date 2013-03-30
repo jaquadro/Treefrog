@@ -25,8 +25,6 @@ namespace Treefrog.Framework.Model
         private PropertyCollection _properties;
         private LayerProperties _predefinedProperties;
 
-        #region Constructors
-
         protected Layer (string name)
         {
             Uid = Guid.NewGuid();
@@ -39,7 +37,7 @@ namespace Treefrog.Framework.Model
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new LayerProperties(this);
 
-            _properties.Modified += CustomPropertiesModifiedHandler;
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         protected Layer (string name, Layer layer)
@@ -53,10 +51,6 @@ namespace Treefrog.Framework.Model
             _visible = layer._visible;
             _rasterMode = layer._rasterMode;
         }
-
-        #endregion
-
-        #region Properties
 
         public Guid Uid { get; private set; }
 
@@ -109,24 +103,25 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        #endregion
+        public bool IsModified { get; private set; }
 
-        #region Events
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var property in CustomProperties)
+                property.ResetModified();
+        }
 
         /// <summary>
         /// Occurs when the internal state of the Layer is modified.
         /// </summary>
-        public event EventHandler Modified = (s, e) => { };
+        public event EventHandler Modified;
 
-        public event EventHandler OpacityChanged = (s, e) => { };
+        public event EventHandler OpacityChanged;
 
-        public event EventHandler VisibilityChanged = (s, e) => { };
+        public event EventHandler VisibilityChanged;
 
-        public event EventHandler RasterModeChanged = (s, e) => { };
-
-        #endregion
-
-        #region Event Dispatchers
+        public event EventHandler RasterModeChanged;
 
         /// <summary>
         /// Raises the <see cref="Modified"/> event.
@@ -134,27 +129,34 @@ namespace Treefrog.Framework.Model
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnModified (EventArgs e)
         {
-            Modified(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
 
         protected virtual void OnOpacityChanged (EventArgs e)
         {
-            OpacityChanged(this, e);
+            var ev = OpacityChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         protected virtual void OnVisibilityChanged (EventArgs e)
         {
-            VisibilityChanged(this, e);
+            var ev = VisibilityChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         protected virtual void OnRasterModeChanged (EventArgs e)
         {
-            RasterModeChanged(this, e);
+            var ev = RasterModeChanged;
+            if (ev != null)
+                ev(this, e);
         }
-
-        #endregion
-
-        #region Event Handlers
 
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {
@@ -188,13 +190,6 @@ namespace Treefrog.Framework.Model
             else
                 RasterMode = Model.RasterMode.Linear;
         }
-
-        private void CustomPropertiesModifiedHandler (object sender, EventArgs e)
-        {
-            OnModified(e);
-        }
-
-        #endregion
 
         public event EventHandler LayerSizeChanged = (s, e) => { };
 

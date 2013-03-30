@@ -46,11 +46,11 @@ namespace Treefrog.Framework.Model
             _properties = new PropertyCollection(_reservedPropertyNames); // new NamedResourceCollection<Property>();
             _predefinedProperties = new LevelProperties(this);
 
-            _properties.Modified += CustomProperties_Modified;
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
 
-            _layers.ResourceAdded += LayerAddedHandler;
-            _layers.ResourceRemoved += LayerRemovedHandler;
-            _layers.ResourceModified += LayersModifiedHandler;
+            _layers.ResourceAdded += (s, e) => OnLayerAdded(new ResourceEventArgs<Layer>(e.Resource));
+            _layers.ResourceRemoved += (s, e) => OnLayerRemoved(new ResourceEventArgs<Layer>(e.Resource));
+            _layers.ResourceModified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public Level (string name, Project project)
@@ -139,6 +139,17 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var layer in Layers)
+                layer.ResetModified();
+            foreach (var property in CustomProperties)
+                property.ResetModified();
+        }
+
         #region Events
 
         /// <summary>
@@ -224,8 +235,11 @@ namespace Treefrog.Framework.Model
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnModified (EventArgs e)
         {
-            if (Modified != null) {
-                Modified(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
             }
         }
 
@@ -237,26 +251,6 @@ namespace Treefrog.Framework.Model
         {
             StringProperty property = sender as StringProperty;
             Name = property.Value;
-        }
-
-        private void LayerAddedHandler (object sender, ResourceEventArgs<Layer> e)
-        {
-            OnLayerAdded(e);
-        }
-
-        private void LayerRemovedHandler (object sender, ResourceEventArgs<Layer> e)
-        {
-            OnLayerRemoved(e);
-        }
-
-        private void CustomProperties_Modified (object sender, EventArgs e)
-        {
-            OnModified(e);
-        }
-
-        private void LayersModifiedHandler (object sender, EventArgs e)
-        {
-            OnModified(e);
         }
 
         #endregion

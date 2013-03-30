@@ -64,6 +64,13 @@ namespace Treefrog.Framework.Model
         /// <exception cref="ArgumentException">Thrown when the underlying conversion fails.  Check InnerException for specific failure information.</exception>
         public abstract void Parse (string value);
 
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+        }
+
         /// <summary>
         /// Occurs when the property is modified.
         /// </summary>
@@ -75,8 +82,11 @@ namespace Treefrog.Framework.Model
         /// <param name="e">An <see cref="EventArgs"/> containing the event data.</param>
         protected virtual void OnModified (EventArgs e)
         {
-            if (Modified != null) {
-                Modified(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                if (Modified != null) {
+                    Modified(this, e);
+                }
             }
         }
 

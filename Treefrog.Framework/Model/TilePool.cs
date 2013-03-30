@@ -396,7 +396,7 @@ namespace Treefrog.Framework.Model
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new TilePool.TilePoolProperties(this);
 
-            _properties.Modified += CustomProperties_Modified;
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         internal TilePool (TilePoolManager manager, string name, int tileWidth, int tileHeight)
@@ -405,6 +405,10 @@ namespace Treefrog.Framework.Model
             _name = new ResourceName(this, name);
 
             _tiles = new TileResourceCollection(tileWidth, tileHeight, this, manager.TexturePool);
+            _tiles.Modified += (s, e) => OnModified(EventArgs.Empty);
+            _tiles.ResourceAdded += (s, e) => OnTileAdded(new TileEventArgs(e.Resource));
+            _tiles.ResourceRemoved += (s, e) => OnTileRemoved(new TileEventArgs(e.Resource));
+            _tiles.ResourceModified += (s, e) => OnTileModified(new TileEventArgs(e.Resource));
         }
 
         private TilePool (LibraryX.TilePoolX proxy, TilePoolManager manager)
@@ -414,6 +418,10 @@ namespace Treefrog.Framework.Model
             _name = new ResourceName(this, proxy.Name);
 
             Tiles = TileResourceCollection.FromXmlProxy(proxy, this, manager.TexturePool);
+            Tiles.Modified += (s, e) => OnModified(EventArgs.Empty);
+            Tiles.ResourceAdded += (s, e) => OnTileAdded(new TileEventArgs(e.Resource));
+            Tiles.ResourceRemoved += (s, e) => OnTileRemoved(new TileEventArgs(e.Resource));
+            Tiles.ResourceModified += (s, e) => OnTileModified(new TileEventArgs(e.Resource));
 
             manager.Pools.Add(this);
 
@@ -466,17 +474,17 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Occurs after a new <see cref="Tile"/> has been added to the <c>TilePool</c>.
         /// </summary>
-        public event EventHandler<TileEventArgs> TileAdded = (s, e) => { };
+        public event EventHandler<TileEventArgs> TileAdded;
 
         /// <summary>
         /// Occurs after a <see cref="Tile"/> has been removed from the <c>TilePool</c>.
         /// </summary>
-        public event EventHandler<TileEventArgs> TileRemoved = (s, e) => { };
+        public event EventHandler<TileEventArgs> TileRemoved;
 
         /// <summary>
         /// Occurs if a <see cref="Tile"/> or any of its underlying data has been modified.
         /// </summary>
-        public event EventHandler<TileEventArgs> TileModified = (s, e) => { };
+        public event EventHandler<TileEventArgs> TileModified;
 
         public event EventHandler TileSourceInvalidated;
 
@@ -492,7 +500,9 @@ namespace Treefrog.Framework.Model
         /// <param name="e">A <see cref="TileEventArgs"/> that contains the event data.</param>
         protected virtual void OnTileAdded (TileEventArgs e)
         {
-            TileAdded(this, e);
+            var ev = TileAdded;
+            if (ev != null)
+                ev(this, e);
             OnModified(e);
         }
 
@@ -502,7 +512,9 @@ namespace Treefrog.Framework.Model
         /// <param name="e">A <see cref="TileEventArgs"/> that contains the event data.</param>
         protected virtual void OnTileRemoved (TileEventArgs e)
         {
-            TileRemoved(this, e);
+            var ev = TileRemoved;
+            if (ev != null)
+                ev(this, e);
             OnModified(e);
         }
 
@@ -512,7 +524,9 @@ namespace Treefrog.Framework.Model
         /// <param name="e">A <see cref="TileEventArgs"/> that contains the event data.</param>
         protected virtual void OnTileModified (TileEventArgs e)
         {
-            TileModified(this, e);
+            var ev = TileModified;
+            if (ev != null)
+                ev(this, e);
             OnModified(e);
         }
 
@@ -675,13 +689,27 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var tile in Tiles)
+                tile.ResetModified();
+            foreach (var property in CustomProperties)
+                property.ResetModified();
+        }
+
         public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
         {
-            var ev = Modified;
-            if (ev != null)
-                ev(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
 
         private void TileModifiedHandler (object sender, EventArgs e)
@@ -760,11 +788,6 @@ namespace Treefrog.Framework.Model
         }
 
         #endregion
-
-        private void CustomProperties_Modified (object sender, EventArgs e)
-        {
-            OnModified(e);
-        }
 
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {

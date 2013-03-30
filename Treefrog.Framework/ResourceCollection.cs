@@ -151,6 +151,7 @@ namespace Treefrog.Framework
             var ev = ResourceAdded;
             if (ev != null)
                 ev(this, e);
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnResourceRemoved (ResourceEventArgs<T> e)
@@ -158,6 +159,7 @@ namespace Treefrog.Framework
             var ev = ResourceRemoved;
             if (ev != null)
                 ev(this, e);
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnResourceModified (ResourceEventArgs<T> e)
@@ -165,6 +167,7 @@ namespace Treefrog.Framework
             var ev = ResourceModified;
             if (ev != null)
                 ev(this, e);
+            OnModified(EventArgs.Empty);
         }
 
         protected virtual void OnModified (EventArgs e)

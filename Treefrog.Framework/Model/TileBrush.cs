@@ -66,13 +66,23 @@ namespace Treefrog.Framework.Model
         public virtual void Normalize ()
         { }
 
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+        }
+
         public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
         {
-            var ev = Modified;
-            if (ev != null)
-                ev(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
 
         #region Name Interface

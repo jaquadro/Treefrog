@@ -23,7 +23,7 @@ namespace Treefrog.Framework.Model
             _properties = new PropertyCollection(new string[0]);
             _predefinedProperties = new Tile.TileProperties(this);
 
-            _properties.Modified += CustomProperties_Modified;
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         protected Tile (Guid uid)
@@ -72,6 +72,15 @@ namespace Treefrog.Framework.Model
             OnTextureModified(EventArgs.Empty);
         }
 
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (Property prop in _properties)
+                prop.ResetModified();
+        }
+
         /// <summary>
         /// Occurs when the internal state of the Layer is modified.
         /// </summary>
@@ -83,14 +92,12 @@ namespace Treefrog.Framework.Model
         /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         protected virtual void OnModified (EventArgs e)
         {
-            if (Modified != null) {
-                Modified(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
             }
-        }
-
-        private void CustomProperties_Modified (object sender, EventArgs e)
-        {
-            OnModified(e);
         }
 
         #region IPropertyProvider Members

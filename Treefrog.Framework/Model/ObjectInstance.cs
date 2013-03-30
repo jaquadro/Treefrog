@@ -35,7 +35,7 @@ namespace Treefrog.Framework.Model
             _scaleY = 1f;
 
             _properties = new PropertyCollection(_reservedPropertyNames);
-            _properties.Modified += CustomProperties_Modified;
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             _predefinedProperties = new ObjectInstanceProperties(this);
 
@@ -258,16 +258,27 @@ namespace Treefrog.Framework.Model
             get { return "Object#"; }
         }
 
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var property in CustomProperties)
+                property.ResetModified();
+        }
+
         public event EventHandler Modified;
 
         public event EventHandler<EventArgs> PropertyProviderNameChanged;
 
-
         protected virtual void OnModified (EventArgs e)
         {
-            var ev = Modified;
-            if (ev != null)
-                ev(this, e);
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
 
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
@@ -337,12 +348,8 @@ namespace Treefrog.Framework.Model
         private void PropertyRotationChanged (object sender, EventArgs e)
         {
             NumberProperty property = sender as NumberProperty;
-            Rotation = MathEx.DegToRad(property.Value);
-        }
-
-        private void CustomProperties_Modified (object sender, EventArgs e)
-        {
-            OnModified(e);
+            float rad = MathEx.DegToRad(property.Value);
+            Rotation = rad;
         }
 
         #endregion

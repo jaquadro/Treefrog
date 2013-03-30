@@ -82,17 +82,29 @@ namespace Treefrog.Framework.Model
 
         public TileBrushManager TileBrushManager { get; private set; }
 
-        public bool IsModified { get; set; }
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var pool in ObjectPoolManager.Pools)
+                pool.ResetModified();
+            foreach (var pool in TilePoolManager.Pools)
+                pool.ResetModified();
+            foreach (var pool in TileBrushManager.Pools)
+                pool.ResetModified();
+        }
 
         public event EventHandler Modified;
 
         protected virtual void OnModified (EventArgs e)
         {
-            var ev = Modified;
-            if (ev != null)
-                ev(this, e);
-
-            IsModified = true;
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
         }
 
         private bool SetField<T> (ref T field, T value)

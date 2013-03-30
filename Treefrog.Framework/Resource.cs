@@ -5,8 +5,11 @@ namespace Treefrog.Framework
     public interface IResource
     {
         Guid Uid { get; }
+        bool IsModified { get; }
 
         event EventHandler Modified;
+
+        void ResetModified ();
     }
 
     public class ResourceEventArgs : EventArgs, IResourceEventArgs

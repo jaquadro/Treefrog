@@ -112,6 +112,13 @@ namespace Treefrog.Framework.Model
             };
         }
 
+        public override void ResetModified ()
+        {
+            base.ResetModified();
+            foreach (var inst in Objects)
+                inst.ResetModified();
+        }
+
         public event EventHandler<ObjectInstanceEventArgs> ObjectAdded;
 
         public event EventHandler<ObjectInstanceEventArgs> ObjectRemoved;
