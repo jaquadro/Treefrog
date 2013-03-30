@@ -50,8 +50,12 @@ namespace Treefrog.Framework.Model
 
             TexturePool = manager.TexturePool;
 
-            foreach (var objClass in proxy.ObjectClasses)
-                Objects.Add(ObjectClass.FromXProxy(objClass, TexturePool));
+            foreach (var objClass in proxy.ObjectClasses) {
+                ObjectClass obj = ObjectClass.FromXProxy(objClass, TexturePool);
+                obj.Pool = this;
+
+                Objects.Add(obj);
+            }
 
             manager.Pools.Add(this);
         }

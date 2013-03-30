@@ -154,7 +154,7 @@ namespace Treefrog.Framework.Model
 
         public TextureResource Image
         {
-            get { return _pool != null ? _pool.TexturePool.GetResource(_textureId) : null; }
+            get { return _image; }
             set
             {
                 if (_image != value) {
