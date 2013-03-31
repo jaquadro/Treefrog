@@ -86,6 +86,7 @@ namespace Treefrog.Presentation
         private ObjectPoolCollectionPresenter _objectPoolCollection;
         private TileBrushManagerPresenter _tileBrushManager;
         private PropertyListPresenter _propertyList;
+        private ProjectExplorerPresenter _projectExplorer;
 
         private StandardToolsPresenter _stdTools;
         private DocumentToolsPresenter _docTools;
@@ -103,6 +104,7 @@ namespace Treefrog.Presentation
             _objectPoolCollection = new ObjectPoolCollectionPresenter(_editor);
             _tileBrushManager = new TileBrushManagerPresenter(_editor);
             _propertyList = new PropertyListPresenter();
+            _projectExplorer = new ProjectExplorerPresenter(_editor);
         }
 
         public IContentInfoPresenter ContentInfo
@@ -133,6 +135,11 @@ namespace Treefrog.Presentation
         public IPropertyListPresenter PropertyList
         {
             get { return _propertyList; }
+        }
+
+        public ProjectExplorerPresenter ProjectExplorer
+        {
+            get { return _projectExplorer; }
         }
 
         public IStandardToolsPresenter StandardTools

@@ -211,7 +211,7 @@ namespace Treefrog.Presentation.Tools
                 Layer.AddTile(location.X, location.Y, ActiveTile);
             }
         }
-
+        
         private void EndDrawPathSequence (PointerEventInfo info)
         {
             if (ActiveTile == null && _activeBrush == null)

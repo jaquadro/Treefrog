@@ -23,18 +23,19 @@ namespace Treefrog.Framework.Model
         }
     }
 
-    public class Library : IResource
+    public class Library : INamedResource
     {
         private readonly Guid _uid;
-        private string _name;
+        private readonly ResourceName _name;
 
-        private Library (Guid uid)
+        private Library (Guid uid, string name)
         {
             _uid = uid;
+            _name = new ResourceName(this, name);
         }
 
         public Library ()
-            : this(Guid.NewGuid())
+            : this(Guid.NewGuid(), "Default")
         {
             Extra = new List<XmlElement>();
 
@@ -51,7 +52,7 @@ namespace Treefrog.Framework.Model
         }
 
         public Library (Stream stream)
-            : this(Guid.NewGuid())
+            : this(Guid.NewGuid(), "Default")
         {
             Extra = new List<XmlElement>();
 
@@ -65,8 +66,10 @@ namespace Treefrog.Framework.Model
                 XmlSerializer serializer = new XmlSerializer(typeof(LibraryX));
                 LibraryX proxy = serializer.Deserialize(reader) as LibraryX;
 
-                if (proxy.PropertyGroup != null)
+                if (proxy.PropertyGroup != null) {
                     _uid = proxy.PropertyGroup.LibraryGuid;
+                    _name = new ResourceName(this, proxy.PropertyGroup.LibraryName);
+                }
 
                 Initialize(proxy);
             }
@@ -75,7 +78,6 @@ namespace Treefrog.Framework.Model
         private void Initialize (LibraryX proxy)
         {
             if (proxy.PropertyGroup != null) {
-                Name = proxy.PropertyGroup.LibraryName;
                 Extra = proxy.PropertyGroup.Extra ?? new List<XmlElement>();
             }
 
@@ -97,12 +99,6 @@ namespace Treefrog.Framework.Model
         }
 
         public List<XmlElement> Extra { get; private set; }
-
-        public string Name
-        {
-            get { return _name; }
-            set { SetField(ref _name, value); }
-        }
 
         public string FileName { get; set; }
 
@@ -152,6 +148,36 @@ namespace Treefrog.Framework.Model
             return true;
         }
 
+        #region Name Interface
+
+        public event EventHandler<NameChangingEventArgs> NameChanging
+        {
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
+        }
+
+        public event EventHandler<NameChangedEventArgs> NameChanged
+        {
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
+        }
+
+        public string Name
+        {
+            get { return _name.Name; }
+        }
+
+        public bool TrySetName (string name)
+        {
+            bool result = _name.TrySetName(name);
+            if (result)
+                OnModified(EventArgs.Empty);
+
+            return result;
+        }
+
+        #endregion
+
         public void Save (Stream stream)
         {
             XmlWriterSettings settings = new XmlWriterSettings() {
@@ -175,8 +201,9 @@ namespace Treefrog.Framework.Model
                 return null;
 
             Guid uid = proxy.PropertyGroup != null ? proxy.PropertyGroup.LibraryGuid : Guid.NewGuid();
+            string name = proxy.PropertyGroup != null ? proxy.PropertyGroup.LibraryName : "Default";
 
-            Library library = new Library(uid);
+            Library library = new Library(uid, name);
             library.Initialize(proxy);
 
             return library;

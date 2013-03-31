@@ -7,7 +7,7 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class ResourceEventArgs : EventArgs
+    /*public class ResourceEventArgs : EventArgs
     {
         public Guid Uid { get; private set; }
 
@@ -15,7 +15,7 @@ namespace Treefrog.Framework.Model
         {
             Uid = uid;
         }
-    }
+    }*/
 
     public class TexturePool
     {

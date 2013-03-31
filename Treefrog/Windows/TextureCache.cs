@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
 using Treefrog.Aux;
+using Treefrog.Framework;
 
 namespace Treefrog.Windows
 {

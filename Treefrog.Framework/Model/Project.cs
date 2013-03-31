@@ -58,9 +58,7 @@ namespace Treefrog.Framework.Model
             _libraryManager = new LibraryManager();
             _libraryManager.Libraries.Modified += (s, e) => OnModified(EventArgs.Empty);
 
-            Library defaultLibrary = new Library() {
-                Name = "Default"
-            };
+            Library defaultLibrary = new Library();
 
             _libraryManager.Libraries.Add(defaultLibrary);
 
@@ -205,9 +203,6 @@ namespace Treefrog.Framework.Model
             List<ProjectX.LevelX> levels = new List<ProjectX.LevelX>();
 
             foreach (Library library in _libraryManager.Libraries) {
-                if (library.Name == null)
-                    library.Name = Name;
-
                 if (library.FileName == null)
                     library.FileName = FormatSafeFileName(library.Name + ".tlbx");
 
