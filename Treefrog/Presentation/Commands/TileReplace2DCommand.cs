@@ -54,7 +54,7 @@ namespace Treefrog.Presentation.Commands
             if (tile != null) {
                 TileStack srcStack = null;
                 if (_tileSource.InRange(coord))
-                    srcStack = _tileSource[coord];
+                    srcStack = new TileStack(_tileSource[coord]);
 
                 TileStack stack = new TileStack(srcStack);
                 stack.Add(tile);
@@ -71,7 +71,7 @@ namespace Treefrog.Presentation.Commands
             if (stack != null) {
                 TileStack srcStack = null;
                 if (_tileSource.InRange(coord))
-                    srcStack = _tileSource[coord];
+                    srcStack = new TileStack(_tileSource[coord]);
 
                 TileStack newStack = new TileStack(srcStack);
                 foreach (Tile t in stack)
@@ -89,7 +89,7 @@ namespace Treefrog.Presentation.Commands
             if (tile != null) {
                 TileStack srcStack = null;
                 if (_tileSource.InRange(coord))
-                    srcStack = _tileSource[coord];
+                    srcStack = new TileStack(_tileSource[coord]);
 
                 TileStack stack = new TileStack(srcStack);
                 stack.Remove(tile);
@@ -105,7 +105,7 @@ namespace Treefrog.Presentation.Commands
         {
             TileStack srcStack = null;
             if (_tileSource.InRange(coord))
-                srcStack = _tileSource[coord];
+                srcStack = new TileStack(_tileSource[coord]);
 
             TileStack stack = null;
             if (replacement != null) {
@@ -123,7 +123,7 @@ namespace Treefrog.Presentation.Commands
         {
             TileStack srcStack = null;
             if (_tileSource.InRange(coord))
-                srcStack = _tileSource[coord];
+                srcStack = new TileStack(_tileSource[coord]);
 
             replacement = (replacement != null) ? new TileStack(replacement) : null;
 
