@@ -102,6 +102,15 @@ namespace Treefrog.Framework.Model.Proxy
             public List<CommonX.PropertyX> Properties { get; set; }
         }
 
+        public class TileIndexX
+        {
+            [XmlAttribute]
+            public int Sequence { get; set; }
+
+            [XmlElement("Entry")]
+            public List<LevelX.TileIndexEntryX> Entries { get; set; }
+        }
+
         public class TileIndexEntryX
         {
             [XmlAttribute]
@@ -132,9 +141,8 @@ namespace Treefrog.Framework.Model.Proxy
         [XmlElement("ItemGroup")]
         public ItemGroupX[] ItemGroups { get; set; }
 
-        [XmlArray]
-        [XmlArrayItem("Entry")]
-        public List<TileIndexEntryX> TileIndex { get; set; }
+        [XmlElement]
+        public TileIndexX TileIndex { get; set; }
 
         [XmlArray]
         [XmlArrayItem("Layer", Type = typeof(AbstractXmlSerializer<LayerX>))]

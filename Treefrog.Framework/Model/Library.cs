@@ -132,7 +132,7 @@ namespace Treefrog.Framework.Model
                 serializer.Serialize(writer, proxy);
             }
 
-            IsModified = false;
+            ResetModified();
         }
 
         public static Library FromXProxy (LibraryX proxy)

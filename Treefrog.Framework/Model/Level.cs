@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using Treefrog.Framework.Model.Collections;
 using Treefrog.Framework.Model.Support;
 using Treefrog.Framework.Model.Proxy;
+using System.IO;
 
 namespace Treefrog.Framework.Model
 {
@@ -17,47 +18,45 @@ namespace Treefrog.Framework.Model
         private static string[] _reservedPropertyNames = { "Name", "OriginX", "OriginY", "Height", "Width" };
 
         private Project _project;
-        private string _name;
 
-        private Guid _uid;
-        private List<XmlElement> _extra;
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
 
         private int _x;
         private int _y;
         private int _width;
         private int _height;
 
+        private int _indexSequence;
+        private Mapper<int, Guid> _localTileIndex = new Mapper<int, Guid>();
+
         private OrderedResourceCollection<Layer> _layers;
         private PropertyCollection _properties;
         private LevelProperties _predefinedProperties;
 
-        #region Constructors
+        private Level (Guid uid, string name)
+        {
+            _uid = uid;
+            _name = new ResourceName(this, name);
+
+            _layers = new OrderedResourceCollection<Layer>();
+            _layers.ResourceAdded += (s, e) => OnLayerAdded(new ResourceEventArgs<Layer>(e.Resource));
+            _layers.ResourceRemoved += (s, e) => OnLayerRemoved(new ResourceEventArgs<Layer>(e.Resource));
+            _layers.ResourceModified += (s, e) => OnModified(EventArgs.Empty);
+
+            _properties = new PropertyCollection(_reservedPropertyNames);
+            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
+
+            _predefinedProperties = new LevelProperties(this);            
+        }
 
         /// <summary>
         /// Creates a <see cref="Level"/> with default values and dimensions.
         /// </summary>
         /// <param name="name">A uniquely identifying name for the <see cref="Level"/>.</param>
         public Level (string name)
-        {
-            _uid = Guid.NewGuid();
-            _name = name;
-
-            _layers = new OrderedResourceCollection<Layer>();
-            _properties = new PropertyCollection(_reservedPropertyNames); // new NamedResourceCollection<Property>();
-            _predefinedProperties = new LevelProperties(this);
-
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
-
-            _layers.ResourceAdded += (s, e) => OnLayerAdded(new ResourceEventArgs<Layer>(e.Resource));
-            _layers.ResourceRemoved += (s, e) => OnLayerRemoved(new ResourceEventArgs<Layer>(e.Resource));
-            _layers.ResourceModified += (s, e) => OnModified(EventArgs.Empty);
-        }
-
-        public Level (string name, Project project)
-            : this(name)
-        {
-            _project = project;
-        }
+            : this(Guid.NewGuid(), name)
+        { }
 
         public Level (string name, int originX, int originY, int width, int height)
             : this(name)
@@ -71,15 +70,72 @@ namespace Treefrog.Framework.Model
             _height = height;
         }
 
-        #endregion
+        public Level (Stream stream, Project project)
+            : this(Guid.NewGuid(), "Level")
+        {
+            Extra = new List<XmlElement>();
 
-        #region Properties
+            XmlReaderSettings settings = new XmlReaderSettings() {
+                CloseInput = true,
+                IgnoreComments = true,
+                IgnoreWhitespace = true,
+            };
+
+            using (XmlReader reader = XmlTextReader.Create(stream, settings)) {
+                XmlSerializer serializer = new XmlSerializer(typeof(LevelX));
+                LevelX proxy = serializer.Deserialize(reader) as LevelX;
+
+                if (proxy.PropertyGroup != null)
+                    _uid = proxy.PropertyGroup.LevelGuid;
+                _name = new ResourceName(this, proxy.Name);
+
+                Initialize(proxy, project);
+            }
+        }
+
+        private void Initialize (LevelX proxy, Project project)
+        {
+            if (proxy.PropertyGroup != null) {
+                Extra = proxy.PropertyGroup.Extra;
+            }
+
+            _project = project;
+            _x = proxy.OriginX;
+            _y = proxy.OriginY;
+            _width = Math.Max(1, proxy.Width);
+            _height = Math.Max(1, proxy.Height);
+            _indexSequence = proxy.TileIndex.Sequence;
+
+            Dictionary<int, Guid> tileIndex = new Dictionary<int, Guid>();
+            foreach (var entry in proxy.TileIndex.Entries) {
+                _localTileIndex.Add(entry.Id, entry.Uid);
+                tileIndex.Add(entry.Id, entry.Uid);
+
+                if (entry.Id >= _indexSequence)
+                    _indexSequence = entry.Id + 1;
+            }
+
+            foreach (LevelX.LayerX layerProxy in proxy.Layers) {
+                if (layerProxy is LevelX.MultiTileGridLayerX)
+                    Layers.Add(new MultiTileGridLayer(layerProxy as LevelX.MultiTileGridLayerX, this, tileIndex));
+                else if (layerProxy is LevelX.ObjectLayerX)
+                    Layers.Add(new ObjectLayer(layerProxy as LevelX.ObjectLayerX, this));
+            }
+
+            foreach (var propertyProxy in proxy.Properties)
+                CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+        }
+
+        
 
         public Guid Uid
         {
             get { return _uid; }
-            set { _uid = value; }
         }
+
+        public List<XmlElement> Extra { get; private set; }
+
+        public string FileName { get; set; }
 
         public Project Project
         {
@@ -137,8 +193,6 @@ namespace Treefrog.Framework.Model
             OnLevelSizeChanged(EventArgs.Empty);
         }
 
-        #endregion
-
         public bool IsModified { get; private set; }
 
         public virtual void ResetModified ()
@@ -149,8 +203,6 @@ namespace Treefrog.Framework.Model
             foreach (var property in CustomProperties)
                 property.ResetModified();
         }
-
-        #region Events
 
         /// <summary>
         /// Occurs when the number of tiles in the level changes.
@@ -176,10 +228,6 @@ namespace Treefrog.Framework.Model
         /// Occurs when the internal state of the Level is modified.
         /// </summary>
         public event EventHandler Modified;
-
-        #endregion
-
-        #region Event Dispatchers
 
         /// <summary>
         /// Raises the <see cref="LevelSizeChanged"/> event.
@@ -243,67 +291,38 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        #endregion
-
-        #region Event Handlers
-
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {
             StringProperty property = sender as StringProperty;
-            Name = property.Value;
+            TrySetName(property.Value);
         }
 
-        #endregion
+        #region Name Interface
 
-        #region INamedResource Members
+        public event EventHandler<NameChangingEventArgs> NameChanging
+        {
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
+        }
 
-        /// <summary>
-        /// Gets or sets the name of this <see cref="Level"/>.  This name also serves as a key in <see cref="NamedResourceCollection"/>s.
-        /// </summary>
+        public event EventHandler<NameChangedEventArgs> NameChanged
+        {
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
+        }
+
         public string Name
         {
-            get { return _name; }
-            set
-            {
-                if (_name != value) {
-                    NameChangingEventArgs ea = new NameChangingEventArgs(_name, value);
-                    OnNameChanging(ea);
-                    if (ea.Cancel)
-                        return;
-
-                    string oldName = _name;
-                    _name = value;
-
-                    OnNameChanged(new NameChangedEventArgs(oldName, _name));
-                    OnPropertyProviderNameChanged(EventArgs.Empty);
-                }
-            }
+            get { return _name.Name; }
         }
 
-        public event EventHandler<NameChangingEventArgs> NameChanging;
-
-        /// <summary>
-        /// Occurs when the <see cref="Name"/> of this level changes.
-        /// </summary>
-        public event EventHandler<NameChangedEventArgs> NameChanged;
-
-        protected virtual void OnNameChanging (NameChangingEventArgs e)
+        public bool TrySetName (string name)
         {
-            if (NameChanging != null) {
-                NameChanging(this, e);
-            }
-        }
+            bool result = _name.TrySetName(name);
+            if (result)
+                OnModified(EventArgs.Empty);
 
-        /// <summary>
-        /// Raises the <see cref="NameChanged"/> event.
-        /// </summary>
-        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
-        protected virtual void OnNameChanged (NameChangedEventArgs e)
-        {
-            if (NameChanged != null) {
-                NameChanged(this, e);
-            }
-            OnModified(EventArgs.Empty);
+            return result;
         }
 
         #endregion
@@ -395,7 +414,7 @@ namespace Treefrog.Framework.Model
 
             switch (name) {
                 case "Name":
-                    prop = new StringProperty("Name", _name);
+                    prop = new StringProperty("Name", _name.Name);
                     prop.ValueChanged += NamePropertyChangedHandler;
                     return prop;
 
@@ -426,48 +445,42 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        private int _lastLocalTileIndex;
-        private Mapper<int, Guid> _localTileIndex = new Mapper<int,Guid>();
-
         public Mapper<int, Guid> TileIndex
         {
             get { return _localTileIndex; }
         }
 
-        public static Level FromXmlProxy (LevelX proxy, Project project)
+        public void Save (Stream stream)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings() {
+                CloseOutput = true,
+                Indent = true,
+            };
+
+            using (XmlWriter writer = XmlTextWriter.Create(stream, settings)) {
+                LevelX proxy = ToXProxy(this);
+
+                XmlSerializer serializer = new XmlSerializer(typeof(LevelX));
+                serializer.Serialize(writer, proxy);
+            }
+
+            ResetModified();
+        }
+
+        public static Level FromXProxy (LevelX proxy, Project project)
         {
             if (proxy == null)
                 return null;
 
-            Level level = new Level(proxy.Name, proxy.OriginX, proxy.OriginY, proxy.Width, proxy.Height);
-            level.Project = project;
+            Guid uid = proxy.PropertyGroup != null ? proxy.PropertyGroup.LevelGuid : Guid.NewGuid();
 
-            if (proxy.PropertyGroup != null) {
-                level.Uid = proxy.PropertyGroup.LevelGuid;
-                level._extra = proxy.PropertyGroup.Extra;
-            }
-
-            Dictionary<int, Guid> tileIndex = new Dictionary<int, Guid>();
-            foreach (var entry in proxy.TileIndex) {
-                level._localTileIndex.Add(entry.Id, entry.Uid);
-                level._lastLocalTileIndex = Math.Max(level._lastLocalTileIndex, entry.Id);
-                tileIndex.Add(entry.Id, entry.Uid);
-            }
-
-            foreach (LevelX.LayerX layerProxy in proxy.Layers) {
-                if (layerProxy is LevelX.MultiTileGridLayerX)
-                    level.Layers.Add(new MultiTileGridLayer(layerProxy as LevelX.MultiTileGridLayerX, level, tileIndex));
-                else if (layerProxy is LevelX.ObjectLayerX)
-                    level.Layers.Add(new ObjectLayer(layerProxy as LevelX.ObjectLayerX, level));
-            }
-
-            foreach (var propertyProxy in proxy.Properties)
-                level.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+            Level level = new Level(uid, proxy.Name);
+            level.Initialize(proxy, project);
 
             return level;
         }
 
-        public static LevelX ToXmlProxyX (Level level)
+        public static LevelX ToXProxy (Level level)
         {
             if (level == null)
                 return null;
@@ -477,18 +490,23 @@ namespace Treefrog.Framework.Model
                     TileGridLayer tileLayer = layer as TileGridLayer;
                     foreach (LocatedTile tile in tileLayer.Tiles) {
                         if (!level._localTileIndex.ContainsValue(tile.Tile.Uid))
-                            level._localTileIndex.Add(level._lastLocalTileIndex++, tile.Tile.Uid);
+                            level._localTileIndex.Add(level._indexSequence++, tile.Tile.Uid);
                     }
                 }
             }
 
-            List<LevelX.TileIndexEntryX> tileIndex = new List<LevelX.TileIndexEntryX>();
+            List<LevelX.TileIndexEntryX> tileIndexEntries = new List<LevelX.TileIndexEntryX>();
             foreach (var item in level._localTileIndex) {
-                tileIndex.Add(new LevelX.TileIndexEntryX() {
+                tileIndexEntries.Add(new LevelX.TileIndexEntryX() {
                     Id = item.Key,
                     Uid = item.Value,
                 });
             }
+
+            LevelX.TileIndexX tileIndex = new LevelX.TileIndexX() {
+                Entries = tileIndexEntries,
+                Sequence = level._indexSequence,
+            };
 
             List<AbstractXmlSerializer<LevelX.LayerX>> layers = new List<AbstractXmlSerializer<LevelX.LayerX>>();
             foreach (Layer layer in level.Layers) {
@@ -500,7 +518,7 @@ namespace Treefrog.Framework.Model
 
             LevelX.PropertyGroupX propGroup = new LevelX.PropertyGroupX() {
                 LevelGuid = level.Uid,
-                Extra = level._extra,
+                Extra = level.Extra,
             };
 
             if (level.Project != null)
@@ -513,7 +531,7 @@ namespace Treefrog.Framework.Model
                 OriginY = level.OriginY,
                 Width = level.Width,
                 Height = level.Height,
-                TileIndex = tileIndex.Count > 0 ? tileIndex : null,
+                TileIndex = tileIndex,
                 Layers = layers.Count > 0 ? layers : null,
             };
         }

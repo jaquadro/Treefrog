@@ -40,6 +40,8 @@ namespace Treefrog.Framework.Model
         protected TileGridLayer (string name, int tileWidth, int tileHeight, Level level)
             : base(name, tileWidth, tileHeight)
         {
+            Level = level;
+
             _tileOriginX = (int)Math.Floor(level.OriginX * 1.0 / tileWidth);
             _tileOriginY = (int)Math.Floor(level.OriginY * 1.0 / tileHeight);
 
@@ -199,49 +201,58 @@ namespace Treefrog.Framework.Model
 
         #endregion
 
-        public event EventHandler<LocatedTileEventArgs> TileAdding = (s, e) => { };
+        public event EventHandler<LocatedTileEventArgs> TileAdding;
 
-        public event EventHandler<LocatedTileEventArgs> TileRemoving = (s, e) => { };
+        public event EventHandler<LocatedTileEventArgs> TileRemoving;
 
-        public event EventHandler<LocatedTileEventArgs> TileClearing = (s, e) => { };
+        public event EventHandler<LocatedTileEventArgs> TileClearing;
 
-        public event EventHandler<LocatedTileEventArgs> TileAdded = (s, e) => { };
+        public event EventHandler<LocatedTileEventArgs> TileAdded;
 
-        public event EventHandler<LocatedTileEventArgs> TileRemoved = (s, e) => { };
+        public event EventHandler<LocatedTileEventArgs> TileRemoved;
 
-        public event EventHandler<LocatedTileEventArgs> TileCleared = (s, e) => { };
+        public event EventHandler<LocatedTileEventArgs> TileCleared;
 
         protected virtual void OnTileAdding (LocatedTileEventArgs e)
         {
-            TileAdding(this, e);
+            var ev = TileAdding;
+            if (ev != null)
+                ev(this, e);
         }
 
         protected virtual void OnTileRemoving (LocatedTileEventArgs e)
         {
-            TileRemoving(this, e);
+            var ev = TileRemoving;
+            if (ev != null)
+                ev(this, e);
         }
 
         protected virtual void OnTileClearing (LocatedTileEventArgs e)
         {
-            TileClearing(this, e);
+            var ev = TileClearing;
+            if (ev != null)
+                ev(this, e);
         }
 
         protected virtual void OnTileAdded (LocatedTileEventArgs e)
         {
-            TileAdded(this, e);
-            OnModified(e);
+            var ev = TileAdded;
+            if (ev != null)
+                ev(this, e);
         }
 
         protected virtual void OnTileRemoved (LocatedTileEventArgs e)
         {
-            TileRemoved(this, e);
-            OnModified(e);
+            var ev = TileRemoved;
+            if (ev != null)
+                ev(this, e);
         }
 
         protected virtual void OnTileCleared (LocatedTileEventArgs e)
         {
-            TileCleared(this, e);
-            OnModified(e);
+            var ev = TileCleared;
+            if (ev != null)
+                ev(this, e);
         }
 
         #region Checking Code

@@ -202,13 +202,14 @@ namespace Treefrog.Framework.Model
         public void Save (Stream stream, ProjectResolver resolver)
         {
             List<ProjectX.LibraryX> libraries = new List<ProjectX.LibraryX>();
+            List<ProjectX.LevelX> levels = new List<ProjectX.LevelX>();
 
             foreach (Library library in _libraryManager.Libraries) {
                 if (library.Name == null)
                     library.Name = Name;
 
                 if (library.FileName == null)
-                    library.FileName = library.Name + ".tlbx";
+                    library.FileName = FormatSafeFileName(library.Name + ".tlbx");
 
                 using (Stream libStream = resolver.OutputStream(library.FileName)) {
                     library.Save(libStream);
@@ -220,7 +221,16 @@ namespace Treefrog.Framework.Model
             }
 
             foreach (Level level in Levels) {
-                WriteLevel(resolver, level, level.Name + "_test.tlvx");
+                if (level.FileName == null)
+                    level.FileName = FormatSafeFileName(level.Name + ".tlvx");
+
+                using (Stream levStream = resolver.OutputStream(level.FileName)) {
+                    level.Save(levStream);
+                }
+
+                levels.Add(new ProjectX.LevelX() {
+                    Include = level.FileName,
+                });
             }
 
             XmlWriterSettings settings = new XmlWriterSettings() {
@@ -243,15 +253,9 @@ namespace Treefrog.Framework.Model
             proxy.ItemGroups.Add(new ProjectX.ItemGroupX() {
                 Libraries = libraries,
             });
-
-            ProjectX.ItemGroupX levelGroup = new ProjectX.ItemGroupX() {
-                Levels = new List<ProjectX.LevelX>()
-            };
-
-            foreach (Level level in Levels) 
-                levelGroup.Levels.Add(new ProjectX.LevelX() { Include = level.Name + "_test.tlvx" });
-
-            proxy.ItemGroups.Add(levelGroup);
+            proxy.ItemGroups.Add(new ProjectX.ItemGroupX() {
+                Levels = levels,
+            });
 
             XmlSerializer serializer = new XmlSerializer(typeof(ProjectX));
             serializer.Serialize(writer, proxy);
@@ -259,6 +263,11 @@ namespace Treefrog.Framework.Model
             writer.Close();
 
             ResetModified();
+        }
+
+        private string FormatSafeFileName (string name)
+        {
+            return String.Join("_", name.Split(Path.GetInvalidFileNameChars()));
         }
 
         public static Project FromXProxy (ProjectX proxy, ProjectResolver resolver)
@@ -298,7 +307,11 @@ namespace Treefrog.Framework.Model
 
                 if (itemGroup.Levels != null) {
                     foreach (var level in itemGroup.Levels) {
-                        LoadLevel(project, resolver, level.Include);
+                        using (Stream stream = resolver.InputStream(level.Include)) {
+                            project.Levels.Add(new Level(stream, project) {
+                                FileName = level.Include,
+                            });
+                        }
                     }
                 }
             }
@@ -326,6 +339,11 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        private void AddLevel (Level level)
+        {
+            _levels.Add(level);
+        }
+
         private void SetDefaultLibrary (Library library)
         {
             _defaultLibraryUid = library.Uid;
@@ -335,24 +353,6 @@ namespace Treefrog.Framework.Model
             _tilePools.Default = library.Uid;
             _objectPools.Default = library.Uid;
             _tileBrushes.Default = library.Uid;
-        }
-
-        private static void LoadLevel (Project project, ProjectResolver resolver, string levelPath)
-        {
-            using (Stream stream = resolver.InputStream(levelPath)) {
-                XmlReaderSettings settings = new XmlReaderSettings() {
-                    CloseInput = true,
-                    IgnoreComments = true,
-                    IgnoreWhitespace = true,
-                };
-
-                XmlReader reader = XmlTextReader.Create(stream, settings);
-
-                XmlSerializer serializer = new XmlSerializer(typeof(LevelX));
-                LevelX proxy = serializer.Deserialize(reader) as LevelX;
-
-                project.Levels.Add(Level.FromXmlProxy(proxy, project));
-            }
         }
 
         private static void WriteLevel (ProjectResolver resolver, Level level, string levelPath)
@@ -365,7 +365,7 @@ namespace Treefrog.Framework.Model
 
                 XmlWriter writer = XmlTextWriter.Create(stream, settings);
 
-                LevelX proxy = Level.ToXmlProxyX(level);
+                LevelX proxy = Level.ToXProxy(level);
                 XmlSerializer serializer = new XmlSerializer(typeof(LevelX));
                 serializer.Serialize(writer, proxy);
 

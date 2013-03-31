@@ -358,8 +358,6 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="book-bookmark.png" />
-    <Content Include="book.png" />
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
     <EmbeddedResource Include="Icons\DynBrushOverlays\Extended.png" />

@@ -431,7 +431,7 @@ namespace Treefrog.Presentation
                         form.ReservedNames.Add(lev.Name);
 
                     if (form.ShowDialog() == DialogResult.OK) 
-                        _level.Name = form.Name;
+                        _level.TrySetName(form.Name);
                 }
             }
         }

@@ -272,11 +272,13 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
+        public event EventHandler<EventArgs> PropertyProviderNameChanged;
 
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
         {
-            PropertyProviderNameChanged(this, e);
+            var ev = PropertyProviderNameChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         public string PropertyProviderName
