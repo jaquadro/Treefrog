@@ -25,24 +25,33 @@ namespace Treefrog.Framework.Model
 
     public class Library : IResource
     {
+        private readonly Guid _uid;
         private string _name;
 
-        public Library ()
+        private Library (Guid uid)
         {
-            Uid = Guid.NewGuid();
+            _uid = uid;
+        }
+
+        public Library ()
+            : this(Guid.NewGuid())
+        {
             Extra = new List<XmlElement>();
 
             TexturePool = new TexturePool();
-            ObjectPoolManager = new ObjectPoolManager(TexturePool);
-            TilePoolManager = new TilePoolManager(TexturePool);
-            TileBrushManager = new TileBrushManager();
 
+            ObjectPoolManager = new ObjectPoolManager(TexturePool);
             ObjectPoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+
+            TilePoolManager = new TilePoolManager(TexturePool);
             TilePoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+
+            TileBrushManager = new TileBrushManager();
             TileBrushManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public Library (Stream stream)
+            : this(Guid.NewGuid())
         {
             Extra = new List<XmlElement>();
 
@@ -56,11 +65,36 @@ namespace Treefrog.Framework.Model
                 XmlSerializer serializer = new XmlSerializer(typeof(LibraryX));
                 LibraryX proxy = serializer.Deserialize(reader) as LibraryX;
 
-                FromXProxy(proxy, this);
+                if (proxy.PropertyGroup != null)
+                    _uid = proxy.PropertyGroup.LibraryGuid;
+
+                Initialize(proxy);
             }
         }
 
-        public Guid Uid { get; private set; }
+        private void Initialize (LibraryX proxy)
+        {
+            if (proxy.PropertyGroup != null) {
+                Name = proxy.PropertyGroup.LibraryName;
+                Extra = proxy.PropertyGroup.Extra ?? new List<XmlElement>();
+            }
+
+            TexturePool = TexturePool.FromXmlProxy(proxy.TextureGroup) ?? new TexturePool();
+
+            ObjectPoolManager = ObjectPoolManager.FromXmlProxy(proxy.ObjectGroup, TexturePool) ?? new ObjectPoolManager(TexturePool);
+            ObjectPoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+
+            TilePoolManager = TilePoolManager.FromXmlProxy(proxy.TileGroup, TexturePool) ?? new TilePoolManager(TexturePool);
+            TilePoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+
+            TileBrushManager = TileBrushManager.FromXProxy(proxy.TileBrushGroup, TilePoolManager, Project.DynamicBrushClassRegistry) ?? new TileBrushManager();
+            TileBrushManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+        }
+
+        public Guid Uid
+        {
+            get { return _uid; }
+        }
 
         public List<XmlElement> Extra { get; private set; }
 
@@ -140,35 +174,10 @@ namespace Treefrog.Framework.Model
             if (proxy == null)
                 return null;
 
-            return FromXProxy(proxy, new Library());
-        }
+            Guid uid = proxy.PropertyGroup != null ? proxy.PropertyGroup.LibraryGuid : Guid.NewGuid();
 
-        private static Library FromXProxy (LibraryX proxy, Library library)
-        {
-            if (proxy == null)
-                return null;
-
-            if (proxy.PropertyGroup != null) {
-                library.Uid = proxy.PropertyGroup.LibraryGuid;
-                library.Name = proxy.PropertyGroup.LibraryName;
-                library.Extra = proxy.PropertyGroup.Extra ?? new List<XmlElement>();
-            }
-
-            library.TexturePool = TexturePool.FromXmlProxy(proxy.TextureGroup);
-            if (library.TexturePool == null)
-                library.TexturePool = new TexturePool();
-
-            library.ObjectPoolManager = ObjectPoolManager.FromXmlProxy(proxy.ObjectGroup, library.TexturePool);
-            if (library.ObjectPoolManager == null)
-                library.ObjectPoolManager = new ObjectPoolManager(library.TexturePool);
-
-            library.TilePoolManager = TilePoolManager.FromXmlProxy(proxy.TileGroup, library.TexturePool);
-            if (library.TilePoolManager == null)
-                library.TilePoolManager = new TilePoolManager(library.TexturePool);
-
-            library.TileBrushManager = TileBrushManager.FromXProxy(proxy.TileBrushGroup, library.TilePoolManager, Project.DynamicBrushClassRegistry);
-            if (library.TileBrushManager == null)
-                library.TileBrushManager = new TileBrushManager();
+            Library library = new Library(uid);
+            library.Initialize(proxy);
 
             return library;
         }

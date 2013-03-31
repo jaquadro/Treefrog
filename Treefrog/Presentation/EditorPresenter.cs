@@ -226,6 +226,7 @@ namespace Treefrog.Presentation
             info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
+            Project.ResetModified();
 
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
@@ -278,6 +279,7 @@ namespace Treefrog.Presentation
             info.BindInfoPresenter(CurrentLevel.InfoPresenter);
 
             Modified = false;
+            Project.ResetModified();
 
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
@@ -325,6 +327,7 @@ namespace Treefrog.Presentation
             }
 
             Modified = false;
+            Project.ResetModified();
 
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
