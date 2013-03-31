@@ -26,6 +26,8 @@ namespace Treefrog.Framework.Model
             if (_brushClass == null)
                 return;
 
+            _tiles = _brushClass.CreateTileProxyList();
+
             foreach (var entry in proxy.Entries) {
                 TilePool pool = manager.PoolFromItemKey(entry.TileId);
                 if (pool == null)
