@@ -34,34 +34,33 @@
             this._buttonBrowse = new System.Windows.Forms.Button();
             this._textObjectName = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this._previewBox = new System.Windows.Forms.PictureBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this._numMaskBottom = new System.Windows.Forms.NumericUpDown();
+            this._numMaskRight = new System.Windows.Forms.NumericUpDown();
+            this._numMaskTop = new System.Windows.Forms.NumericUpDown();
+            this._numMaskLeft = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this._numOriginY = new System.Windows.Forms.NumericUpDown();
+            this._numOriginX = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this._buttonCancel = new System.Windows.Forms.Button();
             this._buttonOK = new System.Windows.Forms.Button();
-            this._numMaskLeft = new System.Windows.Forms.NumericUpDown();
-            this._numMaskTop = new System.Windows.Forms.NumericUpDown();
-            this._numMaskRight = new System.Windows.Forms.NumericUpDown();
-            this._numMaskBottom = new System.Windows.Forms.NumericUpDown();
-            this._numOriginX = new System.Windows.Forms.NumericUpDown();
-            this._numOriginY = new System.Windows.Forms.NumericUpDown();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._previewBox)).BeginInit();
             this.groupBox3.SuspendLayout();
-            this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._numMaskLeft)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numMaskTop)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numMaskRight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._numMaskBottom)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numOriginX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numMaskRight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numMaskTop)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numMaskLeft)).BeginInit();
+            this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._numOriginY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numOriginX)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -123,22 +122,13 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this._previewBox);
+            this.groupBox2.Controls.Add(this.panel1);
             this.groupBox2.Location = new System.Drawing.Point(351, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(199, 199);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Preview";
-            // 
-            // _previewBox
-            // 
-            this._previewBox.BackColor = System.Drawing.SystemColors.ControlDark;
-            this._previewBox.Location = new System.Drawing.Point(6, 19);
-            this._previewBox.Name = "_previewBox";
-            this._previewBox.Size = new System.Drawing.Size(187, 174);
-            this._previewBox.TabIndex = 0;
-            this._previewBox.TabStop = false;
             // 
             // groupBox3
             // 
@@ -156,6 +146,78 @@
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Mask Bounds";
+            // 
+            // _numMaskBottom
+            // 
+            this._numMaskBottom.Location = new System.Drawing.Point(266, 45);
+            this._numMaskBottom.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this._numMaskBottom.Minimum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            -2147483648});
+            this._numMaskBottom.Name = "_numMaskBottom";
+            this._numMaskBottom.Size = new System.Drawing.Size(61, 20);
+            this._numMaskBottom.TabIndex = 11;
+            this._numMaskBottom.ValueChanged += new System.EventHandler(this._numMaskBottom_ValueChanged);
+            // 
+            // _numMaskRight
+            // 
+            this._numMaskRight.Location = new System.Drawing.Point(266, 20);
+            this._numMaskRight.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this._numMaskRight.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
+            this._numMaskRight.Name = "_numMaskRight";
+            this._numMaskRight.Size = new System.Drawing.Size(61, 20);
+            this._numMaskRight.TabIndex = 10;
+            this._numMaskRight.ValueChanged += new System.EventHandler(this._numMaskRight_ValueChanged);
+            // 
+            // _numMaskTop
+            // 
+            this._numMaskTop.Location = new System.Drawing.Point(84, 45);
+            this._numMaskTop.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this._numMaskTop.Minimum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            -2147483648});
+            this._numMaskTop.Name = "_numMaskTop";
+            this._numMaskTop.Size = new System.Drawing.Size(61, 20);
+            this._numMaskTop.TabIndex = 9;
+            this._numMaskTop.ValueChanged += new System.EventHandler(this._numMaskTop_ValueChanged);
+            // 
+            // _numMaskLeft
+            // 
+            this._numMaskLeft.Location = new System.Drawing.Point(84, 19);
+            this._numMaskLeft.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this._numMaskLeft.Minimum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            -2147483648});
+            this._numMaskLeft.Name = "_numMaskLeft";
+            this._numMaskLeft.Size = new System.Drawing.Size(61, 20);
+            this._numMaskLeft.TabIndex = 8;
+            this._numMaskLeft.ValueChanged += new System.EventHandler(this._numMaskLeft_ValueChanged);
             // 
             // label6
             // 
@@ -206,6 +268,42 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Origin";
             // 
+            // _numOriginY
+            // 
+            this._numOriginY.Location = new System.Drawing.Point(266, 19);
+            this._numOriginY.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this._numOriginY.Minimum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            -2147483648});
+            this._numOriginY.Name = "_numOriginY";
+            this._numOriginY.Size = new System.Drawing.Size(61, 20);
+            this._numOriginY.TabIndex = 13;
+            this._numOriginY.ValueChanged += new System.EventHandler(this._numOriginY_ValueChanged);
+            // 
+            // _numOriginX
+            // 
+            this._numOriginX.Location = new System.Drawing.Point(84, 19);
+            this._numOriginX.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this._numOriginX.Minimum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            -2147483648});
+            this._numOriginX.Name = "_numOriginX";
+            this._numOriginX.Size = new System.Drawing.Size(61, 20);
+            this._numOriginX.TabIndex = 12;
+            this._numOriginX.ValueChanged += new System.EventHandler(this._numOriginX_ValueChanged);
+            // 
             // label8
             // 
             this.label8.AutoSize = true;
@@ -245,113 +343,13 @@
             this._buttonOK.UseVisualStyleBackColor = true;
             this._buttonOK.Click += new System.EventHandler(this._buttonOK_Click);
             // 
-            // _numMaskLeft
+            // panel1
             // 
-            this._numMaskLeft.Location = new System.Drawing.Point(84, 19);
-            this._numMaskLeft.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._numMaskLeft.Minimum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            -2147483648});
-            this._numMaskLeft.Name = "_numMaskLeft";
-            this._numMaskLeft.Size = new System.Drawing.Size(61, 20);
-            this._numMaskLeft.TabIndex = 8;
-            this._numMaskLeft.ValueChanged += new System.EventHandler(this._numMaskLeft_ValueChanged);
-            // 
-            // _numMaskTop
-            // 
-            this._numMaskTop.Location = new System.Drawing.Point(84, 45);
-            this._numMaskTop.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._numMaskTop.Minimum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            -2147483648});
-            this._numMaskTop.Name = "_numMaskTop";
-            this._numMaskTop.Size = new System.Drawing.Size(61, 20);
-            this._numMaskTop.TabIndex = 9;
-            this._numMaskTop.ValueChanged += new System.EventHandler(this._numMaskTop_ValueChanged);
-            // 
-            // _numMaskRight
-            // 
-            this._numMaskRight.Location = new System.Drawing.Point(266, 20);
-            this._numMaskRight.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._numMaskRight.Minimum = new decimal(new int[] {
-            999999,
-            0,
-            0,
-            -2147483648});
-            this._numMaskRight.Name = "_numMaskRight";
-            this._numMaskRight.Size = new System.Drawing.Size(61, 20);
-            this._numMaskRight.TabIndex = 10;
-            this._numMaskRight.ValueChanged += new System.EventHandler(this._numMaskRight_ValueChanged);
-            // 
-            // _numMaskBottom
-            // 
-            this._numMaskBottom.Location = new System.Drawing.Point(266, 45);
-            this._numMaskBottom.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._numMaskBottom.Minimum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            -2147483648});
-            this._numMaskBottom.Name = "_numMaskBottom";
-            this._numMaskBottom.Size = new System.Drawing.Size(61, 20);
-            this._numMaskBottom.TabIndex = 11;
-            this._numMaskBottom.ValueChanged += new System.EventHandler(this._numMaskBottom_ValueChanged);
-            // 
-            // _numOriginX
-            // 
-            this._numOriginX.Location = new System.Drawing.Point(84, 19);
-            this._numOriginX.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._numOriginX.Minimum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            -2147483648});
-            this._numOriginX.Name = "_numOriginX";
-            this._numOriginX.Size = new System.Drawing.Size(61, 20);
-            this._numOriginX.TabIndex = 12;
-            this._numOriginX.ValueChanged += new System.EventHandler(this._numOriginX_ValueChanged);
-            // 
-            // _numOriginY
-            // 
-            this._numOriginY.Location = new System.Drawing.Point(266, 19);
-            this._numOriginY.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this._numOriginY.Minimum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            -2147483648});
-            this._numOriginY.Name = "_numOriginY";
-            this._numOriginY.Size = new System.Drawing.Size(61, 20);
-            this._numOriginY.TabIndex = 13;
-            this._numOriginY.ValueChanged += new System.EventHandler(this._numOriginY_ValueChanged);
+            this.panel1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.panel1.Location = new System.Drawing.Point(6, 19);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(187, 174);
+            this.panel1.TabIndex = 0;
             // 
             // ImportObject
             // 
@@ -374,17 +372,16 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this._previewBox)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._numMaskBottom)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numMaskRight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numMaskTop)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numMaskLeft)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._numMaskLeft)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numMaskTop)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numMaskRight)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numMaskBottom)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numOriginX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._numOriginY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numOriginX)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -408,12 +405,12 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button _buttonCancel;
         private System.Windows.Forms.Button _buttonOK;
-        private System.Windows.Forms.PictureBox _previewBox;
         private System.Windows.Forms.NumericUpDown _numMaskLeft;
         private System.Windows.Forms.NumericUpDown _numMaskBottom;
         private System.Windows.Forms.NumericUpDown _numMaskRight;
         private System.Windows.Forms.NumericUpDown _numMaskTop;
         private System.Windows.Forms.NumericUpDown _numOriginY;
         private System.Windows.Forms.NumericUpDown _numOriginX;
+        private System.Windows.Forms.Panel panel1;
     }
 }

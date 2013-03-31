@@ -181,6 +181,9 @@
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Windows\Controls\LilyPathControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Windows\Forms\NameChangeForm.cs">
       <SubType>Form</SubType>
     </Compile>

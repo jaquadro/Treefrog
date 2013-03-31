@@ -219,7 +219,7 @@ namespace Treefrog.Windows.Layers
             Vector2 offset = GetOffset();
             Matrix transform = Matrix.CreateTranslation(offset.X, offset.Y, 0);
 
-            drawBatch.Begin(BlendState.NonPremultiplied, samplerState, null, _rasterState, transform);
+            drawBatch.Begin(DrawSortMode.Deferred, BlendState.NonPremultiplied, samplerState, null, _rasterState, null, transform);
 
             return offset;
         }

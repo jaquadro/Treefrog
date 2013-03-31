@@ -2,13 +2,20 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Treefrog.Framework.Imaging;
 using Treefrog.Aux;
 using Treefrog.Windows.Controllers;
+using Treefrog.Windows.Controls;
+using Treefrog.Presentation.Layers;
+using Treefrog.Presentation;
+using Treefrog.Framework.Model;
+using LilyPath;
+
+using Xna = Microsoft.Xna.Framework;
 
 namespace Treefrog.Windows.Forms
 {
@@ -45,6 +52,26 @@ namespace Treefrog.Windows.Forms
                 ValidationController.ValidateNumericUpDownFunc("Origin X", _numOriginX));
             _validateController.RegisterControl(_numOriginY,
                 ValidationController.ValidateNumericUpDownFunc("Origin Y", _numOriginY));
+
+            InitializeObjectPreview();
+        }
+
+        protected override void OnClosed (EventArgs e)
+        {
+            if (_objectBrush != null) {
+                _objectBrush.Dispose();
+                _objectBrush = null;
+            }
+
+            if (_maskPen != null) {
+                _maskPen.Brush.Dispose();
+                _maskPen.Dispose();
+                _maskPen = null;
+            }
+
+            _drawControl.Dispose();
+
+            base.OnClosed(e);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -187,6 +214,7 @@ namespace Treefrog.Windows.Forms
             set
             {
                 if (_originY != value) {
+                    UpdateOrigin(_originX, value);
                 }
             }
         }
@@ -257,12 +285,40 @@ namespace Treefrog.Windows.Forms
 
         #region Object Preview Management
 
+        private TexturePool _localTexturePool;
+        private TilePoolManager _localManager;
+        private LayerGraphicsControl _layerControl;
+        private GroupLayerPresenter _rootLayer;
+        private TileSetLayerPresenter _previewLayer;
+
+        private LilyPathControl _drawControl;
+
         private bool _sourceFileValid = false;
         private TextureResource _sourceImage;
 
         public TextureResource SourceImage
         {
             get { return _sourceImage; }
+        }
+
+        private void InitializeObjectPreview ()
+        {
+            _drawControl = new LilyPathControl();
+            _drawControl.Dock = DockStyle.Fill;
+            _drawControl.DrawAction = DrawObjectAction;
+
+            panel1.Controls.Add(_drawControl);
+
+            /*_layerControl = new LayerGraphicsControl();
+            _layerControl.Dock = DockStyle.Fill;
+            _layerControl.WidthSynced = true;
+            _layerControl.CanvasAlignment = CanvasAlignment.UpperLeft;
+            _layerControl.TextureCache.SourcePool = _localManager.TexturePool;
+
+            _rootLayer = new GroupLayerPresenter();
+            _layerControl.RootLayer = new GroupLayer(_rootLayer);
+
+            _previewPanel.Controls.Add(_layerControl);*/
         }
 
         private void ClearObjectPreiew ()
@@ -294,10 +350,49 @@ namespace Treefrog.Windows.Forms
             }
         }
 
+        private TextureBrush _objectBrush;
+        private Pen _maskPen;
+        
+
+        private void DrawObjectAction (DrawBatch drawBatch)
+        {
+            if (_sourceImage == null)
+                return;
+
+            if (_objectBrush == null)
+                _objectBrush = new TextureBrush(_sourceImage.CreateTexture(_drawControl.GraphicsDevice));
+            if (_maskPen == null)
+                _maskPen = new Pen(new CheckerBrush(_drawControl.GraphicsDevice, Xna.Color.Black, Xna.Color.White, 4, .75f), true);
+
+            int originX = (_drawControl.Width - _sourceImage.Width) / 2;
+            int originY = (_drawControl.Height - _sourceImage.Height) / 2;
+
+            _objectBrush.Transform = Microsoft.Xna.Framework.Matrix.CreateTranslation(-(float)originX / _sourceImage.Width, -(float)originY / _sourceImage.Height, 0);
+
+            drawBatch.Begin();
+
+            drawBatch.FillRectangle(_objectBrush, new Microsoft.Xna.Framework.Rectangle(originX, originY, _sourceImage.Width, _sourceImage.Height));
+            drawBatch.DrawRectangle(_maskPen, new Microsoft.Xna.Framework.Rectangle(
+                originX - 1 + (_maskLeft ?? 0) + (_originX ?? 0), 
+                originY - 1 + (_maskTop ?? 0) + (_originY ?? 0), 
+                1 + (_maskRight - _maskLeft) ?? 0, 
+                1 + (_maskBottom - _maskTop) ?? 0));
+
+            drawBatch.FillCircle(Brushes.White, new Xna.Vector2(originX + _originX ?? 0, originY + _originY ?? 0), 4, 12);
+            drawBatch.FillCircle(Brushes.Black, new Xna.Vector2(originX + _originX ?? 0, originY + _originY ?? 0), 3, 12);
+
+            drawBatch.End();
+        }
+
         private void ResetObjectPreview ()
         {
             if (!_validateController.ValidateForm())
                 ClearObjectPreiew();
+
+            if (_objectBrush != null) {
+                _objectBrush.Dispose();
+                _objectBrush = null;
+            }
 
             if (_sourceFileValid)
                 LoadObjectPreview(_sourceFile);
