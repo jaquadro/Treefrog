@@ -29,6 +29,8 @@ namespace Treefrog.Windows.Annotations
                 (int)(Math.Abs(_data.End.Y - _data.Start.Y) * zoomFactor)
                 );
 
+            if (FillGlow != null)
+                drawBatch.FillRectangle(FillGlow, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2));
             if (Fill != null)
                 drawBatch.FillRectangle(Fill, rect);
             if (OutlineGlow != null)

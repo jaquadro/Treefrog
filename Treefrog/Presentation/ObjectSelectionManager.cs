@@ -15,6 +15,7 @@ namespace Treefrog.Presentation
         {
             public ObjectInstance Instance { get; set; }
             public SelectionAnnot Annot { get; set; }
+            public SelectionAnnot OriginAnnot { get; set; }
             public Point InitialLocation { get; set; }
         }
 
@@ -30,6 +31,8 @@ namespace Treefrog.Presentation
         private static Brush SelectedAnnotFill = null; //new SolidColorBrush(new Color(128, 77, 255, 96));
         private static Pen SelectedAnnotOutline = new Pen(new SolidColorBrush(new Color(145, 207, 255, 255)), 2);
         private static Pen SelectedAnnotOutlineGlow = new Pen(new SolidColorBrush(new Color(0, 0, 0, 192)), 4);
+        private static Brush SelectedAnnotOriginFill = new SolidColorBrush(new Color(145, 207, 255, 255));
+        private static Brush SelectedAnnotOriginFillGlow = new SolidColorBrush(new Color(0, 0, 0, 192));
         //private static Pen SelectedAnnotOutline = new Pen(new StippleBrush(StipplePattern2px, new Color(96, 0, 255, 255)));
 
         public ObjectSelectionManager ()
@@ -84,6 +87,11 @@ namespace Treefrog.Presentation
                     Outline = SelectedAnnotOutline,
                     OutlineGlow = SelectedAnnotOutlineGlow,
                 },
+                OriginAnnot = new SelectionAnnot(new Point(obj.X - 3, obj.Y - 3)) {
+                    End = new Point(obj.X + 3, obj.Y + 3),
+                    Fill = SelectedAnnotOriginFill,
+                    FillGlow = SelectedAnnotOriginFillGlow,
+                },
                 InitialLocation = new Point(obj.X, obj.Y),
             };
 
@@ -93,6 +101,7 @@ namespace Treefrog.Presentation
             _selectedObjects.Add(record);
 
             AddAnnotation(record.Annot);
+            AddAnnotation(record.OriginAnnot);
 
             OnSelectionChanged(EventArgs.Empty);
         }
@@ -108,6 +117,7 @@ namespace Treefrog.Presentation
             foreach (SelectedObjectRecord record in _selectedObjects) {
                 if (record.Instance == obj) {
                     RemoveAnnotation(record.Annot);
+                    RemoveAnnotation(record.OriginAnnot);
 
                     _selectedObjects.Remove(record);
 
@@ -137,6 +147,7 @@ namespace Treefrog.Presentation
 
             foreach (SelectedObjectRecord record in _selectedObjects) {
                 RemoveAnnotation(record.Annot);
+                RemoveAnnotation(record.OriginAnnot);
 
                 record.Instance.PositionChanged -= InstancePositionChanged;
                 record.Instance.RotationChanged -= InstanceRotationChanged;
@@ -166,6 +177,7 @@ namespace Treefrog.Presentation
                 foreach (var record in _selectedObjects) {
                     if (record.Instance == inst) {
                         record.Annot.MoveTo(inst.ImageBounds.Location);
+                        record.OriginAnnot.MoveTo(new Point(inst.X - 3, inst.Y - 3));
                         break;
                     }
                 }
@@ -297,6 +309,8 @@ namespace Treefrog.Presentation
                 foreach (SelectedObjectRecord record in _selectedObjects) {
                     if (!Annotations.Contains(record.Annot))
                         Annotations.Add(record.Annot);
+                    if (!Annotations.Contains(record.OriginAnnot))
+                        Annotations.Add(record.OriginAnnot);
                 }
             }
 
@@ -309,8 +323,10 @@ namespace Treefrog.Presentation
                 return;
 
             if (Annotations != null) {
-                foreach (SelectedObjectRecord record in _selectedObjects)
+                foreach (SelectedObjectRecord record in _selectedObjects) {
                     Annotations.Remove(record.Annot);
+                    Annotations.Remove(record.OriginAnnot);
+                }
             }
 
             _hidden = true;

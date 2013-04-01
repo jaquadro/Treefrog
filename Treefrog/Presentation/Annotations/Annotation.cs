@@ -13,6 +13,7 @@ namespace Treefrog.Presentation.Annotations
     public abstract class DrawAnnotation : Annotation
     {
         private Brush _fill;
+        private Brush _fillGlow;
         private Pen _outline;
         private Pen _outlineGlow;
 
@@ -24,6 +25,18 @@ namespace Treefrog.Presentation.Annotations
                 if (_fill != value) {
                     _fill = value;
                     OnFillInvalidated(EventArgs.Empty);
+                }
+            }
+        }
+
+        public Brush FillGlow
+        {
+            get { return _fillGlow; }
+            set
+            {
+                if (_fillGlow != value) {
+                    _fillGlow = value;
+                    OnFillGlowInvalidated(EventArgs.Empty);
                 }
             }
         }
@@ -53,12 +66,20 @@ namespace Treefrog.Presentation.Annotations
         }
 
         public event EventHandler FillInvalidated;
+        public event EventHandler FillGlowInvalidated;
         public event EventHandler OutlineInvalidated;
         public event EventHandler OutlineGlowInvalidated;
 
         protected virtual void OnFillInvalidated (EventArgs e)
         {
             var ev = FillInvalidated;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnFillGlowInvalidated (EventArgs e)
+        {
+            var ev = FillGlowInvalidated;
             if (ev != null)
                 ev(this, e);
         }

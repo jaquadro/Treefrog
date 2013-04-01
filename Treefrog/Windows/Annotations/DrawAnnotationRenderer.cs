@@ -9,6 +9,7 @@ namespace Treefrog.Windows.Annotations
     {
         private DrawAnnotation _data;
         private Brush _fillBrush;
+        private Brush _fillGlowBrush;
         private Pen _outlinePen;
         private Pen _outlineGlowPen;
 
@@ -16,6 +17,7 @@ namespace Treefrog.Windows.Annotations
         {
             _data = data;
             _data.FillInvalidated += HandleFillInvalidated;
+            _data.FillGlowInvalidated += HandleFillGlowInvalidated;
             _data.OutlineInvalidated += HandleOutlineInvalidated;
             _data.OutlineGlowInvalidated += HandleOutlineGlowInvalidated;
         }
@@ -24,6 +26,7 @@ namespace Treefrog.Windows.Annotations
         {
             if (_data != null) {
                 _data.FillInvalidated -= HandleFillInvalidated;
+                _data.FillGlowInvalidated -= HandleFillGlowInvalidated;
                 _data.OutlineInvalidated -= HandleOutlineInvalidated;
                 _data.OutlineGlowInvalidated -= HandleOutlineGlowInvalidated;
                 _data = null;
@@ -32,6 +35,11 @@ namespace Treefrog.Windows.Annotations
             if (_fillBrush != null) {
                 _fillBrush.Dispose();
                 _fillBrush = null;
+            }
+
+            if (_fillGlowBrush != null) {
+                _fillGlowBrush.Dispose();
+                _fillGlowBrush = null;
             }
 
             if (_outlinePen != null) {
@@ -52,6 +60,11 @@ namespace Treefrog.Windows.Annotations
             get { return _fillBrush; }
         }
 
+        protected virtual Brush FillGlow
+        {
+            get { return _fillGlowBrush; }
+        }
+
         protected virtual Pen Outline
         {
             get { return _outlinePen; }
@@ -66,6 +79,8 @@ namespace Treefrog.Windows.Annotations
         {
             if (_fillBrush == null && _data.Fill != null)
                 _fillBrush = BrushFactory.Create(device, _data.Fill);
+            if (_fillGlowBrush == null && _data.FillGlow != null)
+                _fillGlowBrush = BrushFactory.Create(device, _data.FillGlow);
             if (_outlinePen == null && _data.Outline != null)
                 _outlinePen = PenFactory.Create(device, _data.Outline);
             if (_outlineGlowPen == null && _data.OutlineGlow != null)
@@ -77,6 +92,14 @@ namespace Treefrog.Windows.Annotations
             if (_fillBrush != null) {
                 _fillBrush.Dispose();
                 _fillBrush = null;
+            }
+        }
+
+        private void HandleFillGlowInvalidated (object sender, EventArgs e)
+        {
+            if (_fillGlowBrush != null) {
+                _fillGlowBrush.Dispose();
+                _fillGlowBrush = null;
             }
         }
 
