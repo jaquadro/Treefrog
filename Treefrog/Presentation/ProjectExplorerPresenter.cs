@@ -16,15 +16,21 @@ namespace Treefrog.Presentation
             LevelAdded,
             LevelRemoved,
             LevelModified,
+
+            ObjectAdded,
+            ObjectRemoved,
+            ObjectModified,
         }
 
         private IEditorPresenter _editor;
 
         private Project _project;
         private LibraryManager _libraryManager;
+        private IObjectPoolManager _objectPoolManager;
 
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<Library>>> _libraryEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<Level>>> _levelEventBindings;
+        private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
 
         public ProjectExplorerPresenter (IEditorPresenter editor)
         {
@@ -41,6 +47,12 @@ namespace Treefrog.Presentation
                 { EventBindings.LevelAdded, (s, e) => OnLevelAdded(new ResourceEventArgs<Level>(e.Resource)) },
                 { EventBindings.LevelRemoved, (s, e) => OnLevelRemoved(new ResourceEventArgs<Level>(e.Resource)) },
                 { EventBindings.LevelModified, (s, e) => OnLevelModified(new ResourceEventArgs<Level>(e.Resource)) },
+            };
+
+            _objectEventBindings = new Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>>() {
+                { EventBindings.ObjectAdded, (s, e) => OnObjectAdded(new ResourceEventArgs<ObjectClass>(e.Resource)) },
+                { EventBindings.ObjectRemoved, (s, e) => OnObjectRemoved(new ResourceEventArgs<ObjectClass>(e.Resource)) },
+                { EventBindings.ObjectModified, (s, e) => OnObjectModified(new ResourceEventArgs<ObjectClass>(e.Resource)) },
             };
         }
 
@@ -92,9 +104,11 @@ namespace Treefrog.Presentation
                 _project.Levels.ResourceModified += _levelEventBindings[EventBindings.LevelModified];
 
                 BindLibraryManager(_project.LibraryManager);
+                BindObjectManager(_project.ObjectPoolManager);
             }
             else {
                 BindLibraryManager(null);
+                BindObjectManager(null);
             }
 
             OnProjectReset(EventArgs.Empty);
@@ -120,9 +134,61 @@ namespace Treefrog.Presentation
             }
         }
 
+        private void BindObjectManager (IObjectPoolManager manager)
+        {
+            if (_objectPoolManager == manager)
+                return;
+
+            if (_objectPoolManager != null) {
+                _objectPoolManager.Pools.ResourceAdded -= ObjectPoolAddedHandler;
+                _objectPoolManager.Pools.ResourceRemoved -= ObjectPoolRemovedHandler;
+
+                foreach (ObjectPool pool in _objectPoolManager.Pools)
+                    UnhookObjectPool(pool);
+            }
+
+            _objectPoolManager = manager;
+
+            if (_objectPoolManager != null) {
+                _objectPoolManager.Pools.ResourceAdded += ObjectPoolAddedHandler;
+                _objectPoolManager.Pools.ResourceRemoved += ObjectPoolRemovedHandler;
+
+                foreach (ObjectPool pool in _objectPoolManager.Pools)
+                    HookObjectPool(pool);
+            }
+        }
+
+        private void UnhookObjectPool (ObjectPool pool)
+        {
+            if (pool != null) {
+                pool.Objects.ResourceAdded -= _objectEventBindings[EventBindings.ObjectAdded];
+                pool.Objects.ResourceRemoved -= _objectEventBindings[EventBindings.ObjectRemoved];
+                pool.Objects.ResourceModified -= _objectEventBindings[EventBindings.ObjectModified];
+            }
+        }
+
+        private void HookObjectPool (ObjectPool pool)
+        {
+            if (pool != null) {
+                pool.Objects.ResourceAdded += _objectEventBindings[EventBindings.ObjectAdded];
+                pool.Objects.ResourceRemoved += _objectEventBindings[EventBindings.ObjectRemoved];
+                pool.Objects.ResourceModified += _objectEventBindings[EventBindings.ObjectModified];
+            }
+        }
+
         public Project Project
         {
             get { return _editor.Project; }
+        }
+
+        private void ObjectPoolAddedHandler (object sender, ResourceEventArgs<ObjectPool> e)
+        {
+            HookObjectPool(e.Resource);
+        }
+
+        private void ObjectPoolRemovedHandler (object sender, ResourceEventArgs<ObjectPool> e)
+        {
+            UnhookObjectPool(e.Resource);
         }
 
         public event EventHandler ProjectReset;
@@ -180,6 +246,31 @@ namespace Treefrog.Presentation
         protected virtual void OnLevelModified (ResourceEventArgs<Level> e)
         {
             var ev = LevelModified;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        public event EventHandler<ResourceEventArgs<ObjectClass>> ObjectAdded;
+        public event EventHandler<ResourceEventArgs<ObjectClass>> ObjectRemoved;
+        public event EventHandler<ResourceEventArgs<ObjectClass>> ObjectModified;
+
+        protected virtual void OnObjectAdded (ResourceEventArgs<ObjectClass> e)
+        {
+            var ev = ObjectAdded;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnObjectRemoved (ResourceEventArgs<ObjectClass> e)
+        {
+            var ev = ObjectRemoved;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnObjectModified (ResourceEventArgs<ObjectClass> e)
+        {
+            var ev = ObjectModified;
             if (ev != null)
                 ev(this, e);
         }
