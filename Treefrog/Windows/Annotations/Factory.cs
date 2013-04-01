@@ -21,6 +21,12 @@ namespace Treefrog.Windows.Annotations
                     return new XnaDrawing.TextureBrush(pattern, (float)pBrush.Opacity);
                 }
             }
+            else if (brush is Drawing.CheckerBrush) {
+                Drawing.CheckerBrush cBrush = brush as Drawing.CheckerBrush;
+                Color color1 = cBrush.Color1.ToXnaColor();
+                Color color2 = cBrush.Color2.ToXnaColor();
+                return new XnaDrawing.CheckerBrush(device, color1, color2, cBrush.Width, cBrush.Height, (float)cBrush.Opacity);
+            }
 
             return null;
         }

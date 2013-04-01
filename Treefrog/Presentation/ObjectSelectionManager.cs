@@ -28,7 +28,8 @@ namespace Treefrog.Presentation
         private List<SelectedObjectRecord> _selectedObjects;
 
         private static Brush SelectedAnnotFill = null; //new SolidColorBrush(new Color(128, 77, 255, 96));
-        private static Pen SelectedAnnotOutline = new Pen(new SolidColorBrush(new Color(96, 0, 255, 255)), 1);
+        private static Pen SelectedAnnotOutline = new Pen(new SolidColorBrush(new Color(145, 207, 255, 255)), 2);
+        private static Pen SelectedAnnotOutlineGlow = new Pen(new SolidColorBrush(new Color(0, 0, 0, 192)), 4);
         //private static Pen SelectedAnnotOutline = new Pen(new StippleBrush(StipplePattern2px, new Color(96, 0, 255, 255)));
 
         public ObjectSelectionManager ()
@@ -81,6 +82,7 @@ namespace Treefrog.Presentation
                     End = new Point(obj.ImageBounds.Right, obj.ImageBounds.Bottom),
                     Fill = SelectedAnnotFill,
                     Outline = SelectedAnnotOutline,
+                    OutlineGlow = SelectedAnnotOutlineGlow,
                 },
                 InitialLocation = new Point(obj.X, obj.Y),
             };

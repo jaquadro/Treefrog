@@ -24,8 +24,10 @@ namespace Treefrog.Windows.Annotations
             Vector2 center = new Vector2((int)(_data.Center.X * zoomFactor), (int)(_data.Center.Y * zoomFactor));
             float radius = _data.Radius * zoomFactor;
 
-            //if (Fill != null)
-            //    drawBatch.FillRectangle(rect, Fill);
+            if (Fill != null)
+                drawBatch.FillCircle(Fill, center, radius);
+            if (OutlineGlow != null)
+                drawBatch.DrawCircle(OutlineGlow, center, radius);
             if (Outline != null) {
                 if (Outline is PrimitivePen)
                     drawBatch.DrawPrimitiveCircle(Outline, center, radius);

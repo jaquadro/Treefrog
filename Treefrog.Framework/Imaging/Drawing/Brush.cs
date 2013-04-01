@@ -33,6 +33,36 @@ namespace Treefrog.Framework.Imaging.Drawing
         public TextureResource Pattern { get; protected set; }
     }
 
+    public class CheckerBrush : Brush
+    {
+        public CheckerBrush (Color color1, Color color2, int blockSize)
+            : this(color1, color2, blockSize, blockSize, 1.0)
+        { }
+
+        public CheckerBrush (Color color1, Color color2, int blockSize, double opacity)
+            : this(color1, color2, blockSize, blockSize, opacity)
+        { }
+
+        public CheckerBrush (Color color1, Color color2, int blockWidth, int blockHeight)
+            : this(color1, color2, blockWidth, blockHeight, 1.0)
+        { }
+
+        public CheckerBrush (Color color1, Color color2, int blockWidth, int blockHeight, double opacity)
+        {
+            Color1 = color1;
+            Color2 = color2;
+            Width = blockWidth;
+            Height = blockHeight;
+            Opacity = opacity;
+        }
+
+        public Color Color1 { get; protected set; }
+        public Color Color2 { get; protected set; }
+
+        public int Width { get; protected set; }
+        public int Height { get; protected set; }
+    }
+
     public class StippleBrush : PatternBrush
     {
         public StippleBrush (bool[,] pattern, Color color, double opacity)

@@ -333,6 +333,7 @@ namespace Treefrog.Presentation.Tools
         private class RotationStandbyToolState : ToolState
         {
             private static Pen Outline = new PrimitivePen(new SolidColorBrush(new Color(192, 192, 192, 255)));
+            private static Pen OutlineGlow = new Pen(new SolidColorBrush(new Color(0, 0, 0, 128)), 3);
             private const float RingThreshold = 8;
 
             public RotationStandbyToolState (ObjectSelectTool tool) : base(tool) { }
@@ -359,6 +360,7 @@ namespace Treefrog.Presentation.Tools
                     float radius = Tool.MaxBoundingDiagonal(HitObject) / 2 + 5;
                     Annot = new CircleAnnot(HitObject.ImageBounds.Center, radius);
                     Annot.Outline = Outline;
+                    Annot.OutlineGlow = OutlineGlow;
                     Tool._annots.Add(Annot);
                 }
 
@@ -565,7 +567,8 @@ namespace Treefrog.Presentation.Tools
 
         private class SelectionRotatingToolState : ToolState
         {
-            private static Pen Outline = new PrimitivePen(new SolidColorBrush(Colors.Red));
+            private static Pen Outline = new PrimitivePen(new SolidColorBrush(Colors.Yellow));
+            private static Pen OutlineGlow = new Pen(new SolidColorBrush(new Color(0, 0, 0, 128)), 3);
 
             public SelectionRotatingToolState(ObjectSelectTool tool, ObjectInstance hitObject) 
                 : base(tool) 
@@ -576,6 +579,7 @@ namespace Treefrog.Presentation.Tools
                 float radius = Tool.MaxBoundingDiagonal(HitObject) / 2 + 5;
                 Annot = new CircleAnnot(HitObject.ImageBounds.Center, radius);
                 Annot.Outline = Outline;
+                Annot.OutlineGlow = OutlineGlow;
                 Tool._annots.Add(Annot);
             }
 

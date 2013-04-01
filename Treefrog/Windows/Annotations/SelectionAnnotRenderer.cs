@@ -31,8 +31,14 @@ namespace Treefrog.Windows.Annotations
 
             if (Fill != null)
                 drawBatch.FillRectangle(Fill, rect);
-            if (Outline != null)
-                drawBatch.DrawRectangle(Outline, rect);
+            if (OutlineGlow != null)
+                drawBatch.DrawRectangle(OutlineGlow, rect);
+            if (Outline != null) {
+                if (Outline is PrimitivePen)
+                    drawBatch.DrawPrimitiveRectangle(Outline, rect);
+                else
+                    drawBatch.DrawRectangle(Outline, rect);
+            }
         }
     }
 }
