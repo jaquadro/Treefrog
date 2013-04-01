@@ -20,6 +20,10 @@ namespace Treefrog.Presentation
             ObjectAdded,
             ObjectRemoved,
             ObjectModified,
+
+            TilePoolAdded,
+            TilePoolRemoved,
+            TilePoolModified,
         }
 
         private IEditorPresenter _editor;
@@ -27,10 +31,12 @@ namespace Treefrog.Presentation
         private Project _project;
         private LibraryManager _libraryManager;
         private IObjectPoolManager _objectPoolManager;
+        private ITilePoolManager _tilePoolManager;
 
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<Library>>> _libraryEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<Level>>> _levelEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
+        private Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>> _tilePoolEventBindings;
 
         public ProjectExplorerPresenter (IEditorPresenter editor)
         {
@@ -53,6 +59,12 @@ namespace Treefrog.Presentation
                 { EventBindings.ObjectAdded, (s, e) => OnObjectAdded(new ResourceEventArgs<ObjectClass>(e.Resource)) },
                 { EventBindings.ObjectRemoved, (s, e) => OnObjectRemoved(new ResourceEventArgs<ObjectClass>(e.Resource)) },
                 { EventBindings.ObjectModified, (s, e) => OnObjectModified(new ResourceEventArgs<ObjectClass>(e.Resource)) },
+            };
+
+            _tilePoolEventBindings = new Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>>() {
+                { EventBindings.TilePoolAdded, (s, e) => OnTilePoolAdded(new ResourceEventArgs<TilePool>(e.Resource)) },
+                { EventBindings.TilePoolRemoved, (s, e) => OnTilePoolRemoved(new ResourceEventArgs<TilePool>(e.Resource)) },
+                { EventBindings.TilePoolModified, (s, e) => OnTilePoolModified(new ResourceEventArgs<TilePool>(e.Resource)) },
             };
         }
 
@@ -105,10 +117,12 @@ namespace Treefrog.Presentation
 
                 BindLibraryManager(_project.LibraryManager);
                 BindObjectManager(_project.ObjectPoolManager);
+                BindTilePoolManager(_project.TilePoolManager);
             }
             else {
                 BindLibraryManager(null);
                 BindObjectManager(null);
+                BindTilePoolManager(null);
             }
 
             OnProjectReset(EventArgs.Empty);
@@ -173,6 +187,26 @@ namespace Treefrog.Presentation
                 pool.Objects.ResourceAdded += _objectEventBindings[EventBindings.ObjectAdded];
                 pool.Objects.ResourceRemoved += _objectEventBindings[EventBindings.ObjectRemoved];
                 pool.Objects.ResourceModified += _objectEventBindings[EventBindings.ObjectModified];
+            }
+        }
+
+        private void BindTilePoolManager (ITilePoolManager manager)
+        {
+            if (_tilePoolManager == manager)
+                return;
+
+            if (_tilePoolManager != null) {
+                _tilePoolManager.Pools.ResourceAdded -= _tilePoolEventBindings[EventBindings.TilePoolAdded];
+                _tilePoolManager.Pools.ResourceRemoved -= _tilePoolEventBindings[EventBindings.TilePoolRemoved];
+                _tilePoolManager.Pools.ResourceModified -= _tilePoolEventBindings[EventBindings.TilePoolModified];
+            }
+
+            _tilePoolManager = manager;
+
+            if (_tilePoolManager != null) {
+                _tilePoolManager.Pools.ResourceAdded += _tilePoolEventBindings[EventBindings.TilePoolAdded];
+                _tilePoolManager.Pools.ResourceRemoved += _tilePoolEventBindings[EventBindings.TilePoolRemoved];
+                _tilePoolManager.Pools.ResourceModified += _tilePoolEventBindings[EventBindings.TilePoolModified];
             }
         }
 
@@ -271,6 +305,31 @@ namespace Treefrog.Presentation
         protected virtual void OnObjectModified (ResourceEventArgs<ObjectClass> e)
         {
             var ev = ObjectModified;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        public event EventHandler<ResourceEventArgs<TilePool>> TilePoolAdded;
+        public event EventHandler<ResourceEventArgs<TilePool>> TilePoolRemoved;
+        public event EventHandler<ResourceEventArgs<TilePool>> TilePoolModified;
+
+        protected virtual void OnTilePoolAdded (ResourceEventArgs<TilePool> e)
+        {
+            var ev = TilePoolAdded;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnTilePoolRemoved (ResourceEventArgs<TilePool> e)
+        {
+            var ev = TilePoolRemoved;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnTilePoolModified (ResourceEventArgs<TilePool> e)
+        {
+            var ev = TilePoolModified;
             if (ev != null)
                 ev(this, e);
         }

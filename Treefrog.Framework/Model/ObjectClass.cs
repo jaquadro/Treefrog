@@ -198,12 +198,12 @@ namespace Treefrog.Framework.Model
 
         protected virtual void OnModified (EventArgs e)
         {
-            if (!IsModified) {
+            //if (!IsModified) {
                 IsModified = true;
                 var ev = Modified;
                 if (ev != null)
                     ev(this, e);
-            }
+            //}
         }
 
         #region Name Interface

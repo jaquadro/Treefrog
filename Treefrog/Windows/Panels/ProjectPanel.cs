@@ -90,6 +90,10 @@ namespace Treefrog.Windows.Panels
                 _controller.ObjectAdded -= ObjectAddedHandler;
                 _controller.ObjectRemoved -= ObjectRemovedHandler;
                 _controller.ObjectModified -= ObjectModifiedHandler;
+
+                _controller.TilePoolAdded -= TilePoolAddedHandler;
+                _controller.TilePoolRemoved -= TilePoolRemovedHandler;
+                _controller.TilePoolModified -= TilePoolModifiedHandler;
             }
 
             _controller = controller;
@@ -108,6 +112,10 @@ namespace Treefrog.Windows.Panels
                 _controller.ObjectAdded += ObjectAddedHandler;
                 _controller.ObjectRemoved += ObjectRemovedHandler;
                 _controller.ObjectModified += ObjectModifiedHandler;
+
+                _controller.TilePoolAdded += TilePoolAddedHandler;
+                _controller.TilePoolRemoved += TilePoolRemovedHandler;
+                _controller.TilePoolModified += TilePoolModifiedHandler;
             }
             else
                 ResetComponent();
@@ -169,8 +177,8 @@ namespace Treefrog.Windows.Panels
                     subNode.SelectedImageIndex = IconIndex.LibraryDefault;
                 }
 
-                TreeNode tileSets = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles);
-                TreeNode objects = new TreeNode("Objects", IconIndex.FolderObjects, IconIndex.FolderObjects);
+                TreeNode tileSets = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles) { Name = "Tilesets" };
+                TreeNode objects = new TreeNode("Objects", IconIndex.FolderObjects, IconIndex.FolderObjects) { Name = "Objects" };
 
                 subNode.Nodes.Add(tileSets);
                 subNode.Nodes.Add(objects);
@@ -188,6 +196,32 @@ namespace Treefrog.Windows.Panels
         private void SyncTilePools ()
         {
             SyncNode(_tileNode, (node) => AddResources<TilePool>(_tileNode, _controller.Project.TilePoolManager.Pools, IconIndex.TileGroup));
+        }
+
+        private void TilePoolAddedHandler (object sender, ResourceEventArgs<TilePool> e)
+        {
+            AddResource(_tileNode, e.Resource, IconIndex.TileGroup);
+
+            Library library = _controller.Project.LibraryManager.Libraries.First(lib => {
+                return lib.TilePoolManager.Pools.Contains(e.Uid);
+            });
+
+            List<TreeNode> nodeList;
+            if (library == null || !_nodeMap.TryGetValue(library.Uid, out nodeList))
+                return;
+
+            foreach (TreeNode node in nodeList)
+                AddResource(node.Nodes["Tilesets"], e.Resource, IconIndex.TileGroup);
+        }
+
+        private void TilePoolRemovedHandler (object sender, ResourceEventArgs<TilePool> e)
+        {
+            RemoveResource(e.Resource);
+        }
+
+        private void TilePoolModifiedHandler (object sender, ResourceEventArgs<TilePool> e)
+        {
+            ModifyResource(e.Resource);
         }
 
         private void SyncObjectPools ()
