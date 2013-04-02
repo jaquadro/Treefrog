@@ -127,6 +127,7 @@
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />
     <Compile Include="Presentation\Annotations\CircleAnnot.cs" />
+    <Compile Include="Presentation\Annotations\GripAnnotation.cs" />
     <Compile Include="Presentation\Annotations\ImageAnnot.cs" />
     <Compile Include="Presentation\Annotations\MultiTileSelectionAnnot.cs" />
     <Compile Include="Presentation\Annotations\SelectionAnnot.cs" />
@@ -176,6 +177,7 @@
     <Compile Include="Windows\Annotations\Factory.cs" />
     <Compile Include="Windows\Annotations\CircleAnnotationRenderer.cs" />
     <Compile Include="Windows\Annotations\DrawAnnotationRenderer.cs" />
+    <Compile Include="Windows\Annotations\GripAnnotationRenderer.cs" />
     <Compile Include="Windows\Annotations\ImageAnnotRenderer.cs" />
     <Compile Include="Windows\Annotations\MultiTileSelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controllers\CommandRegistry.cs" />

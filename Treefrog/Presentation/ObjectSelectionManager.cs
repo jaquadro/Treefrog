@@ -15,7 +15,7 @@ namespace Treefrog.Presentation
         {
             public ObjectInstance Instance { get; set; }
             public SelectionAnnot Annot { get; set; }
-            public SelectionAnnot OriginAnnot { get; set; }
+            public GripAnnot OriginAnnot { get; set; }
             public Point InitialLocation { get; set; }
         }
 
@@ -87,8 +87,7 @@ namespace Treefrog.Presentation
                     Outline = SelectedAnnotOutline,
                     OutlineGlow = SelectedAnnotOutlineGlow,
                 },
-                OriginAnnot = new SelectionAnnot(new Point(obj.X - 3, obj.Y - 3)) {
-                    End = new Point(obj.X + 3, obj.Y + 3),
+                OriginAnnot = new GripAnnot(obj.Position, 3) {
                     Fill = SelectedAnnotOriginFill,
                     FillGlow = SelectedAnnotOriginFillGlow,
                 },
@@ -177,7 +176,7 @@ namespace Treefrog.Presentation
                 foreach (var record in _selectedObjects) {
                     if (record.Instance == inst) {
                         record.Annot.MoveTo(inst.ImageBounds.Location);
-                        record.OriginAnnot.MoveTo(new Point(inst.X - 3, inst.Y - 3));
+                        record.OriginAnnot.MoveTo(inst.Position);
                         break;
                     }
                 }

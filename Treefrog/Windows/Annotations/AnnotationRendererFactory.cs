@@ -27,6 +27,9 @@ namespace Treefrog.Windows.Annotations
             Default.Register<ImageAnnot, ImageAnnotRenderer>(annot => {
                 return new ImageAnnotRenderer(annot as ImageAnnot);
             });
+            Default.Register<GripAnnot, GripAnnotRenderer>(annot => {
+                return new GripAnnotRenderer(annot as GripAnnot);
+            });
         }
     }
 }
