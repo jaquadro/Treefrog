@@ -11,6 +11,8 @@ namespace Treefrog.Presentation.Commands
             public ObjectInstance Instance;
             public Point OldLocation;
             public Point NewLocation;
+            public float OldRotation;
+            public float NewRotation;
         }
 
         private List<ObjectRecord> _objects;
@@ -45,6 +47,8 @@ namespace Treefrog.Presentation.Commands
                 Instance = inst,
                 OldLocation = new Point(inst.X, inst.Y),
                 NewLocation = new Point(inst.X + diffX, inst.Y + diffY),
+                OldRotation = inst.Rotation,
+                NewRotation = inst.Rotation,
             });
         }
 
@@ -54,6 +58,19 @@ namespace Treefrog.Presentation.Commands
                 Instance = inst,
                 OldLocation = oldLocation,
                 NewLocation = newLocation,
+                OldRotation = inst.Rotation,
+                NewRotation = inst.Rotation,
+            });
+        }
+
+        public void QueueRotate (ObjectInstance inst, Point oldLocation, Point newLocation, float oldRotation, float newRotation)
+        {
+            _objects.Add(new ObjectRecord() {
+                Instance = inst,
+                OldLocation = oldLocation,
+                NewLocation = newLocation,
+                OldRotation = oldRotation,
+                NewRotation = newRotation,
             });
         }
 
@@ -62,6 +79,7 @@ namespace Treefrog.Presentation.Commands
             foreach (ObjectRecord record in _objects) {
                 record.Instance.X = record.NewLocation.X;
                 record.Instance.Y = record.NewLocation.Y;
+                record.Instance.Rotation = record.NewRotation;
             }
         }
 
@@ -71,6 +89,7 @@ namespace Treefrog.Presentation.Commands
             foreach (ObjectRecord record in _objects) {
                 record.Instance.X = record.OldLocation.X;
                 record.Instance.Y = record.OldLocation.Y;
+                record.Instance.Rotation = record.OldRotation;
                 objects.Add(record.Instance);
             }
 
@@ -83,6 +102,7 @@ namespace Treefrog.Presentation.Commands
             foreach (ObjectRecord record in _objects) {
                 record.Instance.X = record.NewLocation.X;
                 record.Instance.Y = record.NewLocation.Y;
+                record.Instance.Rotation = record.NewRotation;
                 objects.Add(record.Instance);
             }
 

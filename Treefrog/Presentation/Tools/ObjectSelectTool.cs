@@ -632,6 +632,11 @@ namespace Treefrog.Presentation.Tools
 
                 Tool.UpdatePropertyProvider();
 
+                ObjectMoveCommand command = new ObjectMoveCommand();
+                command.QueueRotate(HitObject, InitialPosition, HitObject.Position, InitialAngle, HitObject.Rotation);
+
+                Tool.History.Execute(command);
+
                 return new RotationStandbyToolState(Tool) {
                     HitObject = HitObject,
                 }.EndPointerSequence(info, viewport);
