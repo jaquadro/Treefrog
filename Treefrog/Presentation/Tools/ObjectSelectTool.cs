@@ -574,6 +574,8 @@ namespace Treefrog.Presentation.Tools
                 : base(tool) 
             {
                 HitObject = hitObject;
+                InitialPosition = hitObject.Position;
+                InitialCenter = hitObject.ImageBounds.Center;
                 InitialAngle = hitObject.Rotation;
 
                 float radius = Tool.MaxBoundingDiagonal(HitObject) / 2 + 5;
@@ -584,6 +586,8 @@ namespace Treefrog.Presentation.Tools
             }
 
             private ObjectInstance HitObject { get; set; }
+            private Point InitialPosition { get; set; }
+            private Point InitialCenter { get; set; }
             private Point InitialLocation { get; set; }
             private float InitialAngle { get; set; }
             private CircleAnnot Annot { get; set; }
@@ -597,12 +601,26 @@ namespace Treefrog.Presentation.Tools
 
             public override ToolState UpdatePointerSequence (PointerEventInfo info, ILevelGeometry viewport)
             {
-                Vector vecCenter = new Vector(HitObject.X, HitObject.Y);
+                Vector vecCenter = new Vector(InitialPosition.X, InitialPosition.Y);
                 Vector vec1 = new Vector(InitialLocation.X, InitialLocation.Y) - vecCenter;
                 Vector vec2 = new Vector((float)info.X, (float)info.Y) - vecCenter;
 
+                Vector imgCenter = new Vector(InitialCenter.X, InitialCenter.Y);
+
+                Vector originWorking = new Vector(InitialPosition.X, InitialPosition.Y) - imgCenter;
+
                 float angle = Angle(vec1, vec2);
 
+                float s = (float)Math.Sin(angle);
+                float c = (float)Math.Cos(angle);
+
+                Vector originPrime = new Vector(
+                    originWorking.X * c - originWorking.Y * s,
+                    originWorking.X * s + originWorking.Y * c);
+
+                originPrime += imgCenter;
+
+                HitObject.Position = new Point((int)originPrime.X, (int)originPrime.Y);
                 HitObject.Rotation = InitialAngle + angle;
 
                 return this;
