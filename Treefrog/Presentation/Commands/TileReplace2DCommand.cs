@@ -137,7 +137,7 @@ namespace Treefrog.Presentation.Commands
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
                 if (_tileSource.InRange(kv.Key))
-                    _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
+                    _tileSource[kv.Key] = (kv.Value.Replacement != null && kv.Value.Replacement.Count > 0) ? new TileStack(kv.Value.Replacement) : null;
             }
         }
 
@@ -145,7 +145,7 @@ namespace Treefrog.Presentation.Commands
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
                 if (_tileSource.InRange(kv.Key))
-                    _tileSource[kv.Key] = (kv.Value.Original != null) ? new TileStack(kv.Value.Original) : null;
+                    _tileSource[kv.Key] = (kv.Value.Original != null && kv.Value.Original.Count > 0) ? new TileStack(kv.Value.Original) : null;
             }
         }
 
@@ -153,7 +153,7 @@ namespace Treefrog.Presentation.Commands
         {
             foreach (KeyValuePair<TileCoord, TileRecord> kv in _tiles) {
                 if (_tileSource.InRange(kv.Key))
-                    _tileSource[kv.Key] = (kv.Value.Replacement != null) ? new TileStack(kv.Value.Replacement) : null;
+                    _tileSource[kv.Key] = (kv.Value.Replacement != null && kv.Value.Replacement.Count > 0) ? new TileStack(kv.Value.Replacement) : null;
             }
         }
     }
