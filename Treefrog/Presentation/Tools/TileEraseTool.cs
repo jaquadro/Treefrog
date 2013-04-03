@@ -197,10 +197,14 @@ namespace Treefrog.Presentation.Tools
         private void EndEraseAreaSequence (PointerEventInfo info, ILevelGeometry viewport)
         {
             Rectangle selection = _band.Selection;
+            int xmin = Math.Max(Layer.TileOriginX, selection.Left);
+            int ymin = Math.Max(Layer.TileOriginY, selection.Top);
+            int xmax = Math.Min(Layer.TileOriginX + Layer.TilesWide, selection.Right);
+            int ymax = Math.Min(Layer.TileOriginY + Layer.TilesHigh, selection.Bottom);
 
             TileReplace2DCommand command = new TileReplace2DCommand(Layer);
-            for (int x = selection.Left; x < selection.Right; x++) {
-                for (int y = selection.Top; y < selection.Bottom; y++) {
+            for (int x = xmin; x < xmax; x++) {
+                for (int y = ymin; y < ymax; y++) {
                     command.QueueReplacement(new TileCoord(x, y), (TileStack)null);
                     Layer[new TileCoord(x, y)] = null;
                 }
