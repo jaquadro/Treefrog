@@ -241,7 +241,7 @@ namespace Treefrog.Framework.Model
                     ProjectGuid = Uid,
                     ProjectName = Name,
                     DefaultLibrary = _defaultLibraryUid,
-                    Extra = Extra.Count > 0 ? Extra.ToArray() : null,
+                    Extra = (Extra != null && Extra.Count > 0) ? Extra.ToArray() : null,
                 },
             };
 

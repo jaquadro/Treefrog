@@ -222,7 +222,7 @@ namespace Treefrog.Framework.Model
                 PropertyGroup = new LibraryX.PropertyGroupX() {
                     LibraryGuid = library.Uid,
                     LibraryName = library.Name,
-                    Extra = (library.Extra.Count > 0) ? library.Extra.ToArray() : null,
+                    Extra = (library.Extra != null && library.Extra.Count > 0) ? library.Extra.ToArray() : null,
                 },
             };
         }

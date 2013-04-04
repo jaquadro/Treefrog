@@ -518,7 +518,7 @@ namespace Treefrog.Framework.Model
 
             LevelX.PropertyGroupX propGroup = new LevelX.PropertyGroupX() {
                 LevelGuid = level.Uid,
-                Extra = level.Extra.ToArray(),
+                Extra = (level.Extra != null && level.Extra.Count > 0) ? level.Extra.ToArray() : null,
             };
 
             if (level.Project != null)
