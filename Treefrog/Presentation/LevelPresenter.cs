@@ -451,8 +451,8 @@ namespace Treefrog.Presentation
                         //Intercept event instead
                         if (LevelGeometry != null)
                             LevelGeometry.LevelBounds = new Rectangle(
-                                form.NewOriginX, form.NewOriginY,
-                                form.NewWidth, form.NewHeight);
+                                _level.OriginX, _level.OriginY,
+                                _level.Width, _level.Height);
 
                         _history.Clear();
                     }

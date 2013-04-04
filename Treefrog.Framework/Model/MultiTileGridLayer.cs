@@ -207,15 +207,46 @@ namespace Treefrog.Framework.Model
 
         protected override void ResizeLayer (int newOriginX, int newOriginY, int newTilesWide, int newTilesHigh)
         {
+            int originDiffX = newOriginX - TileOriginX;
+            int originDiffY = newOriginY - TileOriginY;
+
+            int maxOriginX = Math.Max(newOriginX, TileOriginX);
+            int maxOriginY = Math.Max(newOriginY, TileOriginY);
+            int minEndX = Math.Min(newOriginX + newTilesWide, TileOriginX + TilesWide);
+            int minEndY = Math.Min(newOriginY + newTilesHigh, TileOriginY + TilesHigh);
+
+            int startX = maxOriginX - TileOriginX;
+            int startY = maxOriginY - TileOriginY;
+            int limitX = minEndX - maxOriginX;
+            int limitY = minEndY - maxOriginY;
+
             TileStack[,] newTiles = new TileStack[newTilesHigh, newTilesWide];
+
+            for (int y = startY; y < limitY; y++) {
+                for (int x = startX; x < limitX; x++) {
+                    newTiles[y - originDiffY, x - originDiffX] = _tiles[y, x];
+                }
+            }
+
+            //if (newOriginX < TileOriginX)
+
+            // NEEDS WORK
+
+            /*int xAdj = TileOriginX - newOriginX;
+            int yAdj = TileOriginY - newOriginY;
+
+            TileStack[,] newTiles = new TileStack[newTilesHigh, newTilesWide];
+            
+            int startX = Math.Max(0, xAdj);
+            int startY = Math.Max(0, yAdj);
             int copyLimX = Math.Min(TilesWide, newTilesWide);
             int copyLimY = Math.Min(TilesHigh, newTilesHigh);
 
-            for (int y = 0; y < copyLimY; y++) {
-                for (int x = 0; x < copyLimX; x++) {
-                    newTiles[y, x] = _tiles[y, x];
+            for (int y = startY; y < copyLimY; y++) {
+                for (int x = startX; x < copyLimX; x++) {
+                    newTiles[y + yAdj, x + xAdj] = _tiles[y, x];
                 }
-            }
+            }*/
 
             _tiles = newTiles;
         }

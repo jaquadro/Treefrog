@@ -119,9 +119,9 @@ namespace Treefrog.Windows.Layers
                 (int)(levelBounds.Height * geometry.ZoomFactor)
                 );
 
-            if (levelBounds.X != 0)
+            if (levelBounds.Left < 0 && levelBounds.Right > 0)
                 drawBatch.DrawLine(Pens.Gray, new Vector2(0, bounds.Top), new Vector2(0, bounds.Bottom));
-            if (levelBounds.Y != 0)
+            if (levelBounds.Top < 0 && levelBounds.Bottom > 0)
                 drawBatch.DrawLine(Pens.Gray, new Vector2(bounds.Left, 0), new Vector2(bounds.Right, 0));
 
             drawBatch.DrawRectangle(Pens.Black, bounds);
