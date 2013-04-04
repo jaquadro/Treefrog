@@ -45,6 +45,8 @@ namespace Treefrog.Windows.Panels
         {
             InitializeComponent();
 
+            _tree.NodeMouseDoubleClick += TreeNodeDoubelClickHandler;
+
             ResetComponent();
         }
 
@@ -366,6 +368,18 @@ namespace Treefrog.Windows.Panels
 
                 if (nodeAction != null)
                     nodeAction(node, resource);
+            }
+        }
+
+        private void TreeNodeDoubelClickHandler (object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (_controller == null || !(e.Node.Tag is Guid))
+                return;
+
+            Guid tag = (Guid)e.Node.Tag;
+
+            if (_controller.Project.Levels.Contains(tag)) {
+                _controller.ActionOpenLevel(tag);
             }
         }
     }

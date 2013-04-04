@@ -333,5 +333,10 @@ namespace Treefrog.Presentation
             if (ev != null)
                 ev(this, e);
         }
+
+        public void ActionOpenLevel (Guid uid)
+        {
+            _editor.OpenLevel(uid);
+        }
     }
 }

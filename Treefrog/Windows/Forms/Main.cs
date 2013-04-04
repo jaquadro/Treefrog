@@ -47,6 +47,7 @@ namespace Treefrog.Windows.Forms
             _editor.SyncContentView += SyncContentViewHandler;
             _editor.SyncModified += SyncProjectModified;
             _editor.PanelActivation += PanelActivated;
+            _editor.SyncCurrentLevel += SyncCurrentLevel;
 
             //_editor.CommandManager.Perform(Presentation.Commands.CommandKey.OpenProject);
             _editor.NewDefault();
@@ -137,6 +138,25 @@ namespace Treefrog.Windows.Forms
             }
             else {
                 base.Text = "Treefrog";
+            }
+        }
+
+        private void SyncCurrentLevel (object sender, SyncLevelEventArgs e)
+        {
+            if (_editor.CurrentLevel == null)
+                return;
+
+            if (tabControlEx1.TabCount > 0) {
+                TabPage currentPage = tabControlEx1.SelectedTab;
+                if (currentPage != null && (Guid)currentPage.Tag == _editor.CurrentLevel.Level.Uid)
+                    return;
+            }
+
+            foreach (TabPage page in tabControlEx1.TabPages) {
+                if ((Guid)page.Tag == _editor.CurrentLevel.Level.Uid) {
+                    tabControlEx1.SelectedTab = page;
+                    break;
+                }
             }
         }
 

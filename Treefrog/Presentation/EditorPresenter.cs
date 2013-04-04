@@ -60,6 +60,8 @@ namespace Treefrog.Presentation
 
         IEnumerable<LevelPresenter> OpenContent { get; }
 
+        void OpenLevel (Guid uid);
+
         void ActionSelectContent (Guid uid);
 
         event EventHandler SyncContentTabs;
@@ -531,6 +533,21 @@ namespace Treefrog.Presentation
 
         private string _projectPath;
 
+        public void OpenLevel (Guid uid)
+        {
+            if (_openContent.Contains(uid)) {
+                SelectLevel(uid);
+                return;
+            }
+
+            if (_levels.ContainsKey(uid)) {
+                _openContent.Add(uid);
+                OnSyncContentTabs(EventArgs.Empty);
+
+                SelectLevel(uid);
+            }
+        }
+
         #region Command Handling
 
         private ForwardingCommandManager _commandManager;
@@ -549,6 +566,7 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.SaveAs, CommandCanSaveProjectAs, CommandSaveProjectAs);
             _commandManager.Register(CommandKey.Exit, CommandCanExit, CommandExit);
             _commandManager.Register(CommandKey.ProjectAddLevel, CommandCanAddLevel, CommandAddLevel);
+            _commandManager.Register(CommandKey.LevelClose, CommandCanCloseLevel, CommandCloseLevel);
 
             //_commandManager.RegisterToggle(CommandKey.ViewGrid);
 
@@ -693,6 +711,25 @@ namespace Treefrog.Presentation
                     Modified = true;
                     RefreshEditor();
                 }
+            }
+        }
+
+        private bool CommandCanCloseLevel ()
+        {
+            return _currentLevel != null;
+        }
+
+        private void CommandCloseLevel ()
+        {
+            if (CommandCanCloseLevel()) {
+                _openContent.Remove(_currentLevel);
+
+                OnSyncContentTabs(EventArgs.Empty);
+
+                if (_openContent.Count > 0)
+                    SelectLevel(_openContent[0]);
+                else
+                    SelectLevel(Guid.Empty);
             }
         }
 
