@@ -96,7 +96,7 @@ namespace Treefrog.Framework.Model
         private void Initialize (LevelX proxy, Project project)
         {
             if (proxy.PropertyGroup != null) {
-                Extra = proxy.PropertyGroup.Extra;
+                Extra = new List<XmlElement>(proxy.PropertyGroup.Extra ?? new XmlElement[0]);
             }
 
             _project = project;
@@ -518,7 +518,7 @@ namespace Treefrog.Framework.Model
 
             LevelX.PropertyGroupX propGroup = new LevelX.PropertyGroupX() {
                 LevelGuid = level.Uid,
-                Extra = level.Extra,
+                Extra = level.Extra.ToArray(),
             };
 
             if (level.Project != null)

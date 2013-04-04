@@ -241,7 +241,7 @@ namespace Treefrog.Framework.Model
                     ProjectGuid = Uid,
                     ProjectName = Name,
                     DefaultLibrary = _defaultLibraryUid,
-                    Extra = Extra.Count > 0 ? Extra : null,
+                    Extra = Extra.Count > 0 ? Extra.ToArray() : null,
                 },
             };
 
@@ -282,7 +282,7 @@ namespace Treefrog.Framework.Model
                 project.Uid = proxy.PropertyGroup.ProjectGuid;
                 project.Name = proxy.PropertyGroup.ProjectName;
                 project._defaultLibraryUid = proxy.PropertyGroup.DefaultLibrary;
-                project.Extra = proxy.PropertyGroup.Extra;
+                project.Extra = new List<XmlElement>(proxy.PropertyGroup.Extra ?? new XmlElement[0]);
             }
 
             project._tilePools = new MetaTilePoolManager();

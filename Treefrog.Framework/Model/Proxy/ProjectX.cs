@@ -22,7 +22,7 @@ namespace Treefrog.Framework.Model.Proxy
             public Guid DefaultLibrary { get; set; }
 
             [XmlAnyElement]
-            public List<XmlElement> Extra { get; set; }
+            public XmlElement[] Extra { get; set; }
         }
 
         public class ItemGroupX

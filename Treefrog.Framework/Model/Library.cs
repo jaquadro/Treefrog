@@ -78,7 +78,7 @@ namespace Treefrog.Framework.Model
         private void Initialize (LibraryX proxy)
         {
             if (proxy.PropertyGroup != null) {
-                Extra = proxy.PropertyGroup.Extra ?? new List<XmlElement>();
+                Extra = new List<XmlElement>(proxy.PropertyGroup.Extra ?? new XmlElement[0]);
             }
 
             TexturePool = TexturePool.FromXmlProxy(proxy.TextureGroup) ?? new TexturePool();
@@ -222,7 +222,7 @@ namespace Treefrog.Framework.Model
                 PropertyGroup = new LibraryX.PropertyGroupX() {
                     LibraryGuid = library.Uid,
                     LibraryName = library.Name,
-                    Extra = (library.Extra.Count > 0) ? library.Extra : null,
+                    Extra = (library.Extra.Count > 0) ? library.Extra.ToArray() : null,
                 },
             };
         }

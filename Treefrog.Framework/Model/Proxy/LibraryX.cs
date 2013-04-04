@@ -20,7 +20,7 @@ namespace Treefrog.Framework.Model.Proxy
             public string LibraryName { get; set; }
 
             [XmlAnyElement]
-            public List<XmlElement> Extra { get; set; }
+            public XmlElement[] Extra { get; set; }
         }
 
         public class TextureGroupX
