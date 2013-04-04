@@ -57,7 +57,7 @@ namespace Treefrog.Framework.Model
             foreach (Guid key in removeQueue)
                 _poolIndexMap.Remove(key);
 
-            OnPoolAdded(e.Resource);
+            OnPoolRemoved(e.Resource);
         }
 
         private void HandleResourceAdded (object sender, ResourceEventArgs<TPool> e)
@@ -73,7 +73,7 @@ namespace Treefrog.Framework.Model
             foreach (TPoolItem item in e.Resource)
                 _poolIndexMap.Add(item.Uid, e.Resource);
 
-            OnPoolRemoved(e.Resource);
+            OnPoolAdded(e.Resource);
         }
 
         public virtual ResourceCollection<TPool> Pools
