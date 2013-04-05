@@ -42,8 +42,11 @@ namespace Treefrog.Presentation.Commands
 
         ProjectAddLevel,
 
+        LevelOpen,
         LevelClose,
         LevelCloseAllOther,
+        LevelClone,
+        LevelDelete,
         LevelRename,
         LevelResize,
         LevelProperties,
@@ -137,8 +140,8 @@ namespace Treefrog.Presentation.Commands
     {
         private class CommandHandler
         {
-            public Func<bool> CanPerform { get; set; }
-            public Action Perform { get; set; }
+            public Func<object, bool> CanPerform { get; set; }
+            public Action<object> Perform { get; set; }
             public CommandToggleGroup Group { get; set; }
 
             public CommandHandler () 
@@ -170,9 +173,9 @@ namespace Treefrog.Presentation.Commands
             }
         }
 
-        private static Func<bool> DefaultGroupCheck = delegate { return true; };
+        private static Func<object, bool> DefaultGroupCheck = delegate { return true; };
 
-        private static Func<bool> DefaultStatefulCheck = delegate { return true; };
+        private static Func<object, bool> DefaultStatefulCheck = delegate { return true; };
 
         private Dictionary<CommandKey, CommandHandler> _handlers = new Dictionary<CommandKey, CommandHandler>();
         private Dictionary<CommandToggleGroup, CommandGroup> _toggleGroups = new Dictionary<CommandToggleGroup, CommandGroup>();
@@ -196,10 +199,15 @@ namespace Treefrog.Presentation.Commands
 
         public void RegisterToggleGroup (CommandToggleGroup group)
         {
-            RegisterToggleGroup(group, null, null);
+            RegisterToggleGroup(group, null as Func<object, bool>, null as Action<object>);
         }
 
         public void RegisterToggleGroup (CommandToggleGroup group, Func<bool> performCheck, Action perform)
+        {
+            RegisterToggleGroup(group, (obj) => { return performCheck(); }, (obj) => { perform(); });
+        }
+
+        public void RegisterToggleGroup (CommandToggleGroup group, Func<object, bool> performCheck, Action<object> perform)
         {
             _toggleGroups[group] = new CommandGroup() {
                 Selected = CommandKey.Unknown,
@@ -212,6 +220,11 @@ namespace Treefrog.Presentation.Commands
 
         public void Register (CommandKey key, Func<bool> performCheck, Action perform)
         {
+            Register(key, (obj) => { return performCheck(); }, (obj) => { perform(); });
+        }
+
+        public void Register (CommandKey key, Func<object, bool> performCheck, Action<object> perform)
+        {
             _handlers[key] = new CommandHandler() {
                 CanPerform = performCheck,
                 Perform = perform,
@@ -220,10 +233,15 @@ namespace Treefrog.Presentation.Commands
 
         public void RegisterToggle (CommandKey key)
         {
-            RegisterToggle(key, null, null);
+            RegisterToggle(key, null as Func<object, bool>, null as Action<object>);
         }
 
         public void RegisterToggle (CommandKey key, Func<bool> performCheck, Action perform)
+        {
+            RegisterToggle(key, (obj) => { return performCheck(); }, (obj) => { perform(); });
+        }
+
+        public void RegisterToggle (CommandKey key, Func<object, bool> performCheck, Action<object> perform)
         {
             _handlers[key] = new StatefulCommandHandler() {
                 CanPerform = performCheck ?? DefaultStatefulCheck,
@@ -233,10 +251,15 @@ namespace Treefrog.Presentation.Commands
 
         public void RegisterToggle (CommandToggleGroup group, CommandKey key)
         {
-            RegisterToggle(group, key, null, null);
+            RegisterToggle(group, key, null as Func<object, bool>, null as Action<object>);
         }
 
         public void RegisterToggle (CommandToggleGroup group, CommandKey key, Func<bool> performCheck, Action perform)
+        {
+            RegisterToggle(group, key, (obj) => { return performCheck(); }, (obj) => { perform(); });
+        }
+
+        public void RegisterToggle (CommandToggleGroup group, CommandKey key, Func<object, bool> performCheck, Action<object> perform)
         {
             if (!_toggleGroups[group].Members.Contains(key))
                 _toggleGroups[group].Members.Add(key);
@@ -288,21 +311,26 @@ namespace Treefrog.Presentation.Commands
             return CanHandleGroup(_handlers[key].Group);
         }
 
-        public virtual bool CanPerform (CommandKey key)
+        public bool CanPerform (CommandKey key)
+        {
+            return CanPerform(key, null);
+        }
+
+        public virtual bool CanPerform (CommandKey key, object param)
         {
             if (!CanHandle(key))
                 return false;
 
-            if (GroupCanPerform(key))
+            if (GroupCanPerform(key, param))
                 return true;
             
-            if (_handlers[key].CanPerform != null && _handlers[key].CanPerform())
+            if (_handlers[key].CanPerform != null && _handlers[key].CanPerform(param))
                 return true;
 
             return false;
         }
 
-        protected virtual bool GroupCanPerform (CommandKey key)
+        protected virtual bool GroupCanPerform (CommandKey key, object param)
         {
             CommandHandler handler;
             if (!_handlers.TryGetValue(key, out handler))
@@ -315,22 +343,27 @@ namespace Treefrog.Presentation.Commands
             if (group.Handler.CanPerform == null)
                 return false;
 
-            return group.Handler.CanPerform();
+            return group.Handler.CanPerform(param);
         }
 
-        public virtual void Perform (CommandKey key)
+        public void Perform (CommandKey key)
+        {
+            Perform(key, null);
+        }
+
+        public virtual void Perform (CommandKey key, object param)
         {
             if (CanHandleGroup(key))
-                GroupPerform(key);
+                GroupPerform(key, param);
             else if (CanHandle(key)) {
                 if (_handlers[key] is StatefulCommandHandler)
-                    StatefulPerform(key);
+                    StatefulPerform(key, param);
                 else if (_handlers[key].Perform != null)
-                    _handlers[key].Perform();
+                    _handlers[key].Perform(param);
             }
         }
 
-        protected virtual void StatefulPerform (CommandKey key)
+        protected virtual void StatefulPerform (CommandKey key, object param)
         {
             CommandHandler handler;
             if (!_handlers.TryGetValue(key, out handler))
@@ -343,12 +376,12 @@ namespace Treefrog.Presentation.Commands
             stateHandler.Selected = !stateHandler.Selected;
 
             if (stateHandler.Perform != null)
-                stateHandler.Perform();
+                stateHandler.Perform(param);
 
             Invalidate(key);
         }
 
-        protected virtual void GroupPerform (CommandKey key)
+        protected virtual void GroupPerform (CommandKey key, object param)
         {
             CommandHandler handler;
             if (!_handlers.TryGetValue(key, out handler))
@@ -364,10 +397,10 @@ namespace Treefrog.Presentation.Commands
             group.Selected = key;
 
             if (group.Handler.Perform != null)
-                group.Handler.Perform();
+                group.Handler.Perform(param);
 
             if (handler.Perform != null)
-                handler.Perform();
+                handler.Perform(param);
 
             InvalidateGroup(handler.Group);
         }
@@ -453,35 +486,35 @@ namespace Treefrog.Presentation.Commands
             return false;
         }
 
-        public override bool CanPerform (CommandKey key)
+        public override bool CanPerform (CommandKey key, object param)
         {
             if (base.CanHandle(key))
-                return base.CanPerform(key);
+                return base.CanPerform(key, param);
 
             foreach (ICommandSubscriber subscriber in _forwardManagers) {
                 if (subscriber == null || subscriber.CommandManager == null)
                     continue;
-                if (subscriber.CommandManager.CanPerform(key))
+                if (subscriber.CommandManager.CanPerform(key, param))
                     return true;
             }
 
             return false;
         }
 
-        public override void Perform (CommandKey key)
+        public override void Perform (CommandKey key, object param)
         {
             if (base.CanHandle(key)) {
-                base.Perform(key);
+                base.Perform(key, param);
                 return;
             }
 
             foreach (ICommandSubscriber subscriber in _forwardManagers) {
                 if (subscriber == null || subscriber.CommandManager == null)
                     continue;
-                if (!subscriber.CommandManager.CanPerform(key))
+                if (!subscriber.CommandManager.CanPerform(key, param))
                     continue;
 
-                subscriber.CommandManager.Perform(key);
+                subscriber.CommandManager.Perform(key, param);
                 if (!IsMulticast)
                     break;
             }

@@ -102,15 +102,15 @@ namespace Treefrog.Windows.Controllers
             }
         }
 
-        private bool CanPerformCommand (CommandKey key)
+        private bool CanPerformCommand (CommandKey key, object param)
         {
             return _commandManager != null && _commandManager.CanPerform(key);
         }
 
-        private void PerformCommand (CommandKey key)
+        private void PerformCommand (CommandKey key, object param)
         {
-            if (CanPerformCommand(key))
-                _commandManager.Perform(key);
+            if (CanPerformCommand(key, param))
+                _commandManager.Perform(key, param);
         }
 
         private bool IsCommandSelected (CommandKey key)
@@ -132,12 +132,12 @@ namespace Treefrog.Windows.Controllers
         {
             if (_buttonMap.ContainsKey(key)) {
                 ToolStripButton item = _buttonMap[key];
-                item.Enabled = CanPerformCommand(key);
+                item.Enabled = CanPerformCommand(key, item.Tag);
                 item.Checked = IsCommandSelected(key);
             }
             if (_menuMap.ContainsKey(key)) {
                 ToolStripMenuItem item = _menuMap[key];
-                item.Enabled = CanPerformCommand(key);
+                item.Enabled = CanPerformCommand(key, item.Tag);
                 item.Checked = IsCommandSelected(key);
             }
         }
@@ -146,14 +146,14 @@ namespace Treefrog.Windows.Controllers
         {
             ToolStripButton item = sender as ToolStripButton;
             if (_commandManager != null && _buttonMap.ContainsValue(item))
-                _commandManager.Perform(_buttonMap[item]);
+                _commandManager.Perform(_buttonMap[item], item.Tag);
         }
 
         private void BoundMenuClickHandler (object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
             if (_commandManager != null && _menuMap.ContainsValue(item))
-                _commandManager.Perform(_menuMap[item]);
+                _commandManager.Perform(_menuMap[item], item.Tag);
         }
 
         private void ResetComponent ()

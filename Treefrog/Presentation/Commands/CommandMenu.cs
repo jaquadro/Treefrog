@@ -5,11 +5,18 @@ namespace Treefrog.Presentation.Commands
     public class CommandMenuEntry
     {
         public CommandKey Key { get; set; }
+        public object Param { get; set; }
         public CommandMenu SubMenu { get; set; }
 
         public CommandMenuEntry (CommandKey key)
         {
             Key = key;
+        }
+
+        public CommandMenuEntry (CommandKey key, object param)
+            : this(key)
+        {
+            Param = param;
         }
 
         public CommandMenuEntry (CommandMenu subMenu)
