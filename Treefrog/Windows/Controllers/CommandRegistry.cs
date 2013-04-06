@@ -9,6 +9,32 @@ using System.Drawing;
 
 namespace Treefrog.Windows.Controllers
 {
+    public struct CommandMenuTag
+    {
+        private readonly CommandKey _key;
+        private readonly object _param;
+
+        public CommandKey Key
+        {
+            get { return _key; }
+        }
+
+        public object Param
+        {
+            get { return _param; }
+        }
+
+        public CommandMenuTag (CommandKey key)
+            : this(key, null)
+        { }
+
+        public CommandMenuTag (CommandKey key, object param)
+        {
+            _key = key;
+            _param = param;
+        }
+    }
+
     public static class CommandMenuBuilder
     {
         public static ToolStripMenuItem BuildToolStripMenu (CommandMenu menu)
@@ -58,7 +84,7 @@ namespace Treefrog.Windows.Controllers
                         CommandRecord record = registry.Lookup(entry.Key);
                         if (record != null) {
                             ToolStripMenuItem menuItem = new ToolStripMenuItem() {
-                                Tag = entry.Key,
+                                Tag = new CommandMenuTag(entry.Key, entry.Param),
                                 Text = record.DisplayName,
                                 Image = record.Image,
                                 ShortcutKeys = record.Shortcut,
@@ -207,9 +233,14 @@ namespace Treefrog.Windows.Controllers
             Register(CommandKey.ProjectAddLevel, "New &Level...", 
                 resource: "Treefrog.Icons._16.map--asterisk.png");
 
+            Register(CommandKey.LevelOpen, "&Open");
             Register(CommandKey.LevelClose, "&Close",
                 shortcut: Keys.Control | Keys.F4);
             Register(CommandKey.LevelCloseAllOther, "Close &All But This");
+            Register(CommandKey.LevelClone, "D&uplicate",
+                resource: "Treefrog.Icons._16.maps.png");
+            Register(CommandKey.LevelDelete, "&Delete",
+                resource: "Treefrog.Icons._16.cross.png");
             Register(CommandKey.LevelRename, "Re&name");
             Register(CommandKey.LevelResize, "&Resize...", 
                 resource: "Treefrog.Icons._16.arrow-resize-135.png", shortcut: Keys.Control | Keys.R);

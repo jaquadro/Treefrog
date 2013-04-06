@@ -37,7 +37,13 @@ namespace Treefrog.Presentation
         }
     }
 
-    public class LevelPresenter : IDisposable, ILayerContext, IPointerResponderProvider, ICommandSubscriber, ILayerListPresenter
+    public abstract class ContentPresenter
+    {
+        public abstract Guid Uid { get; }
+        public abstract string Name { get; }
+    }
+
+    public class LevelPresenter : ContentPresenter, IDisposable, ILayerContext, IPointerResponderProvider, ICommandSubscriber, ILayerListPresenter
     {
         private bool _disposed;
         private EditorPresenter _editor;
@@ -123,6 +129,16 @@ namespace Treefrog.Presentation
         public Level Level
         {
             get { return _level; }
+        }
+
+        public override Guid Uid
+        {
+            get { return _level.Uid; }
+        }
+
+        public override string Name
+        {
+            get { return _level.Name; }
         }
 
         public IContentInfoPresenter InfoPresenter

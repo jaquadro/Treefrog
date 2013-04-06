@@ -366,6 +366,7 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <EmbeddedResource Include="Icons\16\maps.png" />
     <EmbeddedResource Include="Icons\DynBrushOverlays\Extended.png" />
     <EmbeddedResource Include="Icons\DynBrushOverlays\Basic.png" />
     <EmbeddedResource Include="Icons\16\drive-download.png" />

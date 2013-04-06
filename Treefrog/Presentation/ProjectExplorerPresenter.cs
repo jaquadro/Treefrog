@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation.Commands;
+using Treefrog.Windows.Forms;
+using System.Windows.Forms;
 
 namespace Treefrog.Presentation
 {
-    public class ProjectExplorerPresenter : IDisposable
+    public class ProjectExplorerPresenter : IDisposable, ICommandSubscriber
     {
         private enum EventBindings
         {
@@ -26,7 +29,7 @@ namespace Treefrog.Presentation
             TilePoolModified,
         }
 
-        private IEditorPresenter _editor;
+        private EditorPresenter _editor;
 
         private Project _project;
         private LibraryManager _libraryManager;
@@ -38,7 +41,7 @@ namespace Treefrog.Presentation
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>> _tilePoolEventBindings;
 
-        public ProjectExplorerPresenter (IEditorPresenter editor)
+        public ProjectExplorerPresenter (EditorPresenter editor)
         {
             _editor = editor;
             _editor.SyncCurrentProject += EditorSyncCurrentProject;
@@ -66,6 +69,8 @@ namespace Treefrog.Presentation
                 { EventBindings.TilePoolRemoved, (s, e) => OnTilePoolRemoved(new ResourceEventArgs<TilePool>(e.Resource)) },
                 { EventBindings.TilePoolModified, (s, e) => OnTilePoolModified(new ResourceEventArgs<TilePool>(e.Resource)) },
             };
+
+            InitializeCommandManager();
         }
 
         public void Dispose ()
@@ -338,5 +343,154 @@ namespace Treefrog.Presentation
         {
             _editor.OpenLevel(uid);
         }
+
+        public CommandMenu LevelMenu (Guid uid)
+        {
+            return new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.LevelOpen, uid),
+                },
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.LevelClone, uid), 
+                    new CommandMenuEntry(CommandKey.LevelDelete, uid),
+                    new CommandMenuEntry(CommandKey.LevelRename, uid),
+                },
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.LevelProperties, uid),
+                },
+            });
+        }
+
+        #region Commands
+
+        private CommandManager _commandManager;
+
+        private void InitializeCommandManager ()
+        {
+            _commandManager = new ForwardingCommandManager();
+            //_commandManager.CommandInvalidated += HandleCommandInvalidated;
+
+            _commandManager.Register(CommandKey.LevelOpen, CommandCanOpenLevel, CommandOpenLevel);
+            _commandManager.Register(CommandKey.LevelClone, CommandCanCloneLevel, CommandCloneLevel);
+            _commandManager.Register(CommandKey.LevelDelete, CommandCanDeleteLevel, CommandDeleteLevel);
+            _commandManager.Register(CommandKey.LevelRename, CommandCanRenameLevel, CommandRenameLevel);
+            _commandManager.Register(CommandKey.LevelProperties, CommandCanLevelProperties, CommandLevelProperties);
+
+            _commandManager.Perform(CommandKey.ViewGrid);
+        }
+
+        public CommandManager CommandManager
+        {
+            get { return _commandManager; }
+        }
+
+        private bool CommandCanOpenLevel (object param)
+        {
+            if (!(param is Guid))
+                return false;
+
+            Guid uid = (Guid)param;
+            if (_editor.ContentWorkspace.IsContentOpen(uid))
+                return false;
+
+            return _editor.ContentWorkspace.IsContentValid(uid);
+        }
+
+        private void CommandOpenLevel (object param)
+        {
+            if (!CommandCanOpenLevel(param))
+                return;
+
+            _editor.ContentWorkspace.OpenContent((Guid)param);
+        }
+
+        private bool CommandCanDeleteLevel (object param)
+        {
+            if (!(param is Guid))
+                return false;
+
+            return _project.Levels.Contains((Guid)param);
+        }
+
+        private void CommandDeleteLevel (object param)
+        {
+            if (!CommandCanDeleteLevel(param))
+                return;
+
+            if (MessageBox.Show("Are you sure you want to delete this level?\nThis operation cannot be undone.",
+                "Confirm Delete", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) {
+                return;
+            }
+
+            Guid uid = (Guid)param;
+            if (_editor.ContentWorkspace.IsContentOpen(uid))
+                _editor.ContentWorkspace.CloseContent(uid);
+
+            _project.Levels.Remove(uid);
+        }
+
+        private bool CommandCanCloneLevel (object param)
+        {
+            if (!(param is Guid))
+                return false;
+
+            return _project.Levels.Contains((Guid)param);
+        }
+
+        private void CommandCloneLevel (object param)
+        {
+            if (!CommandCanCloneLevel(param))
+                return;
+
+            Level level = _project.Levels[(Guid)param];
+
+            Level clone = new Level(level, _project);
+            clone.TrySetName(_project.Levels.CompatibleName(level.Name));
+
+            _project.Levels.Add(clone);
+        }
+
+        private bool CommandCanRenameLevel (object param)
+        {
+            if (!(param is Guid))
+                return false;
+
+            return _project.Levels.Contains((Guid)param);
+        }
+
+        private void CommandRenameLevel (object param)
+        {
+            if (!CommandCanRenameLevel(param))
+                return;
+
+            Level level = _project.Levels[(Guid)param];
+
+            using (NameChangeForm form = new NameChangeForm(level.Name)) {
+                foreach (Level lev in level.Project.Levels)
+                    form.ReservedNames.Add(lev.Name);
+
+                if (form.ShowDialog() == DialogResult.OK)
+                    level.TrySetName(form.Name);
+            }
+        }
+
+        private bool CommandCanLevelProperties (object param)
+        {
+            if (!(param is Guid))
+                return false;
+
+            return _project.Levels.Contains((Guid)param);
+        }
+
+        private void CommandLevelProperties (object param)
+        {
+            if (!CommandCanLevelProperties(param))
+                return;
+
+            _editor.Presentation.PropertyList.Provider = _project.Levels[(Guid)param];
+            _editor.ActivatePropertyPanel();
+        }
+
+        #endregion
     }
 }

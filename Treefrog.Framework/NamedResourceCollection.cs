@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Treefrog.Framework
 {
@@ -87,6 +88,31 @@ namespace Treefrog.Framework
             _indexMap[e.NewName] = item;
 
             OnResourceRenamed(new NamedResourceRemappedEventArgs<T>(item, e.OldName, e.NewName));
+        }
+
+        public string CompatibleName (string name)
+        {
+            if (!_indexMap.ContainsKey(name))
+                return name;
+
+            Match match1 = Regex.Match(name, @"(.*\s+)(\d+)\s*$");
+            if (match1.Success)
+                return FindNextNumericName(match1.Groups[1].Value + "{0}", int.Parse(match1.Groups[2].Value));
+
+            Match match2 = Regex.Match(name, @"(.*\s+)\((\d+)\)\s*$");
+            if (match2.Success)
+                return FindNextNumericName(match1.Groups[1].Value + "({0})", int.Parse(match1.Groups[2].Value));
+
+            return FindNextNumericName(name + " ({0})", 1);
+        }
+
+        private string FindNextNumericName (string namePattern, int num)
+        {
+            string name = string.Format(namePattern, num);
+            while (_indexMap.ContainsKey(name))
+                name = string.Format(namePattern, ++num);
+
+            return name;
         }
     }
 }

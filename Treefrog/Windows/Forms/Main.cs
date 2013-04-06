@@ -43,11 +43,15 @@ namespace Treefrog.Windows.Forms
             _infoStatus = new InfoStatus(statusBar);
 
             _editor = new EditorPresenter();
-            _editor.SyncContentTabs += SyncContentTabsHandler;
+            //_editor.SyncContentTabs += SyncContentTabsHandler;
             _editor.SyncContentView += SyncContentViewHandler;
             _editor.SyncModified += SyncProjectModified;
             _editor.PanelActivation += PanelActivated;
             _editor.SyncCurrentLevel += SyncCurrentLevel;
+
+            _editor.ContentWorkspace.ContentOpened += ContentWorkspaceContentOpened;
+            _editor.ContentWorkspace.ContentClosed += ContentWorkspaceContentClosed;
+            _editor.ContentWorkspace.ProjectReset += ContentWorkspaceReset;
 
             //_editor.CommandManager.Perform(Presentation.Commands.CommandKey.OpenProject);
             _editor.NewDefault();
@@ -72,11 +76,11 @@ namespace Treefrog.Windows.Forms
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
         }
 
-        private void SyncContentTabsHandler (object sender, EventArgs e)
+        private void ContentWorkspaceReset (object sender, EventArgs e)
         {
             tabControlEx1.TabPages.Clear();
 
-            foreach (LevelPresenter lp in _editor.OpenContent) {
+            foreach (LevelPresenter lp in _editor.ContentWorkspace.OpenContents) {
                 TabPage page = new TabPage(lp.Level.Name) {
                     Tag = lp.Level.Uid
                 };
@@ -87,6 +91,30 @@ namespace Treefrog.Windows.Forms
                 lpanel.Dock = DockStyle.Fill;
 
                 page.Controls.Add(lpanel);
+            }
+        }
+
+        private void ContentWorkspaceContentOpened (object sender, ContentPresenterEventArgs e)
+        {
+            TabPage page = new TabPage(e.Content.Name) {
+                Tag = e.Content.Uid
+            };
+            tabControlEx1.TabPages.Add(page);
+
+            LevelPanel lpanel = new LevelPanel();
+            lpanel.BindController(e.Content as LevelPresenter);
+            lpanel.Dock = DockStyle.Fill;
+
+            page.Controls.Add(lpanel);
+        }
+
+        private void ContentWorkspaceContentClosed (object sender, ContentPresenterEventArgs e)
+        {
+            foreach (TabPage page in tabControlEx1.TabPages) {
+                if ((Guid)page.Tag == e.Content.Uid) {
+                    tabControlEx1.TabPages.Remove(page);
+                    break;
+                }
             }
         }
 

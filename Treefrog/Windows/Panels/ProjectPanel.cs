@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Treefrog.Presentation;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Panels
 {
@@ -41,11 +42,16 @@ namespace Treefrog.Windows.Panels
 
         private Dictionary<Guid, List<TreeNode>> _nodeMap = new Dictionary<Guid, List<TreeNode>>();
 
+        private UICommandController _commandController;
+
         public ProjectPanel ()
         {
             InitializeComponent();
 
-            _tree.NodeMouseDoubleClick += TreeNodeDoubelClickHandler;
+            _tree.NodeMouseDoubleClick += TreeNodeDoubleClickHandler;
+            _tree.NodeMouseClick += TreeNodeClickHandler;
+
+            _commandController = new UICommandController();
 
             ResetComponent();
         }
@@ -101,6 +107,8 @@ namespace Treefrog.Windows.Panels
             _controller = controller;
 
             if (_controller != null) {
+                _commandController.BindCommandManager(_controller.CommandManager);
+
                 _controller.ProjectReset += ProjectResetHandler;
 
                 _controller.LibraryAdded += LibraryAddedHandler;
@@ -119,8 +127,11 @@ namespace Treefrog.Windows.Panels
                 _controller.TilePoolRemoved += TilePoolRemovedHandler;
                 _controller.TilePoolModified += TilePoolModifiedHandler;
             }
-            else
+            else {
+                _commandController.BindCommandManager(null);
+
                 ResetComponent();
+            }
         }
 
         private void ProjectResetHandler (object sender, EventArgs e)
@@ -145,7 +156,9 @@ namespace Treefrog.Windows.Panels
 
         private void SyncLevels ()
         {
-            SyncNode(_levelNode, (node) => AddResources<Level>(_levelNode, _controller.Project.Levels, IconIndex.Level));
+            SyncNode(_levelNode, (node) => AddResources<Level>(_levelNode, _controller.Project.Levels, IconIndex.Level, (subNode, r) => {
+                //subNode.ContextMenuStrip = CommandMenuBuilder.BuildContextMenu(_controller.LevelMenu(r.Uid));
+            }));
         }
 
         private void LevelAddedHandler (object sender, ResourceEventArgs<Level> e)
@@ -371,7 +384,7 @@ namespace Treefrog.Windows.Panels
             }
         }
 
-        private void TreeNodeDoubelClickHandler (object sender, TreeNodeMouseClickEventArgs e)
+        private void TreeNodeDoubleClickHandler (object sender, TreeNodeMouseClickEventArgs e)
         {
             if (_controller == null || !(e.Node.Tag is Guid))
                 return;
@@ -380,6 +393,30 @@ namespace Treefrog.Windows.Panels
 
             if (_controller.Project.Levels.Contains(tag)) {
                 _controller.ActionOpenLevel(tag);
+            }
+        }
+
+        private void TreeNodeClickHandler (object sender, TreeNodeMouseClickEventArgs e)
+        {
+            _tree.SelectedNode = e.Node;
+
+            if (_controller == null || !(e.Node.Tag is Guid))
+                return;
+
+            Guid tag = (Guid)e.Node.Tag;
+
+            if (e.Button == MouseButtons.Right) {
+                ContextMenuStrip contextMenu = CommandMenuBuilder.BuildContextMenu(_controller.LevelMenu(tag));
+
+                _commandController.Clear();
+                _commandController.MapMenuItems(contextMenu.Items);
+
+                Point location = new Point(Cursor.Position.X + _tree.Location.X, Cursor.Position.Y + _tree.Location.Y);
+                Point p = _tree.PointToClient(location);
+
+                contextMenu.Show(_tree, e.Location);
+
+                //_commandController.Clear();
             }
         }
     }

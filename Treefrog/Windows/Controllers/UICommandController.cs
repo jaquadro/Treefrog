@@ -22,14 +22,7 @@ namespace Treefrog.Windows.Controllers
         private void Dispose (bool disposing)
         {
             if (disposing) {
-                foreach (ToolStripButton button in _buttonMap.Values)
-                    button.Click -= BoundButtonClickHandler;
-                foreach (ToolStripMenuItem item in _menuMap.Values)
-                    item.Click -= BoundMenuClickHandler;
-
-                _buttonMap.Clear();
-                _menuMap.Clear();
-
+                Clear();
                 BindCommandManager(null);
             }
         }
@@ -51,6 +44,17 @@ namespace Treefrog.Windows.Controllers
             ResetComponent();
         }
 
+        public void Clear ()
+        {
+            foreach (ToolStripButton button in _buttonMap.Values)
+                button.Click -= BoundButtonClickHandler;
+            foreach (ToolStripMenuItem item in _menuMap.Values)
+                item.Click -= BoundMenuClickHandler;
+
+            _buttonMap.Clear();
+            _menuMap.Clear();
+        }
+
         public void MapButtons (IEnumerable<KeyValuePair<CommandKey, ToolStripButton>> mappings)
         {
             foreach (var item in mappings) {
@@ -70,8 +74,10 @@ namespace Treefrog.Windows.Controllers
         public void MapMenuItems (IEnumerable<ToolStripMenuItem> items)
         {
             foreach (ToolStripMenuItem item in items) {
-                if (item != null && item.Tag is CommandKey)
-                    MapMenuItem((CommandKey)item.Tag, item);
+                if (item != null && item.Tag is CommandMenuTag) {
+                    CommandMenuTag tag = (CommandMenuTag)item.Tag;
+                    MapMenuItem(tag.Key, item);
+                }
 
                 if (item.DropDownItems != null)
                     MapMenuItems(item.DropDownItems);
@@ -83,8 +89,10 @@ namespace Treefrog.Windows.Controllers
             foreach (ToolStripItem item in items) {
                 ToolStripMenuItem menuItem = item as ToolStripMenuItem;
                 if (menuItem != null) {
-                    if (item != null && item.Tag is CommandKey)
-                        MapMenuItem((CommandKey)menuItem.Tag, menuItem);
+                    if (item != null && item.Tag is CommandMenuTag) {
+                        CommandMenuTag tag = (CommandMenuTag)item.Tag;
+                        MapMenuItem(tag.Key, menuItem);
+                    }
 
                     if (menuItem.DropDownItems != null)
                         MapMenuItems(menuItem.DropDownItems);
@@ -104,7 +112,7 @@ namespace Treefrog.Windows.Controllers
 
         private bool CanPerformCommand (CommandKey key, object param)
         {
-            return _commandManager != null && _commandManager.CanPerform(key);
+            return _commandManager != null && _commandManager.CanPerform(key, param);
         }
 
         private void PerformCommand (CommandKey key, object param)
@@ -132,12 +140,12 @@ namespace Treefrog.Windows.Controllers
         {
             if (_buttonMap.ContainsKey(key)) {
                 ToolStripButton item = _buttonMap[key];
-                item.Enabled = CanPerformCommand(key, item.Tag);
+                item.Enabled = CanPerformCommand(key, TagValueFromItem(item));
                 item.Checked = IsCommandSelected(key);
             }
             if (_menuMap.ContainsKey(key)) {
                 ToolStripMenuItem item = _menuMap[key];
-                item.Enabled = CanPerformCommand(key, item.Tag);
+                item.Enabled = CanPerformCommand(key, TagValueFromItem(item));
                 item.Checked = IsCommandSelected(key);
             }
         }
@@ -146,14 +154,30 @@ namespace Treefrog.Windows.Controllers
         {
             ToolStripButton item = sender as ToolStripButton;
             if (_commandManager != null && _buttonMap.ContainsValue(item))
-                _commandManager.Perform(_buttonMap[item], item.Tag);
+                _commandManager.Perform(_buttonMap[item], TagValueFromItem(item));
         }
 
         private void BoundMenuClickHandler (object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
             if (_commandManager != null && _menuMap.ContainsValue(item))
-                _commandManager.Perform(_menuMap[item], item.Tag);
+                _commandManager.Perform(_menuMap[item], TagValueFromItem(item));
+        }
+
+        private object TagValueFromItem (ToolStripButton item)
+        {
+            if (item.Tag is CommandMenuTag)
+                return ((CommandMenuTag)item.Tag).Param;
+            else
+                return item.Tag;
+        }
+
+        private object TagValueFromItem (ToolStripMenuItem item)
+        {
+            if (item.Tag is CommandMenuTag)
+                return ((CommandMenuTag)item.Tag).Param;
+            else
+                return item.Tag;
         }
 
         private void ResetComponent ()

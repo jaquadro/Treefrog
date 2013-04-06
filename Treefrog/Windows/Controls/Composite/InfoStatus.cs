@@ -190,7 +190,7 @@ namespace Treefrog.Windows.Controls.Composite
 
         private void SyncZoomHandler (object sender, EventArgs e)
         {
-            if (_controller != null) {
+            if (_controller != null && _controller.Zoom != null) {
                 UpdateZoomState(_controller.Zoom);
             }
         }

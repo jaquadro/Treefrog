@@ -70,6 +70,13 @@ namespace Treefrog.Framework.Model
             _height = height;
         }
 
+        public Level (Level level, Project project)
+            : this(Guid.NewGuid(), Guid.NewGuid().ToString())
+        {
+            LevelX proxy = ToXProxy(level);
+            Initialize(proxy, project);
+        }
+
         public Level (Stream stream, Project project)
             : this(Guid.NewGuid(), "Level")
         {
@@ -122,8 +129,10 @@ namespace Treefrog.Framework.Model
                     Layers.Add(new ObjectLayer(layerProxy as LevelX.ObjectLayerX, this));
             }
 
-            foreach (var propertyProxy in proxy.Properties)
-                CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+            if (proxy.Properties != null) {
+                foreach (var propertyProxy in proxy.Properties)
+                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+            }
         }
 
         
