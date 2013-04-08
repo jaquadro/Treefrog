@@ -1,26 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using Treefrog.Presentation;
-using Treefrog.Framework.Model;
-using Treefrog.Presentation.Layers;
-using Treefrog.Model;
-using Treefrog.Windows.Controls;
-using Treefrog.Presentation.Tools;
-using Treefrog.Presentation.Controllers;
-using Treefrog.Framework;
-using Treefrog.Framework.Model.Support;
-using Microsoft.Xna.Framework.Graphics;
-using Treefrog.Windows.Controllers;
-using Treefrog.Presentation.Commands;
 using System.Collections.ObjectModel;
+using System.Windows.Forms;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
+using Treefrog.Framework.Model.Support;
+using Treefrog.Presentation;
 using Treefrog.Presentation.Annotations;
-using Treefrog.Windows.Layers;
+using Treefrog.Presentation.Commands;
+using Treefrog.Presentation.Controllers;
+using Treefrog.Presentation.Layers;
+using Treefrog.Presentation.Tools;
+using Treefrog.Render.Layers;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Forms
 {

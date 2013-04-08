@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Windows.Layers;
+using System.ComponentModel;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
-using System.ComponentModel;
 using Treefrog.Presentation;
-using TFImaging = Treefrog.Framework.Imaging;
 using Treefrog.Presentation.Controllers;
+using Treefrog.Render;
+using Treefrog.Render.Layers;
+using TFImaging = Treefrog.Framework.Imaging;
 
 namespace Treefrog.Windows.Controls
 {

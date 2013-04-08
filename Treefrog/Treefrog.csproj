@@ -143,6 +143,7 @@
     <Compile Include="Presentation\Commands\ObjectRemoveCommand.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
     <Compile Include="Presentation\Commands\TileSelectionCommands.cs" />
+    <Compile Include="Presentation\ContentWorkspacePresenter.cs" />
     <Compile Include="Presentation\Controllers\PointerEventController.cs" />
     <Compile Include="Presentation\Controllers\ZoomController.cs" />
     <Compile Include="Presentation\IViewport.cs" />
@@ -173,13 +174,13 @@
     <Compile Include="Utility\DependentTypeFactory.cs" />
     <Compile Include="Utility\IBindable.cs" />
     <Compile Include="Utility\NotificationExtensions.cs" />
-    <Compile Include="Windows\Annotations\AnnotationRenderer.cs" />
-    <Compile Include="Windows\Annotations\Factory.cs" />
-    <Compile Include="Windows\Annotations\CircleAnnotationRenderer.cs" />
-    <Compile Include="Windows\Annotations\DrawAnnotationRenderer.cs" />
-    <Compile Include="Windows\Annotations\GripAnnotationRenderer.cs" />
-    <Compile Include="Windows\Annotations\ImageAnnotRenderer.cs" />
-    <Compile Include="Windows\Annotations\MultiTileSelectionAnnotRenderer.cs" />
+    <Compile Include="Render\Annotations\AnnotationRenderer.cs" />
+    <Compile Include="Render\Annotations\Factory.cs" />
+    <Compile Include="Render\Annotations\CircleAnnotationRenderer.cs" />
+    <Compile Include="Render\Annotations\DrawAnnotationRenderer.cs" />
+    <Compile Include="Render\Annotations\GripAnnotationRenderer.cs" />
+    <Compile Include="Render\Annotations\ImageAnnotRenderer.cs" />
+    <Compile Include="Render\Annotations\MultiTileSelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controllers\CommandRegistry.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>UserControl</SubType>
@@ -193,15 +194,15 @@
     <Compile Include="Windows\Forms\NameChangeForm.Designer.cs">
       <DependentUpon>NameChangeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Layers\AnnotationRenderLayer.cs" />
-    <Compile Include="Windows\Layers\LevelRenderLayer.cs" />
-    <Compile Include="Windows\Layers\LocalRenderLayer.cs" />
-    <Compile Include="Windows\Layers\TileSetRenderLayer.cs" />
-    <Compile Include="Windows\Layers\GridRenderLayer.cs" />
-    <Compile Include="Windows\Layers\LayerFactory.cs" />
-    <Compile Include="Windows\Layers\WorkspaceRenderLayer.cs" />
-    <Compile Include="Windows\TextureCache.cs" />
-    <Compile Include="Windows\XnaInterop.cs" />
+    <Compile Include="Render\Layers\AnnotationRenderLayer.cs" />
+    <Compile Include="Render\Layers\LevelRenderLayer.cs" />
+    <Compile Include="Render\Layers\LocalRenderLayer.cs" />
+    <Compile Include="Render\Layers\TileSetRenderLayer.cs" />
+    <Compile Include="Render\Layers\GridRenderLayer.cs" />
+    <Compile Include="Render\Layers\LayerFactory.cs" />
+    <Compile Include="Render\Layers\WorkspaceRenderLayer.cs" />
+    <Compile Include="Render\TextureCache.cs" />
+    <Compile Include="Render\XnaInterop.cs" />
     <Compile Include="Presentation\ContentInfoPresenter.cs" />
     <Compile Include="Presentation\EditorPresenter.cs" />
     <Compile Include="Presentation\ILayerListPresenter.cs" />
@@ -223,8 +224,8 @@
     <None Include="Windows\Controls\AmphibianGameControl.cs" />
     <Compile Include="Utility\Mapper.cs" />
     <Compile Include="Utility\ObservableCollectionAdapter.cs" />
-    <Compile Include="Windows\Annotations\AnnotationRendererFactory.cs" />
-    <Compile Include="Windows\Annotations\SelectionAnnotRenderer.cs" />
+    <Compile Include="Render\Annotations\AnnotationRendererFactory.cs" />
+    <Compile Include="Render\Annotations\SelectionAnnotRenderer.cs" />
     <Compile Include="Windows\Controllers\UICommandController.cs" />
     <Compile Include="Windows\Controllers\ValidationController.cs" />
     <Compile Include="Windows\Controls\AlignmentControl.cs">
@@ -318,9 +319,9 @@
     </Compile>
     <None Include="Windows\GraphicsDeviceService.cs" />
     <Compile Include="Windows\GraphicsDeviceServiceGL.cs" />
-    <Compile Include="Windows\Layers\CanvasLayer.cs" />
-    <Compile Include="Windows\Layers\GroupLayer.cs" />
-    <Compile Include="Windows\Layers\RenderLayer.cs" />
+    <Compile Include="Render\Layers\CanvasLayer.cs" />
+    <Compile Include="Render\Layers\GroupLayer.cs" />
+    <Compile Include="Render\Layers\RenderLayer.cs" />
     <Compile Include="Windows\Panels\EventArgs.cs" />
     <Compile Include="Windows\Panels\LayerPane.cs">
       <SubType>UserControl</SubType>

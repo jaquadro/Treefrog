@@ -6,8 +6,8 @@ using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Layers;
+using Treefrog.Render.Layers;
 using Treefrog.Windows.Controls;
-using Treefrog.Windows.Layers;
 using XnaColor = Microsoft.Xna.Framework.Color;
 
 namespace Treefrog.Windows.Forms

@@ -2,13 +2,13 @@
 using Microsoft.Xna.Framework;
 using Treefrog.Presentation.Annotations;
 
-namespace Treefrog.Windows.Annotations
+namespace Treefrog.Render.Annotations
 {
-    public class GripAnnotRenderer : DrawAnnotationRenderer
+    public class CircleAnnotRenderer : DrawAnnotationRenderer
     {
-        private GripAnnot _data;
+        private CircleAnnot _data;
 
-        public GripAnnotRenderer (GripAnnot data)
+        public CircleAnnotRenderer (CircleAnnot data)
             : base(data)
         {
             _data = data;
@@ -22,21 +22,19 @@ namespace Treefrog.Windows.Annotations
             InitializeResources(drawBatch.GraphicsDevice);
 
             Vector2 center = new Vector2((int)(_data.Center.X * zoomFactor), (int)(_data.Center.Y * zoomFactor));
-            float size = _data.Size;
-
-            Rectangle rect = new Rectangle((int)(center.X - size), (int)(center.Y - size), (int)(size * 2), (int)(size * 2));
+            float radius = _data.Radius * zoomFactor;
 
             if (FillGlow != null)
-                drawBatch.FillRectangle(FillGlow, new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2));
+                drawBatch.FillCircle(FillGlow, center, radius + 2);
             if (Fill != null)
-                drawBatch.FillRectangle(Fill, rect);
+                drawBatch.FillCircle(Fill, center, radius);
             if (OutlineGlow != null)
-                drawBatch.DrawRectangle(OutlineGlow, rect);
+                drawBatch.DrawCircle(OutlineGlow, center, radius);
             if (Outline != null) {
                 if (Outline is PrimitivePen)
-                    drawBatch.DrawPrimitiveRectangle(Outline, rect);
+                    drawBatch.DrawPrimitiveCircle(Outline, center, radius);
                 else
-                    drawBatch.DrawRectangle(Outline, rect);
+                    drawBatch.DrawCircle(Outline, center, radius);
             }
         }
     }

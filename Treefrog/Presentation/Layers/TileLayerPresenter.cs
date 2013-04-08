@@ -483,6 +483,21 @@ namespace Treefrog.Presentation.Layers
 
         #endregion
 
+        #region Expand Selection
+
+        /*private bool CommandCanExpandSelection ()
+        {
+            TileSelectTool tool = _currentTool as TileSelectTool;
+            if (tool != null)
+                return _selection != null && _selection.Floating == false;
+            else
+                return false;
+        }*/
+
+        #endregion
+
+
+
         private bool CommandGroupCheckTileTool ()
         {
             return true;

@@ -6,9 +6,9 @@ using Treefrog.Framework.Model;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
-using Treefrog.Windows.Controllers;
-using Treefrog.Windows.Layers;
 using Treefrog.Presentation.Tools;
+using Treefrog.Render.Layers;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows
 {
