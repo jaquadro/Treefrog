@@ -12,15 +12,8 @@ namespace Treefrog.Windows
 {
     public partial class LayerPane : UserControl
     {
-        #region Fields
-
         private ILayerListPresenter _controller;
-
         private UICommandController _commandController;
-
-        #endregion
-
-        #region Constructors
 
         public LayerPane ()
         {
@@ -57,11 +50,16 @@ namespace Treefrog.Windows
 
             // Wire events
 
+            
+        }
+
+        protected override void OnLoad (EventArgs e)
+        {
+            base.OnLoad(e);
+
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
             _listControl.ItemChecked += ItemCheckedHandler;
         }
-
-        #endregion
 
         public void BindController (ILayerListPresenter controller) {
             if (_controller == controller) {
