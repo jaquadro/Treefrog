@@ -76,8 +76,11 @@ namespace Treefrog.Presentation.Layers
 
         private void HandleSelectedObjectChanged (object sender, EventArgs e)
         {
-            if (_objectController != null && _objectController.SelectedObject != null) {
-                SetCurrentTool(NewDrawTool());
+            if (_objectController != null) {
+                if (_objectController.SelectedObject != null)
+                    SetCurrentTool(NewDrawTool());
+                else
+                    SetCurrentTool(NewSelectTool());
             }
         }
 
@@ -399,6 +402,7 @@ namespace Treefrog.Presentation.Layers
             if (objTool != null) {
                 objTool.Cancel();
 
+                _selectionManager.ClearSelection();
                 _commandManager.RemoveCommandSubscriber(objTool);
             }
 

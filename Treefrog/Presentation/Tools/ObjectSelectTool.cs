@@ -49,6 +49,12 @@ namespace Treefrog.Presentation.Tools
             _state = new SelectionStandbyToolState(this);
         }
 
+        protected override void DisposeManaged ()
+        {
+            _state = _state.Cancel();
+            base.DisposeManaged();
+        }
+
         protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             _state = _state.StartPointerSequence(info, viewport);
@@ -222,6 +228,16 @@ namespace Treefrog.Presentation.Tools
             {
                 return this;
             }
+
+            public virtual ToolState Cancel ()
+            {
+                return this;
+            }
+
+            public virtual ToolState ObjectSelectionCleared ()
+            {
+                return this;
+            }
         }
 
         private class SelectionStandbyToolState : ToolState
@@ -367,6 +383,12 @@ namespace Treefrog.Presentation.Tools
                 return this;
             }
 
+            public override ToolState Cancel ()
+            {
+                ClearAnnot();
+                return new ReleaseToolState(Tool).StartPointerSequence(null, null);
+            }
+
             private ToolState StartPrimaryPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
             {
                 float threshold = RingThreshold / viewport.ZoomFactor;
@@ -476,7 +498,7 @@ namespace Treefrog.Presentation.Tools
 
             public override ToolState EndPointerSequence (PointerEventInfo info, ILevelGeometry viewport)
             {
-                Tool._annots.Remove(Annot);
+                ClearAnnot();
 
                 Tool._selectionManager.AddObjectsToSelection(Tool.ObjectsInArea(Band.Selection));
 
@@ -484,6 +506,20 @@ namespace Treefrog.Presentation.Tools
                 Tool.UpdatePropertyProvider();
 
                 return new ReleaseToolState(Tool).EndPointerSequence(info, viewport);
+            }
+
+            public override ToolState Cancel ()
+            {
+                ClearAnnot();
+                return new ReleaseToolState(Tool).StartPointerSequence(null, null);
+            }
+
+            private void ClearAnnot ()
+            {
+                if (Annot != null) {
+                    Tool._annots.Remove(Annot);
+                    Annot = null;
+                }
             }
         }
 
@@ -640,6 +676,12 @@ namespace Treefrog.Presentation.Tools
                 return new RotationStandbyToolState(Tool) {
                     HitObject = HitObject,
                 }.EndPointerSequence(info, viewport);
+            }
+
+            public override ToolState Cancel ()
+            {
+                ClearAnnot();
+                return new ReleaseToolState(Tool).StartPointerSequence(null, null);
             }
 
             private void ClearAnnot ()

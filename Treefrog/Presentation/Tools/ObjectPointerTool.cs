@@ -29,9 +29,27 @@ namespace Treefrog.Presentation.Tools
             _gridSize = gridSize;
         }
 
+        protected override void DisposeManaged ()
+        {
+            BindObjectSourceController(null);
+
+            base.DisposeManaged();
+        }
+
         public void BindObjectSourceController (IObjectPoolCollectionPresenter controller)
         {
+            if (_objectPool == controller)
+                return;
+
+            if (_objectPool != null) {
+                _objectPool.ObjectSelectionChanged -= ObjectSelectionChanged;
+            }
+
             _objectPool = controller;
+
+            if (_objectPool != null) {
+                _objectPool.ObjectSelectionChanged += ObjectSelectionChanged;
+            }
         }
 
         protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
@@ -74,6 +92,14 @@ namespace Treefrog.Presentation.Tools
         {
             get { return _snapManager; }
         }
+
+        private void ObjectSelectionChanged (object sender, EventArgs e)
+        {
+            OnObjectSelectionChanged(EventArgs.Empty);
+        }
+
+        protected virtual void OnObjectSelectionChanged (EventArgs e)
+        { }
 
         /*protected ObjectPoolManagerService PoolManagerService
         {

@@ -442,7 +442,7 @@ namespace Treefrog.Presentation
 
         public void ActionSelectObject (Guid objectClassUid)
         {
-            if (objectClassUid == null) {
+            if (objectClassUid == Guid.Empty) {
                 if (_selectedPool != null)
                     _selectedObjects.Remove(_selectedPool);
 

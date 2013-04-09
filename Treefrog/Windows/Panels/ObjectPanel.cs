@@ -90,6 +90,11 @@ namespace Treefrog.Windows.Panels
 
         private void ListViewMouseClickHandler (object sender, MouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Left) {
+                ListViewItem item = _listView.GetItemAt(e.X, e.Y);
+                if (item != null)
+                    _controller.ActionSelectObject((Guid)item.Tag);
+            }
             if (e.Button == MouseButtons.Right) {
                 ListViewItem item = _listView.GetItemAt(e.X, e.Y);
                 if (item != null && item.Selected) {
