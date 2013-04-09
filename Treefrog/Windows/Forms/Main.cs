@@ -25,6 +25,8 @@ namespace Treefrog.Windows.Forms
         {
             InitializeComponent();
 
+            FormClosing += FormClosingHandler;
+
             // Toolbars
 
             _menu = new StandardMenu();
@@ -74,6 +76,14 @@ namespace Treefrog.Windows.Forms
             _commandController.MapMenuItems(tabControlEx1.ContextMenuStrip.Items);
 
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        }
+
+        private void FormClosingHandler (object sender, CancelEventArgs e)
+        {
+            if (_editor.Modified) {
+                if (MessageBox.Show("You currently have unsaved changes.  Close without saving?", "Unsaved Changes", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
+                    e.Cancel = true;
+            }
         }
 
         private void ContentWorkspaceReset (object sender, EventArgs e)
