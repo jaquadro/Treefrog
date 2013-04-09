@@ -3,7 +3,7 @@
 	<Product Id="*" 
            Name="Treefrog Map Editor" 
            Language="1033" 
-           Version="0.9.1.0" 
+           Version="0.11.0.0" 
            Manufacturer="Treefrog" 
            UpgradeCode="54df5b12-e0ee-4a46-977c-aef4d0e57d57">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
