@@ -319,6 +319,9 @@ namespace Treefrog.Presentation
 
         public void Open (Project project)
         {
+            if (PromptCancelIfModified())
+                return;
+
             Project prevProject = _project;
 
             if (_project != null) {
@@ -372,6 +375,11 @@ namespace Treefrog.Presentation
                 _project.Save(stream, resolver);
                 Modified = false;
             }
+        }
+
+        private bool PromptCancelIfModified ()
+        {
+            return Modified && MessageBox.Show("You currently have unsaved changes.  Close without saving?", "Unsaved Changes", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK;
         }
 
         private Project EmptyProject ()
@@ -611,6 +619,9 @@ namespace Treefrog.Presentation
         private void CommandCreateProject ()
         {
             if (CommandCanCreateProject()) {
+                if (PromptCancelIfModified())
+                    return;
+
                 _projectPath = null;
                 New();
             }
@@ -624,6 +635,9 @@ namespace Treefrog.Presentation
         private void CommandOpenProject ()
         {
             if (CommandCanOpenProject()) {
+                if (PromptCancelIfModified())
+                    return;
+
                 OpenFileDialog ofd = new OpenFileDialog();
                 ofd.Title = "Open Project File";
                 ofd.Filter = "Treefrog Project Files|*.tlp;*.tlpx";
