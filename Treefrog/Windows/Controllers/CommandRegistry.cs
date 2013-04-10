@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using Treefrog.Presentation.Commands;
-using System.Windows.Forms;
+﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Windows.Controllers
 {
@@ -185,159 +181,157 @@ namespace Treefrog.Windows.Controllers
             get { return _default; }
         }
 
-        static Assembly _assembly;
         static CommandRegistry _default;
 
         static CommandRegistry ()
         {
             _default = new CommandRegistry();
 
-            _assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
             Register(CommandKey.NewProject, "&New Project...", 
-                resource: "Treefrog.Icons._16.applications-blue--asterisk.png", shortcut: Keys.Control | Keys.N);
+                resource: Properties.Resources.ApplicationsBlueAst, shortcut: Keys.Control | Keys.N);
             Register(CommandKey.OpenProject, "&Open Project...", 
-                resource: "Treefrog.Icons.folder-horizontal-open16.png", shortcut: Keys.Control | Keys.O);
-            Register(CommandKey.Save, "&Save Project", 
-                resource: "Treefrog.Icons._16.disk.png", shortcut: Keys.Control | Keys.S);
-            Register(CommandKey.SaveAs, "Save Project &As...", 
-                resource: "Treefrog.Icons._16.disk--pencil.png", shortcut: Keys.Control | Keys.Shift | Keys.S);
+                resource: Properties.Resources.FolderHorizontalOpen, shortcut: Keys.Control | Keys.O);
+            Register(CommandKey.Save, "&Save Project",
+                resource: Properties.Resources.Disk, shortcut: Keys.Control | Keys.S);
+            Register(CommandKey.SaveAs, "Save Project &As...",
+                resource: Properties.Resources.DiskPencil, shortcut: Keys.Control | Keys.Shift | Keys.S);
             Register(CommandKey.Exit, "E&xit", 
                 shortcut: Keys.Alt | Keys.F4);
 
             Register(CommandKey.Undo, "&Undo",
-                resource: "Treefrog.Icons._16.arrow-turn-180-left.png", shortcut: Keys.Control | Keys.Z);
+                resource: Properties.Resources.ArrowTurn180Left, shortcut: Keys.Control | Keys.Z);
             Register(CommandKey.Redo, "&Redo",
-                resource: "Treefrog.Icons._16.arrow-turn.png", shortcut: Keys.Control | Keys.Y);
+                resource: Properties.Resources.ArrowTurn, shortcut: Keys.Control | Keys.Y);
             Register(CommandKey.Cut, "Cu&t",
-                resource: "Treefrog.Icons._16.scissors.png", shortcut: Keys.Control | Keys.X);
+                resource: Properties.Resources.Scissors, shortcut: Keys.Control | Keys.X);
             Register(CommandKey.Copy, "&Copy",
-                resource: "Treefrog.Icons._16.documents.png", shortcut: Keys.Control | Keys.C);
+                resource: Properties.Resources.Documents, shortcut: Keys.Control | Keys.C);
             Register(CommandKey.Paste, "&Paste",
-                resource: "Treefrog.Icons._16.clipboard-paste.png", shortcut: Keys.Control | Keys.V);
+                resource: Properties.Resources.ClipboardPaste, shortcut: Keys.Control | Keys.V);
             Register(CommandKey.Delete, "&Delete",
-                resource: "Treefrog.Icons._16.cross.png", shortcut: Keys.Delete);
+                resource: Properties.Resources.Cross, shortcut: Keys.Delete);
             Register(CommandKey.SelectAll, "Select &All",
-                resource: "Treefrog.Icons._16.selection-select.png", shortcut: Keys.Control | Keys.A);
+                resource: Properties.Resources.SelectionSelect, shortcut: Keys.Control | Keys.A);
             Register(CommandKey.SelectNone, "Select &None",
-                resource: "Treefrog.Icons._16.selection.png", shortcut: Keys.Control | Keys.Shift | Keys.A);
+                resource: Properties.Resources.Selection, shortcut: Keys.Control | Keys.Shift | Keys.A);
 
-            Register(CommandKey.ViewZoomNormal, "Zoom &1:1", "Treefrog.Icons._16.magnifier-zoom-actual.png");
+            Register(CommandKey.ViewZoomNormal, "Zoom &1:1", 
+                resource: Properties.Resources.MagnifierZoomActual);
             Register(CommandKey.ViewZoomIn, "Zoom &In",
-                resource: "Treefrog.Icons._16.magnifier-zoom-in.png", shortcut: Keys.Control | Keys.Add, shortcutDisplay: "Ctrl+Plus");
+                resource: Properties.Resources.MagnifierZoomIn, shortcut: Keys.Control | Keys.Add, shortcutDisplay: "Ctrl+Plus");
             Register(CommandKey.ViewZoomOut, "Zoom &Out",
-                resource: "Treefrog.Icons._16.magnifier-zoom-out.png", shortcut: Keys.Control | Keys.Subtract, shortcutDisplay: "Ctrl+Minus");
-            Register(CommandKey.ViewGrid, "Show &Grid", 
-                resource: "Treefrog.Icons._16.grid.png", shortcut: Keys.Control | Keys.G);
+                resource: Properties.Resources.MagnifierZoomOut, shortcut: Keys.Control | Keys.Subtract, shortcutDisplay: "Ctrl+Minus");
+            Register(CommandKey.ViewGrid, "Show &Grid",
+                resource: Properties.Resources.Grid, shortcut: Keys.Control | Keys.G);
 
-            Register(CommandKey.ProjectAddLevel, "New &Level...", 
-                resource: "Treefrog.Icons._16.map--asterisk.png");
+            Register(CommandKey.ProjectAddLevel, "New &Level...",
+                resource: Properties.Resources.MapAsterisk);
 
             Register(CommandKey.LevelOpen, "&Open");
             Register(CommandKey.LevelClose, "&Close",
                 shortcut: Keys.Control | Keys.F4);
             Register(CommandKey.LevelCloseAllOther, "Close &All But This");
             Register(CommandKey.LevelClone, "D&uplicate",
-                resource: "Treefrog.Icons._16.maps.png");
+                resource: Properties.Resources.Maps);
             Register(CommandKey.LevelDelete, "&Delete",
-                resource: "Treefrog.Icons._16.cross.png");
+                resource: Properties.Resources.Cross);
             Register(CommandKey.LevelRename, "Re&name");
-            Register(CommandKey.LevelResize, "&Resize...", 
-                resource: "Treefrog.Icons._16.arrow-resize-135.png", shortcut: Keys.Control | Keys.R);
+            Register(CommandKey.LevelResize, "&Resize...",
+                resource: Properties.Resources.ArrowResize135, shortcut: Keys.Control | Keys.R);
             Register(CommandKey.LevelProperties, "&Properties",
-                resource: "Treefrog.Icons._16.tags.png");
+                resource: Properties.Resources.Tags);
 
             Register(CommandKey.NewTileLayer, "New &Tile Layer",
-                resource: "Treefrog.Icons._16.grid.png");
+                resource: Properties.Resources.Grid);
             Register(CommandKey.NewObjectLayer, "New &Object Layer",
-                resource: "Treefrog.Icons._16.game.png");
+                resource: Properties.Resources.Game);
             Register(CommandKey.LayerClone, "D&uplicate",
-                resource: "Treefrog.Icons._16.layers.png");
+                resource: Properties.Resources.Layers);
             Register(CommandKey.LayerDelete, "&Delete",
-                resource: "Treefrog.Icons._16.layer--minus.png");
+                resource: Properties.Resources.LayerMinus);
             Register(CommandKey.LayerProperties, "&Properties",
-                resource: "Treefrog.Icons._16.tags.png");
+                resource: Properties.Resources.Tags);
             Register(CommandKey.LayerMoveTop, "Bring to &Top",
-                resource: "Treefrog.Icons._16.arrow-skip-090.png");
+                resource: Properties.Resources.ArrowSkip90);
             Register(CommandKey.LayerMoveUp, "Move &Up",
-                resource: "Treefrog.Icons._16.arrow-090.png");
+                resource: Properties.Resources.Arrow90);
             Register(CommandKey.LayerMoveDown, "Move &Down",
-                resource: "Treefrog.Icons._16.arrow-270.png");
+                resource: Properties.Resources.Arrow270);
             Register(CommandKey.LayerMoveBottom, "Send to &Bottom",
-                resource: "Treefrog.Icons._16.arrow-skip-270.png");
+                resource: Properties.Resources.ArrowSkip270);
             Register(CommandKey.LayerShowCurrentOnly, "Show &Current Layer Only");
             Register(CommandKey.LayerShowAll, "&All");
             Register(CommandKey.LayerShowNone, "&None");
             Register(CommandKey.LayerExportRaster, "E&xport Raster Image");
 
             Register(CommandKey.NewStaticTileBrush, "New &Static Brush...",
-                resource: "Treefrog.Icons._16.stamp.png");
+                resource: Properties.Resources.Stamp);
             Register(CommandKey.NewDynamicTileBrush, "New D&ynamic Brush...",
-                resource: "Treefrog.Icons._16.table-dynamic.png");
+                resource: Properties.Resources.TableDynamic);
             Register(CommandKey.TileBrushClone, "D&uplicate");
             Register(CommandKey.TileBrushDelete, "&Delete",
-                resource: "Treefrog.Icons._16.paint-brush--minus.png");
+                resource: Properties.Resources.PaintBrushMinus);
             Register(CommandKey.TileSelectionCreateBrush, "Create &Brush from Selection",
-                resource: "Treefrog.Icons._16.paint-brush--plus.png");
+                resource: Properties.Resources.PaintBrushPlus);
             Register(CommandKey.TileSelectionPromoteLayer, "Promote to &Layer",
-                resource: "Treefrog.Icons._16.layer-select.png");
+                resource: Properties.Resources.LayerSelect);
             Register(CommandKey.TileSelectionFloat, "&Float");
             Register(CommandKey.TileSelectionDefloat, "&Defloat");
             Register(CommandKey.TilePoolExport, "&Export Raw Tileset...",
-                resource: "Treefrog.Icons._16.drive-download.png");
+                resource: Properties.Resources.DriveDownload);
             Register(CommandKey.TilePoolImportOver, "&Import Raw Tileset...",
-                resource: "Treefrog.Icons._16.drive-upload.png");
+                resource: Properties.Resources.DriveUpload);
 
-            Register(CommandKey.ObjectProtoImport, "Import Object from Image...", 
-                resource: "Treefrog.Icons._16.game--plus.png");
+            Register(CommandKey.ObjectProtoImport, "Import Object from Image...",
+                resource: Properties.Resources.GamePlus);
             Register(CommandKey.ObjectProtoClone, "D&uplicate");
-            Register(CommandKey.ObjectProtoDelete, "&Delete", 
-                resource: "Treefrog.Icons._16.game--minus.png");
-            Register(CommandKey.ObjectProtoProperties, "&Properties", 
-                resource: "Treefrog.Icons._16.tags.png");
-            Register(CommandKey.ObjectMoveTop, "Bring to &Front", 
-                resource: "Treefrog.Icons._16.arrow-skip-090.png");
-            Register(CommandKey.ObjectMoveUp, "Move &Forward", 
-                resource: "Treefrog.Icons._16.arrow-090.png");
-            Register(CommandKey.ObjectMoveDown, "Move &Backward", 
-                resource: "Treefrog.Icons._16.arrow-270.png");
-            Register(CommandKey.ObjectMoveBottom, "Send to &Back", 
-                resource: "Treefrog.Icons._16.arrow-skip-270.png");
-            Register(CommandKey.ObjectReferenceImage, "&Image Bounds", 
-                resource: "Treefrog.Icons._16.snap-borders.png");
-            Register(CommandKey.ObjectReferenceMask, "&Mask Bounds", 
-                resource: "Treefrog.Icons._16.snap-bounds.png");
-            Register(CommandKey.ObjectReferenceOrigin, "&Origin", 
-                resource: "Treefrog.Icons._16.snap-origin.png");
-            Register(CommandKey.ObjectSnappingNone, "&None", 
-                resource: "Treefrog.Icons._16.snap-none.png");
-            Register(CommandKey.ObjectSnappingTopLeft, "To&p Left", 
-                resource: "Treefrog.Icons._16.snap-topleft.png");
-            Register(CommandKey.ObjectSnappingTopRight, "Top R&ight", 
-                resource: "Treefrog.Icons._16.snap-topright.png");
-            Register(CommandKey.ObjectSnappingBottomLeft, "Botto&m Left", 
-                resource: "Treefrog.Icons._16.snap-bottomleft.png");
-            Register(CommandKey.ObjectSnappingBottomRight, "Bottom Ri&ght", 
-                resource: "Treefrog.Icons._16.snap-bottomright.png");
-            Register(CommandKey.ObjectSnappingTop, "&Top", 
-                resource: "Treefrog.Icons._16.snap-top.png");
-            Register(CommandKey.ObjectSnappingBottom, "&Bottom", 
-                resource: "Treefrog.Icons._16.snap-bottom.png");
-            Register(CommandKey.ObjectSnappingLeft, "&Left", 
-                resource: "Treefrog.Icons._16.snap-left.png");
-            Register(CommandKey.ObjectSnappingRight, "&Right", 
-                resource: "Treefrog.Icons._16.snap-right.png");
-            Register(CommandKey.ObjectSnappingVert, "Center &Vertical", 
-                resource: "Treefrog.Icons._16.snap-horizontal.png");
-            Register(CommandKey.ObjectSnappingHorz, "Center &Horizontal", 
-                resource: "Treefrog.Icons._16.snap-vertical.png");
-            Register(CommandKey.ObjectSnappingCenter, "&Center", 
-                resource: "Treefrog.Icons._16.snap-center.png");
+            Register(CommandKey.ObjectProtoDelete, "&Delete",
+                resource: Properties.Resources.GameMinus);
+            Register(CommandKey.ObjectProtoProperties, "&Properties",
+                resource: Properties.Resources.Tags);
+            Register(CommandKey.ObjectMoveTop, "Bring to &Front",
+                resource: Properties.Resources.ArrowSkip90);
+            Register(CommandKey.ObjectMoveUp, "Move &Forward",
+                resource: Properties.Resources.Arrow90);
+            Register(CommandKey.ObjectMoveDown, "Move &Backward",
+                resource: Properties.Resources.Arrow270);
+            Register(CommandKey.ObjectMoveBottom, "Send to &Back",
+                resource: Properties.Resources.ArrowSkip270);
+            Register(CommandKey.ObjectReferenceImage, "&Image Bounds",
+                resource: Properties.Resources.SnapBorders);
+            Register(CommandKey.ObjectReferenceMask, "&Mask Bounds",
+                resource: Properties.Resources.SnapBounds);
+            Register(CommandKey.ObjectReferenceOrigin, "&Origin",
+                resource: Properties.Resources.SnapOrigin);
+            Register(CommandKey.ObjectSnappingNone, "&None",
+                resource: Properties.Resources.SnapNone);
+            Register(CommandKey.ObjectSnappingTopLeft, "To&p Left",
+                resource: Properties.Resources.SnapTopLeft);
+            Register(CommandKey.ObjectSnappingTopRight, "Top R&ight",
+                resource: Properties.Resources.SnapTopRight);
+            Register(CommandKey.ObjectSnappingBottomLeft, "Botto&m Left",
+                resource: Properties.Resources.SnapBottomLeft);
+            Register(CommandKey.ObjectSnappingBottomRight, "Bottom Ri&ght",
+                resource: Properties.Resources.SnapBottomRight);
+            Register(CommandKey.ObjectSnappingTop, "&Top",
+                resource: Properties.Resources.SnapTop);
+            Register(CommandKey.ObjectSnappingBottom, "&Bottom",
+                resource: Properties.Resources.SnapBottom);
+            Register(CommandKey.ObjectSnappingLeft, "&Left",
+                resource: Properties.Resources.SnapLeft);
+            Register(CommandKey.ObjectSnappingRight, "&Right",
+                resource: Properties.Resources.SnapRight);
+            Register(CommandKey.ObjectSnappingVert, "Center &Vertical",
+                resource: Properties.Resources.SnapHorizontal);
+            Register(CommandKey.ObjectSnappingHorz, "Center &Horizontal",
+                resource: Properties.Resources.SnapVertical);
+            Register(CommandKey.ObjectSnappingCenter, "&Center",
+                resource: Properties.Resources.SnapCenter);
             Register(CommandKey.ObjectProperties, "&Properties",
-                resource: "Treefrog.Icons._16.tags.png");
+                resource: Properties.Resources.Tags);
         }
 
-        private static void Register (CommandKey key, string displayName, string resource = null, Keys shortcut = Keys.None, string description = null, string shortcutDisplay = null)
+        private static void Register (CommandKey key, string displayName, Image resource = null, Keys shortcut = Keys.None, string description = null, string shortcutDisplay = null)
         {
             CommandRecord record = new CommandRecord(key) {
                 DisplayName = displayName,
@@ -347,7 +341,7 @@ namespace Treefrog.Windows.Controllers
             };
 
             if (resource != null)
-                record.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+                record.Image = resource;
 
             _default.Register(record);
         }
