@@ -240,15 +240,9 @@
     <Compile Include="Windows\Controls\GameControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <None Include="Windows\Controls\GraphicsDeviceControl.cs">
-      <SubType>Component</SubType>
-    </None>
     <Compile Include="Windows\Controls\GraphicsDeviceControlGL.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <None Include="Windows\Controls\LayerControl.cs">
-      <SubType>Component</SubType>
-    </None>
     <Compile Include="Windows\Controls\ViewportControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -316,7 +310,6 @@
     <Compile Include="Windows\Forms\ResizeLevelForm.Designer.cs">
       <DependentUpon>ResizeLevelForm.cs</DependentUpon>
     </Compile>
-    <None Include="Windows\GraphicsDeviceService.cs" />
     <Compile Include="Windows\GraphicsDeviceServiceGL.cs" />
     <Compile Include="Render\Layers\CanvasLayer.cs" />
     <Compile Include="Render\Layers\GroupLayer.cs" />
