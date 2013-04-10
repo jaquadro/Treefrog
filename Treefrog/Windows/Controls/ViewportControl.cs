@@ -30,7 +30,7 @@ namespace Treefrog.Windows.Controls
         void SetScrollValue (ScrollOrientation orientation, int value);
     }
 
-    [Designer(typeof(ViewportControlDesigner))] 
+    //[Designer(typeof(ViewportControlDesigner))] 
     public partial class ViewportControl : UserControl
     {
         private IScrollableControl _control;
@@ -313,6 +313,7 @@ namespace Treefrog.Windows.Controls
         }
     }
 
+    /*
     internal class ViewportControlDesigner : ParentControlDesigner
     {
         private ViewportControl _viewportControl;
@@ -326,6 +327,7 @@ namespace Treefrog.Windows.Controls
             EnableDesignMode(_viewportControl.ContentPanel, "ScrollableControl1");
         }
     }
+    */
 
     public sealed class ViewportPanel : Panel
     {

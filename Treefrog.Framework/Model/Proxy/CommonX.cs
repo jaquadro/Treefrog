@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 namespace Treefrog.Framework.Model.Proxy
 {
     [XmlRoot("Common", Namespace = CommonX.Namespace)]
-    public static class CommonX
+    public class CommonX
     {
         private const string Namespace = "http://jaquadro.com/schemas/treefrog/common";
 
