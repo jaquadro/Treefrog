@@ -109,6 +109,9 @@ namespace Treefrog.Windows.Panels
                 Dictionary<string, Image> imgList = BuildImageList(_controller.SelectedObjectPool.Uid);
                 PopulateList(imgList);
             }
+            else {
+                _listView.Clear();
+            }
         }
 
         private void SyncObjectPoolActionsHandler (object sender, EventArgs e)

@@ -75,6 +75,7 @@ namespace Treefrog.Presentation
 
         private Guid _selectedPool;
         private ObjectPool _selectedPoolRef;
+        private IObjectPoolManager _poolManager;
 
         private Dictionary<Guid, ObjectClass> _selectedObjects;
 
@@ -93,19 +94,89 @@ namespace Treefrog.Presentation
         {
             _selectedObjects = new Dictionary<Guid, ObjectClass>();
 
+            if (_editor.Project != null)
+                BindObjectPoolManager(_editor.Project.ObjectPoolManager);
+            else
+                BindObjectPoolManager(null);
+
             //_selectedObject = null;
             //_selectedObjectRef = null;
 
             //_editor.Project.ObjectPoolManager.Pools.ResourceRemapped += ObjectPool_NameChanged;
 
-            SelectObjectPool();
+            //SelectObjectPool();
 
-            OnSyncObjectPoolManager(EventArgs.Empty);
+            //OnSyncObjectPoolManager(EventArgs.Empty);
             OnSyncObjectPoolActions(EventArgs.Empty);
             OnSyncObjectPoolCollection(EventArgs.Empty);
             OnSyncObjectPoolControl(EventArgs.Empty);
 
             InvalidateObjectProtoCommands();
+        }
+
+        public void BindObjectPoolManager (IObjectPoolManager manager)
+        {
+            if (_poolManager != null) {
+                _poolManager.Pools.ResourceAdded -= ObjectPoolAdded;
+                _poolManager.Pools.ResourceRemoved -= ObjectPoolRemoved;
+                //_poolManager.Pools.ResourceRemapped -= TilePoolRemapped;
+                //_poolManager.Pools.CollectionChanged -= TilePoolManagerChanged;
+            }
+
+            _poolManager = manager;
+            if (_poolManager != null) {
+                _poolManager.Pools.ResourceAdded += ObjectPoolAdded;
+                _poolManager.Pools.ResourceRemoved += ObjectPoolRemoved;
+                //_poolManager.Pools.ResourceRemapped += TilePoolRemapped;
+                //_poolManager.Pools.CollectionChanged += TilePoolManagerChanged;
+
+                InitializePoolPresenters();
+            }
+            else {
+                ClearPoolPresenters();
+            }
+
+            OnSyncObjectPoolManager(EventArgs.Empty);
+        }
+
+        private void ClearPoolPresenters ()
+        {
+            _selectedPool = Guid.Empty;
+            _selectedPoolRef = null;
+
+            OnSyncObjectPoolCollection(EventArgs.Empty);
+        }
+
+        private void InitializePoolPresenters ()
+        {
+            ClearPoolPresenters();
+            SelectObjectPool();
+
+            //OnObjectPoolSelectionChanged(EventArgs.Empty);
+            OnSyncObjectPoolCollection(EventArgs.Empty);
+        }
+
+        private void AddPoolPresenter (ObjectPool pool)
+        {
+            SelectObjectPool(pool.Uid);
+            OnSyncObjectPoolCollection(EventArgs.Empty);
+        }
+
+        private void RemovePoolPresenter (Guid poolUid)
+        {
+            if (_selectedPool == poolUid)
+                SelectObjectPool();
+            OnSyncObjectPoolCollection(EventArgs.Empty);
+        }
+
+        private void ObjectPoolAdded (object sender, ResourceEventArgs<ObjectPool> e)
+        {
+            AddPoolPresenter(e.Resource);
+        }
+
+        private void ObjectPoolRemoved (object sender, ResourceEventArgs<ObjectPool> e)
+        {
+            RemovePoolPresenter(e.Resource.Uid);
         }
 
         #region Command Handling
