@@ -1,11 +1,7 @@
-﻿using System;
-using System.Drawing;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
-using System.Collections.Generic;
-using Treefrog.Utility;
 using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Controls.Composite

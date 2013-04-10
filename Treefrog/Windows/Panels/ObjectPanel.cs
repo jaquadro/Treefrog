@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Aux;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
+using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Controllers;
 using TextureResource = Treefrog.Framework.Imaging.TextureResource;
-using System.Collections.Generic;
-using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Windows.Panels
 {
@@ -24,10 +24,8 @@ namespace Treefrog.Windows.Panels
 
             // Load form elements
 
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
-            _buttonRemoveObject.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game--minus.png"));
-            _buttonAddObject.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game--plus.png"));
+            _buttonRemoveObject.Image = Properties.Resources.GameMinus;
+            _buttonAddObject.Image = Properties.Resources.GamePlus;
 
             _commandController = new UICommandController();
             _commandController.MapButtons(new Dictionary<CommandKey, ToolStripButton>() {

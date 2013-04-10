@@ -14,6 +14,8 @@ using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Tools;
 using Treefrog.Render.Layers;
 using Treefrog.Windows.Controllers;
+using Treefrog.Framework.Imaging;
+using Treefrog.Aux;
 
 namespace Treefrog.Windows.Forms
 {
@@ -130,9 +132,16 @@ namespace Treefrog.Windows.Forms
                 DynamicTileBrush brush = _form._brush;
 
                 if (!brushClassOverlays.ContainsKey(brush.BrushClass.ClassName)) {
-                    System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                    brushClassOverlays.Add(brush.BrushClass.ClassName,
-                        Texture2D.FromStream(spriteBatch.GraphicsDevice, assembly.GetManifestResourceStream("Treefrog.Icons.DynBrushOverlays." + brush.BrushClass.ClassName + ".png")));
+                    System.Drawing.Bitmap overlayBitmap = null;
+                    if (brush.BrushClass.ClassName == "Basic")
+                        overlayBitmap = Properties.Resources.DynBrushBasic;
+                    else if (brush.BrushClass.ClassName == "Extended")
+                        overlayBitmap = Properties.Resources.DynBrushExtended;
+                    else
+                        return;
+
+                    TextureResource overlayResource = TextureResourceBitmapExt.CreateTextureResource(overlayBitmap);
+                    brushClassOverlays.Add(brush.BrushClass.ClassName, overlayResource.CreateTexture(spriteBatch.GraphicsDevice));
                 }
 
                 Texture2D overlay = brushClassOverlays[brush.BrushClass.ClassName];

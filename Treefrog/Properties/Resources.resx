@@ -181,11 +181,17 @@
   <data name="ClipboardPaste" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\ClipboardPaste.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="ColorSwatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\ColorSwatch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Compile" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Compile.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Cross" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Cross.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Cursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\Cursor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Disk" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Disk.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -204,6 +210,15 @@
   </data>
   <data name="DriveUpload" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\DriveUpload.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DynBrushBasic" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DynBrushOverlays\DynBrushBasic.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DynBrushExtended" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DynBrushOverlays\DynBrushExtended.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Eraser" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\Eraser.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="FolderGame" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\FolderGame.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -238,11 +253,23 @@
   <data name="Grid" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Grid.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="LayerFlip" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\LayerFlip.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LayerFlipVertical" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\LayerFlipVertical.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="LayerMinus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\LayerMinus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="LayerPlus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\LayerPlus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LayerRotate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\LayerRotate.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LayerRotateLeft" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\LayerRotateLeft.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Layers" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Layers.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -271,14 +298,41 @@
   <data name="Minus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Minus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="MinusCircle" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI\MinusCircle.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MinusCircleClick" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI\MinusCircleClick.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MinusCircleMouseOver" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI\MinusCircleMouseOver.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PaintBrush" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\PaintBrush.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="PaintBrushMinus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\PaintBrushMinus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="PaintBrushPlus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\PaintBrushPlus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="PaintCan" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\PaintCan.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Pencil" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Icons16\Pencil.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Plus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Plus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlusCircle" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI\PlusCircle.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlusCircleClick" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI\PlusCircleClick.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlusCircleMouseOver" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI\PlusCircleMouseOver.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Scissors" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Scissors.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -336,6 +390,9 @@
   </data>
   <data name="Stamp" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\Stamp.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="StatusLocation" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UI\StatusLocation.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="TableDynamic" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icons16\TableDynamic.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

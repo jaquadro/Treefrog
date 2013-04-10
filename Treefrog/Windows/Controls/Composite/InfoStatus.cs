@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Presentation;
-using Treefrog.Framework.Model;
-using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Controllers;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Windows.Controls.Composite
 {
@@ -46,25 +44,23 @@ namespace Treefrog.Windows.Controls.Composite
             _statusBar = statusBar;
             _statusBar.Items.Clear();
 
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            _imgMinusCircle = Properties.Resources.MinusCircle;
+            _imgMinusCircleClk = Properties.Resources.MinusCircleClick;
+            _imgMinusCircleMo = Properties.Resources.MinusCircleMouseOver;
 
-            _imgMinusCircle = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle16.png"));
-            _imgMinusCircleClk = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle-clk16.png"));
-            _imgMinusCircleMo = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle-mo16.png"));
+            _imgPlusCircle = Properties.Resources.PlusCircle;
+            _imgPlusCircleClk = Properties.Resources.PlusCircleClick;
+            _imgPlusCircleMo = Properties.Resources.PlusCircleMouseOver;
 
-            _imgPlusCircle = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle16.png"));
-            _imgPlusCircleClk = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle-clk16.png"));
-            _imgPlusCircleMo = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle-mo16.png"));
-
-            _imgGrid = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
-            _imgGame = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
-            _imgSelection = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.selection.png"));
+            _imgGrid = Properties.Resources.Grid;
+            _imgGame = Properties.Resources.Game;
+            _imgSelection = Properties.Resources.Selection;
 
             // Coordinate
 
             _statusCoord = new ToolStripStatusLabel();
             _statusCoord.AutoSize = false;
-            _statusCoord.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.status-loc.png"));
+            _statusCoord.Image = Properties.Resources.StatusLocation;
             _statusCoord.ImageScaling = ToolStripItemImageScaling.None;
             _statusCoord.ImageAlign = ContentAlignment.MiddleLeft;
             _statusCoord.Width = 80;
@@ -112,11 +108,11 @@ namespace Treefrog.Windows.Controls.Composite
 
             _trackBarZoomItem = new ToolStripControlHost(_trackBarZoom);
 
-            _statusZoomIn.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus-circle16.png"));
+            _statusZoomIn.Image = Properties.Resources.PlusCircle;
             _statusZoomIn.DisplayStyle = ToolStripItemDisplayStyle.Image;
             _statusZoomIn.Margin = new Padding(0, 0, 8, 0);
 
-            _statusZoomOut.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus-circle16.png"));
+            _statusZoomOut.Image = Properties.Resources.MinusCircle;
             _statusZoomOut.DisplayStyle = ToolStripItemDisplayStyle.Image;
 
             // Populate Status Strip

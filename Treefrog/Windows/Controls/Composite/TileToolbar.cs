@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Windows.Forms;
-using System.Reflection;
-using Treefrog.Presentation;
-using System.Drawing;
-using Treefrog.Presentation.Commands;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Windows.Controls.Composite
 {
@@ -22,8 +20,6 @@ namespace Treefrog.Windows.Controls.Composite
         private ToolStripButton _tbRotateLeft;
         private ToolStripButton _tbRotateRight;
 
-        private Assembly _assembly;
-
         private CommandManager _commandManager;
 
         private Dictionary<CommandKey, ToolStripButton> _commandButtonMap;
@@ -32,17 +28,15 @@ namespace Treefrog.Windows.Controls.Composite
         {
             // Construction
 
-            _assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            _tbSelect = CreateButton("Select Tool (C)", Properties.Resources.Cursor);
+            _tbDraw = CreateButton("Draw Tool (D)", Properties.Resources.PaintBrush);
+            _tbErase = CreateButton("Erase Tool (E)", Properties.Resources.Eraser);
+            _tbFill = CreateButton("Fill Tool (F)", Properties.Resources.PaintCan);
 
-            _tbSelect = CreateButton("Select Tool (C)", "Treefrog.Icons.cursor16.png");
-            _tbDraw = CreateButton("Draw Tool (D)", "Treefrog.Icons.paint-brush16.png");
-            _tbErase = CreateButton("Erase Tool (E)", "Treefrog.Icons.eraser16.png");
-            _tbFill = CreateButton("Fill Tool (F)", "Treefrog.Icons.paint-can16.png");
-
-            _tbFlipH = CreateButton("Flip Horizontally", "Treefrog.Icons.layer-flip16.png");
-            _tbFlipV = CreateButton("Flip Vertically", "Treefrog.Icons.layer-flip-vertical16.png");
-            _tbRotateLeft = CreateButton("Rotate Left 90 Degrees", "Treefrog.Icons.layer-rotate-left16.png");
-            _tbRotateRight = CreateButton("Rotate Right 90 Degrees", "Treefrog.Icons.layer-rotate16.png");
+            _tbFlipH = CreateButton("Flip Horizontally", Properties.Resources.LayerFlip);
+            _tbFlipV = CreateButton("Flip Vertically", Properties.Resources.LayerFlipVertical);
+            _tbRotateLeft = CreateButton("Rotate Left 90 Degrees", Properties.Resources.LayerRotateLeft);
+            _tbRotateRight = CreateButton("Rotate Right 90 Degrees", Properties.Resources.LayerRotate);
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
@@ -152,14 +146,14 @@ namespace Treefrog.Windows.Controls.Composite
             PerformCommand(CommandKey.TileToolFill);
         }
 
-        private ToolStripButton CreateButton (string text, string resource)
+        private ToolStripButton CreateButton (string text, Image resource)
         {
             ToolStripButton button = new ToolStripButton();
 
             button.DisplayStyle = ToolStripItemDisplayStyle.Image;
             button.Size = new System.Drawing.Size(22, 22);
             button.Text = text;
-            button.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+            button.Image = resource;
 
             return button;
         }

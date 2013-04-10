@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
 using Treefrog.Windows.Controls;
@@ -26,14 +21,12 @@ namespace Treefrog.Windows.Forms
         {
             InitializeComponent();
 
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
             _level = level;
 
             NewWidth = level.Width;
             NewHeight = level.Height;
 
-            _alignmentControl.SourceIcon = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.map.png"));
+            _alignmentControl.SourceIcon = Properties.Resources.Map;
             _alignmentControl.OldSize = new Size(_level.Width, _level.Height);
             _alignmentControl.NewSize = new Size(_level.Width, _level.Height);
             _alignmentControl.Alignment = Alignment.TopLeft;

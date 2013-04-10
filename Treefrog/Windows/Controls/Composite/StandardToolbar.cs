@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
-using System.Reflection;
 using System.Windows.Forms;
-using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
 using Treefrog.Utility;
 
@@ -27,29 +24,25 @@ namespace Treefrog.Windows.Controls.Composite
 
         private ToolStripButton _tbCompile;
 
-        private Assembly _assembly;
-
         private CommandManager _commandManager;
         private Mapper<CommandKey, ToolStripButton> _commandMap = new Mapper<CommandKey, ToolStripButton>();
 
         public StandardToolbar ()
         {
-            _assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
-            _tbNewProject = CreateButton("New Project (Ctrl+N)", "Treefrog.Icons._16.applications-blue--asterisk.png");
-            _tbNewItem = CreateDropDownButton("Add New Item", "Treefrog.Icons._16.map--asterisk.png");
+            _tbNewProject = CreateButton("New Project (Ctrl+N)", Properties.Resources.ApplicationsBlueAst);
+            _tbNewItem = CreateDropDownButton("Add New Item", Properties.Resources.MapAsterisk);
             _tbNewItem.DropDownItems.AddRange(new ToolStripItem[] {
-                DropDownMenuItem("Add New Level", "Treefrog.Icons._16.map--asterisk.png"),
-                DropDownMenuItem("Add New Tile Pool", "Treefrog.Icons.color-swatch16.png"),
+                DropDownMenuItem("Add New Level", Properties.Resources.MapAsterisk),
+                DropDownMenuItem("Add New Tile Pool", Properties.Resources.ColorSwatch),
             });
-            _tbOpen = CreateButton("Open Project (Ctrl+O)", "Treefrog.Icons.folder-horizontal-open16.png");
-            _tbSave = CreateButton("Save Project (Ctrl+S)", "Treefrog.Icons.disk16.png");
-            _tbCut = CreateButton("Cut (Ctrl+X)", "Treefrog.Icons.scissors16.png");
-            _tbCopy = CreateButton("Copy (Ctrl+C)", "Treefrog.Icons.document-copy16.png");
-            _tbPaste = CreateButton("Paste (Ctrl+V)", "Treefrog.Icons.clipboard-paste16.png");
-            _tbUndo = CreateButton("Undo (Ctrl+Z)", "Treefrog.Icons.arrow-turn-180-left16.png");
-            _tbRedo = CreateButton("Redo (Ctrl+Y)", "Treefrog.Icons.arrow-turn16.png");
-            _tbCompile = CreateButton("Compile", "Treefrog.Icons._16.compile.png");
+            _tbOpen = CreateButton("Open Project (Ctrl+O)", Properties.Resources.FolderHorizontalOpen);
+            _tbSave = CreateButton("Save Project (Ctrl+S)", Properties.Resources.Disk);
+            _tbCut = CreateButton("Cut (Ctrl+X)", Properties.Resources.Scissors);
+            _tbCopy = CreateButton("Copy (Ctrl+C)", Properties.Resources.Documents);
+            _tbPaste = CreateButton("Paste (Ctrl+V)", Properties.Resources.ClipboardPaste);
+            _tbUndo = CreateButton("Undo (Ctrl+Z)", Properties.Resources.ArrowTurn180Left);
+            _tbRedo = CreateButton("Redo (Ctrl+Y)", Properties.Resources.ArrowTurn);
+            _tbCompile = CreateButton("Compile", Properties.Resources.Compile);
 
             _strip = new ToolStrip();
             _strip.Items.AddRange(new ToolStripItem[] {
@@ -168,49 +161,49 @@ namespace Treefrog.Windows.Controls.Composite
             }*/
         }
 
-        private ToolStripButton CreateButton (string text, string resource)
+        private ToolStripButton CreateButton (string text, Image resource)
         {
             ToolStripButton button = new ToolStripButton();
 
             button.DisplayStyle = ToolStripItemDisplayStyle.Image;
             button.Size = new System.Drawing.Size(22, 22);
             button.Text = text;
-            button.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+            button.Image = resource;
 
             return button;
         }
 
-        private ToolStripSplitButton CreateSplitButton (string text, string resource)
+        private ToolStripSplitButton CreateSplitButton (string text, Image resource)
         {
             ToolStripSplitButton button = new ToolStripSplitButton();
 
             button.DisplayStyle = ToolStripItemDisplayStyle.Image;
             button.Size = new Size(22, 22);
             button.Text = text;
-            button.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+            button.Image = resource;
 
             return button;
         }
 
-        private ToolStripDropDownButton CreateDropDownButton (string text, string resource)
+        private ToolStripDropDownButton CreateDropDownButton (string text, Image resource)
         {
             ToolStripDropDownButton button = new ToolStripDropDownButton();
 
             button.DisplayStyle = ToolStripItemDisplayStyle.Image;
             button.Size = new Size(22, 22);
             button.Text = text;
-            button.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+            button.Image = resource;
 
             return button;
         }
 
-        private ToolStripMenuItem DropDownMenuItem (string text, string resource)
+        private ToolStripMenuItem DropDownMenuItem (string text, Image resource)
         {
             ToolStripMenuItem item = new ToolStripMenuItem();
 
             item.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
             item.Text = text;
-            item.Image = Image.FromStream(_assembly.GetManifestResourceStream(resource));
+            item.Image = resource;
 
             return item;
         }

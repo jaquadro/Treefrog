@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
@@ -38,10 +37,8 @@ namespace Treefrog.Windows
 
             // Load form elements
 
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
-            _buttonAddProp.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tag--plus.png"));
-            _buttonRemoveProp.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tag--minus.png"));
+            _buttonAddProp.Image = Properties.Resources.TagPlus;
+            _buttonRemoveProp.Image = Properties.Resources.TagMinus;
 
             // Setup control
 

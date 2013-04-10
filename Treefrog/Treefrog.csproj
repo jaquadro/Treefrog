@@ -363,6 +363,25 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <None Include="Resources\DynBrushOverlays\DynBrushExtended.png" />
+    <None Include="Resources\DynBrushOverlays\DynBrushBasic.png" />
+    <None Include="Resources\UI\StatusLocation.png" />
+    <None Include="Resources\UI\PlusCircleMouseOver.png" />
+    <None Include="Resources\UI\PlusCircleClick.png" />
+    <None Include="Resources\UI\PlusCircle.png" />
+    <None Include="Resources\UI\MinusCircleMouseOver.png" />
+    <None Include="Resources\UI\MinusCircleClick.png" />
+    <None Include="Resources\UI\MinusCircle.png" />
+    <None Include="Resources\Icons16\Pencil.png" />
+    <None Include="Resources\Icons16\PaintCan.png" />
+    <None Include="Resources\Icons16\PaintBrush.png" />
+    <None Include="Resources\Icons16\LayerRotateLeft.png" />
+    <None Include="Resources\Icons16\LayerRotate.png" />
+    <None Include="Resources\Icons16\LayerFlipVertical.png" />
+    <None Include="Resources\Icons16\LayerFlip.png" />
+    <None Include="Resources\Icons16\Eraser.png" />
+    <None Include="Resources\Icons16\Cursor.png" />
+    <None Include="Resources\Icons16\ColorSwatch.png" />
     <None Include="Resources\Icons16\FolderHorizontalOpen.png" />
     <None Include="Resources\Icons16\TagPlus.png" />
     <None Include="Resources\Icons16\TagMinus.png" />

@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Treefrog.Aux;
-using Treefrog.Presentation;
 using Treefrog.Framework.Model;
-
-using TextureResource = Treefrog.Framework.Imaging.TextureResource;
-using Treefrog.Windows.Forms;
+using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
-using Treefrog.Utility;
 using Treefrog.Windows.Controllers;
+using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 
 namespace Treefrog.Windows.Panels
 {
@@ -33,17 +26,15 @@ namespace Treefrog.Windows.Panels
 
             // Load form elements
 
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
-            _buttonRemove.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.paint-brush--minus.png"));
-            _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.paint-brush--plus.png"));
-            _buttonFilter.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.funnel.png"));
+            _buttonRemove.Image = Properties.Resources.PaintBrushMinus;
+            _buttonAdd.Image = Properties.Resources.PaintBrushPlus;
+            _buttonFilter.Image = Properties.Resources.Funnel;
 
             ToolStripMenuItem buttonAddStatic = new ToolStripMenuItem("New Static Brush...") {
-                Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.stamp.png")),
+                Image = Properties.Resources.Stamp,
             };
             ToolStripMenuItem buttonAddDynamic = new ToolStripMenuItem("New Dynamic Brush...") {
-                Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.table-dynamic.png")),
+                Image = Properties.Resources.TableDynamic,
             };
 
             _buttonAdd.DropDownItems.AddRange(new ToolStripItem[] {

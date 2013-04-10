@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 using Treefrog.Presentation;
-using Treefrog.Windows.Controls.Composite;
-using System.Drawing;
-using System.ComponentModel;
-using Treefrog.Windows.Controllers;
 using Treefrog.Presentation.Commands;
-using System.Collections.Generic;
+using Treefrog.Windows.Controllers;
+using Treefrog.Windows.Controls.Composite;
 
 namespace Treefrog.Windows.Forms
 {
@@ -74,8 +74,6 @@ namespace Treefrog.Windows.Forms
             _commandController = new UICommandController();
             _commandController.BindCommandManager(_editor.CommandManager);
             _commandController.MapMenuItems(tabControlEx1.ContextMenuStrip.Items);
-
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
         }
 
         private void FormClosingHandler (object sender, CancelEventArgs e)

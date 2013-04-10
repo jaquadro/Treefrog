@@ -273,6 +273,16 @@ namespace Treefrog.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ColorSwatch {
+            get {
+                object obj = ResourceManager.GetObject("ColorSwatch", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Compile {
             get {
                 object obj = ResourceManager.GetObject("Compile", resourceCulture);
@@ -286,6 +296,16 @@ namespace Treefrog.Properties {
         internal static System.Drawing.Bitmap Cross {
             get {
                 object obj = ResourceManager.GetObject("Cross", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Cursor {
+            get {
+                object obj = ResourceManager.GetObject("Cursor", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -346,6 +366,36 @@ namespace Treefrog.Properties {
         internal static System.Drawing.Bitmap DriveUpload {
             get {
                 object obj = ResourceManager.GetObject("DriveUpload", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DynBrushBasic {
+            get {
+                object obj = ResourceManager.GetObject("DynBrushBasic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DynBrushExtended {
+            get {
+                object obj = ResourceManager.GetObject("DynBrushExtended", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Eraser {
+            get {
+                object obj = ResourceManager.GetObject("Eraser", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -463,6 +513,26 @@ namespace Treefrog.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap LayerFlip {
+            get {
+                object obj = ResourceManager.GetObject("LayerFlip", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LayerFlipVertical {
+            get {
+                object obj = ResourceManager.GetObject("LayerFlipVertical", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap LayerMinus {
             get {
                 object obj = ResourceManager.GetObject("LayerMinus", resourceCulture);
@@ -476,6 +546,26 @@ namespace Treefrog.Properties {
         internal static System.Drawing.Bitmap LayerPlus {
             get {
                 object obj = ResourceManager.GetObject("LayerPlus", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LayerRotate {
+            get {
+                object obj = ResourceManager.GetObject("LayerRotate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LayerRotateLeft {
+            get {
+                object obj = ResourceManager.GetObject("LayerRotateLeft", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -573,6 +663,46 @@ namespace Treefrog.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap MinusCircle {
+            get {
+                object obj = ResourceManager.GetObject("MinusCircle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap MinusCircleClick {
+            get {
+                object obj = ResourceManager.GetObject("MinusCircleClick", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap MinusCircleMouseOver {
+            get {
+                object obj = ResourceManager.GetObject("MinusCircleMouseOver", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PaintBrush {
+            get {
+                object obj = ResourceManager.GetObject("PaintBrush", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap PaintBrushMinus {
             get {
                 object obj = ResourceManager.GetObject("PaintBrushMinus", resourceCulture);
@@ -593,9 +723,59 @@ namespace Treefrog.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap PaintCan {
+            get {
+                object obj = ResourceManager.GetObject("PaintCan", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Pencil {
+            get {
+                object obj = ResourceManager.GetObject("Pencil", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Plus {
             get {
                 object obj = ResourceManager.GetObject("Plus", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PlusCircle {
+            get {
+                object obj = ResourceManager.GetObject("PlusCircle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PlusCircleClick {
+            get {
+                object obj = ResourceManager.GetObject("PlusCircleClick", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PlusCircleMouseOver {
+            get {
+                object obj = ResourceManager.GetObject("PlusCircleMouseOver", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -786,6 +966,16 @@ namespace Treefrog.Properties {
         internal static System.Drawing.Bitmap Stamp {
             get {
                 object obj = ResourceManager.GetObject("Stamp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap StatusLocation {
+            get {
+                object obj = ResourceManager.GetObject("StatusLocation", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

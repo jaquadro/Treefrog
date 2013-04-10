@@ -53,14 +53,12 @@ namespace Treefrog.Windows
 
             // Load form elements
 
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
-            _buttonRemove.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.minus16.png"));
-            _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons.plus16.png"));
-            _buttonProperties.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tags.png"));
+            _buttonRemove.Image = Properties.Resources.Minus;
+            _buttonAdd.Image = Properties.Resources.Plus;
+            _buttonProperties.Image = Properties.Resources.Tags;
 
             ToolStripMenuItem tilePropertiesItem = new ToolStripMenuItem("Tile Properties") {
-                Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tags.png")),
+                Image = Properties.Resources.Tags,
             };
 
             _tileContextMenu = new ContextMenuStrip();

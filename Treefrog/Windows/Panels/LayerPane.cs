@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
-using Treefrog.Framework.Model;
 using Treefrog.Presentation;
-using Treefrog.Windows.Controllers;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Layers;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows
 {
@@ -23,17 +21,15 @@ namespace Treefrog.Windows
 
             // Load form elements
 
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            _buttonAdd.Image = Properties.Resources.LayerPlus;
+            _buttonRemove.Image = Properties.Resources.LayerMinus;
+            _buttonUp.Image = Properties.Resources.Arrow90;
+            _buttonDown.Image = Properties.Resources.Arrow270;
+            _buttonCopy.Image = Properties.Resources.Layers;
+            _buttonProperties.Image = Properties.Resources.Tags;
 
-            _buttonAdd.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.layer--plus.png"));
-            _buttonRemove.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.layer--minus.png"));
-            _buttonUp.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.arrow-090.png"));
-            _buttonDown.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.arrow-270.png"));
-            _buttonCopy.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.layers.png"));
-            _buttonProperties.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.tags.png"));
-
-            _menuNewTileLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.grid.png"));
-            _menuNewObjectLayer.Image = Image.FromStream(assembly.GetManifestResourceStream("Treefrog.Icons._16.game.png"));
+            _menuNewTileLayer.Image = Properties.Resources.Grid;
+            _menuNewObjectLayer.Image = Properties.Resources.Game;
 
             _commandController = new UICommandController();
             _commandController.MapButtons(new Dictionary<CommandKey, ToolStripButton>() {
