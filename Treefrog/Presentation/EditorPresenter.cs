@@ -90,6 +90,7 @@ namespace Treefrog.Presentation
         private TileBrushManagerPresenter _tileBrushManager;
         private PropertyListPresenter _propertyList;
         private ProjectExplorerPresenter _projectExplorer;
+        private MinimapPresenter _minimap;
 
         private StandardToolsPresenter _stdTools;
         private DocumentToolsPresenter _docTools;
@@ -108,6 +109,7 @@ namespace Treefrog.Presentation
             _tileBrushManager = new TileBrushManagerPresenter(_editor);
             _propertyList = new PropertyListPresenter();
             _projectExplorer = new ProjectExplorerPresenter(_editor);
+            _minimap = new MinimapPresenter(_editor);
         }
 
         public IContentInfoPresenter ContentInfo
@@ -143,6 +145,11 @@ namespace Treefrog.Presentation
         public ProjectExplorerPresenter ProjectExplorer
         {
             get { return _projectExplorer; }
+        }
+
+        public MinimapPresenter Minimap
+        {
+            get { return _minimap; }
         }
 
         public IStandardToolsPresenter StandardTools

@@ -42,7 +42,7 @@ namespace Treefrog.Windows
 
             // Setup control
 
-            _groupPredefined = new ListViewGroup("Predefined Properties");
+            _groupPredefined = new ListViewGroup("Special Properties");
             _groupCustom = new ListViewGroup("Custom Properties");
 
             _propertyList.Groups.Add(_groupPredefined);
@@ -301,7 +301,7 @@ namespace Treefrog.Windows
             this._propertyList.Dock = System.Windows.Forms.DockStyle.Fill;
             this._propertyList.DoubleClickActivation = true;
             this._propertyList.FullRowSelect = true;
-            listViewGroup3.Header = "Predefined Properties";
+            listViewGroup3.Header = "Special Properties";
             listViewGroup3.Name = "_groupPredef";
             listViewGroup4.Header = "Custom Properties";
             listViewGroup4.Name = "_groupCustom";

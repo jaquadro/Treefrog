@@ -158,6 +158,8 @@ namespace Treefrog.Windows.Forms
                 tileBrushPanel1.BindTileController(_editor.Presentation.TilePoolList);
             }
 
+            minimapPanel1.BindController(_editor.Presentation.Minimap);
+
             _menu.BindController(_editor);
             _menu.BindCommandManager(_editor.CommandManager);
             //_tileToolbar.BindController(_editor.Presentation.LevelTools);

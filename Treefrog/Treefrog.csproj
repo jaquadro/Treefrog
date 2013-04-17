@@ -158,6 +158,7 @@
     <Compile Include="Presentation\Layers\TileSetLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter.cs" />
+    <Compile Include="Presentation\MinimapPresenter.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\ObjectSelectionManager.cs" />
     <Compile Include="Presentation\ProjectExplorerPresenter.cs" />
@@ -330,6 +331,12 @@
     </Compile>
     <Compile Include="Windows\Panels\LevelPanel.Designer.cs">
       <DependentUpon>LevelPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Panels\MinimapPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Panels\MinimapPanel.Designer.cs">
+      <DependentUpon>MinimapPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Panels\ObjectPanel.cs">
       <SubType>UserControl</SubType>
@@ -557,6 +564,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\LevelPanel.resx">
       <DependentUpon>LevelPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Panels\MinimapPanel.resx">
+      <DependentUpon>MinimapPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\ObjectPanel.resx">
       <DependentUpon>ObjectPanel.cs</DependentUpon>
