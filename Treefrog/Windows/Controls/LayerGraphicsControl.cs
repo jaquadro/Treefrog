@@ -241,7 +241,7 @@ namespace Treefrog.Windows.Controls
         private int _scrollH;
         private int _scrollV;
 
-        public event ScrollEventHandler Scroll;
+        public new event ScrollEventHandler Scroll;
         public event EventHandler VirtualSizeChanged;
         public event EventHandler ScrollPropertyChanged;
         public event EventHandler ZoomChanged;
@@ -260,7 +260,7 @@ namespace Treefrog.Windows.Controls
             }
         }
 
-        protected virtual void OnScroll (ScrollEventArgs e)
+        protected new virtual void OnScroll (ScrollEventArgs e)
         {
             if (Scroll != null) {
                 Scroll(this, e);

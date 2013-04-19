@@ -23,6 +23,9 @@ namespace Treefrog.Windows
             _layerControl = new LayerGraphicsControl();
             _layerControl.Dock = DockStyle.Fill;
 
+            _layerControl.Scroll += (s, e) => InvalidateGeometry();
+            _layerControl.VirtualSizeChanged += (s, e) => InvalidateGeometry();
+
             _viewportControl.Control = _layerControl;
 
             _pointerController = new ControlPointerEventController(_layerControl, _layerControl);
@@ -77,6 +80,12 @@ namespace Treefrog.Windows
 
         private void ResetComponent ()
         {
+        }
+
+        private void InvalidateGeometry ()
+        {
+            if (_controller != null)
+                _controller.ActionInvalidateLevelGeometry();
         }
 
         private void PointerEventResponderChanged (object sender, EventArgs e)

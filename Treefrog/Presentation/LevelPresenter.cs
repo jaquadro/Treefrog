@@ -188,6 +188,15 @@ namespace Treefrog.Presentation
             get { return LevelGeometry; }
         }
 
+        public event EventHandler LevelGeometryInvalidated;
+
+        protected virtual void OnLevelGeometryInvalidated (EventArgs e)
+        {
+            var ev = LevelGeometryInvalidated;
+            if (ev != null)
+                ev(this, e);
+        }
+
         public IPointerResponder PointerEventResponder
         {
             get
@@ -905,6 +914,11 @@ namespace Treefrog.Presentation
                 return;
 
             _level.Layers[layerUid].IsVisible = (visibility == LayerVisibility.Show);
+        }
+
+        public void ActionInvalidateLevelGeometry ()
+        {
+            OnLevelGeometryInvalidated(EventArgs.Empty);
         }
 
         public void SetPropertyProvider (IPropertyProvider provider)
