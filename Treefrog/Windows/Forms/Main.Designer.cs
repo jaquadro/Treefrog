@@ -364,7 +364,6 @@ namespace Treefrog.Windows.Forms
             this.tabControl1.Controls.Add(this._tabTilePools);
             this.tabControl1.Controls.Add(this._tabTileBrushes);
             this.tabControl1.Controls.Add(this._tabObjects);
-            this.tabControl1.Controls.Add(this._tabMinimap);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
@@ -439,6 +438,7 @@ namespace Treefrog.Windows.Forms
             this.tabControl2.Controls.Add(this._tabProject);
             this.tabControl2.Controls.Add(this._tabLayers);
             this.tabControl2.Controls.Add(this._tabProperties);
+            this.tabControl2.Controls.Add(this._tabMinimap);
             this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl2.Location = new System.Drawing.Point(0, 0);
             this.tabControl2.Margin = new System.Windows.Forms.Padding(0);
@@ -585,7 +585,7 @@ namespace Treefrog.Windows.Forms
             this._tabMinimap.Name = "_tabMinimap";
             this._tabMinimap.Size = new System.Drawing.Size(246, 293);
             this._tabMinimap.TabIndex = 3;
-            this._tabMinimap.Text = "Minimap";
+            this._tabMinimap.Text = "Overview";
             this._tabMinimap.UseVisualStyleBackColor = true;
             // 
             // minimapPanel1
