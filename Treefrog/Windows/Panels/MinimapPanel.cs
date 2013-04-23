@@ -8,17 +8,32 @@ using System.Text;
 using System.Windows.Forms;
 using Treefrog.Render.Layers;
 using Treefrog.Presentation;
+using Treefrog.Presentation.Controllers;
 
 namespace Treefrog.Windows.Panels
 {
     public partial class MinimapPanel : UserControl
     {
+        private ControlPointerEventController _pointerController;
         private MinimapPresenter _controller;
         private GroupLayer _root;
 
         public MinimapPanel ()
         {
             InitializeComponent();
+
+            _pointerController = new ControlPointerEventController(_layerControl, _layerControl);
+        }
+
+        protected override void Dispose (bool disposing)
+        {
+            if (disposing && (components != null)) {
+                components.Dispose();
+
+                _pointerController.Dispose();
+                _layerControl.Dispose();
+            }
+            base.Dispose(disposing);
         }
 
         public void BindController (MinimapPresenter controller)
@@ -28,12 +43,19 @@ namespace Treefrog.Windows.Panels
 
             if (_controller != null) {
                 _controller.CurrentLevelChanged -= CurrentLevelChanged;
+                _controller.PointerEventResponderChanged -= PointerEventResponderChanged;
             }
 
             _controller = controller;
 
             if (_controller != null) {
                 _controller.CurrentLevelChanged += CurrentLevelChanged;
+                _controller.PointerEventResponderChanged += PointerEventResponderChanged;
+
+                _pointerController.Responder = _controller.PointerEventResponder;
+            }
+            else {
+                _pointerController.Responder = null;
             }
 
             BindCurrentLevel();
@@ -63,6 +85,11 @@ namespace Treefrog.Windows.Panels
                 _layerControl.RootLayer = null;
                 _layerControl.TextureCache.SourcePool = null;
             }
+        }
+
+        private void PointerEventResponderChanged (object sender, EventArgs e)
+        {
+            _pointerController.Responder = _controller.PointerEventResponder;
         }
 
         private void CurrentLevelChanged (object sender, EventArgs e)

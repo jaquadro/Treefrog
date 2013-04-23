@@ -10,10 +10,12 @@ using Treefrog.Framework;
 using Treefrog.Presentation.Commands;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Presentation.Controllers;
+using Treefrog.Presentation.Tools;
 
 namespace Treefrog.Presentation
 {
-    public class MinimapPresenter : ILayerContext
+    public class MinimapPresenter : ILayerContext, IPointerResponderProvider, IPointerResponder
     {
         private EditorPresenter _editor;
         private ObservableCollection<Annotation> _annotations;
@@ -181,5 +183,72 @@ namespace Treefrog.Presentation
 
         private static Pen _boxOutline = new Pen(new SolidColorBrush(Colors.Red), 2);
         private static Pen _boxOutlineGlow = new Pen(new SolidColorBrush(Colors.White), 4);
+
+        public IPointerResponder PointerEventResponder
+        {
+            get { return this; }
+        }
+
+        public event EventHandler PointerEventResponderChanged;
+
+        private double _startX;
+        private double _startY;
+        private Point _boxStart;
+        private bool _drag;
+
+        public void HandleStartPointerSequence (PointerEventInfo info)
+        {
+            if (info.Type == PointerEventType.Primary) {
+                if (_levelPresenter.Geometry.VisibleBounds.Contains(new Point((int)info.X, (int)info.Y))) {
+                    _startX = info.X;
+                    _startY = info.Y;
+                    _boxStart = _boxAnnot.Start;
+                    _drag = true;
+                }
+                else {
+                    int transX = (int)info.X - _levelPresenter.Geometry.VisibleBounds.Width / 2;
+                    int transY = (int)info.Y - _levelPresenter.Geometry.VisibleBounds.Height / 2;
+                    ScrollLevelTo(new Point(transX, transY));
+                }
+            }
+        }
+
+        public void HandleEndPointerSequence (PointerEventInfo info)
+        {
+            _drag = false;
+        }
+
+        public void HandleUpdatePointerSequence (PointerEventInfo info)
+        {
+            if (!_drag)
+                return;
+
+            double diffX = info.X - _startX;
+            double diffY = info.Y - _startY;
+
+            int boxX = _boxStart.X + (int)diffX;
+            int boxY = _boxStart.Y + (int)diffY;
+
+            ScrollLevelTo(new Point(boxX, boxY));
+        }
+
+        public void HandlePointerPosition (PointerEventInfo info)
+        { }
+
+        public void HandlePointerLeaveField ()
+        { }
+
+        private void ScrollLevelTo (Point point)
+        {
+            int boxX = point.X;
+            int boxY = point.Y;
+
+            boxX = Math.Max(_levelPresenter.Geometry.LevelBounds.Left, boxX);
+            boxY = Math.Max(_levelPresenter.Geometry.LevelBounds.Top, boxY);
+            boxX = Math.Min(_levelPresenter.Geometry.LevelBounds.Right - _levelPresenter.Geometry.VisibleBounds.Width, boxX);
+            boxY = Math.Min(_levelPresenter.Geometry.LevelBounds.Bottom - _levelPresenter.Geometry.VisibleBounds.Height, boxY);
+
+            _levelPresenter.Geometry.ScrollPosition = new Point(boxX, boxY);
+        }
     }
 }
