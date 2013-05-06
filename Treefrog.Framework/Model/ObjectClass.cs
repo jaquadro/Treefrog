@@ -89,6 +89,8 @@ namespace Treefrog.Framework.Model
             get { return _uid; }
         }
 
+        internal int Version { get; private set; }
+
         public ObjectPool Pool
         {
             get { return _pool; }
@@ -132,6 +134,7 @@ namespace Treefrog.Framework.Model
             set {
                 if (_maskBounds != value) {
                     _maskBounds = value;
+                    Version++;
                     RaisePropertyChanged("MaskBounds");
                 }
             }
@@ -144,6 +147,7 @@ namespace Treefrog.Framework.Model
             {
                 if (_origin != value) {
                     _origin = value;
+                    Version++;
                     RaisePropertyChanged("Origin");
                 }
             }
@@ -172,6 +176,7 @@ namespace Treefrog.Framework.Model
                     }
 
                     _image = value;
+                    Version++;
                     if (_image == null) {
                         _imageBounds = Rectangle.Empty;
                         RaisePropertyChanged("ImageBounds");

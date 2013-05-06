@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Aux;
 using Drawing = Treefrog.Framework.Imaging.Drawing;
 using XnaDrawing = LilyPath;
+using LilyPath.Brushes;
 
 namespace Treefrog.Render.Annotations
 {
@@ -25,7 +26,7 @@ namespace Treefrog.Render.Annotations
                 Drawing.CheckerBrush cBrush = brush as Drawing.CheckerBrush;
                 Color color1 = cBrush.Color1.ToXnaColor();
                 Color color2 = cBrush.Color2.ToXnaColor();
-                return new XnaDrawing.CheckerBrush(device, color1, color2, cBrush.Width, cBrush.Height, (float)cBrush.Opacity);
+                return new CheckerBrush(device, color1, color2, cBrush.Width, cBrush.Height, (float)cBrush.Opacity);
             }
 
             return null;

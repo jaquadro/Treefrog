@@ -282,11 +282,13 @@ namespace Treefrog.Windows.Controllers
             Register(CommandKey.TilePoolImportOver, "&Import Raw Tileset...",
                 resource: Properties.Resources.DriveUpload);
 
-            Register(CommandKey.ObjectProtoImport, "Import Object from Image...",
+            Register(CommandKey.ObjectProtoImport, "&Import Object from Image...",
                 resource: Properties.Resources.GamePlus);
+            Register(CommandKey.ObjectProtoEdit, "&Edit...");
             Register(CommandKey.ObjectProtoClone, "D&uplicate");
             Register(CommandKey.ObjectProtoDelete, "&Delete",
                 resource: Properties.Resources.GameMinus);
+            Register(CommandKey.ObjectProtoRename, "&Rename");
             Register(CommandKey.ObjectProtoProperties, "&Properties",
                 resource: Properties.Resources.Tags);
             Register(CommandKey.ObjectMoveTop, "Bring to &Front",

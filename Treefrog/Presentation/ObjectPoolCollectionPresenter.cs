@@ -189,7 +189,9 @@ namespace Treefrog.Presentation
             //_commandManager.CommandInvalidated += HandleCommandInvalidated;
 
             _commandManager.Register(CommandKey.ObjectProtoImport, CommandCanImportObject, CommandImportObject);
+            _commandManager.Register(CommandKey.ObjectProtoEdit, CommandCanEditObject, CommandEditObject);
             _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanRemoveObject, CommandRemoveObject);
+            _commandManager.Register(CommandKey.ObjectProtoRename, CommandCanRename, CommandRename);
             _commandManager.Register(CommandKey.ObjectProtoProperties, CommandCanObjectProperties, CommandObjectProperties);
 
             _commandManager.RegisterToggleGroup(CommandToggleGroup.ObjectReference);
@@ -228,23 +230,53 @@ namespace Treefrog.Presentation
         private void CommandImportObject ()
         {
             if (CommandCanImportObject()) {
-                ImportObject form = new ImportObject();
-                foreach (ObjectClass objClass in  SelectedObjectPool.Objects)
-                    form.ReservedNames.Add(objClass.Name);
+                using (ImportObject form = new ImportObject()) {
+                    foreach (ObjectClass objClass in SelectedObjectPool.Objects)
+                        form.ReservedNames.Add(objClass.Name);
 
-                if (form.ShowDialog() == DialogResult.OK) {
-                    TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(form.SourceFile);
-                    ObjectClass objClass = new ObjectClass(form.ObjectName) {
-                        MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
-                            form.MaskRight ?? 0 - form.MaskLeft ?? 0, form.MaskBottom ?? 0 - form.MaskTop ?? 0),
-                        Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0),
-                    };
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(form.SourceFile);
+                        ObjectClass objClass = new ObjectClass(form.ObjectName) {
+                            MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
+                                (form.MaskRight ?? 0) - (form.MaskLeft ?? 0), (form.MaskBottom ?? 0) - (form.MaskTop ?? 0)),
+                            Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0),
+                        };
 
-                    SelectedObjectPool.AddObject(objClass);
-                    objClass.Image = resource;
+                        SelectedObjectPool.AddObject(objClass);
+                        objClass.Image = resource;
 
-                    RefreshObjectPoolCollection();
-                    OnSyncObjectPoolManager(EventArgs.Empty);
+                        RefreshObjectPoolCollection();
+                        OnSyncObjectPoolManager(EventArgs.Empty);
+                    }
+                }
+            }
+        }
+
+        private bool CommandCanEditObject ()
+        {
+            return SelectedObjectPool != null && SelectedObject != null;
+        }
+
+        private void CommandEditObject ()
+        {
+            if (CommandCanEditObject()) {
+                using (ImportObject form = new ImportObject(SelectedObject)) {
+                    foreach (ObjectClass objClass in SelectedObjectPool.Objects) {
+                        if (objClass.Name != SelectedObject.Name)
+                            form.ReservedNames.Add(objClass.Name);
+                    }
+
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        if (form.SourceImage != null)
+                            SelectedObject.Image = form.SourceImage;
+                        SelectedObject.TrySetName(form.ObjectName);
+                        SelectedObject.MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
+                            (form.MaskRight ?? 0) - (form.MaskLeft ?? 0), (form.MaskBottom ?? 0) - (form.MaskTop ?? 0));
+                        SelectedObject.Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0);
+
+                        RefreshObjectPoolCollection();
+                        OnSyncObjectPoolManager(EventArgs.Empty);
+                    }
                 }
             }
         }
@@ -265,6 +297,26 @@ namespace Treefrog.Presentation
             }
         }
 
+        private bool CommandCanRename ()
+        {
+            return SelectedObjectPool != null && SelectedObject != null;
+        }
+
+        private void CommandRename ()
+        {
+            if (CommandCanRename()) {
+                using (NameChangeForm form = new NameChangeForm(SelectedObject.Name)) {
+                    foreach (ObjectClass objClass in SelectedObjectPool.Objects) {
+                        if (objClass.Name != SelectedObject.Name)
+                            form.ReservedNames.Add(objClass.Name);
+                    }
+
+                    if (form.ShowDialog() == DialogResult.OK)
+                        SelectedObject.TrySetName(form.Name);
+                }
+            }
+        }
+
         private bool CommandCanObjectProperties ()
         {
             return SelectedObjectPool != null && SelectedObject != null;
@@ -281,8 +333,10 @@ namespace Treefrog.Presentation
         private void InvalidateObjectProtoCommands ()
         {
             CommandManager.Invalidate(CommandKey.ObjectProtoImport);
+            CommandManager.Invalidate(CommandKey.ObjectProtoEdit);
             CommandManager.Invalidate(CommandKey.ObjectProtoClone);
             CommandManager.Invalidate(CommandKey.ObjectProtoDelete);
+            CommandManager.Invalidate(CommandKey.ObjectProtoRename);
             CommandManager.Invalidate(CommandKey.ObjectProtoProperties);
         }
 

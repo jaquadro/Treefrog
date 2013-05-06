@@ -11,6 +11,7 @@ namespace Treefrog.Windows.Controllers
         private class ControlRecord
         {
             public Control Control { get; set; }
+            public Func<string> ValidationFunc { get; set; }
             public ErrorProvider ErrorProvider { get; set; }
             public EventHandler ValidatedHandler { get; set; }
             public EventHandler TextChangedHandler { get; set; }
@@ -92,6 +93,7 @@ namespace Treefrog.Windows.Controllers
 
                 ControlRecord record = new ControlRecord() {
                     Control = control,
+                    ValidationFunc = validationFunc,
                     ErrorProvider = errorProvider,
                     ValidatedHandler = validatedHandler,
                     TextChangedHandler = textChangedHandler,
@@ -101,6 +103,24 @@ namespace Treefrog.Windows.Controllers
                 _controls.Add(record);
                 _validateFuncs.Add(validationFunc);
             }
+        }
+
+        public void UnregisterControl (Control control)
+        {
+            if (control != null) {
+                ControlRecord record = _controls.Find(r => { return r.Control == control; });
+                if (record != null) {
+                    _validateFuncs.Remove(record.ValidationFunc);
+                    _controls.Remove(record);
+
+                    record.Unlink();
+                }
+            }
+        }
+
+        public void UnregisterValidationFunc (Func<string> validationFunc)
+        {
+            _validateFuncs.Remove(validationFunc);
         }
 
         public void RegisterValidationFunc (Func<string> validationFunc)

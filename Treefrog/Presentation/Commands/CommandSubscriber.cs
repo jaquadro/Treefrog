@@ -85,7 +85,9 @@ namespace Treefrog.Presentation.Commands
         TileSelectionDefloat,
 
         ObjectProtoImport,
+        ObjectProtoEdit,
         ObjectProtoDelete,
+        ObjectProtoRename,
         ObjectProtoClone,
         ObjectProtoProperties,
         ObjectMoveTop,

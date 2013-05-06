@@ -15,6 +15,9 @@ namespace Treefrog.Framework.Model
         [NonSerialized]
         private ObjectClass _class;
 
+        [NonSerialized]
+        private int _classVersion;
+
         private int _posX;
         private int _posY;
         private float _rotation;
@@ -153,6 +156,7 @@ namespace Treefrog.Framework.Model
         {
             get
             {
+                CheckUpdateBounds();
                 return new Rectangle(
                     _posX + _imageRotatedBounds.Left,
                     _posY + _imageRotatedBounds.Top,
@@ -164,6 +168,7 @@ namespace Treefrog.Framework.Model
         {
             get
             {
+                CheckUpdateBounds();
                 return new Rectangle(
                     _posX + _maskRotatedBounds.Left,
                     _posY + _maskRotatedBounds.Top,
@@ -190,8 +195,16 @@ namespace Treefrog.Framework.Model
             OnModified(EventArgs.Empty);
         }
 
+        private void CheckUpdateBounds ()
+        {
+            if (_classVersion < _class.Version)
+                UpdateBounds();
+        }
+
         private void UpdateBounds ()
         {
+            _classVersion = _class.Version;
+
             _imageRotatedBounds = CalculateRectangleBounds(new Rectangle(
                 _class.ImageBounds.Left - _class.Origin.X, _class.ImageBounds.Top - _class.Origin.Y,
                 _class.ImageBounds.Width, _class.ImageBounds.Height), _rotation);

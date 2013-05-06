@@ -13,9 +13,11 @@ using Treefrog.Windows.Controls;
 using Treefrog.Presentation.Layers;
 using Treefrog.Presentation;
 using Treefrog.Framework.Model;
-using LilyPath;
 
 using Xna = Microsoft.Xna.Framework;
+using LilyPath.Brushes;
+using LilyPath;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.Windows.Forms
 {
@@ -27,6 +29,29 @@ namespace Treefrog.Windows.Forms
         {
             InitializeForm();
 
+            _validateController.Validate();
+        }
+
+        public ImportObject (ObjectClass obj)
+        {
+            InitializeForm();
+
+            base.Text = "Edit Object";
+
+            _sourceImage = obj.Image.Crop(obj.Image.Bounds);
+            _sourceFileValid = true;
+            _name = obj.Name;
+
+            _originX = obj.Origin.X;
+            _originY = obj.Origin.Y;
+            _maskLeft = obj.MaskBounds.Left;
+            _maskTop = obj.MaskBounds.Top;
+            _maskRight = obj.MaskBounds.Right;
+            _maskBottom = obj.MaskBounds.Bottom;
+
+            UpdateMaskPropertyFields();
+
+            _validateController.UnregisterControl(_textSource);
             _validateController.Validate();
         }
 
@@ -77,7 +102,9 @@ namespace Treefrog.Windows.Forms
         protected override void OnLoad(EventArgs e)
         {
  	         base.OnLoad(e);
-            _textObjectName.Text = FindDefaultName("Object");
+            
+            _textObjectName.Text = _name ?? FindDefaultName("Object");
+
         }
 
         #region Object Name
@@ -94,7 +121,7 @@ namespace Treefrog.Windows.Forms
 
         #endregion
 
-        private string _name = "";
+        private string _name = null;
 
         public string ObjectName
         {
@@ -136,9 +163,10 @@ namespace Treefrog.Windows.Forms
             dlg.Multiselect = false;
 
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                LoadObjectPreview(dlg.FileName);
-                SourceFile = dlg.FileName;
                 _textSource.Text = dlg.FileName;
+                SourceFile = dlg.FileName;
+                ResetObjectPreview();
+                
             }
         }
 
@@ -359,43 +387,44 @@ namespace Treefrog.Windows.Forms
             if (_sourceImage == null)
                 return;
 
+            drawBatch.GraphicsDevice.ScissorRectangle = Xna.Rectangle.Empty;
+
             if (_objectBrush == null)
-                _objectBrush = new TextureBrush(_sourceImage.CreateTexture(_drawControl.GraphicsDevice));
+                _objectBrush = new TextureBrush(_sourceImage.CreateTexture(_drawControl.GraphicsDevice)) { OwnsTexture = true };
             if (_maskPen == null)
                 _maskPen = new Pen(new CheckerBrush(_drawControl.GraphicsDevice, Xna.Color.Black, Xna.Color.White, 4, .75f), true);
 
             int originX = (_drawControl.Width - _sourceImage.Width) / 2;
             int originY = (_drawControl.Height - _sourceImage.Height) / 2;
 
-            _objectBrush.Transform = Microsoft.Xna.Framework.Matrix.CreateTranslation(-(float)originX / _sourceImage.Width, -(float)originY / _sourceImage.Height, 0);
+            _objectBrush.Transform = Xna.Matrix.CreateTranslation(-(float)originX / _sourceImage.Width, -(float)originY / _sourceImage.Height, 0);
 
             drawBatch.Begin();
 
-            drawBatch.FillRectangle(_objectBrush, new Microsoft.Xna.Framework.Rectangle(originX, originY, _sourceImage.Width, _sourceImage.Height));
+            drawBatch.FillRectangle(_objectBrush, new Xna.Rectangle(originX, originY, _sourceImage.Width, _sourceImage.Height));
             drawBatch.DrawRectangle(_maskPen, new Microsoft.Xna.Framework.Rectangle(
                 originX - 1 + (_maskLeft ?? 0) + (_originX ?? 0), 
                 originY - 1 + (_maskTop ?? 0) + (_originY ?? 0), 
                 1 + (_maskRight - _maskLeft) ?? 0, 
                 1 + (_maskBottom - _maskTop) ?? 0));
-
-            drawBatch.FillCircle(Brushes.White, new Xna.Vector2(originX + _originX ?? 0, originY + _originY ?? 0), 4, 12);
-            drawBatch.FillCircle(Brushes.Black, new Xna.Vector2(originX + _originX ?? 0, originY + _originY ?? 0), 3, 12);
+            
+            drawBatch.FillCircle(Brush.White, new Xna.Vector2(originX + _originX ?? 0, originY + _originY ?? 0), 4, 12);
+            drawBatch.FillCircle(Brush.Black, new Xna.Vector2(originX + _originX ?? 0, originY + _originY ?? 0), 3, 12);
 
             drawBatch.End();
         }
 
         private void ResetObjectPreview ()
         {
-            if (!_validateController.ValidateForm())
-                ClearObjectPreiew();
-
             if (_objectBrush != null) {
                 _objectBrush.Dispose();
                 _objectBrush = null;
             }
 
-            if (_sourceFileValid)
-                LoadObjectPreview(_sourceFile);
+            LoadObjectPreview(_sourceFile);
+
+            if (ValidateSourceFile() != null)
+                ClearObjectPreiew();
         }
 
         /*private void RaiseMaskProperties ()

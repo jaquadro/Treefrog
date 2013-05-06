@@ -136,7 +136,11 @@ namespace Treefrog.Windows.Controls.Composite
                             CommandKey.ObjectProtoImport
                         },
                         new CommandMenuGroup() {
-                            CommandKey.ObjectProtoClone, CommandKey.ObjectProtoDelete, CommandKey.ObjectProtoProperties,
+                            CommandKey.ObjectProtoEdit, CommandKey.ObjectProtoClone, CommandKey.ObjectProtoDelete, 
+                            CommandKey.ObjectProtoRename, 
+                        },
+                        new CommandMenuGroup() {
+                            CommandKey.ObjectProtoProperties,
                         },
                     })),
                 },
