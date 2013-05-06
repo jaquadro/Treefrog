@@ -250,7 +250,7 @@ namespace Treefrog.Presentation
 
             BindingHelper.TryBind<ITilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
             BindingHelper.TryBind<ITileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
-            BindingHelper.TryBind<IObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
+            BindingHelper.TryBind<ObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
 
             BindLayerEvents(layer);
         }

@@ -13,7 +13,7 @@ namespace Treefrog.Windows.Panels
 {
     public partial class ObjectPanel : UserControl
     {
-        private IObjectPoolCollectionPresenter _controller;
+        private ObjectPoolCollectionPresenter _controller;
         private UICommandController _commandController;
 
         private ContextMenuStrip _itemContextMenu;
@@ -35,6 +35,12 @@ namespace Treefrog.Windows.Panels
 
             _itemContextMenu = CommandMenuBuilder.BuildContextMenu(new CommandMenu("", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
+                    CommandKey.ObjectProtoEdit,
+                    CommandKey.ObjectProtoClone,
+                    CommandKey.ObjectProtoDelete,
+                    CommandKey.ObjectProtoRename,
+                },
+                new CommandMenuGroup() {
                     CommandKey.ObjectProtoProperties,
                 },
             }));
@@ -47,7 +53,7 @@ namespace Treefrog.Windows.Panels
             _listView.MouseClick += ListViewMouseClickHandler;
         }
 
-        public void BindController (IObjectPoolCollectionPresenter controller)
+        public void BindController (ObjectPoolCollectionPresenter controller)
         {
             if (_controller == controller)
                 return;
@@ -191,6 +197,16 @@ namespace Treefrog.Windows.Panels
             }
 
             return dest;
+        }
+
+        private void _listView_DoubleClick (object sender, EventArgs e)
+        {
+            if (_controller != null) {
+                foreach (ListViewItem item in _listView.SelectedItems) {
+                    _controller.ActionEditObject((Guid)item.Tag);
+                    return;
+                }
+            }
         }
     }
 }

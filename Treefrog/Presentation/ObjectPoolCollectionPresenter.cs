@@ -33,43 +33,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface IObjectPoolCollectionPresenter : ICommandSubscriber
-    {
-        bool CanAddObjectPool { get; }
-        bool CanRemoveSelectedObjectPool { get; }
-        bool CanShowSelectedObjectPoolProperties { get; }
-
-        IObjectPoolManager ObjectPoolManager { get; }
-
-        IEnumerable<ObjectPool> ObjectPoolCollection { get; }
-        ObjectPool SelectedObjectPool { get; }
-        ObjectClass SelectedObject { get; }                          // Send to IObjectPoolPresenter
-
-        ObjectSnappingSource SnappingReference { get; }
-        ObjectSnappingTarget SnappingTarget { get; }
-
-        event EventHandler SyncObjectPoolManager;
-        event EventHandler SyncObjectPoolActions;
-        event EventHandler SyncObjectPoolCollection;
-        event EventHandler SyncObjectPoolControl;               // Send to IObjectPoolPresenter
-        event EventHandler ObjectSelectionChanged;
-
-        event EventHandler<SyncObjectPoolEventArgs> SyncCurrentObjectPool;
-        event EventHandler<SyncObjectEventArgs> SyncCurrentObject; // Send to IObjectPoolPresenter
-
-        void ActionCreateObjectPool ();
-        void ActionRemoveSelectedObjectPool ();
-        void ActionSelectObjectPool (Guid name);
-        void ActionShowObjectPoolProperties ();
-
-        void ActionImportObject ();                             // Send to IObjectPoolPresenter
-        void ActionRemoveSelectedObject ();                     // Send to IObjectPoolPresenter
-        void ActionSelectObject (Guid objectClass);      // Send to IObjectPoolPresenter
-
-        void RefreshObjectPoolCollection ();
-    }
-
-    public class ObjectPoolCollectionPresenter : IObjectPoolCollectionPresenter
+    public class ObjectPoolCollectionPresenter : ICommandSubscriber
     {
         private IEditorPresenter _editor;
 
@@ -78,9 +42,6 @@ namespace Treefrog.Presentation
         private IObjectPoolManager _poolManager;
 
         private Dictionary<Guid, ObjectClass> _selectedObjects;
-
-        //private string _selectedObject;
-        //private ObjectClass _selectedObjectRef;
 
         public ObjectPoolCollectionPresenter (IEditorPresenter editor)
         {
@@ -311,8 +272,10 @@ namespace Treefrog.Presentation
                             form.ReservedNames.Add(objClass.Name);
                     }
 
-                    if (form.ShowDialog() == DialogResult.OK)
+                    if (form.ShowDialog() == DialogResult.OK) {
                         SelectedObject.TrySetName(form.Name);
+                        OnSyncObjectPoolManager(EventArgs.Empty);
+                    }
                 }
             }
         }
@@ -341,6 +304,14 @@ namespace Treefrog.Presentation
         }
 
         #endregion
+
+        public void ActionEditObject (Guid uid)
+        {
+            SelectObject(uid);
+            if (SelectedObject != null && SelectedObject.Uid == uid) {
+                CommandEditObject();
+            }
+        }
 
         #region Properties
 
@@ -646,7 +617,7 @@ namespace Treefrog.Presentation
                 ? _selectedObjects[objectPoolUid]
                 : null;
 
-            if (prevClass.Uid == objectClassUid)
+            if (prevClass != null && prevClass.Uid == objectClassUid)
                 return;
 
             _selectedObjects.Remove(objectPoolUid);

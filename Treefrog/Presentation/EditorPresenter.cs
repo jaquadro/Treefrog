@@ -162,7 +162,7 @@ namespace Treefrog.Presentation
             get { return _tilePoolList; }
         }
 
-        public IObjectPoolCollectionPresenter ObjectPoolCollection
+        public ObjectPoolCollectionPresenter ObjectPoolCollection
         {
             get { return _objectPoolCollection; }
         }
