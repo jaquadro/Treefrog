@@ -10,6 +10,7 @@ namespace Treefrog.Framework.Model
         ResourceCollection<TPool> Pools { get; }
         void Reset ();
         TPool PoolFromItemKey (Guid key);
+        bool Contains (Guid key);
     }
 
     public abstract class PoolManager<TPool, TPoolItem> : IPoolManager<TPool>
@@ -99,6 +100,11 @@ namespace Treefrog.Framework.Model
             _poolResourceAddHandlers.Clear();
             _poolResourceRemoveHandlers.Clear();
             _poolIndexMap.Clear();
+        }
+
+        public virtual bool Contains (Guid key)
+        {
+            return _poolIndexMap.ContainsKey(key);
         }
 
         public virtual TPool PoolFromItemKey (Guid key)

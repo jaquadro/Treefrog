@@ -277,6 +277,10 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.LayerSelect);
             Register(CommandKey.TileSelectionFloat, "&Float");
             Register(CommandKey.TileSelectionDefloat, "&Defloat");
+            Register(CommandKey.TilePoolDelete, "&Delete",
+                resource: Properties.Resources.Cross);
+            Register(CommandKey.TilePoolProperties, "&Properties",
+                resource: Properties.Resources.Tags);
             Register(CommandKey.TilePoolExport, "&Export Raw Tileset...",
                 resource: Properties.Resources.DriveDownload);
             Register(CommandKey.TilePoolImportOver, "&Import Raw Tileset...",

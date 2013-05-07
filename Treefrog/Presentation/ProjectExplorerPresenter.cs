@@ -344,6 +344,18 @@ namespace Treefrog.Presentation
             _editor.OpenLevel(uid);
         }
 
+        public CommandMenu Menu (Guid uid)
+        {
+            if (_project.Levels.Contains(uid))
+                return LevelMenu(uid);
+            if (_project.ObjectPoolManager.Contains(uid))
+                return ObjectProtoMenu(uid);
+            if (_project.TilePoolManager.Pools.Contains(uid))
+                return TileSetMenu(uid);
+
+            return new CommandMenu("");
+        }
+
         public CommandMenu LevelMenu (Guid uid)
         {
             return new CommandMenu("", new List<CommandMenuGroup>() {
@@ -357,6 +369,35 @@ namespace Treefrog.Presentation
                 },
                 new CommandMenuGroup() {
                     new CommandMenuEntry(CommandKey.LevelProperties, uid),
+                },
+            });
+        }
+
+        public CommandMenu ObjectProtoMenu (Guid uid)
+        {
+            return new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.ObjectProtoEdit, uid),
+                },
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.ObjectProtoClone, uid),
+                    new CommandMenuEntry(CommandKey.ObjectProtoDelete, uid),
+                    new CommandMenuEntry(CommandKey.ObjectProtoRename, uid),
+                },
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.ObjectProtoProperties, uid),
+                },
+            });
+        }
+
+        public CommandMenu TileSetMenu (Guid uid)
+        {
+            return new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.TilePoolDelete, uid),
+                },
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.TilePoolProperties, uid),
                 },
             });
         }

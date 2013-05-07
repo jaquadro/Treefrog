@@ -406,7 +406,7 @@ namespace Treefrog.Windows.Panels
             Guid tag = (Guid)e.Node.Tag;
 
             if (e.Button == MouseButtons.Right) {
-                ContextMenuStrip contextMenu = CommandMenuBuilder.BuildContextMenu(_controller.LevelMenu(tag));
+                ContextMenuStrip contextMenu = CommandMenuBuilder.BuildContextMenu(_controller.Menu(tag));
 
                 _commandController.Clear();
                 _commandController.MapMenuItems(contextMenu.Items);

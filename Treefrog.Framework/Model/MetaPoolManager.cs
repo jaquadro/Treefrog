@@ -65,6 +65,11 @@ namespace Treefrog.Framework.Model
             return _managers[MapAndCheckUid(_default)].PoolFromItemKey(key);
         }
 
+        public override bool Contains (Guid key)
+        {
+            return _managers[MapAndCheckUid(_default)].Contains(key);
+        }
+
         //internal override void LinkItemKey (Guid key, TPool pool)
         //{
         //    _managers[MapAndCheckUid(_default)].LinkItemKey(key, pool);
