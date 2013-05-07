@@ -151,6 +151,7 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.ObjectProtoImport, CommandCanImportObject, CommandImportObject);
             _commandManager.Register(CommandKey.ObjectProtoEdit, CommandCanEditObject, CommandEditObject);
+            _commandManager.Register(CommandKey.ObjectProtoClone, CommandCanCloneObject, CommandCloneObject);
             _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanRemoveObject, CommandRemoveObject);
             _commandManager.Register(CommandKey.ObjectProtoRename, CommandCanRename, CommandRename);
             _commandManager.Register(CommandKey.ObjectProtoProperties, CommandCanObjectProperties, CommandObjectProperties);
@@ -239,6 +240,22 @@ namespace Treefrog.Presentation
                         OnSyncObjectPoolManager(EventArgs.Empty);
                     }
                 }
+            }
+        }
+
+        private bool CommandCanCloneObject ()
+        {
+            return SelectedObjectPool != null && SelectedObject != null;
+        }
+
+        private void CommandCloneObject ()
+        {
+            if (CommandCanCloneObject()) {
+                ObjectClass objClass = new ObjectClass(SelectedObjectPool.Objects.CompatibleName(SelectedObject.Name), SelectedObject);
+                SelectedObjectPool.AddObject(objClass);
+
+                RefreshObjectPoolCollection();
+                OnSyncObjectPoolManager(EventArgs.Empty);
             }
         }
 

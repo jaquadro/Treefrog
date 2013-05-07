@@ -16,7 +16,7 @@ namespace Treefrog.Framework.Model
         private readonly Guid _uid;
         private readonly ResourceName _name;
 
-        private ResourceCollection<ObjectClass> _objects;
+        private NamedResourceCollection<ObjectClass> _objects;
 
         private PropertyCollection _properties;
         private ObjectPoolProperties _predefinedProperties;
@@ -26,7 +26,7 @@ namespace Treefrog.Framework.Model
             _uid = Guid.NewGuid();
             _name = new ResourceName(this);
 
-            Objects = new ResourceCollection<ObjectClass>();
+            Objects = new NamedResourceCollection<ObjectClass>();
             Objects.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             _properties = new PropertyCollection(_reservedPropertyNames);
@@ -103,7 +103,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public ResourceCollection<ObjectClass> Objects
+        public NamedResourceCollection<ObjectClass> Objects
         {
             get { return _objects; }
             private set { _objects = value; }

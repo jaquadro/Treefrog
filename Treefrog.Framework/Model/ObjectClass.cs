@@ -68,6 +68,24 @@ namespace Treefrog.Framework.Model
             _origin = origin;
         }
 
+        public ObjectClass (string name, ObjectClass template)
+            : this(name)
+        {
+            if (template != null) {
+                if (template.Image != null)
+                    _image = template.Image.Crop(template.Image.Bounds);
+
+                _canRotate = template._canRotate;
+                _canScale = template._canScale;
+                _imageBounds = template._imageBounds;
+                _maskBounds = template._maskBounds;
+                _origin = template._origin;
+
+                foreach (var item in template._properties)
+                    _properties.Add(item.Clone() as Property);
+            }
+        }
+
         private ObjectClass (LibraryX.ObjectClassX proxy, TexturePool texturePool)
             : this(proxy.Name)
         {
@@ -94,7 +112,31 @@ namespace Treefrog.Framework.Model
         public ObjectPool Pool
         {
             get { return _pool; }
-            internal set { _pool = value; }
+            internal set 
+            {
+                if (_pool == value)
+                    return;
+
+                TexturePool oldTexturePool = null;
+                if (_pool != null)
+                    oldTexturePool = _pool.TexturePool;
+
+                _pool = value;
+
+                TexturePool newTexturePool = null;
+                if (_pool != null)
+                    newTexturePool = _pool.TexturePool;
+
+
+                if (oldTexturePool != null) {
+                    if (_textureId != Guid.Empty)
+                        _pool.TexturePool.RemoveResource(_textureId);
+                }
+
+                if (newTexturePool != null && _image != null) {
+                    _textureId = _pool.TexturePool.AddResource(_image);
+                }
+            }
         }
 
         [SystemProperty]
