@@ -334,12 +334,12 @@ namespace Treefrog.Framework.Imaging
             };
         }
 
-        public static TextureResource FromXmlProxy (XmlProxy proxy)
+        public static TextureResource FromXmlProxy (XmlProxy proxy, Guid uid)
         {
             if (proxy == null)
                 return null;
 
-            return new TextureResource(proxy.Width, proxy.Height, proxy.RawData, 0);
+            return new TextureResource(proxy.Width, proxy.Height, proxy.RawData, 0) { Uid = uid };
         }
     }
 }

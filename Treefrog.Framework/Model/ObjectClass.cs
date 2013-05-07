@@ -21,7 +21,7 @@ namespace Treefrog.Framework.Model
         private readonly ResourceName _name;
 
         private ObjectPool _pool;
-        private Guid _textureId;
+        //private Guid _textureId;
 
         private bool _canRotate;
         private bool _canScale;
@@ -90,8 +90,7 @@ namespace Treefrog.Framework.Model
             : this(proxy.Name)
         {
             _uid = proxy.Uid;
-            _textureId = proxy.Texture;
-            _image = texturePool.GetResource(_textureId);
+            _image = texturePool.GetResource(proxy.Texture);
             _imageBounds = proxy.ImageBounds;
             _maskBounds = proxy.MaskBounds;
             _origin = proxy.Origin;
@@ -127,14 +126,11 @@ namespace Treefrog.Framework.Model
                 if (_pool != null)
                     newTexturePool = _pool.TexturePool;
 
-
-                if (oldTexturePool != null) {
-                    if (_textureId != Guid.Empty)
-                        _pool.TexturePool.RemoveResource(_textureId);
-                }
-
-                if (newTexturePool != null && _image != null) {
-                    _textureId = _pool.TexturePool.AddResource(_image);
+                if (_image != null) {
+                    if (newTexturePool != null)
+                        newTexturePool.AddResource(_image);
+                    if (oldTexturePool != null)
+                        oldTexturePool.RemoveResource(_image.Uid);
                 }
             }
         }
@@ -197,7 +193,7 @@ namespace Treefrog.Framework.Model
 
         public Guid ImageId
         {
-            get { return _textureId; }
+            get { return _image != null ? _image.Uid : Guid.Empty; }
         }
 
         public TextureResource Image
@@ -207,14 +203,12 @@ namespace Treefrog.Framework.Model
             {
                 if (_image != value) {
                     if (_image == null)
-                        _textureId = _pool.TexturePool.AddResource(value);
-                    else if (value == null) {
-                        _pool.TexturePool.RemoveResource(_textureId);
-                        _textureId = Guid.Empty;
-                    }
+                        _pool.TexturePool.AddResource(value);
+                    else if (value == null)
+                        _pool.TexturePool.RemoveResource(_image.Uid);
                     else {
-                        _pool.TexturePool.RemoveResource(_textureId);
-                        _textureId = _pool.TexturePool.AddResource(value);
+                        _pool.TexturePool.RemoveResource(_image.Uid);
+                        _pool.TexturePool.AddResource(value);
                     }
 
                     _image = value;
@@ -404,7 +398,7 @@ namespace Treefrog.Framework.Model
             return new LibraryX.ObjectClassX() {
                 Uid = objClass.Uid,
                 Name = objClass.Name,
-                Texture = objClass._textureId,
+                Texture = objClass._image != null ? objClass._image.Uid : Guid.Empty,
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,

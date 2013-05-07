@@ -20,10 +20,12 @@ namespace Treefrog.Framework.Model
     public class TexturePool
     {
         private Dictionary<Guid, TextureResource> _resources;
+        private Dictionary<Guid, int> _useCount;
 
         public TexturePool ()
         {
             _resources = new Dictionary<Guid, TextureResource>();
+            _useCount = new Dictionary<Guid, int>();
         }
 
         public int Count
@@ -45,21 +47,32 @@ namespace Treefrog.Framework.Model
                 return null;
         }
 
-        public Guid AddResource (TextureResource resource)
+        public void AddResource (TextureResource resource)
         {
             if (resource == null)
                 throw new ArgumentNullException("resource");
 
-            Guid uid = Guid.NewGuid();
-            _resources.Add(uid, resource);
+            if (_resources.ContainsKey(resource.Uid)) {
+                _useCount[resource.Uid]++;
+                return;
+            }
 
-            OnResourceAdded(new ResourceEventArgs(uid));
-            return uid;
+            _resources.Add(resource.Uid, resource);
+            _useCount.Add(resource.Uid, 1);
+
+            OnResourceAdded(new ResourceEventArgs(resource.Uid));
         }
 
         public void RemoveResource (Guid uid)
         {
+            if (_resources.ContainsKey(uid)) {
+                _useCount[uid]--;
+                if (_useCount[uid] > 0)
+                    return;
+            }
+
             if (_resources.Remove(uid)) {
+                _useCount.Remove(uid);
                 OnResourceRemoved(new ResourceEventArgs(uid));
             }
         }
@@ -118,9 +131,10 @@ namespace Treefrog.Framework.Model
 
             TexturePool pool = new TexturePool();
             foreach (var defProxy in proxy.Textures) {
-                TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData);
+                TextureResource resource = TextureResource.FromXmlProxy(defProxy.TextureData, defProxy.Uid.ValueOrNew());
                 if (resource != null) {
-                    pool._resources[defProxy.Uid.ValueOrNew()] = resource;
+                    pool._resources[resource.Uid] = resource;
+                    pool._useCount[resource.Uid] = 1;
                 }
             }
 

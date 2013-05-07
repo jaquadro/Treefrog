@@ -42,7 +42,7 @@ namespace Treefrog.Framework.Model
 
         private TilePool _pool;
         private TexturePool _texturePool;
-        private Guid _textureId;
+        //private Guid _textureId;
 
         public TileResourceCollection (int tileWidth, int tileHeight, TilePool pool, TexturePool texturePool)
         {
@@ -55,7 +55,7 @@ namespace Treefrog.Framework.Model
             _openLocations = new List<TileCoord>();
 
             _tileSource = new TextureResource(TileWidth * _initFactor, TileHeight * _initFactor);
-            _textureId = _texturePool.AddResource(_tileSource);
+            _texturePool.AddResource(_tileSource);
 
             for (int x = 0; x < _initFactor; x++) {
                 for (int y = 0; y < _initFactor; y++)
@@ -71,8 +71,7 @@ namespace Treefrog.Framework.Model
 
         internal Guid TextureId
         {
-            get { return _textureId; }
-            set { _textureId = value; }
+            get { return _tileSource != null ? _tileSource.Uid : Guid.Empty; }
         }
 
         public int TileWidth { get; private set; }
@@ -96,7 +95,7 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(coord.X * TileWidth, coord.Y * TileHeight, TileWidth, TileHeight);
             _tileSource.Clear(dest);
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             _openLocations.Add(_locations[item.Uid]);
             _locations.Remove(item.Uid);
@@ -130,7 +129,7 @@ namespace Treefrog.Framework.Model
             _openLocations.RemoveAt(_openLocations.Count - 1);
 
             _tileSource.Set(texture, new Point(coord.X * TileWidth, coord.Y * TileHeight));
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             _locations[tile.Uid] = coord;
 
@@ -163,7 +162,7 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(_locations[uid].X * TileWidth, _locations[uid].Y * TileHeight, TileWidth, TileHeight);
             _tileSource.Set(texture, new Point(_locations[uid].X * TileWidth, _locations[uid].Y * TileHeight));
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             OnResourceModified(new ResourceEventArgs<Tile>(this[uid]));
         }
@@ -182,7 +181,7 @@ namespace Treefrog.Framework.Model
                 throw new ArgumentException("Replacement texture has different dimensions than internal texture.");
 
             _tileSource.Set(data, Point.Zero);
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             //OnTileSourceInvalidated(EventArgs.Empty);
             OnModified(EventArgs.Empty);
@@ -226,9 +225,9 @@ namespace Treefrog.Framework.Model
                 }
             }
 
+            _texturePool.RemoveResource(_tileSource.Uid);
             _tileSource = newTex;
-            _texturePool.RemoveResource(_textureId);
-            _textureId = _texturePool.AddResource(_tileSource);
+            _texturePool.AddResource(_tileSource);
         }
 
         private void ReduceTexture ()
@@ -272,9 +271,9 @@ namespace Treefrog.Framework.Model
                 }
             }
 
+            _texturePool.RemoveResource(_tileSource.Uid);
             _tileSource = newTex;
-            _texturePool.RemoveResource(_textureId);
-            _textureId = _texturePool.AddResource(_tileSource);
+            _texturePool.AddResource(_tileSource);
         }
 
         internal void RecalculateOpenLocations ()
@@ -351,10 +350,9 @@ namespace Treefrog.Framework.Model
 
             TileResourceCollection collection = new TileResourceCollection(proxy.TileWidth, proxy.TileHeight, pool, texturePool);
 
-            texturePool.RemoveResource(collection._textureId);
+            texturePool.RemoveResource(collection.TextureId);
 
-            collection._textureId = proxy.Texture;
-            collection._tileSource = texturePool.GetResource(collection._textureId);
+            collection._tileSource = texturePool.GetResource(proxy.Texture);
 
             if (collection._tileSource != null) {
                 collection._tileSource.Apply(c => {
