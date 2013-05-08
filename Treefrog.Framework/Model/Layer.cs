@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using Treefrog.Framework.Model.Collections;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
@@ -22,6 +23,10 @@ namespace Treefrog.Framework.Model
         private bool _visible;
         private RasterMode _rasterMode;
 
+        private int _gridWidth;
+        private int _gridHeight;
+        private Color _gridColor;
+
         private PropertyCollection _properties;
         private LayerProperties _predefinedProperties;
 
@@ -32,6 +37,10 @@ namespace Treefrog.Framework.Model
             _opacity = 1f;
             _visible = true;
             _rasterMode = RasterMode.Point;
+
+            _gridWidth = 16;
+            _gridHeight = 16;
+            _gridColor = new Color(0, 0, 0, 128);
 
             _name = name;
             _properties = new PropertyCollection(_reservedPropertyNames);
@@ -50,6 +59,9 @@ namespace Treefrog.Framework.Model
             _opacity = layer._opacity;
             _visible = layer._visible;
             _rasterMode = layer._rasterMode;
+            _gridWidth = layer._gridWidth;
+            _gridHeight = layer._gridHeight;
+            _gridColor = layer._gridColor;
         }
 
         public Guid Uid { get; private set; }
@@ -103,6 +115,53 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        public virtual int GridWidth
+        {
+            get { return _gridWidth; }
+            set
+            {
+                if (_gridWidth != value) {
+                    _gridWidth = value;
+
+                    OnGridChanged(EventArgs.Empty);
+                    OnModified(EventArgs.Empty);
+                }
+            }
+        }
+
+        public virtual int GridHeight
+        {
+            get { return _gridHeight; }
+            set
+            {
+                if (_gridHeight != value) {
+                    _gridHeight = value;
+
+                    OnGridChanged(EventArgs.Empty);
+                    OnModified(EventArgs.Empty);
+                }
+            }
+        }
+
+        public virtual bool GridIsIndependent
+        {
+            get { return true; }
+        }
+
+        public virtual Color GridColor
+        {
+            get { return _gridColor; }
+            set
+            {
+                if (_gridColor != value) {
+                    _gridColor = value;
+
+                    OnGridChanged(EventArgs.Empty);
+                    OnModified(EventArgs.Empty);
+                }
+            }
+        }
+
         public bool IsModified { get; private set; }
 
         public virtual void ResetModified ()
@@ -122,6 +181,8 @@ namespace Treefrog.Framework.Model
         public event EventHandler VisibilityChanged;
 
         public event EventHandler RasterModeChanged;
+
+        public event EventHandler GridChanged;
 
         /// <summary>
         /// Raises the <see cref="Modified"/> event.
@@ -154,6 +215,13 @@ namespace Treefrog.Framework.Model
         protected virtual void OnRasterModeChanged (EventArgs e)
         {
             var ev = RasterModeChanged;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnGridChanged (EventArgs e)
+        {
+            var ev = GridChanged;
             if (ev != null)
                 ev(this, e);
         }

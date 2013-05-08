@@ -51,6 +51,7 @@ namespace Treefrog.Framework.Model
             Opacity = proxy.Opacity;
             IsVisible = proxy.Visible;
             RasterMode = proxy.RasterMode;
+            GridColor = Color.ParseArgbHex(proxy.GridColor);
             Level = level;
 
             foreach (var blockProxy in proxy.Blocks)
@@ -95,6 +96,7 @@ namespace Treefrog.Framework.Model
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,
                 RasterMode = layer.RasterMode,
+                GridColor = layer.GridColor.ToArgbHex(),
                 TileWidth = layer.TileWidth,
                 TileHeight = layer.TileHeight,
                 Blocks = blocks.Count > 0 ? blocks : null,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Xml;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model.Proxy
 {
@@ -35,6 +36,7 @@ namespace Treefrog.Framework.Model.Proxy
                 Opacity = 1.0f;
                 Visible = true;
                 RasterMode = RasterMode.Point;
+                GridColor = new Color(0, 0, 0, 128).ToArgbHex();
             }
 
             [XmlAttribute]
@@ -48,6 +50,9 @@ namespace Treefrog.Framework.Model.Proxy
 
             [XmlAttribute]
             public RasterMode RasterMode { get; set; }
+
+            [XmlAttribute]
+            public string GridColor { get; set; }
 
             [XmlArray]
             [XmlArrayItem("Property")]
@@ -75,6 +80,18 @@ namespace Treefrog.Framework.Model.Proxy
         [XmlRoot("LayerData", Namespace = "http://jaquadro.com/schemas/treefrog/level")]
         public class ObjectLayerX : LayerX
         {
+            public ObjectLayerX ()
+            {
+                GridWidth = 16;
+                GridHeight = 16;
+            }
+
+            [XmlAttribute]
+            public int GridWidth { get; set; }
+
+            [XmlAttribute]
+            public int GridHeight { get; set; }
+
             [XmlArray]
             [XmlArrayItem("Object")]
             public List<ObjectInstanceX> Objects { get; set; }

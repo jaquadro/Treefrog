@@ -20,6 +20,7 @@ namespace Treefrog.Render.Layers
         private float _effectiveZoom;
         private int _effectiveSpacingX;
         private int _effectiveSpacingY;
+        private Treefrog.Framework.Imaging.Color _effectiveColor;
 
         public GridRenderLayer (GridLayerPresenter model)
             : base(model)
@@ -81,7 +82,8 @@ namespace Treefrog.Render.Layers
         {
             if (_effectiveZoom != ZoomFactor ||
                 _effectiveSpacingX != Model.GridSpacingX ||
-                _effectiveSpacingY != Model.GridSpacingY)
+                _effectiveSpacingY != Model.GridSpacingY ||
+                _effectiveColor != Model.GridColor)
                 return true;
 
             return false;
@@ -107,6 +109,7 @@ namespace Treefrog.Render.Layers
             _effectiveZoom = ZoomFactor;
             _effectiveSpacingX = Model.GridSpacingX;
             _effectiveSpacingY = Model.GridSpacingY;
+            _effectiveColor = Model.GridColor;
 
             int tilesAcross = CalcBrushDimension(Model.GridSpacingX, MaxBrushSize, ZoomFactor);
             int tilesDown = CalcBrushDimension(Model.GridSpacingY, MaxBrushSize, ZoomFactor);

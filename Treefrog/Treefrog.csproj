@@ -192,6 +192,12 @@
     <Compile Include="Windows\Controls\LilyPathControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\LayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\LayerForm.Designer.cs">
+      <DependentUpon>LayerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\NameChangeForm.cs">
       <SubType>Form</SubType>
     </Compile>

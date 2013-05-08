@@ -1,16 +1,11 @@
 ﻿
+using System;
 namespace Treefrog.Framework.Model
 {
     public abstract class TileLayer : Layer
     {
-        #region Fields
-
         private int _tileWidth;
         private int _tileHeight;
-
-        #endregion
-
-        #region Constructors
 
         protected TileLayer (string name, int tileWidth, int tileHeight)
             : base(name)
@@ -26,9 +21,22 @@ namespace Treefrog.Framework.Model
             _tileWidth = layer._tileWidth;
         }
 
-        #endregion
+        public override bool GridIsIndependent
+        {
+            get { return false; }
+        }
 
-        #region Properties
+        public override int GridWidth
+        {
+            get { return _tileWidth; }
+            set { throw new NotSupportedException(); }
+        }
+
+        public override int GridHeight
+        {
+            get { return _tileHeight; }
+            set { throw new NotSupportedException(); }
+        }
 
         public int TileHeight
         {
@@ -39,7 +47,5 @@ namespace Treefrog.Framework.Model
         {
             get { return _tileWidth; }
         }
-
-        #endregion
     }
 }

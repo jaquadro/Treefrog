@@ -74,6 +74,9 @@ namespace Treefrog.Framework.Model
             Opacity = proxy.Opacity;
             IsVisible = proxy.Visible;
             RasterMode = proxy.RasterMode;
+            GridColor = Color.ParseArgbHex(proxy.GridColor);
+            GridWidth = proxy.GridWidth;
+            GridHeight = proxy.GridHeight;
             Level = level;
 
             ResourceCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
@@ -107,6 +110,9 @@ namespace Treefrog.Framework.Model
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,
                 RasterMode = layer.RasterMode,
+                GridColor = layer.GridColor.ToArgbHex(),
+                GridWidth = layer.GridWidth,
+                GridHeight = layer.GridHeight,
                 Objects = objs.Count > 0 ? objs : null,
                 Properties = props.Count > 0 ? props : null,
             };

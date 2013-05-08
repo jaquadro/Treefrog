@@ -416,7 +416,7 @@ namespace Treefrog.Presentation.Layers
 
         private ObjectSelectTool NewSelectTool ()
         {
-            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
+            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(Layer.GridWidth, Layer.GridHeight);
             ObjectSelectTool tool = new ObjectSelectTool(LayerContext, Layer, gridSize, _selectionManager);
             tool.BindObjectSourceController(_objectController);
 

@@ -308,7 +308,7 @@ namespace Treefrog.Presentation
             _selectedLayerRef = _layerPresenters[_selectedLayer];
 
             _info.ActionUpdateCoordinates("");
-            _gridLayer.IsVisible = false;
+            _gridLayer.IsVisible = true;
 
             if (_selectedLayerRef != null) {
                 BindSelectedLayerEvents(_selectedLayerRef);
@@ -318,10 +318,11 @@ namespace Treefrog.Presentation
                     _commandManager.AddCommandSubscriber(comLayer);
                 }
 
-                if (_selectedLayerRef is TileGridLayerPresenter) {
-                    _gridLayer.IsVisible = CommandManager.IsSelected(CommandKey.ViewGrid);
-                    _gridLayer.GridSpacingX = (_selectedLayerRef as TileGridLayerPresenter).Layer.TileWidth;
-                    _gridLayer.GridSpacingY = (_selectedLayerRef as TileGridLayerPresenter).Layer.TileHeight;
+                if (_selectedLayerRef is LevelLayerPresenter) {
+                    //_gridLayer.IsVisible = CommandManager.IsSelected(CommandKey.ViewGrid);
+                    _gridLayer.GridColor = (_selectedLayerRef as LevelLayerPresenter).Layer.GridColor;
+                    _gridLayer.GridSpacingX = (_selectedLayerRef as LevelLayerPresenter).Layer.GridWidth;
+                    _gridLayer.GridSpacingY = (_selectedLayerRef as LevelLayerPresenter).Layer.GridHeight;
                 }
 
                 _selectedLayerRef.Activate();
