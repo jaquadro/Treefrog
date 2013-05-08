@@ -86,7 +86,7 @@ namespace Treefrog.Windows.Controls.Composite
                     CommandKey.NewTileLayer, CommandKey.NewObjectLayer,
                 },
                 new CommandMenuGroup() {
-                    CommandKey.LayerClone, CommandKey.LayerDelete, CommandKey.LayerProperties,
+                    CommandKey.LayerEdit, CommandKey.LayerClone, CommandKey.LayerDelete, CommandKey.LayerProperties,
                 },
                 new CommandMenuGroup() {
                     new CommandMenuEntry(new CommandMenu("&Arrange", new List<CommandMenuGroup>() {

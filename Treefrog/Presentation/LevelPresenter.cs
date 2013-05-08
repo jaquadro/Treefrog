@@ -384,6 +384,7 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.NewTileLayer, CommandCanAddTileLayer, CommandAddTileLayer);
             _commandManager.Register(CommandKey.NewObjectLayer, CommandCanAddObjectLayer, CommandAddObjectLayer);
+            _commandManager.Register(CommandKey.LayerEdit, CommandCanEditLayer, CommandEditLayer);
             _commandManager.Register(CommandKey.LayerClone, CommandCanCloneLayer, CommandCloneLayer);
             _commandManager.Register(CommandKey.LayerDelete, CommandCanDeleteLayer, CommandDeleteLayer);
             _commandManager.Register(CommandKey.LayerProperties, CommandCanLayerProperties, CommandLayerProperties);
@@ -561,6 +562,28 @@ namespace Treefrog.Presentation
 
                         OnSyncLayerList(EventArgs.Empty);
                         OnSyncLayerSelection(EventArgs.Empty);
+                    }
+                }
+            }
+        }
+
+        private bool CommandCanEditLayer ()
+        {
+            return SelectedLayer != null && SelectedLayer.Layer is MultiTileGridLayer;
+        }
+
+        private void CommandEditLayer ()
+        {
+            if (CommandCanEditLayer()) {
+                using (TileLayerForm form = new TileLayerForm(SelectedLayer.Layer as MultiTileGridLayer)) {
+                    foreach (Layer layer in _level.Layers) {
+                        if (layer.Name != SelectedLayer.Layer.Name)
+                            form.ReservedNames.Add(layer.Name);
+                    }
+
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        _gridLayer.GridColor = SelectedLayer.Layer.GridColor;
+                        OnSyncLayerList(EventArgs.Empty);
                     }
                 }
             }

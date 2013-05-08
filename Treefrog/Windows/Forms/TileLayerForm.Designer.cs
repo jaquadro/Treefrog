@@ -36,13 +36,13 @@
             this._nameField = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
-            this._gridColorButton = new Treefrog.Windows.Controls.WinEx.ColorButton();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this._tileWidthField = new System.Windows.Forms.NumericUpDown();
             this._tileHeightField = new System.Windows.Forms.NumericUpDown();
             this._cancelButton = new System.Windows.Forms.Button();
             this._okButton = new System.Windows.Forms.Button();
+            this._gridColorButton = new Treefrog.Windows.Controls.WinEx.ColorButton();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._opacityField)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._opacitySlider)).BeginInit();
@@ -151,17 +151,6 @@
             this.label5.TabIndex = 4;
             this.label5.Text = "Grid Color:";
             // 
-            // _gridColorButton
-            // 
-            this._gridColorButton.Color = System.Drawing.SystemColors.Control;
-            this._gridColorButton.Location = new System.Drawing.Point(208, 45);
-            this._gridColorButton.Name = "_gridColorButton";
-            this._gridColorButton.Size = new System.Drawing.Size(58, 23);
-            this._gridColorButton.TabIndex = 3;
-            this._gridColorButton.Text = "colorButton1";
-            this._gridColorButton.UseVisualStyleBackColor = true;
-            this._gridColorButton.Click += new System.EventHandler(this._gridColorButton_Click);
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -254,6 +243,17 @@
             this._okButton.Text = "OK";
             this._okButton.UseVisualStyleBackColor = true;
             this._okButton.Click += new System.EventHandler(this._okButton_Click);
+            // 
+            // _gridColorButton
+            // 
+            this._gridColorButton.Color = System.Drawing.Color.Black;
+            this._gridColorButton.Location = new System.Drawing.Point(208, 45);
+            this._gridColorButton.Name = "_gridColorButton";
+            this._gridColorButton.Size = new System.Drawing.Size(58, 23);
+            this._gridColorButton.TabIndex = 3;
+            this._gridColorButton.Text = "colorButton1";
+            this._gridColorButton.UseVisualStyleBackColor = true;
+            this._gridColorButton.Click += new System.EventHandler(this._gridColorButton_Click);
             // 
             // TileLayerForm
             // 

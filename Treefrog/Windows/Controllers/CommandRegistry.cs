@@ -245,6 +245,7 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.Grid);
             Register(CommandKey.NewObjectLayer, "New &Object Layer",
                 resource: Properties.Resources.Game);
+            Register(CommandKey.LayerEdit, "&Edit...");
             Register(CommandKey.LayerClone, "D&uplicate",
                 resource: Properties.Resources.Layers);
             Register(CommandKey.LayerDelete, "&Delete",

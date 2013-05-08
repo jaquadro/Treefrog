@@ -41,6 +41,7 @@ namespace Treefrog.Windows.Forms
             _opacityField.Value = (decimal)_layer.Opacity;
             _tileWidthField.Value = _layer.TileWidth;
             _tileHeightField.Value = _layer.TileHeight;
+            _gridColorButton.Color = Color.FromArgb(255, _layer.GridColor.R, _layer.GridColor.G, _layer.GridColor.B);
 
             _tileHeightField.Enabled = false;
             _tileWidthField.Enabled = false;

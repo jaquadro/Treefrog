@@ -53,6 +53,7 @@ namespace Treefrog.Presentation.Commands
 
         NewTileLayer,
         NewObjectLayer,
+        LayerEdit,
         LayerClone,
         LayerDelete,
         LayerProperties,
