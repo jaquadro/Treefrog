@@ -42,14 +42,14 @@ namespace Treefrog.Presentation
                 }
 
                 if (form.ShowDialog() == DialogResult.OK) {
-                    // Begin Edit
-                    if (form.SourceImage != null)
-                        objClass.Image = form.SourceImage;
-                    objClass.TrySetName(form.ObjectName);
-                    objClass.MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
-                        (form.MaskRight ?? 0) - (form.MaskLeft ?? 0), (form.MaskBottom ?? 0) - (form.MaskTop ?? 0));
-                    objClass.Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0);
-                    // End Edit
+                    using (objClass.BeginModify()) {
+                        if (form.SourceImage != null)
+                            objClass.Image = form.SourceImage;
+                        objClass.TrySetName(form.ObjectName);
+                        objClass.MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
+                            (form.MaskRight ?? 0) - (form.MaskLeft ?? 0), (form.MaskBottom ?? 0) - (form.MaskTop ?? 0));
+                        objClass.Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0);
+                    }
                 }
             }
         }

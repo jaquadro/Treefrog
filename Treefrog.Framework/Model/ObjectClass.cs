@@ -15,6 +15,26 @@ namespace Treefrog.Framework.Model
 
     public class ObjectClass : INamedResource, INotifyPropertyChanged, IPropertyProvider
     {
+        private class BatchEditBlock : ResourceReleaser
+        {
+            private ObjectClass _resource;
+
+            public BatchEditBlock (ObjectClass resource)
+            {
+                _resource = resource;
+                _resource.ModifyBlockCount++;
+            }
+
+            protected override void Dispose (bool disposing)
+            {
+                _resource.ModifyBlockCount--;
+                if (_resource.ModifyBlockCount <= 0)
+                    _resource.OnModified(EventArgs.Empty);
+
+                base.Dispose(disposing);
+            }
+        }
+
         private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
 
         private readonly Guid _uid;
@@ -226,6 +246,8 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        private int ModifyBlockCount { get; set; }
+
         public bool IsModified { get; private set; }
 
         public virtual void ResetModified ()
@@ -239,12 +261,17 @@ namespace Treefrog.Framework.Model
 
         protected virtual void OnModified (EventArgs e)
         {
-            //if (!IsModified) {
-                IsModified = true;
+            IsModified = true;
+            if (ModifyBlockCount <= 0) {
                 var ev = Modified;
                 if (ev != null)
                     ev(this, e);
-            //}
+            }
+        }
+
+        public ResourceReleaser BeginModify ()
+        {
+            return new BatchEditBlock(this);
         }
 
         #region Name Interface
