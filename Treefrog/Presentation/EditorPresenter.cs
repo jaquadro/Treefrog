@@ -58,6 +58,7 @@ namespace Treefrog.Presentation
         Project Project { get; }
 
         Presentation Presentation { get; }
+        CommandActions CommandActions { get; }
 
         //IEnumerable<LevelPresenter> OpenContent { get; }
 
@@ -79,6 +80,25 @@ namespace Treefrog.Presentation
 
         // TODO: Change this to something more general
         void ActivatePropertyPanel ();
+    }
+
+    public class CommandActions
+    {
+        private EditorPresenter _editor;
+
+        private ObjectClassCommandActions _objectClassActions;
+
+        public CommandActions (EditorPresenter editor)
+        {
+            _editor = editor;
+
+            _objectClassActions = new ObjectClassCommandActions(_editor);
+        }
+
+        public ObjectClassCommandActions ObjectClassActions
+        {
+            get { return _objectClassActions; }
+        }
     }
 
     public class Presentation
@@ -185,9 +205,12 @@ namespace Treefrog.Presentation
         private LevelPresenter _currentLevelRef;
 
         private Presentation _presentation;
+        private CommandActions _commandActions;
 
         public EditorPresenter ()
         {
+            _commandActions = new CommandActions(this);
+
             _presentation = new Presentation(this);
             _presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
 
@@ -425,6 +448,11 @@ namespace Treefrog.Presentation
         public Presentation Presentation
         {
             get { return _presentation; }
+        }
+
+        public CommandActions CommandActions
+        {
+            get { return _commandActions; }
         }
 
         #region IEditorPresenter Members

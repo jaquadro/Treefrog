@@ -159,6 +159,7 @@
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter.cs" />
     <Compile Include="Presentation\MinimapPresenter.cs" />
+    <Compile Include="Presentation\ObjectClassCommandActions.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\ObjectSelectionManager.cs" />
     <Compile Include="Presentation\ProjectExplorerPresenter.cs" />
