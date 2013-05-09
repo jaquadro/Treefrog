@@ -569,21 +569,41 @@ namespace Treefrog.Presentation
 
         private bool CommandCanEditLayer ()
         {
-            return SelectedLayer != null && SelectedLayer.Layer is MultiTileGridLayer;
+            return SelectedLayer != null && (
+                SelectedLayer.Layer is MultiTileGridLayer ||
+                SelectedLayer.Layer is ObjectLayer
+                );
         }
 
         private void CommandEditLayer ()
         {
             if (CommandCanEditLayer()) {
-                using (TileLayerForm form = new TileLayerForm(SelectedLayer.Layer as MultiTileGridLayer)) {
-                    foreach (Layer layer in _level.Layers) {
-                        if (layer.Name != SelectedLayer.Layer.Name)
-                            form.ReservedNames.Add(layer.Name);
-                    }
+                if (SelectedLayer.Layer is MultiTileGridLayer) {
+                    using (TileLayerForm form = new TileLayerForm(SelectedLayer.Layer as MultiTileGridLayer)) {
+                        foreach (Layer layer in _level.Layers) {
+                            if (layer.Name != SelectedLayer.Layer.Name)
+                                form.ReservedNames.Add(layer.Name);
+                        }
 
-                    if (form.ShowDialog() == DialogResult.OK) {
-                        _gridLayer.GridColor = SelectedLayer.Layer.GridColor;
-                        OnSyncLayerList(EventArgs.Empty);
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            _gridLayer.GridColor = SelectedLayer.Layer.GridColor;
+                            OnSyncLayerList(EventArgs.Empty);
+                        }
+                    }
+                }
+                else if (SelectedLayer.Layer is ObjectLayer) {
+                    using (ObjectLayerForm form = new ObjectLayerForm(SelectedLayer.Layer as ObjectLayer)) {
+                        foreach (Layer layer in _level.Layers) {
+                            if (layer.Name != SelectedLayer.Layer.Name)
+                                form.ReservedNames.Add(layer.Name);
+                        }
+
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            _gridLayer.GridSpacingX = SelectedLayer.Layer.GridWidth;
+                            _gridLayer.GridSpacingY = SelectedLayer.Layer.GridHeight;
+                            _gridLayer.GridColor = SelectedLayer.Layer.GridColor;
+                            OnSyncLayerList(EventArgs.Empty);
+                        }
                     }
                 }
             }

@@ -541,6 +541,9 @@
     <EmbeddedResource Include="Windows\Forms\NameChangeForm.resx">
       <DependentUpon>NameChangeForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\ObjectLayerForm.resx">
+      <DependentUpon>ObjectLayerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\StaticBrushForm.resx">
       <DependentUpon>StaticBrushForm.cs</DependentUpon>
     </EmbeddedResource>

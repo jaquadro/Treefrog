@@ -160,10 +160,5 @@ namespace Treefrog.Windows.Forms
 
             _gridColorButton.Color = cd.Color;
         }
-
-        private void colorButton1_Click (object sender, EventArgs e)
-        {
-
-        }
     }
 }
