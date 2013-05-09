@@ -417,6 +417,13 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.LevelRename, CommandCanRenameLevel, CommandRenameLevel);
             _commandManager.Register(CommandKey.LevelProperties, CommandCanLevelProperties, CommandLevelProperties);
 
+            ObjectClassCommandActions objClassActions = _editor.CommandActions.ObjectClassActions;
+            _commandManager.Register(CommandKey.ObjectProtoEdit, objClassActions.ObjectExists, objClassActions.CommandEdit);
+            _commandManager.Register(CommandKey.ObjectProtoClone, objClassActions.ObjectExists, objClassActions.CommandClone);
+            _commandManager.Register(CommandKey.ObjectProtoDelete, objClassActions.ObjectExists, objClassActions.CommandDelete);
+            _commandManager.Register(CommandKey.ObjectProtoRename, objClassActions.ObjectExists, objClassActions.CommandRename);
+            _commandManager.Register(CommandKey.ObjectProtoProperties, objClassActions.ObjectExists, objClassActions.CommandProperties);
+
             _commandManager.Perform(CommandKey.ViewGrid);
         }
 

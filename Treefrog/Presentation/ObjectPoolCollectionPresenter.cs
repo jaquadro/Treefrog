@@ -134,6 +134,7 @@ namespace Treefrog.Presentation
 
         private void HookObjectPool (ObjectPool pool)
         {
+            pool.Objects.ResourceAdded += ObjectClassAdded;
             pool.Objects.ResourceRemoved += ObjectClassRemoved;
             pool.Objects.ResourceRenamed += ObjectClassRenamed;
             pool.Objects.ResourceModified += ObjectClassModified;
@@ -141,6 +142,7 @@ namespace Treefrog.Presentation
 
         private void UnhookObjectPool (ObjectPool pool)
         {
+            pool.Objects.ResourceAdded -= ObjectClassAdded;
             pool.Objects.ResourceRemoved -= ObjectClassRemoved;
             pool.Objects.ResourceRenamed -= ObjectClassRenamed;
             pool.Objects.ResourceModified -= ObjectClassModified;
@@ -156,6 +158,13 @@ namespace Treefrog.Presentation
         {
             UnhookObjectPool(e.Resource);
             RemovePoolPresenter(e.Resource.Uid);
+        }
+
+        private void ObjectClassAdded (object sender, ResourceEventArgs<ObjectClass> e)
+        {
+            RefreshObjectPoolCollection();
+            InvalidateObjectProtoCommands();
+            OnSyncObjectPoolManager(EventArgs.Empty);
         }
 
         private void ObjectClassRemoved (object sender, ResourceEventArgs<ObjectClass> e)

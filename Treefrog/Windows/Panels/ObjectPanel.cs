@@ -36,6 +36,8 @@ namespace Treefrog.Windows.Panels
             _itemContextMenu = CommandMenuBuilder.BuildContextMenu(new CommandMenu("", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     CommandKey.ObjectProtoEdit,
+                },
+                new CommandMenuGroup() {
                     CommandKey.ObjectProtoClone,
                     CommandKey.ObjectProtoDelete,
                     CommandKey.ObjectProtoRename,
