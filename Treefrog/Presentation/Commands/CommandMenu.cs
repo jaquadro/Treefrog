@@ -7,6 +7,7 @@ namespace Treefrog.Presentation.Commands
         public CommandKey Key { get; set; }
         public object Param { get; set; }
         public CommandMenu SubMenu { get; set; }
+        public bool Default { get; set; }
 
         public CommandMenuEntry (CommandKey key)
         {

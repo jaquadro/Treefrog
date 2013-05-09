@@ -391,9 +391,7 @@ namespace Treefrog.Windows.Panels
 
             Guid tag = (Guid)e.Node.Tag;
 
-            if (_controller.Project.Levels.Contains(tag)) {
-                _controller.ActionOpenLevel(tag);
-            }
+            _controller.DefaultAction(tag);
         }
 
         private void TreeNodeClickHandler (object sender, TreeNodeMouseClickEventArgs e)

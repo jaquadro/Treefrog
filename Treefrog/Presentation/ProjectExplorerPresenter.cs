@@ -339,9 +339,12 @@ namespace Treefrog.Presentation
                 ev(this, e);
         }
 
-        public void ActionOpenLevel (Guid uid)
+        public void DefaultAction (Guid uid)
         {
-            _editor.OpenLevel(uid);
+            if (_project.Levels.Contains(uid))
+                _editor.OpenLevel(uid);
+            else if (_project.ObjectPoolManager.Contains(uid))
+                _editor.CommandActions.ObjectClassActions.CommandEdit(uid);
         }
 
         public CommandMenu Menu (Guid uid)
@@ -360,7 +363,7 @@ namespace Treefrog.Presentation
         {
             return new CommandMenu("", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
-                    new CommandMenuEntry(CommandKey.LevelOpen, uid),
+                    new CommandMenuEntry(CommandKey.LevelOpen, uid) { Default = true },
                 },
                 new CommandMenuGroup() {
                     new CommandMenuEntry(CommandKey.LevelClone, uid), 
@@ -377,7 +380,7 @@ namespace Treefrog.Presentation
         {
             return new CommandMenu("", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
-                    new CommandMenuEntry(CommandKey.ObjectProtoEdit, uid),
+                    new CommandMenuEntry(CommandKey.ObjectProtoEdit, uid) { Default = true },
                 },
                 new CommandMenuGroup() {
                     new CommandMenuEntry(CommandKey.ObjectProtoClone, uid),

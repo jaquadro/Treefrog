@@ -88,6 +88,9 @@ namespace Treefrog.Windows.Controllers
                                 ToolTipText = record.Description,
                             };
 
+                            if (entry.Default)
+                                menuItem.Font = new Font(menuItem.Font, menuItem.Font.Style | FontStyle.Bold);
+
                             items.Add(menuItem);
                         }
                     }
