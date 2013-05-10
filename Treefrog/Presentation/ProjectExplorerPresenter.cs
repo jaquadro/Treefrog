@@ -398,9 +398,14 @@ namespace Treefrog.Presentation
             return new CommandMenu("", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
                     new CommandMenuEntry(CommandKey.TilePoolDelete, uid),
+                    new CommandMenuEntry(CommandKey.TilePoolRename, uid),
                 },
                 new CommandMenuGroup() {
                     new CommandMenuEntry(CommandKey.TilePoolProperties, uid),
+                },
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.TilePoolExport, uid),
+                    new CommandMenuEntry(CommandKey.TilePoolImportOver, uid),
                 },
             });
         }
@@ -426,6 +431,13 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.ObjectProtoDelete, objClassActions.ObjectExists, objClassActions.CommandDelete);
             _commandManager.Register(CommandKey.ObjectProtoRename, objClassActions.ObjectExists, objClassActions.CommandRename);
             _commandManager.Register(CommandKey.ObjectProtoProperties, objClassActions.ObjectExists, objClassActions.CommandProperties);
+
+            TilePoolCommandActions tilePoolActions = _editor.CommandActions.TilePoolActions;
+            _commandManager.Register(CommandKey.TilePoolDelete, tilePoolActions.TilePoolExists, tilePoolActions.CommandDelete);
+            _commandManager.Register(CommandKey.TilePoolRename, tilePoolActions.TilePoolExists, tilePoolActions.CommandRename);
+            _commandManager.Register(CommandKey.TilePoolProperties, tilePoolActions.TilePoolExists, tilePoolActions.CommandProperties);
+            _commandManager.Register(CommandKey.TilePoolExport, tilePoolActions.TilePoolExists, tilePoolActions.CommandExport);
+            _commandManager.Register(CommandKey.TilePoolImportOver, tilePoolActions.TilePoolExists, tilePoolActions.CommandImportOver);
 
             _commandManager.Perform(CommandKey.ViewGrid);
         }

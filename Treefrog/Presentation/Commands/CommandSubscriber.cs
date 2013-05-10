@@ -72,6 +72,7 @@ namespace Treefrog.Presentation.Commands
         TilePoolImportOver,
         TilePoolImport,
         TilePoolDelete,
+        TilePoolRename,
         TilePoolProperties,
 
         NewStaticTileBrush,

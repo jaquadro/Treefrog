@@ -165,6 +165,7 @@
     <Compile Include="Presentation\ProjectExplorerPresenter.cs" />
     <Compile Include="Presentation\TextureResourceRegistry.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
+    <Compile Include="Presentation\TilePoolCommandActions.cs" />
     <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />
     <Compile Include="Presentation\Tools\ObjectPointerTool.cs" />
     <Compile Include="Presentation\Tools\ObjectSelectTool.cs" />

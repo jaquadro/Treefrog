@@ -238,7 +238,7 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.Maps);
             Register(CommandKey.LevelDelete, "&Delete",
                 resource: Properties.Resources.Cross);
-            Register(CommandKey.LevelRename, "Re&name");
+            Register(CommandKey.LevelRename, "Re&name...");
             Register(CommandKey.LevelResize, "&Resize...",
                 resource: Properties.Resources.ArrowResize135, shortcut: Keys.Control | Keys.R);
             Register(CommandKey.LevelProperties, "&Properties",
@@ -252,7 +252,7 @@ namespace Treefrog.Windows.Controllers
             Register(CommandKey.LayerClone, "D&uplicate",
                 resource: Properties.Resources.Layers);
             Register(CommandKey.LayerDelete, "&Delete",
-                resource: Properties.Resources.LayerMinus);
+                resource: Properties.Resources.Cross);
             Register(CommandKey.LayerProperties, "&Properties",
                 resource: Properties.Resources.Tags);
             Register(CommandKey.LayerMoveTop, "Bring to &Top",
@@ -274,7 +274,7 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.TableDynamic);
             Register(CommandKey.TileBrushClone, "D&uplicate");
             Register(CommandKey.TileBrushDelete, "&Delete",
-                resource: Properties.Resources.PaintBrushMinus);
+                resource: Properties.Resources.Cross);
             Register(CommandKey.TileSelectionCreateBrush, "Create &Brush from Selection",
                 resource: Properties.Resources.PaintBrushPlus);
             Register(CommandKey.TileSelectionPromoteLayer, "Promote to &Layer",
@@ -283,6 +283,7 @@ namespace Treefrog.Windows.Controllers
             Register(CommandKey.TileSelectionDefloat, "&Defloat");
             Register(CommandKey.TilePoolDelete, "&Delete",
                 resource: Properties.Resources.Cross);
+            Register(CommandKey.TilePoolRename, "&Rename...");
             Register(CommandKey.TilePoolProperties, "&Properties",
                 resource: Properties.Resources.Tags);
             Register(CommandKey.TilePoolExport, "&Export Raw Tileset...",
@@ -295,8 +296,8 @@ namespace Treefrog.Windows.Controllers
             Register(CommandKey.ObjectProtoEdit, "&Edit...");
             Register(CommandKey.ObjectProtoClone, "D&uplicate");
             Register(CommandKey.ObjectProtoDelete, "&Delete",
-                resource: Properties.Resources.GameMinus);
-            Register(CommandKey.ObjectProtoRename, "&Rename");
+                resource: Properties.Resources.Cross);
+            Register(CommandKey.ObjectProtoRename, "&Rename...");
             Register(CommandKey.ObjectProtoProperties, "&Properties",
                 resource: Properties.Resources.Tags);
             Register(CommandKey.ObjectMoveTop, "Bring to &Front",

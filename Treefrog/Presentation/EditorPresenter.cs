@@ -87,17 +87,24 @@ namespace Treefrog.Presentation
         private EditorPresenter _editor;
 
         private ObjectClassCommandActions _objectClassActions;
+        private TilePoolCommandActions _tilePoolActions;
 
         public CommandActions (EditorPresenter editor)
         {
             _editor = editor;
 
             _objectClassActions = new ObjectClassCommandActions(_editor);
+            _tilePoolActions = new TilePoolCommandActions(_editor);
         }
 
         public ObjectClassCommandActions ObjectClassActions
         {
             get { return _objectClassActions; }
+        }
+
+        public TilePoolCommandActions TilePoolActions
+        {
+            get { return _tilePoolActions; }
         }
     }
 
