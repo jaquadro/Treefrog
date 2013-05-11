@@ -8,11 +8,6 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class SystemProperty : Attribute
-    {
-
-    }
-
     public class ObjectClass : INamedResource, INotifyPropertyChanged, IPropertyProvider
     {
         private class BatchEditBlock : ResourceReleaser
@@ -37,13 +32,10 @@ namespace Treefrog.Framework.Model
 
         private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectClass));
 
-        private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
-
         private readonly Guid _uid;
         private readonly ResourceName _name;
 
         private ObjectPool _pool;
-        //private Guid _textureId;
 
         private bool _canRotate;
         private bool _canScale;
@@ -55,8 +47,6 @@ namespace Treefrog.Framework.Model
         private Rectangle _imageBounds;
 
         private PropertyManager _propertyManager;
-        private PropertyCollection _properties;
-        private ObjectClassProperties _predefinedProperties;
 
         public ObjectClass (string name)
         {
@@ -66,10 +56,7 @@ namespace Treefrog.Framework.Model
             _origin = Point.Zero;
 
             _propertyManager = new PropertyManager(_propertyClassManager, this);
-            _properties = new PropertyCollection(_reservedPropertyNames);
-            _predefinedProperties = new ObjectClass.ObjectClassProperties(this);
-
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public ObjectClass (string name, TextureResource image)
@@ -105,8 +92,8 @@ namespace Treefrog.Framework.Model
                 _maskBounds = template._maskBounds;
                 _origin = template._origin;
 
-                foreach (var item in template._properties)
-                    _properties.Add(item.Clone() as Property);
+                foreach (var item in template.PropertyManager.CustomProperties)
+                    PropertyManager.CustomProperties.Add(item.Clone() as Property);
             }
         }
 
@@ -121,7 +108,7 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
         }
 
@@ -159,7 +146,6 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        [SystemProperty]
         public bool CanRotate
         {
             get { return _canRotate; }
@@ -172,7 +158,6 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        [SystemProperty]
         public bool CanScale
         {
             get { return _canScale; }
@@ -257,7 +242,7 @@ namespace Treefrog.Framework.Model
         public virtual void ResetModified ()
         {
             IsModified = false;
-            foreach (var property in CustomProperties)
+            foreach (var property in PropertyManager.CustomProperties)
                 property.ResetModified();
         }
 
@@ -311,31 +296,6 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private class ObjectClassProperties : PredefinedPropertyCollection
-        {
-            private ObjectClass _parent;
-
-            public ObjectClassProperties (ObjectClass parent)
-                : base(_reservedPropertyNames)
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield return _parent.LookupProperty("Name");
-                //yield return _parent.LookupProperty("Width");
-                //yield return _parent.LookupProperty("Height");
-                //yield return _parent.LookupProperty("OriginX");
-                //yield return _parent.LookupProperty("OriginY");
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public string PropertyProviderName
         {
             get { return Name; }
@@ -352,50 +312,6 @@ namespace Treefrog.Framework.Model
         {
             PropertyProviderNameChanged(this, e);
         }
-
-        public Collections.PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public Collections.PredefinedPropertyCollection PredefinedProperties
-        {
-            get { return _predefinedProperties; }
-        }
-
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            switch (name) {
-                case "Name":
-                //case "Width":
-                //case "Height":
-                //case "OriginX":
-                //case "OriginY":
-                    return PropertyCategory.Predefined;
-                default:
-                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-            }
-        }
-
-        public Property LookupProperty (string name)
-        {
-            Property prop;
-
-            switch (name) {
-                case "Name":
-                    prop = new StringProperty("Name", Name);
-                    prop.ValueChanged += NamePropertyChangedHandler;
-                    return prop;
-
-                default:
-                    return _properties.Contains(name) ? _properties[name] : null;
-            }
-        }
-
-        /*private void CustomProperties_Modified (object sender, EventArgs e)
-        {
-            OnModified(e);
-        }*/
 
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {
@@ -429,7 +345,7 @@ namespace Treefrog.Framework.Model
                 return null;
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in objClass.CustomProperties)
+            foreach (Property prop in objClass.PropertyManager.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LibraryX.ObjectClassX() {

@@ -13,16 +13,12 @@ namespace Treefrog.Framework.Model
     {
         private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectPool));
 
-        private static string[] _reservedPropertyNames = new string[] { "Name" };
-
         private readonly Guid _uid;
         private readonly ResourceName _name;
 
         private NamedResourceCollection<ObjectClass> _objects;
 
         private PropertyManager _propertyManager;
-        private PropertyCollection _properties;
-        private ObjectPoolProperties _predefinedProperties;
 
         protected ObjectPool ()
         {
@@ -33,10 +29,7 @@ namespace Treefrog.Framework.Model
             Objects.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             _propertyManager = new PropertyManager(_propertyClassManager, this);
-            _properties = new PropertyCollection(_reservedPropertyNames);
-            _predefinedProperties = new ObjectPoolProperties(this);
-
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public ObjectPool (string name)
@@ -120,7 +113,7 @@ namespace Treefrog.Framework.Model
             IsModified = false;
             foreach (var obj in Objects)
                 obj.ResetModified();
-            foreach (var property in CustomProperties)
+            foreach (var property in PropertyManager.CustomProperties)
                 property.ResetModified();
         }
 
@@ -201,27 +194,6 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private class ObjectPoolProperties : PredefinedPropertyCollection
-        {
-            private ObjectPool _parent;
-
-            public ObjectPoolProperties (ObjectPool parent)
-                : base(_reservedPropertyNames)
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield return _parent.LookupProperty("Name");
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public string PropertyProviderName
         {
             get { return Name; }
@@ -237,47 +209,6 @@ namespace Treefrog.Framework.Model
         public PropertyManager PropertyManager
         {
             get { return _propertyManager; }
-        }
-
-        public Collections.PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public Collections.PredefinedPropertyCollection PredefinedProperties
-        {
-            get { return _predefinedProperties; }
-        }
-
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            switch (name) {
-                case "Name":
-                    return PropertyCategory.Predefined;
-                default:
-                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-            }
-        }
-
-        public Property LookupProperty (string name)
-        {
-            Property prop;
-
-            switch (name) {
-                case "Name":
-                    prop = new StringProperty("Name", Name);
-                    prop.ValueChanged += NameProperty_ValueChanged;
-                    return prop;
-
-                default:
-                    return _properties.Contains(name) ? _properties[name] : null;
-            }
-        }
-
-        private void NameProperty_ValueChanged (object sender, EventArgs e)
-        {
-            StringProperty property = sender as StringProperty;
-            TrySetName(property.Value);
         }
 
         #endregion

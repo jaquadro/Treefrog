@@ -59,7 +59,7 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
         }
 
@@ -88,7 +88,7 @@ namespace Treefrog.Framework.Model
             }
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in layer.CustomProperties)
+            foreach (Property prop in layer.PropertyManager.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LevelX.MultiTileGridLayerX() {
@@ -229,26 +229,6 @@ namespace Treefrog.Framework.Model
                     newTiles[y - originDiffY, x - originDiffX] = _tiles[y, x];
                 }
             }
-
-            //if (newOriginX < TileOriginX)
-
-            // NEEDS WORK
-
-            /*int xAdj = TileOriginX - newOriginX;
-            int yAdj = TileOriginY - newOriginY;
-
-            TileStack[,] newTiles = new TileStack[newTilesHigh, newTilesWide];
-            
-            int startX = Math.Max(0, xAdj);
-            int startY = Math.Max(0, yAdj);
-            int copyLimX = Math.Min(TilesWide, newTilesWide);
-            int copyLimY = Math.Min(TilesHigh, newTilesHigh);
-
-            for (int y = startY; y < copyLimY; y++) {
-                for (int x = startX; x < copyLimX; x++) {
-                    newTiles[y + yAdj, x + xAdj] = _tiles[y, x];
-                }
-            }*/
 
             _tiles = newTiles;
         }

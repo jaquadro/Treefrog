@@ -45,7 +45,7 @@ namespace Treefrog.Framework
             get
             {
                 if (_customParent != null)
-                    return _customParent.CustomProperties;
+                    return _customParent.PropertyManager.CustomProperties;
                 return null;
             }
         }
@@ -61,7 +61,7 @@ namespace Treefrog.Framework
                 return PropertyCategory.Predefined;
             if (_custom.Contains(propertyName))
                 return PropertyCategory.Custom;
-            if (_customParent != null && _customParent.CustomProperties.Contains(propertyName))
+            if (_customParent != null && _customParent.PropertyManager.CustomProperties.Contains(propertyName))
                 return PropertyCategory.Inherited;
 
             return PropertyCategory.None;
@@ -75,8 +75,8 @@ namespace Treefrog.Framework
             if (_custom.Contains(propertyName))
                 return _custom[propertyName];
 
-            if (_customParent != null && _customParent.CustomProperties.Contains(propertyName))
-                return _customParent.CustomProperties[propertyName];
+            if (_customParent != null && _customParent.PropertyManager.CustomProperties.Contains(propertyName))
+                return _customParent.PropertyManager.CustomProperties[propertyName];
 
             return null;
         }
