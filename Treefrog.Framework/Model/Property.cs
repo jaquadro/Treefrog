@@ -4,6 +4,8 @@ using System.Xml;
 using System.Xml.Serialization;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model.Proxy;
+using Treefrog.Framework.Model.Collections;
+using System.Reflection;
 
 namespace Treefrog.Framework.Model
 {

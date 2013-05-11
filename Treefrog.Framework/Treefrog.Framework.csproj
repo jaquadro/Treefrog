@@ -107,7 +107,10 @@
     <Compile Include="Model\ObjectPoolManager.cs" />
     <Compile Include="Model\PoolManager.cs" />
     <Compile Include="Model\Project.cs" />
+    <Compile Include="Attributes.cs" />
     <Compile Include="Model\Property.cs" />
+    <Compile Include="PropertyClassManager.cs" />
+    <Compile Include="PropertyManager.cs" />
     <Compile Include="Model\Proxy\CommonX.cs" />
     <Compile Include="Model\Proxy\LevelX.cs" />
     <Compile Include="Model\Proxy\LibraryX.cs" />

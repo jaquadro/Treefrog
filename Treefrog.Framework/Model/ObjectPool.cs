@@ -11,6 +11,8 @@ namespace Treefrog.Framework.Model
 {
     public class ObjectPool : INamedResource, IResourceManager<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectPool));
+
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
         private readonly Guid _uid;
@@ -18,6 +20,7 @@ namespace Treefrog.Framework.Model
 
         private NamedResourceCollection<ObjectClass> _objects;
 
+        private PropertyManager _propertyManager;
         private PropertyCollection _properties;
         private ObjectPoolProperties _predefinedProperties;
 
@@ -29,6 +32,7 @@ namespace Treefrog.Framework.Model
             Objects = new NamedResourceCollection<ObjectClass>();
             Objects.Modified += (s, e) => OnModified(EventArgs.Empty);
 
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectPoolProperties(this);
 
@@ -146,6 +150,7 @@ namespace Treefrog.Framework.Model
             remove { _name.NameChanged -= value; }
         }
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name.Name; }
@@ -227,6 +232,11 @@ namespace Treefrog.Framework.Model
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
         {
             PropertyProviderNameChanged(this, e);
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         public Collections.PropertyCollection CustomProperties

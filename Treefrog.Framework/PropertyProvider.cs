@@ -9,7 +9,8 @@ namespace Treefrog.Framework
     {
         None,
         Predefined,
-        Custom
+        Custom,
+        Inherited,
     }
 
     public interface IPropertyProvider
@@ -17,6 +18,8 @@ namespace Treefrog.Framework
         string PropertyProviderName { get; }
 
         event EventHandler<EventArgs> PropertyProviderNameChanged;
+
+        PropertyManager PropertyManager { get; }
 
         //IEnumerable<Property> PredefinedProperties { get; }
         //IEnumerable<Property> CustomProperties { get; }

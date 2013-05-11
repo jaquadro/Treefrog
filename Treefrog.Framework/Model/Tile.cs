@@ -7,9 +7,12 @@ namespace Treefrog.Framework.Model
 {
     public abstract class Tile : IResource, IPropertyProvider
     {
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(Tile));
+
         private readonly Guid _uid;
 
         private TilePool _pool;
+        private PropertyManager _propertyManager;
         private PropertyCollection _properties;
         private TileProperties _predefinedProperties;
 
@@ -20,6 +23,7 @@ namespace Treefrog.Framework.Model
             _uid = Guid.NewGuid();
             _dependents = new List<DependentTile>();
 
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
             _properties = new PropertyCollection(new string[0]);
             _predefinedProperties = new Tile.TileProperties(this);
 
@@ -133,6 +137,11 @@ namespace Treefrog.Framework.Model
         public string PropertyProviderName
         {
             get { return "Tile " + _uid; }
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         public PredefinedPropertyCollection PredefinedProperties

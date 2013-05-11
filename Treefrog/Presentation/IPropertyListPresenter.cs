@@ -93,7 +93,7 @@ namespace Treefrog.Presentation
 
         public bool CanEditSelectedProperty
         {
-            get { return _provider != null && _provider.LookupPropertyCategory(_selectedProperty) != PropertyCategory.None; }
+            get { return _provider != null && !_provider.PropertyManager.IsReadOnly(_selectedProperty); }
         }
 
         public string ProviderName 
@@ -115,7 +115,7 @@ namespace Treefrog.Presentation
                     yield break;
                 }
 
-                foreach (Property property in _provider.PredefinedProperties) {
+                foreach (Property property in _provider.PropertyManager.SpecialProperties) {
                     yield return property;
                 }
             }

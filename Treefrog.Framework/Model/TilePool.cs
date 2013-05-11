@@ -376,6 +376,8 @@ namespace Treefrog.Framework.Model
     {
         private const int _initFactor = 4;
 
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(TilePool));
+
         private static string[] _reservedPropertyNames = new string[] { "Name" };
 
         private readonly Guid _uid;
@@ -383,6 +385,7 @@ namespace Treefrog.Framework.Model
 
         private TileResourceCollection _tiles;
 
+        private PropertyManager _propertyManager;
         private PropertyCollection _properties;
         private TilePoolProperties _predefinedProperties;
 
@@ -391,6 +394,7 @@ namespace Treefrog.Framework.Model
             _uid = Guid.NewGuid();
             _name = new ResourceName(this);
 
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new TilePool.TilePoolProperties(this);
 
@@ -622,6 +626,7 @@ namespace Treefrog.Framework.Model
             remove { _name.NameChanged -= value; }
         }
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name.Name; }
@@ -748,6 +753,11 @@ namespace Treefrog.Framework.Model
         public string PropertyProviderName
         {
             get { return Name; }
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         public PredefinedPropertyCollection PredefinedProperties

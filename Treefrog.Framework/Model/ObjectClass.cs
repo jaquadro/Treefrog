@@ -35,6 +35,8 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectClass));
+
         private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
 
         private readonly Guid _uid;
@@ -52,6 +54,7 @@ namespace Treefrog.Framework.Model
         private Rectangle _maskBounds;
         private Rectangle _imageBounds;
 
+        private PropertyManager _propertyManager;
         private PropertyCollection _properties;
         private ObjectClassProperties _predefinedProperties;
 
@@ -62,6 +65,7 @@ namespace Treefrog.Framework.Model
 
             _origin = Point.Zero;
 
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new ObjectClass.ObjectClassProperties(this);
 
@@ -288,6 +292,7 @@ namespace Treefrog.Framework.Model
             remove { _name.NameChanged -= value; }
         }
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name.Name; }
@@ -334,6 +339,11 @@ namespace Treefrog.Framework.Model
         public string PropertyProviderName
         {
             get { return Name; }
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         public event EventHandler<EventArgs> PropertyProviderNameChanged;

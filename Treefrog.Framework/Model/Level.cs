@@ -15,6 +15,8 @@ namespace Treefrog.Framework.Model
     /// </summary>
     public class Level : INamedResource, IPropertyProvider
     {
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(Level));
+
         private static string[] _reservedPropertyNames = { "Name", "OriginX", "OriginY", "Height", "Width" };
 
         private Project _project;
@@ -31,6 +33,7 @@ namespace Treefrog.Framework.Model
         private Mapper<int, Guid> _localTileIndex = new Mapper<int, Guid>();
 
         private OrderedResourceCollection<Layer> _layers;
+        private PropertyManager _propertyManager;
         private PropertyCollection _properties;
         private LevelProperties _predefinedProperties;
 
@@ -44,6 +47,7 @@ namespace Treefrog.Framework.Model
             _layers.ResourceRemoved += (s, e) => OnLayerRemoved(new ResourceEventArgs<Layer>(e.Resource));
             _layers.ResourceModified += (s, e) => OnModified(EventArgs.Empty);
 
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
             _properties = new PropertyCollection(_reservedPropertyNames);
             _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
 
@@ -152,11 +156,13 @@ namespace Treefrog.Framework.Model
             set { _project = value; }
         }
 
+        [SpecialProperty]
         public int OriginX
         {
             get { return _x; }
         }
 
+        [SpecialProperty]
         public int OriginY
         {
             get { return _y; }
@@ -165,6 +171,7 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Gets the height of the level in pixels.
         /// </summary>
+        [SpecialProperty]
         public int Height
         {
             get { return _height; }
@@ -173,6 +180,7 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Gets the width of the level in pixels.
         /// </summary>
+        [SpecialProperty]
         public int Width
         {
             get { return _width; }
@@ -320,6 +328,7 @@ namespace Treefrog.Framework.Model
             remove { _name.NameChanged -= value; }
         }
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name.Name; }
@@ -373,6 +382,11 @@ namespace Treefrog.Framework.Model
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
         {
             PropertyProviderNameChanged(this, e);
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         /// <summary>

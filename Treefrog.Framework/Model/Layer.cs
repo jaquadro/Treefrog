@@ -12,8 +12,37 @@ namespace Treefrog.Framework.Model
         Linear,
     }
 
+    public abstract class PropertyConverter
+    {
+        public abstract Property Pack (string name, object value);
+        public abstract object Unpack (Property property);
+    }
+
+    public class RasterModePropertyConverter : PropertyConverter
+    {
+        public override Property Pack (string name, object value)
+        {
+            if (!(value is RasterMode))
+                return new StringProperty(name, "");
+            return new StringProperty(name, ((RasterMode)value).ToString());
+        }
+
+        public override object Unpack (Property property)
+        {
+            StringProperty sp = property as StringProperty;
+            switch (sp.Value) {
+                case "Point":
+                    return Model.RasterMode.Point;
+                default:
+                    return Model.RasterMode.Linear;
+            }
+        }
+    }
+
     public abstract class Layer : INamedResource, IPropertyProvider, ICloneable
     {
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(Layer));
+
         private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible", "RasterMode" };
 
         private Level _level;
@@ -27,6 +56,7 @@ namespace Treefrog.Framework.Model
         private int _gridHeight;
         private Color _gridColor;
 
+        private PropertyManager _propertyManager;
         private PropertyCollection _properties;
         private LayerProperties _predefinedProperties;
 
@@ -43,6 +73,8 @@ namespace Treefrog.Framework.Model
             _gridColor = new Color(0, 0, 0, 128);
 
             _name = name;
+
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
             _properties = new PropertyCollection(_reservedPropertyNames);
             _predefinedProperties = new LayerProperties(this);
 
@@ -72,6 +104,7 @@ namespace Treefrog.Framework.Model
             set { _level = value; }
         }
 
+        [SpecialProperty]
         public bool IsVisible
         {
             get { return _visible; }
@@ -86,6 +119,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        [SpecialProperty]
         public float Opacity
         {
             get { return _opacity; }
@@ -101,6 +135,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        [SpecialProperty(Converter=typeof(RasterModePropertyConverter))]
         public RasterMode RasterMode
         {
             get { return _rasterMode; }
@@ -349,6 +384,11 @@ namespace Treefrog.Framework.Model
                 ev(this, e);
         }
 
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
+        }
+
         public string PropertyProviderName
         {
             get { return "Layer." + _name; }
@@ -411,6 +451,7 @@ namespace Treefrog.Framework.Model
 
         #region INamedResource Members
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name; }

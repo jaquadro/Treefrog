@@ -10,6 +10,8 @@ namespace Treefrog.Framework.Model
     [Serializable]
     public class ObjectInstance : IResource, IPropertyProvider, ICloneable, ISerializable
     {
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectInstance));
+
         private readonly Guid _uid;
 
         [NonSerialized]
@@ -36,6 +38,8 @@ namespace Treefrog.Framework.Model
             _rotation = 0;
             _scaleX = 1f;
             _scaleY = 1f;
+
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
 
             _properties = new PropertyCollection(_reservedPropertyNames);
             _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
@@ -88,6 +92,32 @@ namespace Treefrog.Framework.Model
             get { return _class; }
         }
 
+        [SpecialProperty]
+        public int X
+        {
+            get { return _posX; }
+            set
+            {
+                if (_posX != value) {
+                    _posX = value;
+                    OnPositionChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        [SpecialProperty]
+        public int Y
+        {
+            get { return _posY; }
+            set {
+                if (_posY != value) {
+                    _posY = value;
+                    OnPositionChanged(EventArgs.Empty);
+                }            
+            }
+        }
+
+        [SpecialProperty]
         public float Rotation
         {
             get { return _rotation; }
@@ -114,29 +144,6 @@ namespace Treefrog.Framework.Model
         public float ScaleY
         {
             get { return _scaleY; }
-        }
-
-        public int X
-        {
-            get { return _posX; }
-            set
-            {
-                if (_posX != value) {
-                    _posX = value;
-                    OnPositionChanged(EventArgs.Empty);
-                }
-            }
-        }
-
-        public int Y
-        {
-            get { return _posY; }
-            set {
-                if (_posY != value) {
-                    _posY = value;
-                    OnPositionChanged(EventArgs.Empty);
-                }            
-            }
         }
 
         public Point Position
@@ -238,6 +245,8 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
+        private PropertyManager _propertyManager;
+
         private static string[] _reservedPropertyNames = new string[] { "X", "Y", "Rotation" };
 
         private PropertyCollection _properties;
@@ -269,6 +278,11 @@ namespace Treefrog.Framework.Model
         public string PropertyProviderName
         {
             get { return "Object#"; }
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         public bool IsModified { get; private set; }
