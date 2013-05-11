@@ -164,7 +164,7 @@ namespace Treefrog.Presentation
             get { return _levelTools; }
         }*/
 
-        public IPropertyListPresenter PropertyList
+        public PropertyListPresenter PropertyList
         {
             get { return _propertyList; }
         }

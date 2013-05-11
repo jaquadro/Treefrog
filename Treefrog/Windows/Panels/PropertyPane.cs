@@ -19,10 +19,11 @@ namespace Treefrog.Windows
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripTextBox toolStripTextBox1;
 
-        private IPropertyListPresenter _controller;
+        private PropertyListPresenter _controller;
 
         private ListViewGroup _groupPredefined;
         private ListViewGroup _groupCustom;
+        private ListViewGroup _groupInherited;
 
         private ListViewItem _queuedEditItem;
         private int _queuedEditIndex;
@@ -43,9 +44,11 @@ namespace Treefrog.Windows
             // Setup control
 
             _groupPredefined = new ListViewGroup("Special Properties");
+            _groupInherited = new ListViewGroup("Inherited Properties");
             _groupCustom = new ListViewGroup("Custom Properties");
 
             _propertyList.Groups.Add(_groupPredefined);
+            _propertyList.Groups.Add(_groupInherited);
             _propertyList.Groups.Add(_groupCustom);
 
             // Wire events
@@ -61,7 +64,7 @@ namespace Treefrog.Windows
 
         #endregion
 
-        public void BindController (IPropertyListPresenter controller)
+        public void BindController (PropertyListPresenter controller)
         {
             if (_controller == controller) {
                 return;
@@ -140,6 +143,20 @@ namespace Treefrog.Windows
 
             ListViewItem editItem = null;
 
+            foreach (Property prop in _controller.InheritedProperties) {
+                ListViewItem item = new ListViewItem(new string[] { "", prop.Name, prop.ToString() });
+                item.Group = _groupInherited;
+                if (_controller.SelectedProperty != null && _controller.SelectedProperty == prop) {
+                    item.Selected = true;
+
+                    if (_inAdd) {
+                        editItem = item;
+                    }
+                }
+
+                _propertyList.Items.Add(item);
+            }
+
             foreach (Property prop in _controller.CustomProperties) {
                 ListViewItem item = new ListViewItem(new string[] { "", prop.Name, prop.ToString() });
                 item.Group = _groupCustom;
@@ -215,6 +232,8 @@ namespace Treefrog.Windows
                 _queuedEditItem = null;
                 _queuedEditIndex = 0;
             }
+            else if (_controller != null)
+                _controller.RefreshPropertyList();
         }
 
         private bool _inAdd = false;

@@ -118,6 +118,7 @@ namespace Treefrog.Windows.Controls.WinEx
         public event EventHandler<SubItemEventArgs> SubItemBeginEditing;
         public event EventHandler<SubItemEndEditingEventArgs> SubItemEndEditing;
         public event EventHandler SubItemReset;
+        public event EventHandler EditingFinished;
 
         #endregion
 
@@ -148,6 +149,13 @@ namespace Treefrog.Windows.Controls.WinEx
         {
             if (SubItemReset != null) {
                 SubItemReset(this, e);
+            }
+        }
+
+        protected void OnEditingFinished (EventArgs e)
+        {
+            if (EditingFinished != null) {
+                EditingFinished(this, e);
             }
         }
 
@@ -368,6 +376,8 @@ namespace Treefrog.Windows.Controls.WinEx
             OnSubItemReset(EventArgs.Empty);
 
             _inEndEditing = false;
+
+            OnEditingFinished(EventArgs.Empty);
         }
 
         protected override void WndProc (ref Message m)

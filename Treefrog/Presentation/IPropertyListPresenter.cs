@@ -121,6 +121,21 @@ namespace Treefrog.Presentation
             }
         }
 
+        public IEnumerable<Property> InheritedProperties
+        {
+            get
+            {
+                if (_provider == null || _provider.PropertyManager.InheritedProperties == null) {
+                    yield break;
+                }
+
+                foreach (Property property in _provider.PropertyManager.InheritedProperties) {
+                    if (!_provider.PropertyManager.CustomProperties.Contains(property.Name))
+                        yield return property;
+                }
+            }
+        }
+
         public IEnumerable<Property> CustomProperties
         {
             get
@@ -238,7 +253,13 @@ namespace Treefrog.Presentation
             if (CanEditSelectedProperty) {
                 Property property = _provider.PropertyManager.LookupProperty(_selectedProperty);
 
+                if (_provider.PropertyManager.LookupCategory(_selectedProperty) == PropertyCategory.Inherited) {
+                    property = property.Clone() as Property;
+                    _provider.PropertyManager.CustomProperties.Add(property);
+                }
+
                 property.Parse(value);
+                OnSyncPropertyContainer(EventArgs.Empty);
                 OnSyncPropertyList(EventArgs.Empty);
             }
         }
@@ -265,13 +286,16 @@ namespace Treefrog.Presentation
         private string FindDefaultPropertyName ()
         {
             List<string> names = new List<string>();
-            foreach (Property property in _provider.PropertyManager.SpecialProperties) {
+            foreach (Property property in _provider.PropertyManager.SpecialProperties)
                 names.Add(property.Name);
+
+            if (_provider.PropertyManager.InheritedProperties != null) {
+                foreach (Property property in _provider.PropertyManager.InheritedProperties)
+                    names.Add(property.Name);
             }
 
-            foreach (Property property in _provider.PropertyManager.CustomProperties) {
+            foreach (Property property in _provider.PropertyManager.CustomProperties)
                 names.Add(property.Name);
-            }
 
             int i = 0;
             while (true) {

@@ -42,6 +42,7 @@ namespace Treefrog.Framework.Model
             _scaleY = 1f;
 
             _propertyManager = new PropertyManager(_propertyClassManager, this);
+            _propertyManager.PropertyParent = objClass;
             _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             UpdateBounds();

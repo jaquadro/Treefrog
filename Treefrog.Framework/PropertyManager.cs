@@ -86,6 +86,9 @@ namespace Treefrog.Framework
             if (_classManager.ContainsDefinition(propertyName))
                 return _classManager.IsReadOnly(propertyName);
 
+            if (_customParent != null && _customParent.PropertyManager.CustomProperties.Contains(propertyName))
+                return false;
+
             if (_custom.Contains(propertyName))
                 return false;
 
