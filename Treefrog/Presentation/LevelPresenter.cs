@@ -166,7 +166,7 @@ namespace Treefrog.Presentation
             get { return _selectedLayerRef; }
         }
 
-        public TexturePool TexturePool
+        public ITexturePool TexturePool
         {
             get { return _level.Project.TexturePool; }
         }

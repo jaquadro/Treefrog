@@ -106,6 +106,11 @@ namespace Treefrog.Framework.Model
             remove { _tileBrushResourceModified -= value; }
         }
 
+        IResourceCollection<TileBrush> IResourceManager<TileBrush>.Collection
+        {
+            get { return Collection; }
+        }
+
         IEnumerator<TileBrush> System.Collections.Generic.IEnumerable<TileBrush>.GetEnumerator ()
         {
             return GetTileBrushEnumerator();
@@ -142,6 +147,11 @@ namespace Treefrog.Framework.Model
             yield break;
         }
 
+        protected virtual IResourceCollection<TileBrush> Collection
+        {
+            get { return null; }
+        }
+
         #endregion
     }
 
@@ -164,6 +174,11 @@ namespace Treefrog.Framework.Model
         { }
 
         public NamedResourceCollection<T> Brushes { get; private set; }
+
+        /*protected override IResourceCollection<TileBrush> Collection
+        {
+            get { return Brushes; }
+        }*/
 
         public int Count
         {

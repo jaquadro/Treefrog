@@ -7,7 +7,7 @@ namespace Treefrog.Framework.Model
     public interface IPoolManager<TPool>
         where TPool : class, IResource
     {
-        ResourceCollection<TPool> Pools { get; }
+        IResourceCollection<TPool> Pools { get; }
         void Reset ();
         TPool PoolFromItemKey (Guid key);
         bool Contains (Guid key);
@@ -83,7 +83,7 @@ namespace Treefrog.Framework.Model
             OnPoolModified(e.Resource);
         }
 
-        public virtual ResourceCollection<TPool> Pools
+        public virtual IResourceCollection<TPool> Pools
         {
             get { return _pools; }
         }

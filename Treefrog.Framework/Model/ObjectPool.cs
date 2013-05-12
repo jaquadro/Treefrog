@@ -63,7 +63,7 @@ namespace Treefrog.Framework.Model
             get { return _uid; }
         }
 
-        public TexturePool TexturePool { get; internal set; }
+        public ITexturePool TexturePool { get; internal set; }
 
         public int Count
         {
@@ -104,6 +104,11 @@ namespace Treefrog.Framework.Model
         {
             get { return _objects; }
             private set { _objects = value; }
+        }
+
+        IResourceCollection<ObjectClass> IResourceManager<ObjectClass>.Collection
+        {
+            get { return _objects; }
         }
 
         public bool IsModified { get; private set; }

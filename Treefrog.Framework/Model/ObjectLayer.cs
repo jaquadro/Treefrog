@@ -79,7 +79,7 @@ namespace Treefrog.Framework.Model
             GridHeight = proxy.GridHeight;
             Level = level;
 
-            ResourceCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
+            IResourceCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
             foreach (var objProxy in proxy.Objects) {
                 ObjectInstance inst = ObjectInstance.FromXProxy(objProxy, Level.Project.ObjectPoolManager);
                 if (inst != null)

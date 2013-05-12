@@ -9,7 +9,7 @@ namespace Treefrog.Framework.Model
 {
     public interface ITilePoolManager : IPoolManager<TilePool>
     {
-        TexturePool TexturePool { get; }
+        ITexturePool TexturePool { get; }
         TilePool CreatePool (string name, int tileWidth, int tileHeight);
         TilePool ImportPool (string name, TextureResource source, TilePool.TileImportOptions options);
         TilePool MergePool (string name, TilePool pool);
@@ -27,7 +27,7 @@ namespace Treefrog.Framework.Model
             _texPool = texPool;
         }
 
-        public TexturePool TexturePool
+        public ITexturePool TexturePool
         {
             get { return _texPool; }
         }
@@ -114,9 +114,16 @@ namespace Treefrog.Framework.Model
 
     public class MetaTilePoolManager : MetaPoolManager<TilePool, Tile, TilePoolManager>, ITilePoolManager
     {
-        public TexturePool TexturePool
+        private MetaTexturePool _texturePool;
+
+        public MetaTilePoolManager (MetaTexturePool texturePool)
         {
-            get { return GetManager(Default).TexturePool; }
+            _texturePool = texturePool;
+        }
+
+        public ITexturePool TexturePool
+        {
+            get { return _texturePool; }
         }
 
         public TilePool CreatePool (string name, int tileWidth, int tileHeight)

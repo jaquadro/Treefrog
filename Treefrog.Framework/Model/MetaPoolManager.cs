@@ -10,10 +10,12 @@ namespace Treefrog.Framework.Model
     {
         private Guid _default;
         private Dictionary<Guid, TSubType> _managers;
+        private MetaResourceCollection<TPool, IResourceManager<TPool>> _pools;
 
         protected MetaPoolManager ()
         {
             _managers = new Dictionary<Guid, TSubType>();
+            _pools = new MetaResourceCollection<TPool, IResourceManager<TPool>>();
         }
 
         public TSubType GetManager (Guid libraryUid)
@@ -29,8 +31,12 @@ namespace Treefrog.Framework.Model
                 throw new ArgumentException("A manager with the given UID has already been added.");
 
             _managers.Add(libraryUid, manager);
-            if (_managers.Count == 1)
+            _pools.AddCollection(libraryUid, manager.Pools);
+
+            if (_managers.Count == 1) {
                 _default = libraryUid;
+                _pools.Default = libraryUid;
+            }
 
             manager.PoolAdded += HandlePoolAdded;
             manager.PoolRemoved += HandlePoolRemoved;
@@ -38,8 +44,10 @@ namespace Treefrog.Framework.Model
 
         public bool RemoveManager (Guid libraryUid)
         {
-            if (_default == libraryUid)
+            if (_default == libraryUid) {
                 _default = Guid.Empty;
+                _pools.Default = Guid.Empty;
+            }
 
             TSubType manager;
             if (_managers.TryGetValue(libraryUid, out manager)) {
@@ -58,27 +66,38 @@ namespace Treefrog.Framework.Model
                 if (!_managers.ContainsKey(value))
                     throw new ArgumentException("Can only set default library UID to a value that has been previously added.");
                 _default = value;
+                _pools.Default = value;
             }
         }
 
-        public override ResourceCollection<TPool> Pools
+        public override IResourceCollection<TPool> Pools
         {
-            get { return _managers[MapAndCheckUid(_default)].Pools; }
+            get { return _pools; }
         }
 
         public override void Reset ()
         {
-            _managers[MapAndCheckUid(_default)].Reset();
+            foreach (var manager in _managers.Values)
+                manager.Reset();
         }
 
         public override TPool PoolFromItemKey (Guid key)
         {
-            return _managers[MapAndCheckUid(_default)].PoolFromItemKey(key);
+            foreach (var manager in _managers.Values) {
+                TPool pool = manager.PoolFromItemKey(key);
+                if (pool != null)
+                    return pool;
+            }
+            return null;
         }
 
         public override bool Contains (Guid key)
         {
-            return _managers[MapAndCheckUid(_default)].Contains(key);
+            foreach (var manager in _managers.Values) {
+                if (manager.Contains(key))
+                    return true;
+            }
+            return false;
         }
 
         private void HandlePoolAdded (object sender, ResourceEventArgs<TPool> e)

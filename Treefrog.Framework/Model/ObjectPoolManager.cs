@@ -7,7 +7,7 @@ namespace Treefrog.Framework.Model
 {
     public interface IObjectPoolManager : IPoolManager<ObjectPool>
     {
-        TexturePool TexturePool { get; }
+        ITexturePool TexturePool { get; }
     }
 
     public class ObjectPoolManager : PoolManager<ObjectPool, ObjectClass>, IObjectPoolManager
@@ -20,7 +20,7 @@ namespace Treefrog.Framework.Model
             _texPool = texPool;
         }
 
-        public TexturePool TexturePool
+        public ITexturePool TexturePool
         {
             get { return _texPool; }
         }
@@ -68,9 +68,16 @@ namespace Treefrog.Framework.Model
 
     public class MetaObjectPoolManager : MetaPoolManager<ObjectPool, ObjectClass, ObjectPoolManager>, IObjectPoolManager
     {
-        public TexturePool TexturePool
+        private MetaTexturePool _texturePool;
+
+        public MetaObjectPoolManager (MetaTexturePool texturePool)
         {
-            get { return GetManager(Default).TexturePool; }
+            _texturePool = texturePool;
+        }
+
+        public ITexturePool TexturePool
+        {
+            get { return _texturePool; }
         }
     }
 }

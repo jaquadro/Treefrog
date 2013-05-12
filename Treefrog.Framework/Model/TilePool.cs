@@ -41,10 +41,10 @@ namespace Treefrog.Framework.Model
         private List<TileCoord> _openLocations;
 
         private TilePool _pool;
-        private TexturePool _texturePool;
+        private ITexturePool _texturePool;
         //private Guid _textureId;
 
-        public TileResourceCollection (int tileWidth, int tileHeight, TilePool pool, TexturePool texturePool)
+        public TileResourceCollection (int tileWidth, int tileHeight, TilePool pool, ITexturePool texturePool)
         {
             _pool = pool;
             _texturePool = texturePool;
@@ -343,7 +343,7 @@ namespace Treefrog.Framework.Model
             return tile;
         }
 
-        public static TileResourceCollection FromXmlProxy (LibraryX.TilePoolX proxy, TilePool pool, TexturePool texturePool)
+        public static TileResourceCollection FromXmlProxy (LibraryX.TilePoolX proxy, TilePool pool, ITexturePool texturePool)
         {
             if (proxy == null)
                 return null;
@@ -430,6 +430,11 @@ namespace Treefrog.Framework.Model
         {
             get { return _tiles; }
             private set { _tiles = value; }
+        }
+
+        IResourceCollection<Tile> IResourceManager<Tile>.Collection
+        {
+            get { return _tiles; }
         }
 
         #region Properties

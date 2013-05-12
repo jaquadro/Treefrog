@@ -97,7 +97,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        private ObjectClass (LibraryX.ObjectClassX proxy, TexturePool texturePool)
+        private ObjectClass (LibraryX.ObjectClassX proxy, ITexturePool texturePool)
             : this(proxy.Name)
         {
             _uid = proxy.Uid;
@@ -127,13 +127,13 @@ namespace Treefrog.Framework.Model
                 if (_pool == value)
                     return;
 
-                TexturePool oldTexturePool = null;
+                ITexturePool oldTexturePool = null;
                 if (_pool != null)
                     oldTexturePool = _pool.TexturePool;
 
                 _pool = value;
 
-                TexturePool newTexturePool = null;
+                ITexturePool newTexturePool = null;
                 if (_pool != null)
                     newTexturePool = _pool.TexturePool;
 
@@ -359,7 +359,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static ObjectClass FromXProxy (LibraryX.ObjectClassX proxy, TexturePool texturePool)
+        public static ObjectClass FromXProxy (LibraryX.ObjectClassX proxy, ITexturePool texturePool)
         {
             if (proxy == null)
                 return null;

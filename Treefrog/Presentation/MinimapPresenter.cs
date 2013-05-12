@@ -126,7 +126,7 @@ namespace Treefrog.Presentation
             get { return _rootLayer; }
         }
 
-        public TexturePool TexturePool
+        public ITexturePool TexturePool
         {
             get { return _levelPresenter != null ? _levelPresenter.TexturePool : null; }
         }
