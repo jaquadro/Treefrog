@@ -13,8 +13,6 @@ namespace Treefrog.Framework.Model
         TileBrush GetBrush (Guid uid);
     }
 
-
-
     public abstract class TileBrushCollection : INamedResource, ITileBrushCollection
     {
         private readonly Guid _uid;
@@ -170,75 +168,6 @@ namespace Treefrog.Framework.Model
 
         new T GetBrush (Guid uid);
     }
-
-    /*public class MetaTileBrushCollection<T> : ITileBrushCollection<T>
-        where T : TileBrush
-    {
-        private Guid _default;
-        private Dictionary<Guid, ITileBrushCollection<T>> _collections;
-
-        private MetaNamedResourceCollection<T, ITileBrushCollection<T>> _brushes;
-
-        public MetaTileBrushCollection ()
-        {
-            _collections = new Dictionary<Guid, ITileBrushCollection<T>>();
-            _brushes = new MetaNamedResourceCollection<T, ITileBrushCollection<T>>();
-        }
-
-        public Guid Default
-        {
-            get { return _default; }
-            set
-            {
-                if (!_collections.ContainsKey(value))
-                    throw new ArgumentException("Can only set default library UID to a value that has been previously added.");
-                _default = value;
-            }
-        }
-
-        public NamedResourceCollection<T> Brushes
-        {
-            get {
-                return null;
-            }
-        }
-
-        public int Count
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public T GetBrush (Guid uid)
-        {
-            throw new NotImplementedException();
-        }
-
-        TileBrush ITileBrushCollection.GetBrush (Guid uid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public event EventHandler<ResourceEventArgs<TileBrush>> ResourceAdded;
-
-        public event EventHandler<ResourceEventArgs<TileBrush>> ResourceRemoved;
-
-        public event EventHandler<ResourceEventArgs<TileBrush>> ResourceModified;
-
-        public IResourceCollection<TileBrush> Collection
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public IEnumerator<TileBrush> GetEnumerator ()
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator ()
-        {
-            throw new NotImplementedException();
-        }
-    }*/
 
     public class TileBrushCollection<T> : TileBrushCollection, ITileBrushCollection<T>
         where T : TileBrush
