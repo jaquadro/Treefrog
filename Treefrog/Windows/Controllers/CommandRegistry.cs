@@ -235,6 +235,8 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.Book);
             Register(CommandKey.ProjectRemoveLibrary, "Remove Library",
                 resource: Properties.Resources.Cross);
+            Register(CommandKey.ProjectSetLibraryDefault, "Set as &Default Library",
+                resource: Properties.Resources.BookBookmark);
 
             Register(CommandKey.LevelOpen, "&Open");
             Register(CommandKey.LevelClose, "&Close",

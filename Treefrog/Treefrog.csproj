@@ -122,7 +122,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LibraryCommandActions.cs" />
+    <Compile Include="Presentation\LibraryCommandActions.cs" />
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />
     <Compile Include="Presentation\Annotations\CircleAnnot.cs" />

@@ -78,8 +78,8 @@ namespace Treefrog.Presentation
         public void BindObjectPoolManager (IObjectPoolManager manager)
         {
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded -= ObjectPoolAdded;
-                _poolManager.Pools.ResourceRemoved -= ObjectPoolRemoved;
+                _poolManager.PoolAdded -= ObjectPoolAdded;
+                _poolManager.PoolRemoved -= ObjectPoolRemoved;
 
                 foreach (var pool in _poolManager.Pools)
                     UnhookObjectPool(pool);
@@ -87,8 +87,8 @@ namespace Treefrog.Presentation
 
             _poolManager = manager;
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded += ObjectPoolAdded;
-                _poolManager.Pools.ResourceRemoved += ObjectPoolRemoved;
+                _poolManager.PoolAdded += ObjectPoolAdded;
+                _poolManager.PoolRemoved += ObjectPoolRemoved;
 
                 foreach (var pool in _poolManager.Pools)
                     HookObjectPool(pool);

@@ -86,6 +86,7 @@ namespace Treefrog.Windows.Panels
 
             if (_controller != null) {
                 _controller.ProjectReset -= ProjectResetHandler;
+                _controller.DefaultLibraryChanged -= DefaultLibraryChangedHandler;
 
                 _controller.LibraryAdded -= LibraryAddedHandler;
                 _controller.LibraryRemoved -= LibraryRemovedHandler;
@@ -110,6 +111,7 @@ namespace Treefrog.Windows.Panels
                 _commandController.BindCommandManager(_controller.CommandManager);
 
                 _controller.ProjectReset += ProjectResetHandler;
+                _controller.DefaultLibraryChanged += DefaultLibraryChangedHandler;
 
                 _controller.LibraryAdded += LibraryAddedHandler;
                 _controller.LibraryRemoved += LibraryRemovedHandler;
@@ -145,6 +147,26 @@ namespace Treefrog.Windows.Panels
         private void ProjectResetHandler (object sender, EventArgs e)
         {
             SyncAll();
+        }
+
+        private void DefaultLibraryChangedHandler (object sender, EventArgs e)
+        {
+            foreach (TreeNode node in _libraryRoot.Nodes) {
+                if (!(node.Tag is Guid))
+                    continue;
+
+                Guid libraryUid = (Guid)node.Tag;
+                Library library = _controller.Project.LibraryManager.Libraries[libraryUid];
+
+                if (library == _controller.Project.DefaultLibrary) {
+                    node.ImageIndex = IconIndex.LibraryDefault;
+                    node.SelectedImageIndex = IconIndex.LibraryDefault;
+                }
+                else {
+                    node.ImageIndex = IconIndex.Library;
+                    node.SelectedImageIndex = IconIndex.Library;
+                }
+            }
         }
 
         private void LibraryAddedHandler (object sender, ResourceEventArgs<Library> e)

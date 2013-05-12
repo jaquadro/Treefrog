@@ -42,13 +42,13 @@ namespace Treefrog.Framework.Model
             TexturePool = new TexturePool();
 
             ObjectPoolManager = new ObjectPoolManager(TexturePool);
-            ObjectPoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            ObjectPoolManager.PoolModified += (s, e) => OnModified(EventArgs.Empty);
 
             TilePoolManager = new TilePoolManager(TexturePool);
-            TilePoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            TilePoolManager.PoolModified += (s, e) => OnModified(EventArgs.Empty);
 
             TileBrushManager = new TileBrushManager();
-            TileBrushManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            TileBrushManager.PoolModified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public Library (string name)
@@ -90,13 +90,13 @@ namespace Treefrog.Framework.Model
             TexturePool = TexturePool.FromXmlProxy(proxy.TextureGroup) ?? new TexturePool();
 
             ObjectPoolManager = ObjectPoolManager.FromXmlProxy(proxy.ObjectGroup, TexturePool) ?? new ObjectPoolManager(TexturePool);
-            ObjectPoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            ObjectPoolManager.PoolModified += (s, e) => OnModified(EventArgs.Empty);
 
             TilePoolManager = TilePoolManager.FromXmlProxy(proxy.TileGroup, TexturePool) ?? new TilePoolManager(TexturePool);
-            TilePoolManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            TilePoolManager.PoolModified += (s, e) => OnModified(EventArgs.Empty);
 
             TileBrushManager = TileBrushManager.FromXProxy(proxy.TileBrushGroup, TilePoolManager, Project.DynamicBrushClassRegistry) ?? new TileBrushManager();
-            TileBrushManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
+            TileBrushManager.PoolModified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public Guid Uid

@@ -31,12 +31,22 @@ namespace Treefrog.Framework.Model
             _managers.Add(libraryUid, manager);
             if (_managers.Count == 1)
                 _default = libraryUid;
+
+            manager.PoolAdded += HandlePoolAdded;
+            manager.PoolRemoved += HandlePoolRemoved;
         }
 
         public bool RemoveManager (Guid libraryUid)
         {
             if (_default == libraryUid)
                 _default = Guid.Empty;
+
+            TSubType manager;
+            if (_managers.TryGetValue(libraryUid, out manager)) {
+                manager.PoolAdded -= HandlePoolAdded;
+                manager.PoolRemoved -= HandlePoolRemoved;
+            }
+
             return _managers.Remove(libraryUid);
         }
 
@@ -47,6 +57,7 @@ namespace Treefrog.Framework.Model
             {
                 if (!_managers.ContainsKey(value))
                     throw new ArgumentException("Can only set default library UID to a value that has been previously added.");
+                _default = value;
             }
         }
 
@@ -70,20 +81,20 @@ namespace Treefrog.Framework.Model
             return _managers[MapAndCheckUid(_default)].Contains(key);
         }
 
-        //internal override void LinkItemKey (Guid key, TPool pool)
-        //{
-        //    _managers[MapAndCheckUid(_default)].LinkItemKey(key, pool);
-        //}
+        private void HandlePoolAdded (object sender, ResourceEventArgs<TPool> e)
+        {
+            OnPoolAdded(e.Resource);
+        }
 
-        //internal override void UnlinkItemKey (Guid key)
-        //{
-        //    _managers[MapAndCheckUid(_default)].UnlinkItemKey(key);
-        //}
+        private void HandlePoolRemoved (object sender, ResourceEventArgs<TPool> e)
+        {
+            OnPoolRemoved(e.Resource);
+        }
 
-        //internal override TItemKey TakeKey ()
-        //{
-        //    return _managers[MapAndCheckUid(_default)].TakeKey();
-        //}
+        private void HandlePoolModified (object sender, ResourceEventArgs<TPool> e)
+        {
+            OnPoolModified(e.Resource);
+        }
 
         private Guid MapAndCheckUid (Guid libraryUid)
         {

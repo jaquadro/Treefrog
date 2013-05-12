@@ -246,16 +246,16 @@ namespace Treefrog.Presentation
         public void BindTilePoolManager (ITilePoolManager manager)
         {
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded -= TilePoolAdded;
-                _poolManager.Pools.ResourceRemoved -= TilePoolRemoved;
-                _poolManager.Pools.ResourceModified -= TilePoolModified;
+                _poolManager.PoolAdded -= TilePoolAdded;
+                _poolManager.PoolRemoved -= TilePoolRemoved;
+                _poolManager.PoolModified -= TilePoolModified;
             }
 
             _poolManager = manager;
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded += TilePoolAdded;
-                _poolManager.Pools.ResourceRemoved += TilePoolRemoved;
-                _poolManager.Pools.ResourceModified += TilePoolModified;
+                _poolManager.PoolAdded += TilePoolAdded;
+                _poolManager.PoolRemoved += TilePoolRemoved;
+                _poolManager.PoolModified += TilePoolModified;
 
                 InitializePoolPresenters();
             }

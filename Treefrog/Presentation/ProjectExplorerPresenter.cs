@@ -114,6 +114,8 @@ namespace Treefrog.Presentation
                 return;
 
             if (_project != null) {
+                _project.DefaultLibraryChanged -= DefaultLibraryChangedHandler;
+
                 _project.Levels.ResourceAdded -= _levelEventBindings[EventBindings.LevelAdded];
                 _project.Levels.ResourceRemoved -= _levelEventBindings[EventBindings.LevelRemoved];
                 _project.Levels.ResourceModified -= _levelEventBindings[EventBindings.LevelModified];
@@ -122,6 +124,8 @@ namespace Treefrog.Presentation
             _project = project;
 
             if (_project != null) {
+                _project.DefaultLibraryChanged += DefaultLibraryChangedHandler;
+
                 _project.Levels.ResourceAdded += _levelEventBindings[EventBindings.LevelAdded];
                 _project.Levels.ResourceRemoved += _levelEventBindings[EventBindings.LevelRemoved];
                 _project.Levels.ResourceModified += _levelEventBindings[EventBindings.LevelModified];
@@ -165,8 +169,8 @@ namespace Treefrog.Presentation
                 return;
 
             if (_objectPoolManager != null) {
-                _objectPoolManager.Pools.ResourceAdded -= ObjectPoolAddedHandler;
-                _objectPoolManager.Pools.ResourceRemoved -= ObjectPoolRemovedHandler;
+                _objectPoolManager.PoolAdded -= ObjectPoolAddedHandler;
+                _objectPoolManager.PoolRemoved -= ObjectPoolRemovedHandler;
 
                 foreach (ObjectPool pool in _objectPoolManager.Pools)
                     UnhookObjectPool(pool);
@@ -175,8 +179,8 @@ namespace Treefrog.Presentation
             _objectPoolManager = manager;
 
             if (_objectPoolManager != null) {
-                _objectPoolManager.Pools.ResourceAdded += ObjectPoolAddedHandler;
-                _objectPoolManager.Pools.ResourceRemoved += ObjectPoolRemovedHandler;
+                _objectPoolManager.PoolAdded += ObjectPoolAddedHandler;
+                _objectPoolManager.PoolRemoved += ObjectPoolRemovedHandler;
 
                 foreach (ObjectPool pool in _objectPoolManager.Pools)
                     HookObjectPool(pool);
@@ -207,17 +211,17 @@ namespace Treefrog.Presentation
                 return;
 
             if (_tilePoolManager != null) {
-                _tilePoolManager.Pools.ResourceAdded -= _tilePoolEventBindings[EventBindings.TilePoolAdded];
-                _tilePoolManager.Pools.ResourceRemoved -= _tilePoolEventBindings[EventBindings.TilePoolRemoved];
-                _tilePoolManager.Pools.ResourceModified -= _tilePoolEventBindings[EventBindings.TilePoolModified];
+                _tilePoolManager.PoolAdded -= _tilePoolEventBindings[EventBindings.TilePoolAdded];
+                _tilePoolManager.PoolRemoved -= _tilePoolEventBindings[EventBindings.TilePoolRemoved];
+                _tilePoolManager.PoolModified -= _tilePoolEventBindings[EventBindings.TilePoolModified];
             }
 
             _tilePoolManager = manager;
 
             if (_tilePoolManager != null) {
-                _tilePoolManager.Pools.ResourceAdded += _tilePoolEventBindings[EventBindings.TilePoolAdded];
-                _tilePoolManager.Pools.ResourceRemoved += _tilePoolEventBindings[EventBindings.TilePoolRemoved];
-                _tilePoolManager.Pools.ResourceModified += _tilePoolEventBindings[EventBindings.TilePoolModified];
+                _tilePoolManager.PoolAdded += _tilePoolEventBindings[EventBindings.TilePoolAdded];
+                _tilePoolManager.PoolRemoved += _tilePoolEventBindings[EventBindings.TilePoolRemoved];
+                _tilePoolManager.PoolModified += _tilePoolEventBindings[EventBindings.TilePoolModified];
             }
         }
 
@@ -249,6 +253,20 @@ namespace Treefrog.Presentation
             var ev = ProjectReset;
             if (ev != null)
                 ev(this, e);
+        }
+
+        public event EventHandler DefaultLibraryChanged;
+
+        protected virtual void OnDefaultLibraryChanged (EventArgs e)
+        {
+            var ev = DefaultLibraryChanged;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        private void DefaultLibraryChangedHandler (object sender, EventArgs e)
+        {
+            OnDefaultLibraryChanged(EventArgs.Empty);
         }
 
         public event EventHandler<ResourceEventArgs<Library>> LibraryAdded;
@@ -370,6 +388,8 @@ namespace Treefrog.Presentation
                 return ObjectProtoMenu(uid);
             if (_project.TilePoolManager.Pools.Contains(uid))
                 return TileSetMenu(uid);
+            if (_project.LibraryManager.Libraries.Contains(uid))
+                return LibraryMenu(uid);
 
             return new CommandMenu("");
         }
@@ -435,6 +455,15 @@ namespace Treefrog.Presentation
             });
         }
 
+        public CommandMenu LibraryMenu (Guid uid)
+        {
+            return new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.ProjectSetLibraryDefault, uid),
+                },
+            });
+        }
+
         #region Commands
 
         private CommandManager _commandManager;
@@ -466,6 +495,7 @@ namespace Treefrog.Presentation
 
             LibraryCommandActions libraryActions = _editor.CommandActions.LibraryActions;
             _commandManager.Register(CommandKey.ProjectAddNewLibrary, () => { return true; }, libraryActions.CommandCreate);
+            _commandManager.Register(CommandKey.ProjectSetLibraryDefault, libraryActions.LibraryExists, libraryActions.CommandSetDefault);
 
             _commandManager.Perform(CommandKey.ViewGrid);
         }
