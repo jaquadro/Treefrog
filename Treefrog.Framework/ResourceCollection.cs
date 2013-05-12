@@ -3,6 +3,108 @@ using System.Collections.Generic;
 
 namespace Treefrog.Framework
 {
+    public class ResourceCollectionAdapter<TBase, T> : IResourceCollection<TBase>
+        where TBase : IResource
+        where T : TBase
+    {
+        private readonly IResourceCollection<T> _collection;
+
+        public ResourceCollectionAdapter (IResourceCollection<T> typedCollection)
+        {
+            _collection = typedCollection;
+
+            _collection.Modified += HandleModified;
+            _collection.ResourceAdded += HandleResourceAdded;
+            _collection.ResourceModified += HandleResourceModified;
+            _collection.ResourceRemoved += HandleResourceRemoved;
+        }
+
+        public event EventHandler Modified;
+
+        private void HandleModified (object sender, EventArgs e)
+        {
+            var ev = Modified;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        public int Count
+        {
+            get { return _collection.Count; }
+        }
+
+        public TBase this[Guid uid]
+        {
+            get { return _collection[uid]; }
+        }
+
+        public bool Add (TBase resource)
+        {
+            if (!(resource is T))
+                throw new ArgumentException("Incompatible type.  Expected " + typeof(T) + ", got " + resource.GetType(), "resource");
+
+            return _collection.Add((T)resource);
+        }
+
+        public bool Contains (Guid uid)
+        {
+            return _collection.Contains(uid);
+        }
+
+        public bool Remove (Guid uid)
+        {
+            return _collection.Remove(uid);
+        }
+
+        public void Clear ()
+        {
+            _collection.Clear();
+        }
+
+        public event EventHandler<ResourceEventArgs<TBase>> ResourceAdded;
+
+        public event EventHandler<ResourceEventArgs<TBase>> ResourceRemoved;
+
+        public event EventHandler<ResourceEventArgs<TBase>> ResourceModified;
+
+        private void HandleResourceAdded (object sender, ResourceEventArgs<T> e)
+        {
+            var ev = ResourceAdded;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<TBase>(e.Resource));
+        }
+
+        private void HandleResourceRemoved (object sender, ResourceEventArgs<T> e)
+        {
+            var ev = ResourceRemoved;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<TBase>(e.Resource));
+        }
+
+        private void HandleResourceModified (object sender, ResourceEventArgs<T> e)
+        {
+            var ev = ResourceModified;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<TBase>(e.Resource));
+        }
+
+        public IResourceCollection<TBase> Collection
+        {
+            get { return this; }
+        }
+
+        public IEnumerator<TBase> GetEnumerator ()
+        {
+            foreach (var resource in _collection)
+                yield return resource;
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        {
+            return GetEnumerator();
+        }
+    }
+
     public interface IResourceCollection<T> : IResourceManager<T>
         where T : IResource
     {
@@ -215,6 +317,11 @@ namespace Treefrog.Framework
             }
         }
 
+        protected IEnumerable<TSubType> Collections
+        {
+            get { return _collections.Values; }
+        }
+
         IResourceCollection<T> IResourceManager<T>.Collection
         {
             get { return this; }
@@ -257,6 +364,12 @@ namespace Treefrog.Framework
 
             return _collections.Remove(libraryUid);
         }
+
+        protected virtual void OnCollectionAdded (TSubType collection)
+        { }
+
+        protected virtual void OnCollectionRemoved (TSubType collection)
+        { }
 
         public event EventHandler<ResourceEventArgs<T>> ResourceAdded;
 
@@ -359,7 +472,7 @@ namespace Treefrog.Framework
             return GetEnumerator();
         }
 
-        private Guid MapAndCheckUid (Guid libraryUid)
+        protected Guid MapAndCheckUid (Guid libraryUid)
         {
             if (libraryUid == Guid.Empty)
                 libraryUid = _default;
@@ -369,6 +482,54 @@ namespace Treefrog.Framework
                 throw new ArgumentException("The specified library has not been registered with this manager.");
 
             return libraryUid;
+        }
+    }
+
+    public class MetaNamedResourceCollection<T, TSubType> : MetaResourceCollection<T, TSubType>, INamedResourceCollection<T>
+        where T : INamedResource
+        where TSubType : IResourceManager<T>
+    {
+
+        public event EventHandler<NamedResourceRemappedEventArgs<T>> ResourceRenamed;
+
+        public T this[string name]
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool Contains (string name)
+        {
+            foreach (var col in Collections) {
+                var namedCol = col as INamedResourceCollection<T>;
+                if (namedCol != null && namedCol.Contains(name))
+                    return true;
+            }
+            return false;
+        }
+
+        protected override void OnCollectionAdded (TSubType collection)
+        {
+            var namedCollection = collection.Collection as INamedResourceCollection<T>;
+            if (namedCollection != null)
+                namedCollection.ResourceRenamed += HandleResourceRenamed;
+
+            base.OnCollectionAdded(collection);
+        }
+
+        protected override void OnCollectionRemoved (TSubType collection)
+        {
+            var namedCollection = collection.Collection as INamedResourceCollection<T>;
+            if (namedCollection != null)
+                namedCollection.ResourceRenamed -= HandleResourceRenamed;
+
+            base.OnCollectionRemoved(collection);
+        }
+
+        private void HandleResourceRenamed (object sender, NamedResourceRemappedEventArgs<T> e)
+        {
+            var ev = ResourceRenamed;
+            if (ev != null)
+                ev(this, e);
         }
     }
 }

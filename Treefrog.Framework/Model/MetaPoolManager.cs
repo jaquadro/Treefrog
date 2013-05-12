@@ -18,6 +18,11 @@ namespace Treefrog.Framework.Model
             _pools = new MetaResourceCollection<TPool, IResourceManager<TPool>>();
         }
 
+        protected IEnumerable<TSubType> Managers
+        {
+            get { return _managers.Values; }
+        }
+
         public TSubType GetManager (Guid libraryUid)
         {
             return _managers[MapAndCheckUid(libraryUid)];
@@ -115,7 +120,7 @@ namespace Treefrog.Framework.Model
             OnPoolModified(e.Resource);
         }
 
-        private Guid MapAndCheckUid (Guid libraryUid)
+        protected Guid MapAndCheckUid (Guid libraryUid)
         {
             if (libraryUid == Guid.Empty)
                 libraryUid = _default;

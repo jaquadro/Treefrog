@@ -4,7 +4,17 @@ using System.Text.RegularExpressions;
 
 namespace Treefrog.Framework
 {
-    public class NamedResourceCollection<T> : ResourceCollection<T>
+    public interface INamedResourceCollection<T> : IResourceCollection<T>
+        where T : INamedResource
+    {
+        event EventHandler<NamedResourceRemappedEventArgs<T>> ResourceRenamed;
+
+        T this[string name] { get; }
+
+        bool Contains (string name);
+    }
+
+    public class NamedResourceCollection<T> : ResourceCollection<T>, INamedResourceCollection<T>
         where T : INamedResource
     {
         private Dictionary<string, T> _indexMap;

@@ -8,14 +8,17 @@ namespace Treefrog.Framework.Model
 {
     public interface ITileBrushManager : IPoolManager<TileBrushCollection>
     {
-        TileBrushCollection<StaticTileBrush> StaticBrushes { get; }
-        TileBrushCollection<DynamicTileBrush> DynamicBrushes { get; }
+        TileBrushCollection<StaticTileBrush> DefaultStaticBrushCollection { get; }
+        TileBrushCollection<DynamicTileBrush> DefaultDynamicBrushCollection { get; }
+
+        IEnumerable<TileBrushCollection<StaticTileBrush>> StaticBrushCollections { get; }
+        IEnumerable<TileBrushCollection<DynamicTileBrush>> DynamicBrushCollections { get; }
         IEnumerable<TileBrush> Brushes { get; }
 
         TileBrush GetBrush (Guid key);
     }
 
-    public class TileBrushManager : PoolManager<TileBrushCollection, TileBrush>, IPoolManager<TileBrushCollection>
+    public class TileBrushManager : PoolManager<TileBrushCollection, TileBrush>, IPoolManager<TileBrushCollection>, ITileBrushManager
     {
         private TileBrushCollection<StaticTileBrush> _staticBrushCollection;
         private TileBrushCollection<DynamicTileBrush> _dynamicBrushCollection;
@@ -38,12 +41,32 @@ namespace Treefrog.Framework.Model
             Pools.Add(_dynamicBrushCollection);
         }
 
+        public IEnumerable<TileBrushCollection<StaticTileBrush>> StaticBrushCollections
+        {
+            get { yield return _staticBrushCollection; }
+        }
+
+        public IEnumerable<TileBrushCollection<DynamicTileBrush>> DynamicBrushCollections
+        {
+            get { yield return _dynamicBrushCollection; }
+        }
+
         public TileBrushCollection<StaticTileBrush> StaticBrushes
         {
             get { return _staticBrushCollection; }
         }
 
         public TileBrushCollection<DynamicTileBrush> DynamicBrushes
+        {
+            get { return _dynamicBrushCollection; }
+        }
+
+        public TileBrushCollection<StaticTileBrush> DefaultStaticBrushCollection
+        {
+            get { return _staticBrushCollection; }
+        }
+
+        public TileBrushCollection<DynamicTileBrush> DefaultDynamicBrushCollection
         {
             get { return _dynamicBrushCollection; }
         }
@@ -88,24 +111,53 @@ namespace Treefrog.Framework.Model
 
     public class MetaTileBrushManager : MetaPoolManager<TileBrushCollection, TileBrush, TileBrushManager>, ITileBrushManager
     {
-        public TileBrushCollection<StaticTileBrush> StaticBrushes
+        public IEnumerable<TileBrushCollection<StaticTileBrush>> StaticBrushCollections
         {
-            get { return GetManager(Default).StaticBrushes; }
+            get 
+            {
+                foreach (var item in Managers)
+                    yield return item.StaticBrushes;
+            }
         }
 
-        public TileBrushCollection<DynamicTileBrush> DynamicBrushes
+        public IEnumerable<TileBrushCollection<DynamicTileBrush>> DynamicBrushCollections
         {
-            get { return GetManager(Default).DynamicBrushes; }
+            get
+            {
+                foreach (var item in Managers)
+                    yield return item.DynamicBrushes;
+            }
         }
 
         public IEnumerable<TileBrush> Brushes
         {
-            get { return GetManager(Default).Brushes; }
+            get 
+            {
+                foreach (var manager in Managers) {
+                    foreach (var brush in manager.Brushes)
+                        yield return brush;
+                }
+            }
         }
 
         public TileBrush GetBrush (Guid key)
         {
-            return GetManager(Default).GetBrush(key);
+            foreach (var manager in Managers) {
+                TileBrush brush = manager.GetBrush(key);
+                if (brush != null)
+                    return brush;
+            }
+            return null;
+        }
+
+        public TileBrushCollection<StaticTileBrush> DefaultStaticBrushCollection
+        {
+            get { return GetManager(Default).StaticBrushes; }
+        }
+
+        public TileBrushCollection<DynamicTileBrush> DefaultDynamicBrushCollection
+        {
+            get { return GetManager(Default).DynamicBrushes; }
         }
     }
 }
