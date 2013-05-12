@@ -126,6 +126,14 @@ namespace Treefrog.Windows.Panels
                 _controller.TilePoolAdded += TilePoolAddedHandler;
                 _controller.TilePoolRemoved += TilePoolRemovedHandler;
                 _controller.TilePoolModified += TilePoolModifiedHandler;
+
+                _rootNode.Tag = _controller.ProjectManagerTag;
+                _levelNode.Tag = _controller.ProjectLevelsTag;
+                _objectNode.Tag = _controller.ProjectObjectsTag;
+                _tileNode.Tag = _controller.ProjectTilesetsTag;
+                _libraryRoot.Tag = _controller.LibraryManagerTag;
+
+                SyncAll();
             }
             else {
                 _commandController.BindCommandManager(null);
@@ -141,7 +149,26 @@ namespace Treefrog.Windows.Panels
 
         private void LibraryAddedHandler (object sender, ResourceEventArgs<Library> e)
         {
+            AddResource(_libraryRoot, e.Resource, IconIndex.Library, (subNode, r) => {
+                if (r == _controller.Project.DefaultLibrary) {
+                    subNode.ImageIndex = IconIndex.LibraryDefault;
+                    subNode.SelectedImageIndex = IconIndex.LibraryDefault;
+                }
 
+                TreeNode tileSets = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles) { Name = "Tilesets" };
+                TreeNode objects = new TreeNode("Objects", IconIndex.FolderObjects, IconIndex.FolderObjects) { Name = "Objects" };
+
+                subNode.Nodes.Add(tileSets);
+                subNode.Nodes.Add(objects);
+
+                AddResources<TilePool>(tileSets, r.TilePoolManager.Pools, IconIndex.TileGroup);
+                AddResources<ObjectPool>(objects, r.ObjectPoolManager.Pools, IconIndex.ObjectGroup, (objSubNode, r2) => {
+                    AddResources<ObjectClass>(objSubNode, r2.Objects, IconIndex.ObjectGroup);
+                });
+            });
+
+            if (_libraryRoot.Nodes.Count > 0)
+                _libraryRoot.Expand();
         }
 
         private void LibraryRemovedHandler (object sender, ResourceEventArgs<Library> e)

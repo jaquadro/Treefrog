@@ -30,6 +30,12 @@ namespace Treefrog.Windows.Forms
                 ValidationController.ValidateNonEmptyName("Name", _fieldName, ReservedNameEnumerator));
         }
 
+        public NameChangeForm (string name, string title)
+            : this(name)
+        {
+            Text = title;
+        }
+
         protected override void OnLoad (EventArgs e)
         {
             base.OnLoad(e);

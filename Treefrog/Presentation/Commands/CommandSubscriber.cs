@@ -41,6 +41,10 @@ namespace Treefrog.Presentation.Commands
         TileToolFill,
 
         ProjectAddLevel,
+        ProjectAddNewLibrary,
+        ProjectAddExistingLibrary,
+        ProjectRemoveLibrary,
+        ProjectSetLibraryDefault,
 
         LevelOpen,
         LevelClose,

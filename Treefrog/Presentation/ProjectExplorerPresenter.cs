@@ -70,6 +70,12 @@ namespace Treefrog.Presentation
                 { EventBindings.TilePoolModified, (s, e) => OnTilePoolModified(new ResourceEventArgs<TilePool>(e.Resource)) },
             };
 
+            LibraryManagerTag = Guid.NewGuid();
+            ProjectManagerTag = Guid.NewGuid();
+            ProjectLevelsTag = Guid.NewGuid();
+            ProjectObjectsTag = Guid.NewGuid();
+            ProjectTilesetsTag = Guid.NewGuid();
+
             InitializeCommandManager();
         }
 
@@ -220,6 +226,12 @@ namespace Treefrog.Presentation
             get { return _editor.Project; }
         }
 
+        public Guid LibraryManagerTag { get; private set; }
+        public Guid ProjectManagerTag { get; private set; }
+        public Guid ProjectLevelsTag { get; private set; }
+        public Guid ProjectObjectsTag { get; private set; }
+        public Guid ProjectTilesetsTag { get; private set; }
+
         private void ObjectPoolAddedHandler (object sender, ResourceEventArgs<ObjectPool> e)
         {
             HookObjectPool(e.Resource);
@@ -349,6 +361,9 @@ namespace Treefrog.Presentation
 
         public CommandMenu Menu (Guid uid)
         {
+            if (uid == LibraryManagerTag)
+                return LibraryManagerMenu();
+
             if (_project.Levels.Contains(uid))
                 return LevelMenu(uid);
             if (_project.ObjectPoolManager.Contains(uid))
@@ -410,6 +425,16 @@ namespace Treefrog.Presentation
             });
         }
 
+        public CommandMenu LibraryManagerMenu ()
+        {
+            return new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.ProjectAddNewLibrary),
+                    new CommandMenuEntry(CommandKey.ProjectAddExistingLibrary),
+                },
+            });
+        }
+
         #region Commands
 
         private CommandManager _commandManager;
@@ -438,6 +463,9 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.TilePoolProperties, tilePoolActions.TilePoolExists, tilePoolActions.CommandProperties);
             _commandManager.Register(CommandKey.TilePoolExport, tilePoolActions.TilePoolExists, tilePoolActions.CommandExport);
             _commandManager.Register(CommandKey.TilePoolImportOver, tilePoolActions.TilePoolExists, tilePoolActions.CommandImportOver);
+
+            LibraryCommandActions libraryActions = _editor.CommandActions.LibraryActions;
+            _commandManager.Register(CommandKey.ProjectAddNewLibrary, () => { return true; }, libraryActions.CommandCreate);
 
             _commandManager.Perform(CommandKey.ViewGrid);
         }

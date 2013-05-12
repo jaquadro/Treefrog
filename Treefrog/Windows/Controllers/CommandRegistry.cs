@@ -229,6 +229,12 @@ namespace Treefrog.Windows.Controllers
 
             Register(CommandKey.ProjectAddLevel, "New &Level...",
                 resource: Properties.Resources.MapAsterisk);
+            Register(CommandKey.ProjectAddNewLibrary, "Add &New Library...",
+                resource: Properties.Resources.BookAsterisk);
+            Register(CommandKey.ProjectAddExistingLibrary, "Add &Existing Library...",
+                resource: Properties.Resources.Book);
+            Register(CommandKey.ProjectRemoveLibrary, "Remove Library",
+                resource: Properties.Resources.Cross);
 
             Register(CommandKey.LevelOpen, "&Open");
             Register(CommandKey.LevelClose, "&Close",

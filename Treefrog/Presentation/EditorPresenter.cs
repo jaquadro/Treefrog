@@ -88,6 +88,7 @@ namespace Treefrog.Presentation
 
         private ObjectClassCommandActions _objectClassActions;
         private TilePoolCommandActions _tilePoolActions;
+        private LibraryCommandActions _libraryActions;
 
         public CommandActions (EditorPresenter editor)
         {
@@ -95,6 +96,7 @@ namespace Treefrog.Presentation
 
             _objectClassActions = new ObjectClassCommandActions(_editor);
             _tilePoolActions = new TilePoolCommandActions(_editor);
+            _libraryActions = new LibraryCommandActions(_editor);
         }
 
         public ObjectClassCommandActions ObjectClassActions
@@ -105,6 +107,11 @@ namespace Treefrog.Presentation
         public TilePoolCommandActions TilePoolActions
         {
             get { return _tilePoolActions; }
+        }
+
+        public LibraryCommandActions LibraryActions
+        {
+            get { return _libraryActions; }
         }
     }
 

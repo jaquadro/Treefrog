@@ -162,6 +162,15 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        public event EventHandler DefaultLibraryChanged;
+
+        protected virtual void OnDefaultLibraryChanged (EventArgs e)
+        {
+            var ev = DefaultLibraryChanged;
+            if (ev != null)
+                ev(this, e);
+        }
+
         public IServiceProvider Services
         {
             get { return _services; }
@@ -348,6 +357,9 @@ namespace Treefrog.Framework.Model
             _tilePools.Default = library.Uid;
             _objectPools.Default = library.Uid;
             _tileBrushes.Default = library.Uid;
+
+            OnDefaultLibraryChanged(EventArgs.Empty);
+            OnModified(EventArgs.Empty);
         }
 
         private static void WriteLevel (ProjectResolver resolver, Level level, string levelPath)

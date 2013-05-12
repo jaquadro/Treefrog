@@ -51,6 +51,12 @@ namespace Treefrog.Framework.Model
             TileBrushManager.Pools.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
+        public Library (string name)
+            : this()
+        {
+            _name = new ResourceName(this, name);
+        }
+
         public Library (Stream stream)
             : this(Guid.NewGuid(), "Default")
         {

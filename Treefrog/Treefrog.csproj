@@ -122,6 +122,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LibraryCommandActions.cs" />
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />
     <Compile Include="Presentation\Annotations\CircleAnnot.cs" />
@@ -378,6 +379,8 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <None Include="Resources\Icons16\BookExclamation.png" />
+    <None Include="Resources\Icons16\BookAsterisk.png" />
     <None Include="Resources\DynBrushOverlays\DynBrushExtended.png" />
     <None Include="Resources\DynBrushOverlays\DynBrushBasic.png" />
     <None Include="Resources\UI\StatusLocation.png" />
