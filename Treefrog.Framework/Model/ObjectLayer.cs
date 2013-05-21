@@ -74,9 +74,12 @@ namespace Treefrog.Framework.Model
             Opacity = proxy.Opacity;
             IsVisible = proxy.Visible;
             RasterMode = proxy.RasterMode;
+            GridColor = Color.ParseArgbHex(proxy.GridColor);
+            GridWidth = proxy.GridWidth;
+            GridHeight = proxy.GridHeight;
             Level = level;
 
-            ResourceCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
+            IResourceCollection<ObjectPool> pools = Level.Project.ObjectPoolManager.Pools;
             foreach (var objProxy in proxy.Objects) {
                 ObjectInstance inst = ObjectInstance.FromXProxy(objProxy, Level.Project.ObjectPoolManager);
                 if (inst != null)
@@ -85,7 +88,7 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
         }
 
@@ -99,7 +102,7 @@ namespace Treefrog.Framework.Model
                 objs.Add(ObjectInstance.ToXProxy(inst));
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in layer.CustomProperties)
+            foreach (Property prop in layer.PropertyManager.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LevelX.ObjectLayerX() {
@@ -107,6 +110,9 @@ namespace Treefrog.Framework.Model
                 Opacity = layer.Opacity,
                 Visible = layer.IsVisible,
                 RasterMode = layer.RasterMode,
+                GridColor = layer.GridColor.ToArgbHex(),
+                GridWidth = layer.GridWidth,
+                GridHeight = layer.GridHeight,
                 Objects = objs.Count > 0 ? objs : null,
                 Properties = props.Count > 0 ? props : null,
             };

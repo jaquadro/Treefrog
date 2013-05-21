@@ -10,16 +10,23 @@ namespace Treefrog.Framework.Model
     [Serializable]
     public class ObjectInstance : IResource, IPropertyProvider, ICloneable, ISerializable
     {
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectInstance));
+
         private readonly Guid _uid;
 
         [NonSerialized]
         private ObjectClass _class;
+
+        [NonSerialized]
+        private int _classVersion;
 
         private int _posX;
         private int _posY;
         private float _rotation;
         private float _scaleX;
         private float _scaleY;
+
+        private PropertyManager _propertyManager;
 
         private Rectangle _maskRotatedBounds;
         private Rectangle _imageRotatedBounds;
@@ -34,10 +41,9 @@ namespace Treefrog.Framework.Model
             _scaleX = 1f;
             _scaleY = 1f;
 
-            _properties = new PropertyCollection(_reservedPropertyNames);
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
-
-            _predefinedProperties = new ObjectInstanceProperties(this);
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
+            _propertyManager.PropertyParent = objClass;
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
 
             UpdateBounds();
         }
@@ -54,8 +60,8 @@ namespace Treefrog.Framework.Model
             _scaleX = inst._scaleX;
             _scaleY = inst._scaleY;
 
-            foreach (Property prop in inst._properties) {
-                _properties.Add(prop.Clone() as Property);
+            foreach (Property prop in inst.PropertyManager.CustomProperties) {
+                PropertyManager.CustomProperties.Add(prop.Clone() as Property);
             }
 
             UpdateBounds();
@@ -69,7 +75,7 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
 
             UpdateBounds();
@@ -85,6 +91,32 @@ namespace Treefrog.Framework.Model
             get { return _class; }
         }
 
+        [SpecialProperty]
+        public int X
+        {
+            get { return _posX; }
+            set
+            {
+                if (_posX != value) {
+                    _posX = value;
+                    OnPositionChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        [SpecialProperty]
+        public int Y
+        {
+            get { return _posY; }
+            set {
+                if (_posY != value) {
+                    _posY = value;
+                    OnPositionChanged(EventArgs.Empty);
+                }            
+            }
+        }
+
+        [SpecialProperty(Converter=typeof(RadToDegPropertyConverter))]
         public float Rotation
         {
             get { return _rotation; }
@@ -113,29 +145,6 @@ namespace Treefrog.Framework.Model
             get { return _scaleY; }
         }
 
-        public int X
-        {
-            get { return _posX; }
-            set
-            {
-                if (_posX != value) {
-                    _posX = value;
-                    OnPositionChanged(EventArgs.Empty);
-                }
-            }
-        }
-
-        public int Y
-        {
-            get { return _posY; }
-            set {
-                if (_posY != value) {
-                    _posY = value;
-                    OnPositionChanged(EventArgs.Empty);
-                }            
-            }
-        }
-
         public Point Position
         {
             get { return new Point(_posX, _posY); }
@@ -153,6 +162,7 @@ namespace Treefrog.Framework.Model
         {
             get
             {
+                CheckUpdateBounds();
                 return new Rectangle(
                     _posX + _imageRotatedBounds.Left,
                     _posY + _imageRotatedBounds.Top,
@@ -164,6 +174,7 @@ namespace Treefrog.Framework.Model
         {
             get
             {
+                CheckUpdateBounds();
                 return new Rectangle(
                     _posX + _maskRotatedBounds.Left,
                     _posY + _maskRotatedBounds.Top,
@@ -190,8 +201,16 @@ namespace Treefrog.Framework.Model
             OnModified(EventArgs.Empty);
         }
 
+        private void CheckUpdateBounds ()
+        {
+            if (_classVersion < _class.Version)
+                UpdateBounds();
+        }
+
         private void UpdateBounds ()
         {
+            _classVersion = _class.Version;
+
             _imageRotatedBounds = CalculateRectangleBounds(new Rectangle(
                 _class.ImageBounds.Left - _class.Origin.X, _class.ImageBounds.Top - _class.Origin.Y,
                 _class.ImageBounds.Width, _class.ImageBounds.Height), _rotation);
@@ -225,37 +244,14 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private static string[] _reservedPropertyNames = new string[] { "X", "Y", "Rotation" };
-
-        private PropertyCollection _properties;
-        private ObjectInstanceProperties _predefinedProperties;
-
-        private class ObjectInstanceProperties : PredefinedPropertyCollection
-        {
-            private ObjectInstance _parent;
-
-            public ObjectInstanceProperties (ObjectInstance parent)
-                : base(_reservedPropertyNames)
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield return _parent.LookupProperty("X");
-                yield return _parent.LookupProperty("Y");
-                yield return _parent.LookupProperty("Rotation");
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public string PropertyProviderName
         {
             get { return "Object#"; }
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         public bool IsModified { get; private set; }
@@ -263,7 +259,7 @@ namespace Treefrog.Framework.Model
         public virtual void ResetModified ()
         {
             IsModified = false;
-            foreach (var property in CustomProperties)
+            foreach (var property in PropertyManager.CustomProperties)
                 property.ResetModified();
         }
 
@@ -286,70 +282,6 @@ namespace Treefrog.Framework.Model
             var ev = PropertyProviderNameChanged;
             if (ev != null)
                 ev(this, e);
-        }
-
-        public Collections.PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public Collections.PredefinedPropertyCollection PredefinedProperties
-        {
-            get { return _predefinedProperties;  }
-        }
-
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            switch (name) {
-                case "X":
-                case "Y":
-                case "Rotation":
-                    return PropertyCategory.Predefined;
-                default:
-                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-            }
-        }
-
-        public Property LookupProperty (string name)
-        {
-            Property prop;
-
-            switch (name) {
-                case "X":
-                    prop = new NumberProperty("X", X);
-                    prop.ValueChanged += PropertyXChanged;
-                    return prop;
-                case "Y":
-                    prop = new NumberProperty("Y", Y);
-                    prop.ValueChanged += PropertyYChanged;
-                    return prop;
-                case "Rotation":
-                    prop = new NumberProperty("Rotation", MathEx.RadToDeg(Rotation));
-                    prop.ValueChanged += PropertyRotationChanged;
-                    return prop;
-
-                default:
-                    return _properties.Contains(name) ? _properties[name] : null;
-            }
-        }
-
-        private void PropertyXChanged (object sender, EventArgs e)
-        {
-            NumberProperty property = sender as NumberProperty;
-            X = (int)property.Value;
-        }
-
-        private void PropertyYChanged (object sender, EventArgs e)
-        {
-            NumberProperty property = sender as NumberProperty;
-            Y = (int)property.Value;
-        }
-
-        private void PropertyRotationChanged (object sender, EventArgs e)
-        {
-            NumberProperty property = sender as NumberProperty;
-            float rad = MathEx.DegToRad(property.Value);
-            Rotation = rad;
         }
 
         #endregion
@@ -391,8 +323,11 @@ namespace Treefrog.Framework.Model
             _scaleX = info.GetSingle("ScaleX");
             _scaleY = info.GetSingle("ScaleY");
 
-            _predefinedProperties = new ObjectInstanceProperties(this);
-            _properties = info.GetValue("Properties", typeof(PropertyCollection)) as PropertyCollection;
+            _propertyManager = new Framework.PropertyManager(_propertyClassManager, this);
+
+            PropertyCollection props = info.GetValue("Properties", typeof(PropertyCollection)) as PropertyCollection;
+            foreach (Property p in props)
+                _propertyManager.CustomProperties.Add(p.Clone() as Property);
         }
 
         public void GetObjectData (SerializationInfo info, StreamingContext context)
@@ -405,7 +340,7 @@ namespace Treefrog.Framework.Model
             info.AddValue("ScaleX", _scaleX);
             info.AddValue("ScaleY", _scaleY);
 
-            info.AddValue("Properties", _properties, typeof(PropertyCollection));
+            info.AddValue("Properties", PropertyManager.CustomProperties, typeof(PropertyCollection));
         }
 
         #endregion
@@ -416,7 +351,7 @@ namespace Treefrog.Framework.Model
                 return null;
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in inst.CustomProperties)
+            foreach (Property prop in inst.PropertyManager.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LevelX.ObjectInstanceX() {

@@ -186,15 +186,19 @@ namespace Treefrog.Windows.Panels
 
             Dictionary<string, Image> imgList = new Dictionary<string, Image>();
 
-            foreach (DynamicTileBrush brush in _controller.TileBrushManager.DynamicBrushes.Brushes) {
-                Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
-                image.Tag = brush.Uid;
-                imgList.Add(brush.Name, image);
+            foreach (var brushCollection in _controller.TileBrushManager.DynamicBrushCollections) {
+                foreach (DynamicTileBrush brush in brushCollection.Brushes) {
+                    Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
+                    image.Tag = brush.Uid;
+                    imgList.Add(brush.Name, image);
+                }
             }
-            foreach (StaticTileBrush brush in _controller.TileBrushManager.StaticBrushes.Brushes) {
-                Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
-                image.Tag = brush.Uid;
-                imgList.Add(brush.Name, image);
+            foreach (var brushCollection in _controller.TileBrushManager.StaticBrushCollections) {
+                foreach (StaticTileBrush brush in brushCollection.Brushes) {
+                    Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
+                    image.Tag = brush.Uid;
+                    imgList.Add(brush.Name, image);
+                }
             }
 
             return imgList;

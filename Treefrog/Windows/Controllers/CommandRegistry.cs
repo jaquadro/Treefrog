@@ -88,6 +88,9 @@ namespace Treefrog.Windows.Controllers
                                 ToolTipText = record.Description,
                             };
 
+                            if (entry.Default)
+                                menuItem.Font = new Font(menuItem.Font, menuItem.Font.Style | FontStyle.Bold);
+
                             items.Add(menuItem);
                         }
                     }
@@ -226,6 +229,14 @@ namespace Treefrog.Windows.Controllers
 
             Register(CommandKey.ProjectAddLevel, "New &Level...",
                 resource: Properties.Resources.MapAsterisk);
+            Register(CommandKey.ProjectAddNewLibrary, "Add &New Library...",
+                resource: Properties.Resources.BookAsterisk);
+            Register(CommandKey.ProjectAddExistingLibrary, "Add &Existing Library...",
+                resource: Properties.Resources.Book);
+            Register(CommandKey.ProjectRemoveLibrary, "Remove Library",
+                resource: Properties.Resources.Cross);
+            Register(CommandKey.ProjectSetLibraryDefault, "Set as &Default Library",
+                resource: Properties.Resources.BookBookmark);
 
             Register(CommandKey.LevelOpen, "&Open");
             Register(CommandKey.LevelClose, "&Close",
@@ -235,7 +246,7 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.Maps);
             Register(CommandKey.LevelDelete, "&Delete",
                 resource: Properties.Resources.Cross);
-            Register(CommandKey.LevelRename, "Re&name");
+            Register(CommandKey.LevelRename, "Re&name...");
             Register(CommandKey.LevelResize, "&Resize...",
                 resource: Properties.Resources.ArrowResize135, shortcut: Keys.Control | Keys.R);
             Register(CommandKey.LevelProperties, "&Properties",
@@ -245,10 +256,11 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.Grid);
             Register(CommandKey.NewObjectLayer, "New &Object Layer",
                 resource: Properties.Resources.Game);
+            Register(CommandKey.LayerEdit, "&Edit...");
             Register(CommandKey.LayerClone, "D&uplicate",
                 resource: Properties.Resources.Layers);
             Register(CommandKey.LayerDelete, "&Delete",
-                resource: Properties.Resources.LayerMinus);
+                resource: Properties.Resources.Cross);
             Register(CommandKey.LayerProperties, "&Properties",
                 resource: Properties.Resources.Tags);
             Register(CommandKey.LayerMoveTop, "Bring to &Top",
@@ -270,23 +282,30 @@ namespace Treefrog.Windows.Controllers
                 resource: Properties.Resources.TableDynamic);
             Register(CommandKey.TileBrushClone, "D&uplicate");
             Register(CommandKey.TileBrushDelete, "&Delete",
-                resource: Properties.Resources.PaintBrushMinus);
+                resource: Properties.Resources.Cross);
             Register(CommandKey.TileSelectionCreateBrush, "Create &Brush from Selection",
                 resource: Properties.Resources.PaintBrushPlus);
             Register(CommandKey.TileSelectionPromoteLayer, "Promote to &Layer",
                 resource: Properties.Resources.LayerSelect);
             Register(CommandKey.TileSelectionFloat, "&Float");
             Register(CommandKey.TileSelectionDefloat, "&Defloat");
+            Register(CommandKey.TilePoolDelete, "&Delete",
+                resource: Properties.Resources.Cross);
+            Register(CommandKey.TilePoolRename, "&Rename...");
+            Register(CommandKey.TilePoolProperties, "&Properties",
+                resource: Properties.Resources.Tags);
             Register(CommandKey.TilePoolExport, "&Export Raw Tileset...",
                 resource: Properties.Resources.DriveDownload);
             Register(CommandKey.TilePoolImportOver, "&Import Raw Tileset...",
                 resource: Properties.Resources.DriveUpload);
 
-            Register(CommandKey.ObjectProtoImport, "Import Object from Image...",
+            Register(CommandKey.ObjectProtoImport, "&Import Object from Image...",
                 resource: Properties.Resources.GamePlus);
+            Register(CommandKey.ObjectProtoEdit, "&Edit...");
             Register(CommandKey.ObjectProtoClone, "D&uplicate");
             Register(CommandKey.ObjectProtoDelete, "&Delete",
-                resource: Properties.Resources.GameMinus);
+                resource: Properties.Resources.Cross);
+            Register(CommandKey.ObjectProtoRename, "&Rename...");
             Register(CommandKey.ObjectProtoProperties, "&Properties",
                 resource: Properties.Resources.Tags);
             Register(CommandKey.ObjectMoveTop, "Bring to &Front",

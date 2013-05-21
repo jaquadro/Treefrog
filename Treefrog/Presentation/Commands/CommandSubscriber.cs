@@ -41,6 +41,10 @@ namespace Treefrog.Presentation.Commands
         TileToolFill,
 
         ProjectAddLevel,
+        ProjectAddNewLibrary,
+        ProjectAddExistingLibrary,
+        ProjectRemoveLibrary,
+        ProjectSetLibraryDefault,
 
         LevelOpen,
         LevelClose,
@@ -53,6 +57,7 @@ namespace Treefrog.Presentation.Commands
 
         NewTileLayer,
         NewObjectLayer,
+        LayerEdit,
         LayerClone,
         LayerDelete,
         LayerProperties,
@@ -71,6 +76,7 @@ namespace Treefrog.Presentation.Commands
         TilePoolImportOver,
         TilePoolImport,
         TilePoolDelete,
+        TilePoolRename,
         TilePoolProperties,
 
         NewStaticTileBrush,
@@ -85,7 +91,9 @@ namespace Treefrog.Presentation.Commands
         TileSelectionDefloat,
 
         ObjectProtoImport,
+        ObjectProtoEdit,
         ObjectProtoDelete,
+        ObjectProtoRename,
         ObjectProtoClone,
         ObjectProtoProperties,
         ObjectMoveTop,

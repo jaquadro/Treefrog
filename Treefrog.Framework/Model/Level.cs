@@ -15,7 +15,7 @@ namespace Treefrog.Framework.Model
     /// </summary>
     public class Level : INamedResource, IPropertyProvider
     {
-        private static string[] _reservedPropertyNames = { "Name", "OriginX", "OriginY", "Height", "Width" };
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(Level));
 
         private Project _project;
 
@@ -31,8 +31,7 @@ namespace Treefrog.Framework.Model
         private Mapper<int, Guid> _localTileIndex = new Mapper<int, Guid>();
 
         private OrderedResourceCollection<Layer> _layers;
-        private PropertyCollection _properties;
-        private LevelProperties _predefinedProperties;
+        private PropertyManager _propertyManager;
 
         private Level (Guid uid, string name)
         {
@@ -44,10 +43,8 @@ namespace Treefrog.Framework.Model
             _layers.ResourceRemoved += (s, e) => OnLayerRemoved(new ResourceEventArgs<Layer>(e.Resource));
             _layers.ResourceModified += (s, e) => OnModified(EventArgs.Empty);
 
-            _properties = new PropertyCollection(_reservedPropertyNames);
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
-
-            _predefinedProperties = new LevelProperties(this);            
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);       
         }
 
         /// <summary>
@@ -131,11 +128,9 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
         }
-
-        
 
         public Guid Uid
         {
@@ -152,11 +147,13 @@ namespace Treefrog.Framework.Model
             set { _project = value; }
         }
 
+        [SpecialProperty]
         public int OriginX
         {
             get { return _x; }
         }
 
+        [SpecialProperty]
         public int OriginY
         {
             get { return _y; }
@@ -165,6 +162,7 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Gets the height of the level in pixels.
         /// </summary>
+        [SpecialProperty]
         public int Height
         {
             get { return _height; }
@@ -173,6 +171,7 @@ namespace Treefrog.Framework.Model
         /// <summary>
         /// Gets the width of the level in pixels.
         /// </summary>
+        [SpecialProperty]
         public int Width
         {
             get { return _width; }
@@ -209,7 +208,7 @@ namespace Treefrog.Framework.Model
             IsModified = false;
             foreach (var layer in Layers)
                 layer.ResetModified();
-            foreach (var property in CustomProperties)
+            foreach (var property in PropertyManager.CustomProperties)
                 property.ResetModified();
         }
 
@@ -320,6 +319,7 @@ namespace Treefrog.Framework.Model
             remove { _name.NameChanged -= value; }
         }
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name.Name; }
@@ -338,41 +338,16 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private void PredefPropertyValueChangedHandler (object sender, EventArgs e)
-        {
-
-        }
-
-        private class LevelProperties : PredefinedPropertyCollection
-        {
-            private Level _parent;
-
-            public LevelProperties (Level parent)
-                : base(_reservedPropertyNames)
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield return _parent.LookupProperty("Name");
-                //yield return _parent.LookupProperty("OriginX");
-                //yield return _parent.LookupProperty("OriginY");
-                //yield return _parent.LookupProperty("Height");
-                //yield return _parent.LookupProperty("Width");
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
 
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
         {
             PropertyProviderNameChanged(this, e);
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         /// <summary>
@@ -381,75 +356,6 @@ namespace Treefrog.Framework.Model
         public string PropertyProviderName
         {
             get { return "Level." + _name; }
-        }
-
-        public PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public PredefinedPropertyCollection PredefinedProperties
-        {
-            get { return _predefinedProperties; }
-        }
-
-        /// <summary>
-        /// Determines whether a given property is predefined, custom, or doesn't exist in this object.
-        /// </summary>
-        /// <param name="name">The name of a property to look up.</param>
-        /// <returns>The category that the property falls into.</returns>
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            switch (name) {
-                case "Name":
-                //case "Left":
-                //case "Right":
-                //case "Top":
-                //case "Bottom":
-                    return PropertyCategory.Predefined;
-                default:
-                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-            }
-        }
-
-        /// <summary>
-        /// Returns a <see cref="Property"/> given its name.
-        /// </summary>
-        /// <param name="name">The name of a property to look up.</param>
-        /// <returns>Returns either a predefined or custom <see cref="Property"/>, or <c>null</c> if the property doesn't exist.</returns>
-        public Property LookupProperty (string name)
-        {
-            Property prop;
-
-            switch (name) {
-                case "Name":
-                    prop = new StringProperty("Name", _name.Name);
-                    prop.ValueChanged += NamePropertyChangedHandler;
-                    return prop;
-
-                /*case "OriginX":
-                    prop = new NumberProperty("OriginX", OriginX);
-                    prop.ValueChanged += PredefPropertyValueChangedHandler;
-                    return prop;
-
-                case "OriginY":
-                    prop = new NumberProperty("OriginY", Width);
-                    prop.ValueChanged += PredefPropertyValueChangedHandler;
-                    return prop;
-
-                case "Height":
-                    prop = new NumberProperty("Height", OriginY);
-                    prop.ValueChanged += PredefPropertyValueChangedHandler;
-                    return prop;
-
-                case "Width":
-                    prop = new NumberProperty("Width", Height);
-                    prop.ValueChanged += PredefPropertyValueChangedHandler;
-                    return prop;*/
-
-                default:
-                    return _properties.Contains(name) ? _properties[name] : null;
-            }
         }
 
         #endregion

@@ -11,10 +11,10 @@ using System.Windows.Forms;
 namespace Treefrog.Presentation.Layers
 {
     public class ObjectLayerPresenter : LevelLayerPresenter, IPointerResponder, ICommandSubscriber,
-        IBindable<IObjectPoolCollectionPresenter>
+        IBindable<ObjectPoolCollectionPresenter>
     {
         private ObjectLayer _layer;
-        private IObjectPoolCollectionPresenter _objectController;
+        private ObjectPoolCollectionPresenter _objectController;
 
         private ObjectSelectionManager _selectionManager;
 
@@ -37,7 +37,7 @@ namespace Treefrog.Presentation.Layers
 
         protected override void DisposeManaged ()
         {
-            Bind((IObjectPoolCollectionPresenter)null);
+            Bind((ObjectPoolCollectionPresenter)null);
 
             _selectionManager.Dispose();
 
@@ -54,7 +54,7 @@ namespace Treefrog.Presentation.Layers
             _selectionManager.HideAnnotations();
         }
 
-        public void Bind (IObjectPoolCollectionPresenter controller)
+        public void Bind (ObjectPoolCollectionPresenter controller)
         {
             if (_objectController != null) {
                 _objectController.ObjectSelectionChanged -= HandleSelectedObjectChanged;
@@ -416,7 +416,7 @@ namespace Treefrog.Presentation.Layers
 
         private ObjectSelectTool NewSelectTool ()
         {
-            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(16, 16);
+            Treefrog.Framework.Imaging.Size gridSize = new Treefrog.Framework.Imaging.Size(Layer.GridWidth, Layer.GridHeight);
             ObjectSelectTool tool = new ObjectSelectTool(LayerContext, Layer, gridSize, _selectionManager);
             tool.BindObjectSourceController(_objectController);
 

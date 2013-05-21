@@ -8,7 +8,14 @@ using System.Collections;
 
 namespace Treefrog.Framework.Model
 {
-    public abstract class TileBrushCollection : INamedResource, IResourceManager<TileBrush>
+    public interface ITileBrushCollection : IResourceManager<TileBrush>
+    {
+        TileBrush GetBrush (Guid uid);
+    }
+
+
+
+    public abstract class TileBrushCollection : INamedResource, ITileBrushCollection
     {
         private readonly Guid _uid;
         private readonly ResourceName _name;
@@ -106,6 +113,11 @@ namespace Treefrog.Framework.Model
             remove { _tileBrushResourceModified -= value; }
         }
 
+        IResourceCollection<TileBrush> IResourceManager<TileBrush>.Collection
+        {
+            get { return Collection; }
+        }
+
         IEnumerator<TileBrush> System.Collections.Generic.IEnumerable<TileBrush>.GetEnumerator ()
         {
             return GetTileBrushEnumerator();
@@ -142,16 +154,103 @@ namespace Treefrog.Framework.Model
             yield break;
         }
 
+        protected virtual IResourceCollection<TileBrush> Collection
+        {
+            get { return null; }
+        }
+
         #endregion
     }
 
-    public class TileBrushCollection<T> : TileBrushCollection
+    public interface ITileBrushCollection<T> : ITileBrushCollection
         where T : TileBrush
     {
+        NamedResourceCollection<T> Brushes { get; }
+        int Count { get; }
+
+        new T GetBrush (Guid uid);
+    }
+
+    /*public class MetaTileBrushCollection<T> : ITileBrushCollection<T>
+        where T : TileBrush
+    {
+        private Guid _default;
+        private Dictionary<Guid, ITileBrushCollection<T>> _collections;
+
+        private MetaNamedResourceCollection<T, ITileBrushCollection<T>> _brushes;
+
+        public MetaTileBrushCollection ()
+        {
+            _collections = new Dictionary<Guid, ITileBrushCollection<T>>();
+            _brushes = new MetaNamedResourceCollection<T, ITileBrushCollection<T>>();
+        }
+
+        public Guid Default
+        {
+            get { return _default; }
+            set
+            {
+                if (!_collections.ContainsKey(value))
+                    throw new ArgumentException("Can only set default library UID to a value that has been previously added.");
+                _default = value;
+            }
+        }
+
+        public NamedResourceCollection<T> Brushes
+        {
+            get {
+                return null;
+            }
+        }
+
+        public int Count
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public T GetBrush (Guid uid)
+        {
+            throw new NotImplementedException();
+        }
+
+        TileBrush ITileBrushCollection.GetBrush (Guid uid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public event EventHandler<ResourceEventArgs<TileBrush>> ResourceAdded;
+
+        public event EventHandler<ResourceEventArgs<TileBrush>> ResourceRemoved;
+
+        public event EventHandler<ResourceEventArgs<TileBrush>> ResourceModified;
+
+        public IResourceCollection<TileBrush> Collection
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IEnumerator<TileBrush> GetEnumerator ()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator ()
+        {
+            throw new NotImplementedException();
+        }
+    }*/
+
+    public class TileBrushCollection<T> : TileBrushCollection, ITileBrushCollection<T>
+        where T : TileBrush
+    {
+        private ResourceCollectionAdapter<TileBrush, T> _brushCollectionAdapter;
+
         protected TileBrushCollection (Guid uid, string name)
             : base(uid, name)
         {
             Brushes = new NamedResourceCollection<T>();
+
+            _brushCollectionAdapter = new ResourceCollectionAdapter<TileBrush, T>(Brushes);
 
             Brushes.Modified += (s, e) => OnModified(EventArgs.Empty);
             Brushes.ResourceAdded += (s, e) => OnResourceAdded(e.Resource);
@@ -164,6 +263,11 @@ namespace Treefrog.Framework.Model
         { }
 
         public NamedResourceCollection<T> Brushes { get; private set; }
+
+        protected override IResourceCollection<TileBrush> Collection
+        {
+            get { return _brushCollectionAdapter; }
+        }
 
         public int Count
         {

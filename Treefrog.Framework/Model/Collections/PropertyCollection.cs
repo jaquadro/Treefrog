@@ -9,7 +9,7 @@ namespace Treefrog.Framework.Model.Collections
         private Dictionary<string, Property> _properties;
         private List<string> _reservedNames;
 
-        public PropertyCollection (string[] reservedNames)
+        public PropertyCollection (IEnumerable<string> reservedNames)
         {
             _properties = new Dictionary<string, Property>();
             _reservedNames = new List<string>(reservedNames);

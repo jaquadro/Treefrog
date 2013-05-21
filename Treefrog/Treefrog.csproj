@@ -122,6 +122,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Presentation\LibraryCommandActions.cs" />
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />
     <Compile Include="Presentation\Annotations\CircleAnnot.cs" />
@@ -159,11 +160,13 @@
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter.cs" />
     <Compile Include="Presentation\MinimapPresenter.cs" />
+    <Compile Include="Presentation\ObjectClassCommandActions.cs" />
     <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
     <Compile Include="Presentation\ObjectSelectionManager.cs" />
     <Compile Include="Presentation\ProjectExplorerPresenter.cs" />
     <Compile Include="Presentation\TextureResourceRegistry.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
+    <Compile Include="Presentation\TilePoolCommandActions.cs" />
     <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />
     <Compile Include="Presentation\Tools\ObjectPointerTool.cs" />
     <Compile Include="Presentation\Tools\ObjectSelectTool.cs" />
@@ -191,6 +194,12 @@
     </Compile>
     <Compile Include="Windows\Controls\LilyPathControl.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\ObjectLayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\ObjectLayerForm.Designer.cs">
+      <DependentUpon>ObjectLayerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\NameChangeForm.cs">
       <SubType>Form</SubType>
@@ -370,6 +379,8 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
+    <None Include="Resources\Icons16\BookExclamation.png" />
+    <None Include="Resources\Icons16\BookAsterisk.png" />
     <None Include="Resources\DynBrushOverlays\DynBrushExtended.png" />
     <None Include="Resources\DynBrushOverlays\DynBrushBasic.png" />
     <None Include="Resources\UI\StatusLocation.png" />
@@ -535,6 +546,9 @@
     <EmbeddedResource Include="Windows\Forms\NameChangeForm.resx">
       <DependentUpon>NameChangeForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\ObjectLayerForm.resx">
+      <DependentUpon>ObjectLayerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\StaticBrushForm.resx">
       <DependentUpon>StaticBrushForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -628,4 +642,13 @@
       <Target Name="AfterBuild">
       </Target>
     -->
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <Staging Include="$(OutputPath)\**\*.dll" />
+      <Staging Include="$(OutputPath)\**\*.exe" />
+      <Staging Include="$(OutputPath)\**\*.exe.config" />
+      <Staging Include="$(ProjectDir)\$(ApplicationIcon)" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Staging)" DestinationFolder="..\Staging\%(RecursiveDir)" />
+  </Target>
 </Project>

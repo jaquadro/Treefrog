@@ -85,7 +85,7 @@ namespace Treefrog.Presentation
 
         private bool CommandCanCreateStaticBrush ()
         {
-            return TileBrushManager != null && TileBrushManager.StaticBrushes != null;
+            return TileBrushManager != null && TileBrushManager.StaticBrushCollections.Count() > 0;
         }
 
         private void CommandCreateStaticBrush ()
@@ -100,8 +100,8 @@ namespace Treefrog.Presentation
                             form.ReservedNames.Add(item.Name);
 
                         if (form.ShowDialog() == DialogResult.OK) {
-                            if (TileBrushManager.StaticBrushes.GetBrush(form.Brush.Uid) == null)
-                                TileBrushManager.StaticBrushes.Brushes.Add(form.Brush);
+                            if (TileBrushManager.StaticBrushCollections.Count(c => c.GetBrush(form.Brush.Uid) != null) == 0)
+                                TileBrushManager.DefaultStaticBrushCollection.Brushes.Add(form.Brush);
 
                             OnSyncTileBrushCollection(EventArgs.Empty);
                             SelectBrush(form.Brush.Uid);
@@ -114,7 +114,7 @@ namespace Treefrog.Presentation
 
         private bool CommandCanCreateDynamicBrush ()
         {
-            return TileBrushManager != null && TileBrushManager.DynamicBrushes != null;
+            return TileBrushManager != null && TileBrushManager.DynamicBrushCollections.Count() > 0;
         }
 
         private void CommandCreateDynamicBrush ()
@@ -129,8 +129,8 @@ namespace Treefrog.Presentation
                             form.ReservedNames.Add(item.Name);
 
                         if (form.ShowDialog() == DialogResult.OK) {
-                            if (TileBrushManager.DynamicBrushes.GetBrush(form.Brush.Uid) == null)
-                                TileBrushManager.DynamicBrushes.Brushes.Add(form.Brush);
+                            if (TileBrushManager.DynamicBrushCollections.Count(c => c.GetBrush(form.Brush.Uid) != null) == 0)
+                                TileBrushManager.DefaultDynamicBrushCollection.Brushes.Add(form.Brush);
 
                             OnSyncTileBrushCollection(EventArgs.Empty);
                             SelectBrush(form.Brush.Uid);
@@ -158,7 +158,7 @@ namespace Treefrog.Presentation
                     for (int i = 0; i < oldBrush.BrushClass.SlotCount; i++)
                         newBrush.SetTile(i, oldBrush.GetTile(i));
 
-                    TileBrushManager.DynamicBrushes.Brushes.Add(newBrush);
+                    TileBrushManager.DefaultDynamicBrushCollection.Brushes.Add(newBrush);
                     newBrushId = newBrush.Uid;
                 }
                 else if (SelectedBrush is StaticTileBrush) {
@@ -168,7 +168,7 @@ namespace Treefrog.Presentation
                         newBrush.AddTile(tile.Location, tile.Tile);
                     newBrush.Normalize();
 
-                    TileBrushManager.StaticBrushes.Brushes.Add(newBrush);
+                    TileBrushManager.DefaultStaticBrushCollection.Brushes.Add(newBrush);
                     newBrushId = newBrush.Uid;
                 }
                 else
@@ -188,10 +188,14 @@ namespace Treefrog.Presentation
         private void CommandDeleteBrush ()
         {
             if (CommandCanDeleteBrush()) {
-                if (SelectedBrush is DynamicTileBrush)
-                    TileBrushManager.DynamicBrushes.Brushes.Remove(SelectedBrush.Uid);
-                else if (SelectedBrush is StaticTileBrush)
-                    TileBrushManager.StaticBrushes.Brushes.Remove(SelectedBrush.Uid);
+                if (SelectedBrush is DynamicTileBrush) {
+                    foreach (var collection in TileBrushManager.DynamicBrushCollections)
+                        collection.Brushes.Remove(SelectedBrush.Uid);
+                }
+                else if (SelectedBrush is StaticTileBrush) {
+                    foreach (var collection in TileBrushManager.StaticBrushCollections)
+                        collection.Brushes.Remove(SelectedBrush.Uid);
+                }
 
                 OnSyncTileBrushCollection(EventArgs.Empty);
                 SelectBrush(Guid.Empty);

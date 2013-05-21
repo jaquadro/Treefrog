@@ -166,7 +166,7 @@ namespace Treefrog.Presentation
             get { return _selectedLayerRef; }
         }
 
-        public TexturePool TexturePool
+        public ITexturePool TexturePool
         {
             get { return _level.Project.TexturePool; }
         }
@@ -250,7 +250,7 @@ namespace Treefrog.Presentation
 
             BindingHelper.TryBind<ITilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
             BindingHelper.TryBind<ITileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
-            BindingHelper.TryBind<IObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
+            BindingHelper.TryBind<ObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
 
             BindLayerEvents(layer);
         }
@@ -308,7 +308,7 @@ namespace Treefrog.Presentation
             _selectedLayerRef = _layerPresenters[_selectedLayer];
 
             _info.ActionUpdateCoordinates("");
-            _gridLayer.IsVisible = false;
+            _gridLayer.IsVisible = true;
 
             if (_selectedLayerRef != null) {
                 BindSelectedLayerEvents(_selectedLayerRef);
@@ -318,10 +318,11 @@ namespace Treefrog.Presentation
                     _commandManager.AddCommandSubscriber(comLayer);
                 }
 
-                if (_selectedLayerRef is TileGridLayerPresenter) {
-                    _gridLayer.IsVisible = CommandManager.IsSelected(CommandKey.ViewGrid);
-                    _gridLayer.GridSpacingX = (_selectedLayerRef as TileGridLayerPresenter).Layer.TileWidth;
-                    _gridLayer.GridSpacingY = (_selectedLayerRef as TileGridLayerPresenter).Layer.TileHeight;
+                if (_selectedLayerRef is LevelLayerPresenter) {
+                    //_gridLayer.IsVisible = CommandManager.IsSelected(CommandKey.ViewGrid);
+                    _gridLayer.GridColor = (_selectedLayerRef as LevelLayerPresenter).Layer.GridColor;
+                    _gridLayer.GridSpacingX = (_selectedLayerRef as LevelLayerPresenter).Layer.GridWidth;
+                    _gridLayer.GridSpacingY = (_selectedLayerRef as LevelLayerPresenter).Layer.GridHeight;
                 }
 
                 _selectedLayerRef.Activate();
@@ -383,6 +384,7 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.NewTileLayer, CommandCanAddTileLayer, CommandAddTileLayer);
             _commandManager.Register(CommandKey.NewObjectLayer, CommandCanAddObjectLayer, CommandAddObjectLayer);
+            _commandManager.Register(CommandKey.LayerEdit, CommandCanEditLayer, CommandEditLayer);
             _commandManager.Register(CommandKey.LayerClone, CommandCanCloneLayer, CommandCloneLayer);
             _commandManager.Register(CommandKey.LayerDelete, CommandCanDeleteLayer, CommandDeleteLayer);
             _commandManager.Register(CommandKey.LayerProperties, CommandCanLayerProperties, CommandLayerProperties);
@@ -560,6 +562,48 @@ namespace Treefrog.Presentation
 
                         OnSyncLayerList(EventArgs.Empty);
                         OnSyncLayerSelection(EventArgs.Empty);
+                    }
+                }
+            }
+        }
+
+        private bool CommandCanEditLayer ()
+        {
+            return SelectedLayer != null && (
+                SelectedLayer.Layer is MultiTileGridLayer ||
+                SelectedLayer.Layer is ObjectLayer
+                );
+        }
+
+        private void CommandEditLayer ()
+        {
+            if (CommandCanEditLayer()) {
+                if (SelectedLayer.Layer is MultiTileGridLayer) {
+                    using (TileLayerForm form = new TileLayerForm(SelectedLayer.Layer as MultiTileGridLayer)) {
+                        foreach (Layer layer in _level.Layers) {
+                            if (layer.Name != SelectedLayer.Layer.Name)
+                                form.ReservedNames.Add(layer.Name);
+                        }
+
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            _gridLayer.GridColor = SelectedLayer.Layer.GridColor;
+                            OnSyncLayerList(EventArgs.Empty);
+                        }
+                    }
+                }
+                else if (SelectedLayer.Layer is ObjectLayer) {
+                    using (ObjectLayerForm form = new ObjectLayerForm(SelectedLayer.Layer as ObjectLayer)) {
+                        foreach (Layer layer in _level.Layers) {
+                            if (layer.Name != SelectedLayer.Layer.Name)
+                                form.ReservedNames.Add(layer.Name);
+                        }
+
+                        if (form.ShowDialog() == DialogResult.OK) {
+                            _gridLayer.GridSpacingX = SelectedLayer.Layer.GridWidth;
+                            _gridLayer.GridSpacingY = SelectedLayer.Layer.GridHeight;
+                            _gridLayer.GridColor = SelectedLayer.Layer.GridColor;
+                            OnSyncLayerList(EventArgs.Empty);
+                        }
                     }
                 }
             }

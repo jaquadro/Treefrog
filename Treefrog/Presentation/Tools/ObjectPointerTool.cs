@@ -12,7 +12,7 @@ namespace Treefrog.Presentation.Tools
     {
         //private ObjectPoolManagerService _poolManager;
 
-        private IObjectPoolCollectionPresenter _objectPool;
+        private ObjectPoolCollectionPresenter _objectPool;
         private ILayerContext _layerContext;
 
         //private CommandHistory _history;
@@ -36,7 +36,7 @@ namespace Treefrog.Presentation.Tools
             base.DisposeManaged();
         }
 
-        public void BindObjectSourceController (IObjectPoolCollectionPresenter controller)
+        public void BindObjectSourceController (ObjectPoolCollectionPresenter controller)
         {
             if (_objectPool == controller)
                 return;

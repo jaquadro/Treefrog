@@ -83,17 +83,17 @@ namespace Treefrog.Presentation
 
         public bool CanRemoveSelectedProperty
         {
-            get { return _provider != null && _provider.LookupPropertyCategory(_selectedProperty) == PropertyCategory.Custom; }
+            get { return _provider != null && _provider.PropertyManager.LookupCategory(_selectedProperty) == PropertyCategory.Custom; }
         }
 
         public bool CanRenameSelectedProperty
         {
-            get { return _provider != null && _provider.LookupPropertyCategory(_selectedProperty) == PropertyCategory.Custom; }
+            get { return _provider != null && _provider.PropertyManager.LookupCategory(_selectedProperty) == PropertyCategory.Custom; }
         }
 
         public bool CanEditSelectedProperty
         {
-            get { return _provider != null && _provider.LookupPropertyCategory(_selectedProperty) != PropertyCategory.None; }
+            get { return _provider != null && !_provider.PropertyManager.IsReadOnly(_selectedProperty); }
         }
 
         public string ProviderName 
@@ -115,8 +115,23 @@ namespace Treefrog.Presentation
                     yield break;
                 }
 
-                foreach (Property property in _provider.PredefinedProperties) {
+                foreach (Property property in _provider.PropertyManager.SpecialProperties) {
                     yield return property;
+                }
+            }
+        }
+
+        public IEnumerable<Property> InheritedProperties
+        {
+            get
+            {
+                if (_provider == null || _provider.PropertyManager.InheritedProperties == null) {
+                    yield break;
+                }
+
+                foreach (Property property in _provider.PropertyManager.InheritedProperties) {
+                    if (!_provider.PropertyManager.CustomProperties.Contains(property.Name))
+                        yield return property;
                 }
             }
         }
@@ -129,7 +144,7 @@ namespace Treefrog.Presentation
                     yield break;
                 }
 
-                foreach (Property property in _provider.CustomProperties) {
+                foreach (Property property in _provider.PropertyManager.CustomProperties) {
                     yield return property;
                 }
             }
@@ -140,7 +155,7 @@ namespace Treefrog.Presentation
             get
             {
                 if (_provider != null) {
-                    return _provider.LookupProperty(_selectedProperty);
+                    return _provider.PropertyManager.LookupProperty(_selectedProperty);
                 }
                 return null;
             }
@@ -198,7 +213,7 @@ namespace Treefrog.Presentation
         {
             if (CanAddProperty) {
                 Property property = new StringProperty(FindDefaultPropertyName(), "");
-                _provider.CustomProperties.Add(property);
+                _provider.PropertyManager.CustomProperties.Add(property);
 
                 _selectedProperty = property.Name;
             }
@@ -210,7 +225,7 @@ namespace Treefrog.Presentation
         public void ActionRemoveSelectedProperty ()
         {
             if (CanRemoveSelectedProperty) {
-                _provider.CustomProperties.Remove(_selectedProperty);
+                _provider.PropertyManager.CustomProperties.Remove(_selectedProperty);
             }
 
             _selectedProperty = null;
@@ -221,8 +236,8 @@ namespace Treefrog.Presentation
 
         public void ActionRenameSelectedProperty (string name)
         {
-            if (CanRenameSelectedProperty && _provider.LookupProperty(name) == null) {
-                Property property = _provider.LookupProperty(_selectedProperty);
+            if (CanRenameSelectedProperty && _provider.PropertyManager.LookupProperty(name) == null) {
+                Property property = _provider.PropertyManager.LookupProperty(_selectedProperty);
                 if (!property.TrySetName(name))
                     return;
 
@@ -236,16 +251,22 @@ namespace Treefrog.Presentation
         public void ActionEditSelectedProperty (string value)
         {
             if (CanEditSelectedProperty) {
-                Property property = _provider.LookupProperty(_selectedProperty);
+                Property property = _provider.PropertyManager.LookupProperty(_selectedProperty);
+
+                if (_provider.PropertyManager.LookupCategory(_selectedProperty) == PropertyCategory.Inherited) {
+                    property = property.Clone() as Property;
+                    _provider.PropertyManager.CustomProperties.Add(property);
+                }
 
                 property.Parse(value);
+                OnSyncPropertyContainer(EventArgs.Empty);
                 OnSyncPropertyList(EventArgs.Empty);
             }
         }
 
         public void ActionSelectProperty (string name)
         {
-            if (_provider != null && _provider.LookupProperty(name) != null) {
+            if (_provider != null && _provider.PropertyManager.LookupProperty(name) != null) {
                 _selectedProperty = name;
 
                 OnSyncPropertyActions(EventArgs.Empty);
@@ -265,13 +286,16 @@ namespace Treefrog.Presentation
         private string FindDefaultPropertyName ()
         {
             List<string> names = new List<string>();
-            foreach (Property property in _provider.PredefinedProperties) {
+            foreach (Property property in _provider.PropertyManager.SpecialProperties)
                 names.Add(property.Name);
+
+            if (_provider.PropertyManager.InheritedProperties != null) {
+                foreach (Property property in _provider.PropertyManager.InheritedProperties)
+                    names.Add(property.Name);
             }
 
-            foreach (Property property in _provider.CustomProperties) {
+            foreach (Property property in _provider.PropertyManager.CustomProperties)
                 names.Add(property.Name);
-            }
 
             int i = 0;
             while (true) {

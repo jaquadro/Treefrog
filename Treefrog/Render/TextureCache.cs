@@ -12,7 +12,7 @@ namespace Treefrog.Render
     {
         private bool _disposed;
         private GraphicsDevice _device;
-        private TexturePool _sourcePool;
+        private ITexturePool _sourcePool;
         private Dictionary<Guid, Texture2D> _cache;
 
         public TextureCache ()
@@ -39,7 +39,7 @@ namespace Treefrog.Render
             }
         }
 
-        public TexturePool SourcePool
+        public ITexturePool SourcePool
         {
             get { return _sourcePool; }
             set

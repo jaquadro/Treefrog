@@ -33,43 +33,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface IObjectPoolCollectionPresenter : ICommandSubscriber
-    {
-        bool CanAddObjectPool { get; }
-        bool CanRemoveSelectedObjectPool { get; }
-        bool CanShowSelectedObjectPoolProperties { get; }
-
-        IObjectPoolManager ObjectPoolManager { get; }
-
-        IEnumerable<ObjectPool> ObjectPoolCollection { get; }
-        ObjectPool SelectedObjectPool { get; }
-        ObjectClass SelectedObject { get; }                          // Send to IObjectPoolPresenter
-
-        ObjectSnappingSource SnappingReference { get; }
-        ObjectSnappingTarget SnappingTarget { get; }
-
-        event EventHandler SyncObjectPoolManager;
-        event EventHandler SyncObjectPoolActions;
-        event EventHandler SyncObjectPoolCollection;
-        event EventHandler SyncObjectPoolControl;               // Send to IObjectPoolPresenter
-        event EventHandler ObjectSelectionChanged;
-
-        event EventHandler<SyncObjectPoolEventArgs> SyncCurrentObjectPool;
-        event EventHandler<SyncObjectEventArgs> SyncCurrentObject; // Send to IObjectPoolPresenter
-
-        void ActionCreateObjectPool ();
-        void ActionRemoveSelectedObjectPool ();
-        void ActionSelectObjectPool (Guid name);
-        void ActionShowObjectPoolProperties ();
-
-        void ActionImportObject ();                             // Send to IObjectPoolPresenter
-        void ActionRemoveSelectedObject ();                     // Send to IObjectPoolPresenter
-        void ActionSelectObject (Guid objectClass);      // Send to IObjectPoolPresenter
-
-        void RefreshObjectPoolCollection ();
-    }
-
-    public class ObjectPoolCollectionPresenter : IObjectPoolCollectionPresenter
+    public class ObjectPoolCollectionPresenter : ICommandSubscriber
     {
         private IEditorPresenter _editor;
 
@@ -78,9 +42,6 @@ namespace Treefrog.Presentation
         private IObjectPoolManager _poolManager;
 
         private Dictionary<Guid, ObjectClass> _selectedObjects;
-
-        //private string _selectedObject;
-        //private ObjectClass _selectedObjectRef;
 
         public ObjectPoolCollectionPresenter (IEditorPresenter editor)
         {
@@ -117,18 +78,20 @@ namespace Treefrog.Presentation
         public void BindObjectPoolManager (IObjectPoolManager manager)
         {
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded -= ObjectPoolAdded;
-                _poolManager.Pools.ResourceRemoved -= ObjectPoolRemoved;
-                //_poolManager.Pools.ResourceRemapped -= TilePoolRemapped;
-                //_poolManager.Pools.CollectionChanged -= TilePoolManagerChanged;
+                _poolManager.PoolAdded -= ObjectPoolAdded;
+                _poolManager.PoolRemoved -= ObjectPoolRemoved;
+
+                foreach (var pool in _poolManager.Pools)
+                    UnhookObjectPool(pool);
             }
 
             _poolManager = manager;
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded += ObjectPoolAdded;
-                _poolManager.Pools.ResourceRemoved += ObjectPoolRemoved;
-                //_poolManager.Pools.ResourceRemapped += TilePoolRemapped;
-                //_poolManager.Pools.CollectionChanged += TilePoolManagerChanged;
+                _poolManager.PoolAdded += ObjectPoolAdded;
+                _poolManager.PoolRemoved += ObjectPoolRemoved;
+
+                foreach (var pool in _poolManager.Pools)
+                    HookObjectPool(pool);
 
                 InitializePoolPresenters();
             }
@@ -169,14 +132,57 @@ namespace Treefrog.Presentation
             OnSyncObjectPoolCollection(EventArgs.Empty);
         }
 
+        private void HookObjectPool (ObjectPool pool)
+        {
+            pool.Objects.ResourceAdded += ObjectClassAdded;
+            pool.Objects.ResourceRemoved += ObjectClassRemoved;
+            pool.Objects.ResourceRenamed += ObjectClassRenamed;
+            pool.Objects.ResourceModified += ObjectClassModified;
+        }
+
+        private void UnhookObjectPool (ObjectPool pool)
+        {
+            pool.Objects.ResourceAdded -= ObjectClassAdded;
+            pool.Objects.ResourceRemoved -= ObjectClassRemoved;
+            pool.Objects.ResourceRenamed -= ObjectClassRenamed;
+            pool.Objects.ResourceModified -= ObjectClassModified;
+        }
+
         private void ObjectPoolAdded (object sender, ResourceEventArgs<ObjectPool> e)
         {
+            HookObjectPool(e.Resource);
             AddPoolPresenter(e.Resource);
         }
 
         private void ObjectPoolRemoved (object sender, ResourceEventArgs<ObjectPool> e)
         {
+            UnhookObjectPool(e.Resource);
             RemovePoolPresenter(e.Resource.Uid);
+        }
+
+        private void ObjectClassAdded (object sender, ResourceEventArgs<ObjectClass> e)
+        {
+            RefreshObjectPoolCollection();
+            InvalidateObjectProtoCommands();
+            OnSyncObjectPoolManager(EventArgs.Empty);
+        }
+
+        private void ObjectClassRemoved (object sender, ResourceEventArgs<ObjectClass> e)
+        {
+            RefreshObjectPoolCollection();
+            InvalidateObjectProtoCommands();
+            OnSyncObjectPoolManager(EventArgs.Empty);
+        }
+
+        private void ObjectClassRenamed (object sender, NamedResourceRemappedEventArgs<ObjectClass> e)
+        {
+            OnSyncObjectPoolManager(EventArgs.Empty);
+        }
+
+        private void ObjectClassModified (object sender, ResourceEventArgs<ObjectClass> e)
+        {
+            RefreshObjectPoolCollection();
+            OnSyncObjectPoolManager(EventArgs.Empty);
         }
 
         #region Command Handling
@@ -189,8 +195,13 @@ namespace Treefrog.Presentation
             //_commandManager.CommandInvalidated += HandleCommandInvalidated;
 
             _commandManager.Register(CommandKey.ObjectProtoImport, CommandCanImportObject, CommandImportObject);
-            _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanRemoveObject, CommandRemoveObject);
-            _commandManager.Register(CommandKey.ObjectProtoProperties, CommandCanObjectProperties, CommandObjectProperties);
+
+            ObjectClassCommandActions objClassActions = _editor.CommandActions.ObjectClassActions;
+            _commandManager.Register(CommandKey.ObjectProtoEdit, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandEdit));
+            _commandManager.Register(CommandKey.ObjectProtoClone, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandClone));
+            _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandDelete));
+            _commandManager.Register(CommandKey.ObjectProtoRename, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandRename));
+            _commandManager.Register(CommandKey.ObjectProtoProperties, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandProperties));
 
             _commandManager.RegisterToggleGroup(CommandToggleGroup.ObjectReference);
             _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceImage);
@@ -220,6 +231,24 @@ namespace Treefrog.Presentation
             get { return _commandManager; }
         }
 
+        private bool CommandCanOperateOnSelected ()
+        {
+            if (SelectedObject == null)
+                return false;
+
+            return _editor.CommandActions.ObjectClassActions.ObjectExists(SelectedObject.Uid);
+        }
+
+        private Guid SelectedObjectUid
+        {
+            get { return SelectedObject != null ? SelectedObject.Uid : Guid.Empty; }
+        }
+
+        private Action WrapCommand (Action<object> action)
+        {
+            return () => action(SelectedObjectUid);
+        }
+
         private bool CommandCanImportObject ()
         {
             return _selectedPool != null;
@@ -228,65 +257,45 @@ namespace Treefrog.Presentation
         private void CommandImportObject ()
         {
             if (CommandCanImportObject()) {
-                ImportObject form = new ImportObject();
-                foreach (ObjectClass objClass in  SelectedObjectPool.Objects)
-                    form.ReservedNames.Add(objClass.Name);
+                using (ImportObject form = new ImportObject()) {
+                    foreach (ObjectClass objClass in SelectedObjectPool.Objects)
+                        form.ReservedNames.Add(objClass.Name);
 
-                if (form.ShowDialog() == DialogResult.OK) {
-                    TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(form.SourceFile);
-                    ObjectClass objClass = new ObjectClass(form.ObjectName) {
-                        MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
-                            form.MaskRight ?? 0 - form.MaskLeft ?? 0, form.MaskBottom ?? 0 - form.MaskTop ?? 0),
-                        Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0),
-                    };
+                    if (form.ShowDialog() == DialogResult.OK) {
+                        TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(form.SourceFile);
+                        ObjectClass objClass = new ObjectClass(form.ObjectName) {
+                            MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
+                                (form.MaskRight ?? 0) - (form.MaskLeft ?? 0), (form.MaskBottom ?? 0) - (form.MaskTop ?? 0)),
+                            Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0),
+                        };
 
-                    SelectedObjectPool.AddObject(objClass);
-                    objClass.Image = resource;
+                        SelectedObjectPool.AddObject(objClass);
+                        objClass.Image = resource;
 
-                    RefreshObjectPoolCollection();
-                    OnSyncObjectPoolManager(EventArgs.Empty);
+                        RefreshObjectPoolCollection();
+                        OnSyncObjectPoolManager(EventArgs.Empty);
+                    }
                 }
-            }
-        }
-
-        private bool CommandCanRemoveObject ()
-        {
-            return SelectedObjectPool != null && SelectedObject != null;
-        }
-
-        private void CommandRemoveObject ()
-        {
-            if (CommandCanRemoveObject()) {
-                SelectedObjectPool.RemoveObject(SelectedObject.Uid);
-
-                RefreshObjectPoolCollection();
-                InvalidateObjectProtoCommands();
-                OnSyncObjectPoolManager(EventArgs.Empty);
-            }
-        }
-
-        private bool CommandCanObjectProperties ()
-        {
-            return SelectedObjectPool != null && SelectedObject != null;
-        }
-
-        private void CommandObjectProperties ()
-        {
-            if (CommandCanObjectProperties()) {
-                _editor.Presentation.PropertyList.Provider = SelectedObject;
-                _editor.ActivatePropertyPanel();
             }
         }
 
         private void InvalidateObjectProtoCommands ()
         {
             CommandManager.Invalidate(CommandKey.ObjectProtoImport);
+            CommandManager.Invalidate(CommandKey.ObjectProtoEdit);
             CommandManager.Invalidate(CommandKey.ObjectProtoClone);
             CommandManager.Invalidate(CommandKey.ObjectProtoDelete);
+            CommandManager.Invalidate(CommandKey.ObjectProtoRename);
             CommandManager.Invalidate(CommandKey.ObjectProtoProperties);
         }
 
         #endregion
+
+        public void ActionEditObject (Guid uid)
+        {
+            SelectObject(uid);
+            _editor.CommandActions.ObjectClassActions.CommandEdit(uid);
+        }
 
         #region Properties
 
@@ -443,32 +452,7 @@ namespace Treefrog.Presentation
 
         #endregion
 
-        /*private void ObjectPool_NameChanged (object sender, NamedResourceEventArgs<ObjectPool> e)
-        {
-            if (e.Resource != null && e.Resource.Name == _selectedPool) {
-                SelectObjectPool(e.Resource.Name);
-            }
-        }*/
-
         #region View Action API
-
-        // TODO: Create Object Pool Dialog
-        public void ActionCreateObjectPool ()
-        {
-
-        }
-
-        public void ActionRemoveSelectedObjectPool ()
-        {
-            if (_selectedPool != null && _editor.Project.ObjectPoolManager.Pools.Contains(_selectedPool))
-                _editor.Project.ObjectPoolManager.Pools.Remove(_selectedPool);
-
-            SelectObjectPool();
-
-            OnSyncObjectPoolActions(EventArgs.Empty);
-            OnSyncObjectPoolCollection(EventArgs.Empty);
-            OnSyncObjectPoolControl(EventArgs.Empty);
-        }
 
         public void ActionSelectObjectPool (Guid objectPoolUid)
         {
@@ -481,34 +465,6 @@ namespace Treefrog.Presentation
                 if (SelectedObjectPool != null)
                     _editor.Presentation.PropertyList.Provider = SelectedObjectPool;
             }
-        }
-
-        public void ActionShowObjectPoolProperties ()
-        {
-            if (SelectedObjectPool != null)
-                _editor.Presentation.PropertyList.Provider = SelectedObjectPool;
-        }
-        
-        // TODO: Import Object Dialog
-        public void ActionImportObject ()
-        {
-
-        }
-
-        public void ActionRemoveSelectedObject ()
-        {
-            if (SelectedObject != null && SelectedObjectPool.Objects.Contains(SelectedObject)) {
-                SelectedObjectPool.Objects.Remove(SelectedObject.Uid);
-                _selectedObjects.Remove(_selectedPool);
-
-                InvalidateObjectProtoCommands();
-            }
-
-            //SelectObject(_selectedPool);
-
-            OnSyncObjectPoolActions(EventArgs.Empty);
-            OnSyncObjectPoolCollection(EventArgs.Empty);
-            OnSyncObjectPoolControl(EventArgs.Empty);
         }
 
         public void ActionSelectObject (Guid objectClassUid)
@@ -592,7 +548,7 @@ namespace Treefrog.Presentation
                 ? _selectedObjects[objectPoolUid]
                 : null;
 
-            if (prevClass.Uid == objectClassUid)
+            if (prevClass != null && prevClass.Uid == objectClassUid)
                 return;
 
             _selectedObjects.Remove(objectPoolUid);

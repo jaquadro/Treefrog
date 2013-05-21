@@ -86,6 +86,7 @@ namespace Treefrog.Windows.Panels
 
             if (_controller != null) {
                 _controller.ProjectReset -= ProjectResetHandler;
+                _controller.DefaultLibraryChanged -= DefaultLibraryChangedHandler;
 
                 _controller.LibraryAdded -= LibraryAddedHandler;
                 _controller.LibraryRemoved -= LibraryRemovedHandler;
@@ -110,6 +111,7 @@ namespace Treefrog.Windows.Panels
                 _commandController.BindCommandManager(_controller.CommandManager);
 
                 _controller.ProjectReset += ProjectResetHandler;
+                _controller.DefaultLibraryChanged += DefaultLibraryChangedHandler;
 
                 _controller.LibraryAdded += LibraryAddedHandler;
                 _controller.LibraryRemoved += LibraryRemovedHandler;
@@ -126,6 +128,14 @@ namespace Treefrog.Windows.Panels
                 _controller.TilePoolAdded += TilePoolAddedHandler;
                 _controller.TilePoolRemoved += TilePoolRemovedHandler;
                 _controller.TilePoolModified += TilePoolModifiedHandler;
+
+                _rootNode.Tag = _controller.ProjectManagerTag;
+                _levelNode.Tag = _controller.ProjectLevelsTag;
+                _objectNode.Tag = _controller.ProjectObjectsTag;
+                _tileNode.Tag = _controller.ProjectTilesetsTag;
+                _libraryRoot.Tag = _controller.LibraryManagerTag;
+
+                SyncAll();
             }
             else {
                 _commandController.BindCommandManager(null);
@@ -139,9 +149,48 @@ namespace Treefrog.Windows.Panels
             SyncAll();
         }
 
+        private void DefaultLibraryChangedHandler (object sender, EventArgs e)
+        {
+            foreach (TreeNode node in _libraryRoot.Nodes) {
+                if (!(node.Tag is Guid))
+                    continue;
+
+                Guid libraryUid = (Guid)node.Tag;
+                Library library = _controller.Project.LibraryManager.Libraries[libraryUid];
+
+                if (library == _controller.Project.DefaultLibrary) {
+                    node.ImageIndex = IconIndex.LibraryDefault;
+                    node.SelectedImageIndex = IconIndex.LibraryDefault;
+                }
+                else {
+                    node.ImageIndex = IconIndex.Library;
+                    node.SelectedImageIndex = IconIndex.Library;
+                }
+            }
+        }
+
         private void LibraryAddedHandler (object sender, ResourceEventArgs<Library> e)
         {
+            AddResource(_libraryRoot, e.Resource, IconIndex.Library, (subNode, r) => {
+                if (r == _controller.Project.DefaultLibrary) {
+                    subNode.ImageIndex = IconIndex.LibraryDefault;
+                    subNode.SelectedImageIndex = IconIndex.LibraryDefault;
+                }
 
+                TreeNode tileSets = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles) { Name = "Tilesets" };
+                TreeNode objects = new TreeNode("Objects", IconIndex.FolderObjects, IconIndex.FolderObjects) { Name = "Objects" };
+
+                subNode.Nodes.Add(tileSets);
+                subNode.Nodes.Add(objects);
+
+                AddResources<TilePool>(tileSets, r.TilePoolManager.Pools, IconIndex.TileGroup);
+                AddResources<ObjectPool>(objects, r.ObjectPoolManager.Pools, IconIndex.ObjectGroup, (objSubNode, r2) => {
+                    AddResources<ObjectClass>(objSubNode, r2.Objects, IconIndex.ObjectGroup);
+                });
+            });
+
+            if (_libraryRoot.Nodes.Count > 0)
+                _libraryRoot.Expand();
         }
 
         private void LibraryRemovedHandler (object sender, ResourceEventArgs<Library> e)
@@ -391,9 +440,7 @@ namespace Treefrog.Windows.Panels
 
             Guid tag = (Guid)e.Node.Tag;
 
-            if (_controller.Project.Levels.Contains(tag)) {
-                _controller.ActionOpenLevel(tag);
-            }
+            _controller.DefaultAction(tag);
         }
 
         private void TreeNodeClickHandler (object sender, TreeNodeMouseClickEventArgs e)
@@ -406,7 +453,7 @@ namespace Treefrog.Windows.Panels
             Guid tag = (Guid)e.Node.Tag;
 
             if (e.Button == MouseButtons.Right) {
-                ContextMenuStrip contextMenu = CommandMenuBuilder.BuildContextMenu(_controller.LevelMenu(tag));
+                ContextMenuStrip contextMenu = CommandMenuBuilder.BuildContextMenu(_controller.Menu(tag));
 
                 _commandController.Clear();
                 _commandController.MapMenuItems(contextMenu.Items);

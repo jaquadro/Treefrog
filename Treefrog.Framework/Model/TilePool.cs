@@ -41,10 +41,10 @@ namespace Treefrog.Framework.Model
         private List<TileCoord> _openLocations;
 
         private TilePool _pool;
-        private TexturePool _texturePool;
-        private Guid _textureId;
+        private ITexturePool _texturePool;
+        //private Guid _textureId;
 
-        public TileResourceCollection (int tileWidth, int tileHeight, TilePool pool, TexturePool texturePool)
+        public TileResourceCollection (int tileWidth, int tileHeight, TilePool pool, ITexturePool texturePool)
         {
             _pool = pool;
             _texturePool = texturePool;
@@ -55,7 +55,7 @@ namespace Treefrog.Framework.Model
             _openLocations = new List<TileCoord>();
 
             _tileSource = new TextureResource(TileWidth * _initFactor, TileHeight * _initFactor);
-            _textureId = _texturePool.AddResource(_tileSource);
+            _texturePool.AddResource(_tileSource);
 
             for (int x = 0; x < _initFactor; x++) {
                 for (int y = 0; y < _initFactor; y++)
@@ -71,8 +71,7 @@ namespace Treefrog.Framework.Model
 
         internal Guid TextureId
         {
-            get { return _textureId; }
-            set { _textureId = value; }
+            get { return _tileSource != null ? _tileSource.Uid : Guid.Empty; }
         }
 
         public int TileWidth { get; private set; }
@@ -96,7 +95,7 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(coord.X * TileWidth, coord.Y * TileHeight, TileWidth, TileHeight);
             _tileSource.Clear(dest);
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             _openLocations.Add(_locations[item.Uid]);
             _locations.Remove(item.Uid);
@@ -130,7 +129,7 @@ namespace Treefrog.Framework.Model
             _openLocations.RemoveAt(_openLocations.Count - 1);
 
             _tileSource.Set(texture, new Point(coord.X * TileWidth, coord.Y * TileHeight));
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             _locations[tile.Uid] = coord;
 
@@ -163,7 +162,7 @@ namespace Treefrog.Framework.Model
 
             Rectangle dest = new Rectangle(_locations[uid].X * TileWidth, _locations[uid].Y * TileHeight, TileWidth, TileHeight);
             _tileSource.Set(texture, new Point(_locations[uid].X * TileWidth, _locations[uid].Y * TileHeight));
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             OnResourceModified(new ResourceEventArgs<Tile>(this[uid]));
         }
@@ -182,7 +181,7 @@ namespace Treefrog.Framework.Model
                 throw new ArgumentException("Replacement texture has different dimensions than internal texture.");
 
             _tileSource.Set(data, Point.Zero);
-            _texturePool.Invalidate(_textureId);
+            _texturePool.Invalidate(_tileSource.Uid);
 
             //OnTileSourceInvalidated(EventArgs.Empty);
             OnModified(EventArgs.Empty);
@@ -226,9 +225,9 @@ namespace Treefrog.Framework.Model
                 }
             }
 
+            _texturePool.RemoveResource(_tileSource.Uid);
             _tileSource = newTex;
-            _texturePool.RemoveResource(_textureId);
-            _textureId = _texturePool.AddResource(_tileSource);
+            _texturePool.AddResource(_tileSource);
         }
 
         private void ReduceTexture ()
@@ -272,9 +271,9 @@ namespace Treefrog.Framework.Model
                 }
             }
 
+            _texturePool.RemoveResource(_tileSource.Uid);
             _tileSource = newTex;
-            _texturePool.RemoveResource(_textureId);
-            _textureId = _texturePool.AddResource(_tileSource);
+            _texturePool.AddResource(_tileSource);
         }
 
         internal void RecalculateOpenLocations ()
@@ -303,7 +302,7 @@ namespace Treefrog.Framework.Model
                 return null;
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in tile.CustomProperties)
+            foreach (Property prop in tile.PropertyManager.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
             TileCoord loc = tile.Pool.Tiles.GetTileLocation(tile.Uid);
@@ -335,7 +334,7 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    tile.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    tile.PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
 
             tileCollection._locations[tile.Uid] = coord;
@@ -344,17 +343,16 @@ namespace Treefrog.Framework.Model
             return tile;
         }
 
-        public static TileResourceCollection FromXmlProxy (LibraryX.TilePoolX proxy, TilePool pool, TexturePool texturePool)
+        public static TileResourceCollection FromXmlProxy (LibraryX.TilePoolX proxy, TilePool pool, ITexturePool texturePool)
         {
             if (proxy == null)
                 return null;
 
             TileResourceCollection collection = new TileResourceCollection(proxy.TileWidth, proxy.TileHeight, pool, texturePool);
 
-            texturePool.RemoveResource(collection._textureId);
+            texturePool.RemoveResource(collection.TextureId);
 
-            collection._textureId = proxy.Texture;
-            collection._tileSource = texturePool.GetResource(collection._textureId);
+            collection._tileSource = texturePool.GetResource(proxy.Texture);
 
             if (collection._tileSource != null) {
                 collection._tileSource.Apply(c => {
@@ -378,25 +376,22 @@ namespace Treefrog.Framework.Model
     {
         private const int _initFactor = 4;
 
-        private static string[] _reservedPropertyNames = new string[] { "Name" };
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(TilePool));
 
         private readonly Guid _uid;
         private readonly ResourceName _name;
 
         private TileResourceCollection _tiles;
 
-        private PropertyCollection _properties;
-        private TilePoolProperties _predefinedProperties;
+        private PropertyManager _propertyManager;
 
         protected TilePool ()
         {
             _uid = Guid.NewGuid();
             _name = new ResourceName(this);
 
-            _properties = new PropertyCollection(_reservedPropertyNames);
-            _predefinedProperties = new TilePool.TilePoolProperties(this);
-
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         internal TilePool (TilePoolManager manager, string name, int tileWidth, int tileHeight)
@@ -427,7 +422,7 @@ namespace Treefrog.Framework.Model
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
         }
 
@@ -435,6 +430,11 @@ namespace Treefrog.Framework.Model
         {
             get { return _tiles; }
             private set { _tiles = value; }
+        }
+
+        IResourceCollection<Tile> IResourceManager<Tile>.Collection
+        {
+            get { return _tiles; }
         }
 
         #region Properties
@@ -624,6 +624,7 @@ namespace Treefrog.Framework.Model
             remove { _name.NameChanged -= value; }
         }
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name.Name; }
@@ -696,7 +697,7 @@ namespace Treefrog.Framework.Model
             IsModified = false;
             foreach (var tile in Tiles)
                 tile.ResetModified();
-            foreach (var property in CustomProperties)
+            foreach (var property in PropertyManager.CustomProperties)
                 property.ResetModified();
         }
 
@@ -719,27 +720,6 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private class TilePoolProperties : PredefinedPropertyCollection
-        {
-            private TilePool _parent;
-
-            public TilePoolProperties (TilePool parent)
-                : base(_reservedPropertyNames)
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield return _parent.LookupProperty("Name");
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
 
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
@@ -752,39 +732,9 @@ namespace Treefrog.Framework.Model
             get { return Name; }
         }
 
-        public PredefinedPropertyCollection PredefinedProperties
+        public PropertyManager PropertyManager
         {
-            get { return _predefinedProperties; }
-        }
-
-        public PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            switch (name) {
-                case "Name":
-                    return PropertyCategory.Predefined;
-                default:
-                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-            }
-        }
-
-        public Property LookupProperty (string name)
-        {
-            Property prop;
-
-            switch (name) {
-                case "Name":
-                    prop = new StringProperty("Name", Name);
-                    prop.ValueChanged += NamePropertyChangedHandler;
-                    return prop;
-
-                default:
-                    return _properties.Contains(name) ? _properties[name] : null;
-            }
+            get { return _propertyManager; }
         }
 
         #endregion
@@ -805,7 +755,7 @@ namespace Treefrog.Framework.Model
                 tiledefs.Add(TileResourceCollection.ToXmlProxyX(tile));
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in pool.CustomProperties)
+            foreach (Property prop in pool.PropertyManager.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LibraryX.TilePoolX() {

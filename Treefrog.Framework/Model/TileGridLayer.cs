@@ -26,8 +26,6 @@ namespace Treefrog.Framework.Model
         private int _tilesWide;
         private int _tilesHigh;
 
-        #region Constructors
-
         protected TileGridLayer (string name, int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
             : base(name, tileWidth, tileHeight)
         {
@@ -61,8 +59,6 @@ namespace Treefrog.Framework.Model
             _tilesWide = layer._tilesWide;
         }
 
-        #endregion
-
         public int TileOriginX
         {
             get { return _tileOriginX; }
@@ -82,8 +78,6 @@ namespace Treefrog.Framework.Model
         {
             get { return _tilesWide; }
         }
-
-        #region Public API
 
         public void AddTile (int x, int y, Tile tile)
         {
@@ -187,10 +181,6 @@ namespace Treefrog.Framework.Model
             return CheckBounds(tile.X, tile.Y);
         }
 
-        #endregion
-
-        #region Virtual Backing API
-
         protected abstract void AddTileImpl (int x, int y, Tile tile);
 
         protected abstract void RemoveTileImpl (int x, int y, Tile tile);
@@ -198,8 +188,6 @@ namespace Treefrog.Framework.Model
         protected abstract void ClearTileImpl (int x, int y);
 
         protected abstract void ResizeLayer (int newOriginX, int newOriginY, int newTilesWide, int newTilesHigh);
-
-        #endregion
 
         public event EventHandler<LocatedTileEventArgs> TileAdding;
 
@@ -255,8 +243,6 @@ namespace Treefrog.Framework.Model
                 ev(this, e);
         }
 
-        #region Checking Code
-
         protected void CheckTileFail (Tile tile)
         {
             if (!CheckTile(tile)) {
@@ -287,7 +273,5 @@ namespace Treefrog.Framework.Model
                 && x < (TilesWide + TileOriginX)
                 && y < (TilesHigh + TileOriginY);
         }
-
-        #endregion
     }
 }

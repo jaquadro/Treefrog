@@ -243,9 +243,29 @@ namespace Treefrog.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap BookAsterisk {
+            get {
+                object obj = ResourceManager.GetObject("BookAsterisk", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap BookBookmark {
             get {
                 object obj = ResourceManager.GetObject("BookBookmark", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap BookExclamation {
+            get {
+                object obj = ResourceManager.GetObject("BookExclamation", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

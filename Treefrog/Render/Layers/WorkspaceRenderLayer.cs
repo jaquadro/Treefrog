@@ -120,11 +120,11 @@ namespace Treefrog.Render.Layers
                 );
 
             if (levelBounds.Left < 0 && levelBounds.Right > 0)
-                drawBatch.DrawLine(Pens.Gray, new Vector2(0, bounds.Top), new Vector2(0, bounds.Bottom));
+                drawBatch.DrawLine(Pen.Gray, new Vector2(0, bounds.Top), new Vector2(0, bounds.Bottom));
             if (levelBounds.Top < 0 && levelBounds.Bottom > 0)
-                drawBatch.DrawLine(Pens.Gray, new Vector2(bounds.Left, 0), new Vector2(bounds.Right, 0));
+                drawBatch.DrawLine(Pen.Gray, new Vector2(bounds.Left, 0), new Vector2(bounds.Right, 0));
 
-            drawBatch.DrawRectangle(Pens.Black, bounds);
+            drawBatch.DrawRectangle(Pen.Black, bounds);
         }
 
         private Texture2D BuildCanvasPattern (GraphicsDevice device)

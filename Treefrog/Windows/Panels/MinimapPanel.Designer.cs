@@ -20,16 +20,17 @@
             this._layerControl = new Treefrog.Windows.Controls.LayerGraphicsControl();
             this.SuspendLayout();
             // 
-            // layerGraphicsControl1
+            // _layerControl
             // 
             this._layerControl.BackColor = System.Drawing.Color.Black;
+            this._layerControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this._layerControl.CanvasAlignment = Treefrog.Presentation.CanvasAlignment.Center;
-            this._layerControl.ClearColor = ((Microsoft.Xna.Framework.Color)(resources.GetObject("layerGraphicsControl1.ClearColor")));
+            this._layerControl.ClearColor = ((Microsoft.Xna.Framework.Color)(resources.GetObject("_layerControl.ClearColor")));
             this._layerControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._layerControl.HeightSynced = false;
             this._layerControl.Location = new System.Drawing.Point(0, 0);
             this._layerControl.Margin = new System.Windows.Forms.Padding(0);
-            this._layerControl.Name = "layerGraphicsControl1";
+            this._layerControl.Name = "_layerControl";
             this._layerControl.ReferenceHeight = 0;
             this._layerControl.ReferenceOriginX = 0;
             this._layerControl.ReferenceOriginY = 0;

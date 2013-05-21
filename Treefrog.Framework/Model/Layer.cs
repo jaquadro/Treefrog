@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using Treefrog.Framework.Model.Collections;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
@@ -13,7 +14,7 @@ namespace Treefrog.Framework.Model
 
     public abstract class Layer : INamedResource, IPropertyProvider, ICloneable
     {
-        private static string[] _reservedPropertyNames = { "Name", "Opacity", "Visible", "RasterMode" };
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(Layer));
 
         private Level _level;
         private string _name;
@@ -22,8 +23,11 @@ namespace Treefrog.Framework.Model
         private bool _visible;
         private RasterMode _rasterMode;
 
-        private PropertyCollection _properties;
-        private LayerProperties _predefinedProperties;
+        private int _gridWidth;
+        private int _gridHeight;
+        private Color _gridColor;
+
+        private PropertyManager _propertyManager;
 
         protected Layer (string name)
         {
@@ -33,23 +37,29 @@ namespace Treefrog.Framework.Model
             _visible = true;
             _rasterMode = RasterMode.Point;
 
-            _name = name;
-            _properties = new PropertyCollection(_reservedPropertyNames);
-            _predefinedProperties = new LayerProperties(this);
+            _gridWidth = 16;
+            _gridHeight = 16;
+            _gridColor = new Color(0, 0, 0, 128);
 
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
+            _name = name;
+
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         protected Layer (string name, Layer layer)
             : this(name)
         {
-            foreach (Property prop in layer._properties) {
-                _properties.Add(prop.Clone() as Property);
+            foreach (Property prop in layer._propertyManager.CustomProperties) {
+                _propertyManager.CustomProperties.Add(prop.Clone() as Property);
             }
 
             _opacity = layer._opacity;
             _visible = layer._visible;
             _rasterMode = layer._rasterMode;
+            _gridWidth = layer._gridWidth;
+            _gridHeight = layer._gridHeight;
+            _gridColor = layer._gridColor;
         }
 
         public Guid Uid { get; private set; }
@@ -60,6 +70,7 @@ namespace Treefrog.Framework.Model
             set { _level = value; }
         }
 
+        [SpecialProperty]
         public bool IsVisible
         {
             get { return _visible; }
@@ -74,6 +85,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        [SpecialProperty]
         public float Opacity
         {
             get { return _opacity; }
@@ -89,6 +101,7 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        [SpecialProperty(Converter=typeof(RasterModePropertyConverter))]
         public RasterMode RasterMode
         {
             get { return _rasterMode; }
@@ -103,12 +116,59 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        public virtual int GridWidth
+        {
+            get { return _gridWidth; }
+            set
+            {
+                if (_gridWidth != value) {
+                    _gridWidth = value;
+
+                    OnGridChanged(EventArgs.Empty);
+                    OnModified(EventArgs.Empty);
+                }
+            }
+        }
+
+        public virtual int GridHeight
+        {
+            get { return _gridHeight; }
+            set
+            {
+                if (_gridHeight != value) {
+                    _gridHeight = value;
+
+                    OnGridChanged(EventArgs.Empty);
+                    OnModified(EventArgs.Empty);
+                }
+            }
+        }
+
+        public virtual bool GridIsIndependent
+        {
+            get { return true; }
+        }
+
+        public virtual Color GridColor
+        {
+            get { return _gridColor; }
+            set
+            {
+                if (_gridColor != value) {
+                    _gridColor = value;
+
+                    OnGridChanged(EventArgs.Empty);
+                    OnModified(EventArgs.Empty);
+                }
+            }
+        }
+
         public bool IsModified { get; private set; }
 
         public virtual void ResetModified ()
         {
             IsModified = false;
-            foreach (var property in CustomProperties)
+            foreach (var property in _propertyManager.CustomProperties)
                 property.ResetModified();
         }
 
@@ -122,6 +182,8 @@ namespace Treefrog.Framework.Model
         public event EventHandler VisibilityChanged;
 
         public event EventHandler RasterModeChanged;
+
+        public event EventHandler GridChanged;
 
         /// <summary>
         /// Raises the <see cref="Modified"/> event.
@@ -154,6 +216,13 @@ namespace Treefrog.Framework.Model
         protected virtual void OnRasterModeChanged (EventArgs e)
         {
             var ev = RasterModeChanged;
+            if (ev != null)
+                ev(this, e);
+        }
+
+        protected virtual void OnGridChanged (EventArgs e)
+        {
+            var ev = GridChanged;
             if (ev != null)
                 ev(this, e);
         }
@@ -248,30 +317,6 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private class LayerProperties : PredefinedPropertyCollection
-        {
-            private Layer _parent;
-
-            public LayerProperties (Layer parent)
-                : base(_reservedPropertyNames)
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield return _parent.LookupProperty("Name");
-                yield return _parent.LookupProperty("Opacity");
-                yield return _parent.LookupProperty("Visible");
-                yield return _parent.LookupProperty("RasterMode");
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public event EventHandler<EventArgs> PropertyProviderNameChanged;
 
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
@@ -281,68 +326,21 @@ namespace Treefrog.Framework.Model
                 ev(this, e);
         }
 
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
+        }
+
         public string PropertyProviderName
         {
             get { return "Layer." + _name; }
-        }
-
-        public PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public PredefinedPropertyCollection PredefinedProperties
-        {
-            get { return _predefinedProperties; }
-        }
-
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            switch (name) {
-                case "Name":
-                case "Opacity":
-                case "Visible":
-                case "RasterMode":
-                    return PropertyCategory.Predefined;
-                default:
-                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-            }
-        }
-
-        public Property LookupProperty (string name)
-        {
-            Property prop;
-
-            switch (name) {
-                case "Name":
-                    prop = new StringProperty("Name", _name);
-                    prop.ValueChanged += NamePropertyChangedHandler;
-                    return prop;
-
-                case "Opacity":
-                    prop = new NumberProperty("Opacity", _opacity);
-                    prop.ValueChanged += OpacityPropertyChangedHandler;
-                    return prop;
-
-                case "Visible":
-                    prop = new BoolProperty("Visible", _visible);
-                    prop.ValueChanged += VisiblePropertyChangedHandler;
-                    return prop;
-
-                case "RasterMode":
-                    prop = new StringProperty("RasterMode", _rasterMode.ToString());
-                    prop.ValueChanged += RasterModePropertyChangedHandler;
-                    return prop;
-
-                default:
-                    return _properties.Contains(name) ? _properties[name] : null;
-            }
         }
 
         #endregion
 
         #region INamedResource Members
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name; }

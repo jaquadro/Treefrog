@@ -31,7 +31,7 @@ namespace Treefrog.Framework.Model
         private MetaTilePoolManager _tilePools;
         private MetaObjectPoolManager _objectPools;
         private MetaTileBrushManager _tileBrushes;
-        private TexturePool _texturePool;
+        private MetaTexturePool _texturePool;
 
         private static TileBrushRegistry _tileBrushRegistry = new TileBrushRegistry();
         public static TileBrushRegistry TileBrushRegistry
@@ -64,10 +64,12 @@ namespace Treefrog.Framework.Model
 
             Extra = new List<XmlElement>();
 
-            _texturePool = defaultLibrary.TexturePool;
-            _tilePools = new MetaTilePoolManager();
+            _texturePool = new MetaTexturePool();
+            _texturePool.AddPool(defaultLibrary.Uid, defaultLibrary.TexturePool);
+
+            _tilePools = new MetaTilePoolManager(_texturePool);
             _tilePools.AddManager(defaultLibrary.Uid, defaultLibrary.TilePoolManager);
-            _objectPools = new MetaObjectPoolManager();
+            _objectPools = new MetaObjectPoolManager(_texturePool);
             _objectPools.AddManager(defaultLibrary.Uid, defaultLibrary.ObjectPoolManager);
             _tileBrushes = new MetaTileBrushManager();
             _tileBrushes.AddManager(defaultLibrary.Uid, defaultLibrary.TileBrushManager);
@@ -134,7 +136,7 @@ namespace Treefrog.Framework.Model
             get { return _tileBrushes; }
         }
 
-        public TexturePool TexturePool
+        public ITexturePool TexturePool
         {
             get { return _texturePool; }
         }
@@ -160,6 +162,15 @@ namespace Treefrog.Framework.Model
                     SetDefaultLibrary(value);
                 }
             }
+        }
+
+        public event EventHandler DefaultLibraryChanged;
+
+        protected virtual void OnDefaultLibraryChanged (EventArgs e)
+        {
+            var ev = DefaultLibraryChanged;
+            if (ev != null)
+                ev(this, e);
         }
 
         public IServiceProvider Services
@@ -285,8 +296,10 @@ namespace Treefrog.Framework.Model
                 project.Extra = new List<XmlElement>(proxy.PropertyGroup.Extra ?? new XmlElement[0]);
             }
 
-            project._tilePools = new MetaTilePoolManager();
-            project._objectPools = new MetaObjectPoolManager();
+            project._texturePool = new MetaTexturePool();
+
+            project._tilePools = new MetaTilePoolManager(project._texturePool);
+            project._objectPools = new MetaObjectPoolManager(project._texturePool);
             project._tileBrushes = new MetaTileBrushManager();
 
             foreach (var itemGroup in proxy.ItemGroups) {
@@ -321,7 +334,7 @@ namespace Treefrog.Framework.Model
         {
             _libraryManager.Libraries.Add(library);
 
-            //_texturePool = library.TexturePool;
+            _texturePool.AddPool(library.Uid, library.TexturePool);
             _tilePools.AddManager(library.Uid, library.TilePoolManager);
             _objectPools.AddManager(library.Uid, library.ObjectPoolManager);
             _tileBrushes.AddManager(library.Uid, library.TileBrushManager);
@@ -343,11 +356,14 @@ namespace Treefrog.Framework.Model
         {
             _defaultLibraryUid = library.Uid;
 
-            _texturePool = library.TexturePool;
+            _texturePool.Default = library.Uid;
 
             _tilePools.Default = library.Uid;
             _objectPools.Default = library.Uid;
             _tileBrushes.Default = library.Uid;
+
+            OnDefaultLibraryChanged(EventArgs.Empty);
+            OnModified(EventArgs.Empty);
         }
 
         private static void WriteLevel (ProjectResolver resolver, Level level, string levelPath)

@@ -55,6 +55,14 @@ namespace Treefrog.Windows.Forms
             this.statusZoomIn = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.contextClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextCloseAllOther = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.contextRename = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextResize = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.contextProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this._tabTilePools = new System.Windows.Forms.TabPage();
@@ -70,17 +78,9 @@ namespace Treefrog.Windows.Forms
             this.layerPane1 = new Treefrog.Windows.LayerPane();
             this._tabProperties = new System.Windows.Forms.TabPage();
             this.propertyPane1 = new Treefrog.Windows.PropertyPane();
-            this.tabControlEx1 = new Treefrog.Windows.Controls.WinEx.TabControlEx();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.contextClose = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextCloseAllOther = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.contextRename = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextResize = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.contextProperties = new System.Windows.Forms.ToolStripMenuItem();
             this._tabMinimap = new System.Windows.Forms.TabPage();
             this.minimapPanel1 = new Treefrog.Windows.Panels.MinimapPanel();
+            this.tabControlEx1 = new Treefrog.Windows.Controls.WinEx.TabControlEx();
             this.menuBar.SuspendLayout();
             this.statusBar.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
@@ -89,6 +89,7 @@ namespace Treefrog.Windows.Forms
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -101,7 +102,6 @@ namespace Treefrog.Windows.Forms
             this._tabProject.SuspendLayout();
             this._tabLayers.SuspendLayout();
             this._tabProperties.SuspendLayout();
-            this.contextMenuStrip1.SuspendLayout();
             this._tabMinimap.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -338,6 +338,60 @@ namespace Treefrog.Windows.Forms
             this.splitContainer1.TabIndex = 0;
             this.splitContainer1.TabStop = false;
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.contextClose,
+            this.contextCloseAllOther,
+            this.toolStripSeparator3,
+            this.contextRename,
+            this.contextResize,
+            this.toolStripSeparator4,
+            this.contextProperties});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(167, 126);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // contextClose
+            // 
+            this.contextClose.Name = "contextClose";
+            this.contextClose.Size = new System.Drawing.Size(166, 22);
+            this.contextClose.Text = "&Close";
+            // 
+            // contextCloseAllOther
+            // 
+            this.contextCloseAllOther.Name = "contextCloseAllOther";
+            this.contextCloseAllOther.Size = new System.Drawing.Size(166, 22);
+            this.contextCloseAllOther.Text = "Close &All But This";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(163, 6);
+            // 
+            // contextRename
+            // 
+            this.contextRename.Name = "contextRename";
+            this.contextRename.Size = new System.Drawing.Size(166, 22);
+            this.contextRename.Text = "Re&name";
+            // 
+            // contextResize
+            // 
+            this.contextResize.Name = "contextResize";
+            this.contextResize.Size = new System.Drawing.Size(166, 22);
+            this.contextResize.Text = "&Resize";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(163, 6);
+            // 
+            // contextProperties
+            // 
+            this.contextProperties.Name = "contextProperties";
+            this.contextProperties.Size = new System.Drawing.Size(166, 22);
+            this.contextProperties.Text = "&Properties";
+            // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -511,6 +565,25 @@ namespace Treefrog.Windows.Forms
             this.propertyPane1.TabIndex = 0;
             this.propertyPane1.TabStop = false;
             // 
+            // _tabMinimap
+            // 
+            this._tabMinimap.Controls.Add(this.minimapPanel1);
+            this._tabMinimap.Location = new System.Drawing.Point(4, 22);
+            this._tabMinimap.Name = "_tabMinimap";
+            this._tabMinimap.Size = new System.Drawing.Size(246, 254);
+            this._tabMinimap.TabIndex = 3;
+            this._tabMinimap.Text = "Overview";
+            this._tabMinimap.UseVisualStyleBackColor = true;
+            // 
+            // minimapPanel1
+            // 
+            this.minimapPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.minimapPanel1.Location = new System.Drawing.Point(0, 0);
+            this.minimapPanel1.Name = "minimapPanel1";
+            this.minimapPanel1.Padding = new System.Windows.Forms.Padding(0, 2, 2, 1);
+            this.minimapPanel1.Size = new System.Drawing.Size(246, 254);
+            this.minimapPanel1.TabIndex = 0;
+            // 
             // tabControlEx1
             // 
             this.tabControlEx1.ContextMenuStrip = this.contextMenuStrip1;
@@ -523,79 +596,6 @@ namespace Treefrog.Windows.Forms
             this.tabControlEx1.TabIndex = 0;
             this.tabControlEx1.TabStop = false;
             this.tabControlEx1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControlEx1_Selected);
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.contextClose,
-            this.contextCloseAllOther,
-            this.toolStripSeparator3,
-            this.contextRename,
-            this.contextResize,
-            this.toolStripSeparator4,
-            this.contextProperties});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(167, 126);
-            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
-            // 
-            // contextClose
-            // 
-            this.contextClose.Name = "contextClose";
-            this.contextClose.Size = new System.Drawing.Size(166, 22);
-            this.contextClose.Text = "&Close";
-            // 
-            // contextCloseAllOther
-            // 
-            this.contextCloseAllOther.Name = "contextCloseAllOther";
-            this.contextCloseAllOther.Size = new System.Drawing.Size(166, 22);
-            this.contextCloseAllOther.Text = "Close &All But This";
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(163, 6);
-            // 
-            // contextRename
-            // 
-            this.contextRename.Name = "contextRename";
-            this.contextRename.Size = new System.Drawing.Size(166, 22);
-            this.contextRename.Text = "Re&name";
-            // 
-            // contextResize
-            // 
-            this.contextResize.Name = "contextResize";
-            this.contextResize.Size = new System.Drawing.Size(166, 22);
-            this.contextResize.Text = "&Resize";
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(163, 6);
-            // 
-            // contextProperties
-            // 
-            this.contextProperties.Name = "contextProperties";
-            this.contextProperties.Size = new System.Drawing.Size(166, 22);
-            this.contextProperties.Text = "&Properties";
-            // 
-            // _tabMinimap
-            // 
-            this._tabMinimap.Controls.Add(this.minimapPanel1);
-            this._tabMinimap.Location = new System.Drawing.Point(4, 22);
-            this._tabMinimap.Name = "_tabMinimap";
-            this._tabMinimap.Size = new System.Drawing.Size(246, 293);
-            this._tabMinimap.TabIndex = 3;
-            this._tabMinimap.Text = "Overview";
-            this._tabMinimap.UseVisualStyleBackColor = true;
-            // 
-            // minimapPanel1
-            // 
-            this.minimapPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.minimapPanel1.Location = new System.Drawing.Point(0, 0);
-            this.minimapPanel1.Name = "minimapPanel1";
-            this.minimapPanel1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 1);
-            this.minimapPanel1.Size = new System.Drawing.Size(246, 293);
-            this.minimapPanel1.TabIndex = 0;
             // 
             // Main
             // 
@@ -618,6 +618,7 @@ namespace Treefrog.Windows.Forms
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.contextMenuStrip1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
@@ -630,7 +631,6 @@ namespace Treefrog.Windows.Forms
             this._tabProject.ResumeLayout(false);
             this._tabLayers.ResumeLayout(false);
             this._tabProperties.ResumeLayout(false);
-            this.contextMenuStrip1.ResumeLayout(false);
             this._tabMinimap.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

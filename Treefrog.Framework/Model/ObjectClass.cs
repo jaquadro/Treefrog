@@ -8,20 +8,34 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
-    public class SystemProperty : Attribute
-    {
-
-    }
-
     public class ObjectClass : INamedResource, INotifyPropertyChanged, IPropertyProvider
     {
-        private static string[] _reservedPropertyNames = new string[] { "Name", /*"Width", "Height", "OriginX", "OriginY"*/ };
+        private class BatchEditBlock : ResourceReleaser
+        {
+            private ObjectClass _resource;
+
+            public BatchEditBlock (ObjectClass resource)
+            {
+                _resource = resource;
+                _resource.ModifyBlockCount++;
+            }
+
+            protected override void Dispose (bool disposing)
+            {
+                _resource.ModifyBlockCount--;
+                if (_resource.ModifyBlockCount <= 0)
+                    _resource.OnModified(EventArgs.Empty);
+
+                base.Dispose(disposing);
+            }
+        }
+
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectClass));
 
         private readonly Guid _uid;
         private readonly ResourceName _name;
 
         private ObjectPool _pool;
-        private Guid _textureId;
 
         private bool _canRotate;
         private bool _canScale;
@@ -32,8 +46,7 @@ namespace Treefrog.Framework.Model
         private Rectangle _maskBounds;
         private Rectangle _imageBounds;
 
-        private PropertyCollection _properties;
-        private ObjectClassProperties _predefinedProperties;
+        private PropertyManager _propertyManager;
 
         public ObjectClass (string name)
         {
@@ -42,10 +55,8 @@ namespace Treefrog.Framework.Model
 
             _origin = Point.Zero;
 
-            _properties = new PropertyCollection(_reservedPropertyNames);
-            _predefinedProperties = new ObjectClass.ObjectClassProperties(this);
-
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         public ObjectClass (string name, TextureResource image)
@@ -68,19 +79,36 @@ namespace Treefrog.Framework.Model
             _origin = origin;
         }
 
-        private ObjectClass (LibraryX.ObjectClassX proxy, TexturePool texturePool)
+        public ObjectClass (string name, ObjectClass template)
+            : this(name)
+        {
+            if (template != null) {
+                if (template.Image != null)
+                    _image = template.Image.Crop(template.Image.Bounds);
+
+                _canRotate = template._canRotate;
+                _canScale = template._canScale;
+                _imageBounds = template._imageBounds;
+                _maskBounds = template._maskBounds;
+                _origin = template._origin;
+
+                foreach (var item in template.PropertyManager.CustomProperties)
+                    PropertyManager.CustomProperties.Add(item.Clone() as Property);
+            }
+        }
+
+        private ObjectClass (LibraryX.ObjectClassX proxy, ITexturePool texturePool)
             : this(proxy.Name)
         {
             _uid = proxy.Uid;
-            _textureId = proxy.Texture;
-            _image = texturePool.GetResource(_textureId);
+            _image = texturePool.GetResource(proxy.Texture);
             _imageBounds = proxy.ImageBounds;
             _maskBounds = proxy.MaskBounds;
             _origin = proxy.Origin;
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
-                    CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
+                    PropertyManager.CustomProperties.Add(Property.FromXmlProxy(propertyProxy));
             }
         }
 
@@ -89,13 +117,35 @@ namespace Treefrog.Framework.Model
             get { return _uid; }
         }
 
+        internal int Version { get; private set; }
+
         public ObjectPool Pool
         {
             get { return _pool; }
-            internal set { _pool = value; }
+            internal set 
+            {
+                if (_pool == value)
+                    return;
+
+                ITexturePool oldTexturePool = null;
+                if (_pool != null)
+                    oldTexturePool = _pool.TexturePool;
+
+                _pool = value;
+
+                ITexturePool newTexturePool = null;
+                if (_pool != null)
+                    newTexturePool = _pool.TexturePool;
+
+                if (_image != null) {
+                    if (newTexturePool != null)
+                        newTexturePool.AddResource(_image);
+                    if (oldTexturePool != null)
+                        oldTexturePool.RemoveResource(_image.Uid);
+                }
+            }
         }
 
-        [SystemProperty]
         public bool CanRotate
         {
             get { return _canRotate; }
@@ -108,7 +158,6 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        [SystemProperty]
         public bool CanScale
         {
             get { return _canScale; }
@@ -132,6 +181,7 @@ namespace Treefrog.Framework.Model
             set {
                 if (_maskBounds != value) {
                     _maskBounds = value;
+                    Version++;
                     RaisePropertyChanged("MaskBounds");
                 }
             }
@@ -144,6 +194,7 @@ namespace Treefrog.Framework.Model
             {
                 if (_origin != value) {
                     _origin = value;
+                    Version++;
                     RaisePropertyChanged("Origin");
                 }
             }
@@ -151,7 +202,7 @@ namespace Treefrog.Framework.Model
 
         public Guid ImageId
         {
-            get { return _textureId; }
+            get { return _image != null ? _image.Uid : Guid.Empty; }
         }
 
         public TextureResource Image
@@ -161,17 +212,16 @@ namespace Treefrog.Framework.Model
             {
                 if (_image != value) {
                     if (_image == null)
-                        _textureId = _pool.TexturePool.AddResource(value);
-                    else if (value == null) {
-                        _pool.TexturePool.RemoveResource(_textureId);
-                        _textureId = Guid.Empty;
-                    }
+                        _pool.TexturePool.AddResource(value);
+                    else if (value == null)
+                        _pool.TexturePool.RemoveResource(_image.Uid);
                     else {
-                        _pool.TexturePool.RemoveResource(_textureId);
-                        _textureId = _pool.TexturePool.AddResource(value);
+                        _pool.TexturePool.RemoveResource(_image.Uid);
+                        _pool.TexturePool.AddResource(value);
                     }
 
                     _image = value;
+                    Version++;
                     if (_image == null) {
                         _imageBounds = Rectangle.Empty;
                         RaisePropertyChanged("ImageBounds");
@@ -185,12 +235,14 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        private int ModifyBlockCount { get; set; }
+
         public bool IsModified { get; private set; }
 
         public virtual void ResetModified ()
         {
             IsModified = false;
-            foreach (var property in CustomProperties)
+            foreach (var property in PropertyManager.CustomProperties)
                 property.ResetModified();
         }
 
@@ -198,12 +250,17 @@ namespace Treefrog.Framework.Model
 
         protected virtual void OnModified (EventArgs e)
         {
-            //if (!IsModified) {
-                IsModified = true;
+            IsModified = true;
+            if (ModifyBlockCount <= 0) {
                 var ev = Modified;
                 if (ev != null)
                     ev(this, e);
-            //}
+            }
+        }
+
+        public ResourceReleaser BeginModify ()
+        {
+            return new BatchEditBlock(this);
         }
 
         #region Name Interface
@@ -220,6 +277,7 @@ namespace Treefrog.Framework.Model
             remove { _name.NameChanged -= value; }
         }
 
+        [SpecialProperty]
         public string Name
         {
             get { return _name.Name; }
@@ -238,34 +296,14 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private class ObjectClassProperties : PredefinedPropertyCollection
-        {
-            private ObjectClass _parent;
-
-            public ObjectClassProperties (ObjectClass parent)
-                : base(_reservedPropertyNames)
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield return _parent.LookupProperty("Name");
-                //yield return _parent.LookupProperty("Width");
-                //yield return _parent.LookupProperty("Height");
-                //yield return _parent.LookupProperty("OriginX");
-                //yield return _parent.LookupProperty("OriginY");
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public string PropertyProviderName
         {
             get { return Name; }
+        }
+
+        public PropertyManager PropertyManager
+        {
+            get { return _propertyManager; }
         }
 
         public event EventHandler<EventArgs> PropertyProviderNameChanged;
@@ -274,50 +312,6 @@ namespace Treefrog.Framework.Model
         {
             PropertyProviderNameChanged(this, e);
         }
-
-        public Collections.PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public Collections.PredefinedPropertyCollection PredefinedProperties
-        {
-            get { return _predefinedProperties; }
-        }
-
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            switch (name) {
-                case "Name":
-                //case "Width":
-                //case "Height":
-                //case "OriginX":
-                //case "OriginY":
-                    return PropertyCategory.Predefined;
-                default:
-                    return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-            }
-        }
-
-        public Property LookupProperty (string name)
-        {
-            Property prop;
-
-            switch (name) {
-                case "Name":
-                    prop = new StringProperty("Name", Name);
-                    prop.ValueChanged += NamePropertyChangedHandler;
-                    return prop;
-
-                default:
-                    return _properties.Contains(name) ? _properties[name] : null;
-            }
-        }
-
-        /*private void CustomProperties_Modified (object sender, EventArgs e)
-        {
-            OnModified(e);
-        }*/
 
         private void NamePropertyChangedHandler (object sender, EventArgs e)
         {
@@ -351,13 +345,13 @@ namespace Treefrog.Framework.Model
                 return null;
 
             List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
-            foreach (Property prop in objClass.CustomProperties)
+            foreach (Property prop in objClass.PropertyManager.CustomProperties)
                 props.Add(Property.ToXmlProxyX(prop));
 
             return new LibraryX.ObjectClassX() {
                 Uid = objClass.Uid,
                 Name = objClass.Name,
-                Texture = objClass._textureId,
+                Texture = objClass._image != null ? objClass._image.Uid : Guid.Empty,
                 ImageBounds = objClass._imageBounds,
                 MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,
@@ -365,7 +359,7 @@ namespace Treefrog.Framework.Model
             };
         }
 
-        public static ObjectClass FromXProxy (LibraryX.ObjectClassX proxy, TexturePool texturePool)
+        public static ObjectClass FromXProxy (LibraryX.ObjectClassX proxy, ITexturePool texturePool)
         {
             if (proxy == null)
                 return null;

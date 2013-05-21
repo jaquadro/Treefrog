@@ -7,11 +7,12 @@ namespace Treefrog.Framework.Model
 {
     public abstract class Tile : IResource, IPropertyProvider
     {
+        private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(Tile));
+
         private readonly Guid _uid;
 
         private TilePool _pool;
-        private PropertyCollection _properties;
-        private TileProperties _predefinedProperties;
+        private PropertyManager _propertyManager;
 
         protected List<DependentTile> _dependents;
 
@@ -20,10 +21,8 @@ namespace Treefrog.Framework.Model
             _uid = Guid.NewGuid();
             _dependents = new List<DependentTile>();
 
-            _properties = new PropertyCollection(new string[0]);
-            _predefinedProperties = new Tile.TileProperties(this);
-
-            _properties.Modified += (s, e) => OnModified(EventArgs.Empty);
+            _propertyManager = new PropertyManager(_propertyClassManager, this);
+            _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
         protected Tile (Guid uid)
@@ -77,7 +76,7 @@ namespace Treefrog.Framework.Model
         public virtual void ResetModified ()
         {
             IsModified = false;
-            foreach (Property prop in _properties)
+            foreach (Property prop in PropertyManager.CustomProperties)
                 prop.ResetModified();
         }
 
@@ -102,27 +101,6 @@ namespace Treefrog.Framework.Model
 
         #region IPropertyProvider Members
 
-        private class TileProperties : PredefinedPropertyCollection
-        {
-            private Tile _parent;
-
-            public TileProperties (Tile parent)
-                : base(new string[0])
-            {
-                _parent = parent;
-            }
-
-            protected override IEnumerable<Property> PredefinedProperties ()
-            {
-                yield break;
-            }
-
-            protected override Property LookupProperty (string name)
-            {
-                return _parent.LookupProperty(name);
-            }
-        }
-
         public event EventHandler<EventArgs> PropertyProviderNameChanged = (s, e) => { };
 
         protected virtual void OnPropertyProviderNameChanged (EventArgs e)
@@ -135,46 +113,10 @@ namespace Treefrog.Framework.Model
             get { return "Tile " + _uid; }
         }
 
-        public PredefinedPropertyCollection PredefinedProperties
+        public PropertyManager PropertyManager
         {
-            get { return _predefinedProperties; }
+            get { return _propertyManager; }
         }
-
-        public PropertyCollection CustomProperties
-        {
-            get { return _properties; }
-        }
-
-        public PropertyCategory LookupPropertyCategory (string name)
-        {
-            return _properties.Contains(name) ? PropertyCategory.Custom : PropertyCategory.None;
-        }
-
-        public Property LookupProperty (string name)
-        {
-            return _properties.Contains(name) ? _properties[name] : null;
-        }
-
-        //public void AddCustomProperty (Property property)
-        //{
-        //    if (property == null) {
-        //        throw new ArgumentNullException("The property is null.");
-        //    }
-        //    if (_properties.Contains(property.Name)) {
-        //        throw new ArgumentException("A property with the same name already exists.");
-        //    }
-
-        //    _properties.Add(property);
-        //}
-
-        //public void RemoveCustomProperty (string name)
-        //{
-        //    if (name == null) {
-        //        throw new ArgumentNullException("The name is null.");
-        //    }
-
-        //    _properties.Remove(name);
-        //}
 
         #endregion
     }

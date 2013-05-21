@@ -91,8 +91,10 @@ namespace Treefrog.Presentation
 
         private void InitializeLayers ()
         {
-            foreach (Layer layer in _levelPresenter.Level.Layers)
-                AddLayer(layer);
+            if (_levelPresenter != null) {
+                foreach (Layer layer in _levelPresenter.Level.Layers)
+                    AddLayer(layer);
+            }
         }
 
         private void ClearLayers ()
@@ -124,14 +126,14 @@ namespace Treefrog.Presentation
             get { return _rootLayer; }
         }
 
-        public TexturePool TexturePool
+        public ITexturePool TexturePool
         {
-            get { return _levelPresenter.TexturePool; }
+            get { return _levelPresenter != null ? _levelPresenter.TexturePool : null; }
         }
 
         public Level Level
         {
-            get { return _levelPresenter.Level; }
+            get { return _levelPresenter != null ? _levelPresenter.Level : null; }
         }
 
         public event EventHandler CurrentLevelChanged;
@@ -147,7 +149,7 @@ namespace Treefrog.Presentation
 
         public void UpdateAreaBox ()
         {
-            if (_levelPresenter.LevelGeometry != null) {
+            if (_levelPresenter != null && _levelPresenter.LevelGeometry != null) {
                 _boxAnnot.Start = _levelPresenter.LevelGeometry.VisibleBounds.Location;
                 _boxAnnot.End = new Point(_levelPresenter.LevelGeometry.VisibleBounds.Right, _levelPresenter.LevelGeometry.VisibleBounds.Bottom);
             }

@@ -246,18 +246,16 @@ namespace Treefrog.Presentation
         public void BindTilePoolManager (ITilePoolManager manager)
         {
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded -= TilePoolAdded;
-                _poolManager.Pools.ResourceRemoved -= TilePoolRemoved;
-                //_poolManager.Pools.ResourceRemapped -= TilePoolRemapped;
-                //_poolManager.Pools.CollectionChanged -= TilePoolManagerChanged;
+                _poolManager.PoolAdded -= TilePoolAdded;
+                _poolManager.PoolRemoved -= TilePoolRemoved;
+                _poolManager.PoolModified -= TilePoolModified;
             }
 
             _poolManager = manager;
             if (_poolManager != null) {
-                _poolManager.Pools.ResourceAdded += TilePoolAdded;
-                _poolManager.Pools.ResourceRemoved += TilePoolRemoved;
-                //_poolManager.Pools.ResourceRemapped += TilePoolRemapped;
-                //_poolManager.Pools.CollectionChanged += TilePoolManagerChanged;
+                _poolManager.PoolAdded += TilePoolAdded;
+                _poolManager.PoolRemoved += TilePoolRemoved;
+                _poolManager.PoolModified += TilePoolModified;
 
                 InitializePoolPresenters();
             }
@@ -369,48 +367,32 @@ namespace Treefrog.Presentation
             OnSelectedTilePoolChanged(EventArgs.Empty);
         }
 
-        /*private void TilePoolManagerChanged (object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
-                    foreach (TilePool pool in e.NewItems)
-                        AddPoolPresenter(pool);
-                    break;
-
-                case NotifyCollectionChangedAction.Replace:
-                    foreach (TilePool pool in e.OldItems)
-                        RemovePoolPresenter(pool.Name);
-                    foreach (TilePool pool in e.NewItems)
-                        AddPoolPresenter(pool);
-                    break;
-
-                case NotifyCollectionChangedAction.Remove:
-                    foreach (TilePool pool in e.OldItems)
-                        RemovePoolPresenter(pool.Name);
-                    break;
-            }
-        }*/
-
         private void TilePoolAdded (object sender, ResourceEventArgs<TilePool> e)
         {
             AddPoolPresenter(e.Resource);
+
+            SelectTilePool(e.Uid);
+
+            OnSyncTilePoolList(EventArgs.Empty);
+            OnSyncTilePoolControl(EventArgs.Empty);
         }
 
         private void TilePoolRemoved (object sender, ResourceEventArgs<TilePool> e)
         {
             RemovePoolPresenter(e.Resource.Uid);
+
+            if (_selectedPool == e.Uid)
+                SelectTilePool();
+
+            OnSyncTilePoolList(EventArgs.Empty);
+            OnSyncTilePoolControl(EventArgs.Empty);
         }
 
-        /*private void TilePoolRemapped (object sender, NamedResourceRemappedEventArgs<TilePool> e)
+        private void TilePoolModified (object sender, ResourceEventArgs<TilePool> e)
         {
-            if (_tilePoolPresenters.ContainsKey(e.OldName)) {
-                _tilePoolPresenters[e.NewName] = _tilePoolPresenters[e.OldName];
-                _tilePoolPresenters.Remove(e.OldName);
-            }
-
-            if (_selectedPool == e.OldName)
-                _selectedPool = e.NewName;
-        }*/
+            OnSyncTilePoolList(EventArgs.Empty);
+            OnSyncTilePoolControl(EventArgs.Empty);
+        }
 
         #region Command Handling
 
@@ -421,16 +403,29 @@ namespace Treefrog.Presentation
             _commandManager = new CommandManager();
 
             _commandManager.Register(CommandKey.TileProperties, CommandCanTileProperties, CommandTileProperties);
-            _commandManager.Register(CommandKey.TilePoolProperties, CommandCanTilePoolProperties, CommandTilePoolProperties);
-            _commandManager.Register(CommandKey.TilePoolImport, CommandCanImport, CommandImport);
-            _commandManager.Register(CommandKey.TilePoolDelete, CommandCanDelete, CommandDelete);
-            _commandManager.Register(CommandKey.TilePoolExport, CommandCanExport, CommandExport);
-            _commandManager.Register(CommandKey.TilePoolImportOver, CommandCanImportOver, CommandImportOver);
+
+            TilePoolCommandActions tilePoolActions = _editor.CommandActions.TilePoolActions;
+            _commandManager.Register(CommandKey.TilePoolImport, () => { return true; }, tilePoolActions.CommandImport);
+            _commandManager.Register(CommandKey.TilePoolDelete, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandDelete));
+            _commandManager.Register(CommandKey.TilePoolRename, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandRename));
+            _commandManager.Register(CommandKey.TilePoolProperties, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandProperties));
+            _commandManager.Register(CommandKey.TilePoolExport, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandExport));
+            _commandManager.Register(CommandKey.TilePoolImportOver, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandImportOver));
         }
 
         public CommandManager CommandManager
         {
             get { return _commandManager; }
+        }
+
+        private bool CommandCanOperateOnSelected ()
+        {
+            return _editor.CommandActions.TilePoolActions.TilePoolExists(_selectedPool);
+        }
+
+        private System.Action WrapCommand (Action<object> action)
+        {
+            return () => action(_selectedPool);
         }
 
         private bool CommandCanTileProperties ()
@@ -443,121 +438,6 @@ namespace Treefrog.Presentation
             if (CommandCanTileProperties()) {
                 _editor.Presentation.PropertyList.Provider = _selectedPoolRef.SelectedTile;
                 _editor.ActivatePropertyPanel();
-            }
-        }
-
-        private bool CommandCanTilePoolProperties ()
-        {
-            return _selectedPoolRef != null;
-        }
-
-        private void CommandTilePoolProperties ()
-        {
-            if (CommandCanTilePoolProperties()) {
-                _editor.Presentation.PropertyList.Provider = _selectedPoolRef.TilePool;
-                _editor.ActivatePropertyPanel();
-            }
-        }
-
-        private bool CommandCanImport ()
-        {
-            return true;
-        }
-
-        private void CommandImport ()
-        {
-            if (CommandCanImport()) {
-                List<string> currentNames = new List<string>();
-                foreach (TilePool pool in _editor.Project.TilePoolManager.Pools) {
-                    currentNames.Add(pool.Name);
-                }
-
-                ImportTilePool form = new ImportTilePool(_editor.Project);
-                form.ShowDialog();
-
-                foreach (TilePool pool in _editor.Project.TilePoolManager.Pools) {
-                    if (!currentNames.Contains(pool.Name)) {
-                        SelectTilePool(pool.Uid);
-                    }
-                }
-
-                OnSyncTilePoolList(EventArgs.Empty);
-                OnSyncTilePoolControl(EventArgs.Empty);
-            }
-        }
-
-        private bool CommandCanDelete ()
-        {
-            return _selectedPoolRef != null;
-        }
-
-        private void CommandDelete ()
-        {
-            if (CommandCanDelete()) {
-                if (_selectedPool != null && _editor.Project.TilePoolManager.Pools.Contains(_selectedPool)) {
-                    _poolManager.Pools.Remove(_selectedPool);
-                }
-
-                SelectTilePool();
-
-                OnSyncTilePoolList(EventArgs.Empty);
-                OnSyncTilePoolControl(EventArgs.Empty);
-            }
-        }
-
-        private bool CommandCanExport ()
-        {
-            return _selectedPool != null;
-        }
-
-        private void CommandExport ()
-        {
-            if (CommandCanExport()) {
-                Bitmap export = _selectedPoolRef.TilePool.TileSource.CreateBitmap();
-
-                SaveFileDialog ofd = new SaveFileDialog();
-                ofd.Title = "Export Raw Tileset";
-                ofd.Filter = "Portable Network Graphics (*.png)|*.png|Windows Bitmap (*.bmp)|*.bmp|All Files|*";
-                ofd.OverwritePrompt = true;
-                ofd.RestoreDirectory = false;
-
-                if (ofd.ShowDialog() == DialogResult.OK) {
-                    export.Save(ofd.FileName);
-                }
-            }
-        }
-
-        private bool CommandCanImportOver ()
-        {
-            return _selectedPool != null;
-        }
-
-        private void CommandImportOver ()
-        {
-            if (CommandCanImportOver()) {
-                OpenFileDialog ofd = new OpenFileDialog();
-                ofd.Title = "Import Raw Tileset";
-                ofd.Filter = "Images Files|*.bmp;*.gif;*.png|All Files|*";
-                ofd.Multiselect = false;
-                ofd.RestoreDirectory = false;
-
-                if (ofd.ShowDialog() == DialogResult.OK) {
-                    try {
-                        TextureResource import = TextureResourceBitmapExt.CreateTextureResource(ofd.FileName);
-
-                        TextureResource original = _selectedPoolRef.TilePool.TileSource;
-                        if (original.Width != import.Width || original.Height != import.Height) {
-                            MessageBox.Show("Imported tileset dimensions are incompatible with the selected Tile Pool.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return;
-                        }
-
-                        _selectedPoolRef.TilePool.Tiles.ReplaceTexture(import);
-                    }
-                    catch {
-                        MessageBox.Show("Could not read selected image file.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
             }
         }
 

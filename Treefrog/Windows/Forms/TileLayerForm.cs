@@ -41,6 +41,7 @@ namespace Treefrog.Windows.Forms
             _opacityField.Value = (decimal)_layer.Opacity;
             _tileWidthField.Value = _layer.TileWidth;
             _tileHeightField.Value = _layer.TileHeight;
+            _gridColorButton.Color = Color.FromArgb(255, _layer.GridColor.R, _layer.GridColor.G, _layer.GridColor.B);
 
             _tileHeightField.Enabled = false;
             _tileWidthField.Enabled = false;
@@ -117,12 +118,14 @@ namespace Treefrog.Windows.Forms
                 _level);
 
             _layer.Opacity = (float)_opacityField.Value;
+            _layer.GridColor = new Treefrog.Framework.Imaging.Color(_gridColorButton.Color.R, _gridColorButton.Color.G, _gridColorButton.Color.B, 128);
         }
 
         private void ApplyModify ()
         {
             _layer.Name = _nameField.Text.Trim();
             _layer.Opacity = (float)_opacityField.Value;
+            _layer.GridColor = new Treefrog.Framework.Imaging.Color(_gridColorButton.Color.R, _gridColorButton.Color.G, _gridColorButton.Color.B, 128);
         }
 
         private void _okButton_Click (object sender, EventArgs e)
@@ -143,6 +146,19 @@ namespace Treefrog.Windows.Forms
         {
             DialogResult = DialogResult.Cancel;
             Close();
+        }
+
+        private void _gridColorButton_Click (object sender, EventArgs e)
+        {
+            ColorDialog cd = new ColorDialog() {
+                SolidColorOnly = true,
+                Color = _gridColorButton.Color,
+                FullOpen = true,
+            };
+
+            DialogResult result = cd.ShowDialog(this);
+
+            _gridColorButton.Color = cd.Color;
         }
     }
 }

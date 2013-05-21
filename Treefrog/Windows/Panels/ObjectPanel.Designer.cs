@@ -51,6 +51,7 @@
             this._listView.TabIndex = 0;
             this._listView.TileSize = new System.Drawing.Size(64, 64);
             this._listView.UseCompatibleStateImageBehavior = false;
+            this._listView.DoubleClick += new System.EventHandler(this._listView_DoubleClick);
             // 
             // _listViewImages
             // 
