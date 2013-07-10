@@ -83,6 +83,9 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ExceptionReporter.WinForms">
+      <HintPath>..\Libs\Debug\ExceptionReporter.WinForms.dll</HintPath>
+    </Reference>
     <Reference Include="LilyPath, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\Debug\LilyPath.dll</HintPath>

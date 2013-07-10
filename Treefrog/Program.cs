@@ -5,6 +5,7 @@ using Treefrog.Framework.Model;
 using System.IO;
 using Treefrog.Framework;
 using System.Threading;
+using ExceptionReporting;
 
 namespace Treefrog
 {
@@ -44,7 +45,15 @@ namespace Treefrog
                 }
             }
 
-            MessageBox.Show("TreeFrog crashed with the following:\r\n\r\n" + e.Message + "\r\n\r\n" + e.StackTrace);
+            ExceptionReporter reporter = new ExceptionReporter();
+
+            reporter.Config.ShowSysInfoTab = false;
+            reporter.Config.ShowConfigTab = false;
+            reporter.Config.EmailReportAddress = "jaquadro@gmail.com";
+            reporter.Config.TitleText = "Treefrog Crash";
+            reporter.Config.UserExplanationLabel = "Enter a brief description leading up to the crash.  Your project has been saved to /recovery.";
+
+            reporter.Show(e);
 
             Application.Exit();
         }
