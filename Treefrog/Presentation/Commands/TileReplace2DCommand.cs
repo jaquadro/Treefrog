@@ -49,6 +49,11 @@ namespace Treefrog.Presentation.Commands
             }
         }
 
+        public bool IsEmpty
+        {
+            get { return _tiles.Count == 0; }
+        }
+
         public void QueueAdd (TileCoord coord, Tile tile)
         {
             if (tile != null) {

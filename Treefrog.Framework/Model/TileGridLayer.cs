@@ -79,6 +79,11 @@ namespace Treefrog.Framework.Model
             get { return _tilesWide; }
         }
 
+        public bool CanAddTile (int x, int y, Tile tile)
+        {
+            return CheckTile(tile) && CheckBounds(x, y);
+        }
+
         public void AddTile (int x, int y, Tile tile)
         {
             CheckBoundsFail(x, y);

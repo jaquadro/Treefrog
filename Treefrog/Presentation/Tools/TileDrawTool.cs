@@ -207,8 +207,10 @@ namespace Treefrog.Presentation.Tools
                 }*/
             }
             else if (Layer[location] == null || Layer[location].Top != ActiveTile) {
-                _drawCommand.QueueAdd(location, ActiveTile);
-                Layer.AddTile(location.X, location.Y, ActiveTile);
+                if (Layer.CanAddTile(location.X, location.Y, ActiveTile)) {
+                    _drawCommand.QueueAdd(location, ActiveTile);
+                    Layer.AddTile(location.X, location.Y, ActiveTile);
+                }
             }
         }
         
@@ -217,7 +219,8 @@ namespace Treefrog.Presentation.Tools
             if (ActiveTile == null && _activeBrush == null)
                 return;
 
-            History.Execute(_drawCommand);
+            if (!_drawCommand.IsEmpty)
+                History.Execute(_drawCommand);
         }
 
         private void TileAddingHandler (object sender, LocatedTileEventArgs e)
