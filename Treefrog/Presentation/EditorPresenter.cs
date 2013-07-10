@@ -254,6 +254,8 @@ namespace Treefrog.Presentation
             _project.Modified += ProjectModifiedHandler;
             //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
+            Program.CurrentProject = _project;
+
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
             _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
@@ -305,6 +307,7 @@ namespace Treefrog.Presentation
             SelectLevel(Guid.Empty);
 
             Project project = EmptyProject();
+            Program.CurrentProject = project;
 
             NewLevel form = new NewLevel(project);
             if (form.ShowDialog() != DialogResult.OK) {
@@ -365,6 +368,8 @@ namespace Treefrog.Presentation
         {
             if (PromptCancelIfModified())
                 return;
+
+            Program.CurrentProject = project;
 
             Project prevProject = _project;
 

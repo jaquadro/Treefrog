@@ -344,6 +344,7 @@ namespace Treefrog.Framework.Imaging
     }
 }
 
+#if AUX
 namespace Treefrog.Aux
 {
     using System.Drawing;
@@ -439,3 +440,4 @@ namespace Treefrog.Aux
         }
     }
 }
+#endif
