@@ -251,14 +251,14 @@ namespace Treefrog.Presentation
             }
 
             _project = EmptyProject();
+            _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
+
             _project.Modified += ProjectModifiedHandler;
             //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             Program.CurrentProject = _project;
 
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
-
-            _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
 
             //_openContent = new List<Guid>();
             //_levels = new Dictionary<Guid, LevelPresenter>();
@@ -267,9 +267,9 @@ namespace Treefrog.Presentation
             level.Project = _project;
             level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
 
-            Level level2 = new Level("Level 2", 0, 0, 800, 480);
-            level2.Project = _project;
-            level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 32, 32, 25, 15));
+            //Level level2 = new Level("Level 2", 0, 0, 800, 480);
+            //level2.Project = _project;
+            //level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 32, 32, 25, 15));
 
             //LevelPresenter pres = new LevelPresenter(this, level);
             //_levels[level.Uid] = pres;
@@ -281,7 +281,7 @@ namespace Treefrog.Presentation
             //_openContent.Add(level2.Uid);
 
             _project.Levels.Add(level);
-            _project.Levels.Add(level2);
+            //_project.Levels.Add(level2);
 
             SelectLevel(level.Uid);
 
@@ -294,10 +294,8 @@ namespace Treefrog.Presentation
             Modified = false;
             Project.ResetModified();
 
-            
-
             _content.OpenContent(level.Uid);
-            _content.OpenContent(level2.Uid);
+            //_content.OpenContent(level2.Uid);
 
             RefreshEditor();
         }
