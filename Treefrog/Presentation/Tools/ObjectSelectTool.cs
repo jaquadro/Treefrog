@@ -183,7 +183,9 @@ namespace Treefrog.Presentation.Tools
 
         private float MaxBoundingDiagonal (ObjectInstance inst)
         {
-            int maxDim = Math.Max(inst.ObjectClass.ImageBounds.Width, inst.ObjectClass.ImageBounds.Height);
+            RasterObjectClass objClass = inst.ObjectClass as RasterObjectClass;
+
+            int maxDim = Math.Max(objClass.ImageBounds.Width, objClass.ImageBounds.Height);
             float diag1 = (float)Math.Sqrt(maxDim * maxDim * 2);
             float diag2 = (float)Math.Sqrt(diag1 * diag1 * 2);
 

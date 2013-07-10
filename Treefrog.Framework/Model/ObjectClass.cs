@@ -8,6 +8,165 @@ using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Framework.Model
 {
+    public class RasterObjectClass : ObjectClass
+    {
+        private TextureResource _image;
+        private Rectangle _maskBounds;
+        private Rectangle _imageBounds;
+
+        public RasterObjectClass (string name)
+            : base(name)
+        { }
+
+        public RasterObjectClass (string name, TextureResource image)
+            : base(name)
+        {
+            _image = image;
+            _imageBounds = image.Bounds;
+            _maskBounds = image.Bounds;
+        }
+
+        public RasterObjectClass (string name, TextureResource image, Rectangle maskBounds)
+            : this(name, image)
+        {
+            _maskBounds = maskBounds;
+        }
+
+        public RasterObjectClass (string name, TextureResource image, Rectangle maskBounds, Point origin)
+            : this(name, image, maskBounds)
+        {
+            Origin = origin;
+        }
+
+        public RasterObjectClass (string name, RasterObjectClass template)
+            : base(name)
+        {
+            if (template != null) {
+                if (template.Image != null)
+                    _image = template.Image.Crop(template.Image.Bounds);
+
+                _imageBounds = template._imageBounds;
+                _maskBounds = template._maskBounds;
+            }
+        }
+
+        private RasterObjectClass (LibraryX.RasterObjectClassX proxy, ITexturePool texturePool)
+            : base(proxy, texturePool)
+        {
+            _image = texturePool.GetResource(proxy.Texture);
+            _imageBounds = proxy.ImageBounds;
+            _maskBounds = proxy.MaskBounds;
+        }
+
+        protected override void PoolChanging (ObjectPool newPool)
+        {
+            ITexturePool oldTexturePool = null;
+            if (Pool != null)
+                oldTexturePool = Pool.TexturePool;
+
+            ITexturePool newTexturePool = null;
+            if (newPool != null)
+                newTexturePool = newPool.TexturePool;
+
+            if (_image != null) {
+                if (newTexturePool != null)
+                    newTexturePool.AddResource(_image);
+                if (oldTexturePool != null)
+                    oldTexturePool.RemoveResource(_image.Uid);
+            }
+        }
+
+        public Rectangle ImageBounds
+        {
+            get { return _imageBounds; }
+        }
+
+        public Rectangle MaskBounds
+        {
+            get { return _maskBounds; }
+            set
+            {
+                if (_maskBounds != value) {
+                    _maskBounds = value;
+                    Version++;
+                    RaisePropertyChanged("MaskBounds");
+                }
+            }
+        }
+
+        public Guid ImageId
+        {
+            get { return _image != null ? _image.Uid : Guid.Empty; }
+        }
+
+        public TextureResource Image
+        {
+            get { return _image; }
+            set
+            {
+                if (_image != value) {
+                    if (_image == null)
+                        Pool.TexturePool.AddResource(value);
+                    else if (value == null)
+                        Pool.TexturePool.RemoveResource(_image.Uid);
+                    else {
+                        Pool.TexturePool.RemoveResource(_image.Uid);
+                        Pool.TexturePool.AddResource(value);
+                    }
+
+                    _image = value;
+                    Version++;
+                    if (_image == null) {
+                        _imageBounds = Rectangle.Empty;
+                        RaisePropertyChanged("ImageBounds");
+                    }
+                    else if (_imageBounds.Width != _image.Width || _imageBounds.Height != _image.Height) {
+                        _imageBounds = _image.Bounds;
+                        RaisePropertyChanged("ImageBounds");
+                    }
+                    RaisePropertyChanged("Image");
+                }
+            }
+        }
+
+        public override IEnumerable<TextureResource> ReferencedTextures
+        {
+            get
+            {
+                if (_image != null)
+                    yield return _image;
+            }
+        }
+
+        public static LibraryX.RasterObjectClassX ToXProxy (RasterObjectClass objClass)
+        {
+            if (objClass == null)
+                return null;
+
+            List<CommonX.PropertyX> props = new List<CommonX.PropertyX>();
+            foreach (Property prop in objClass.PropertyManager.CustomProperties)
+                props.Add(Property.ToXmlProxyX(prop));
+
+            return new LibraryX.RasterObjectClassX() {
+                Uid = objClass.Uid,
+                Name = objClass.Name,
+                Texture = objClass._image != null ? objClass._image.Uid : Guid.Empty,
+                ImageBounds = objClass._imageBounds,
+                MaskBounds = objClass._maskBounds,
+                Origin = objClass.Origin,
+                Properties = props.Count > 0 ? props : null,
+            };
+        }
+
+        public static RasterObjectClass FromXProxy (LibraryX.RasterObjectClassX proxy, ITexturePool texturePool)
+        {
+            if (proxy == null)
+                return null;
+
+            return new RasterObjectClass(proxy, texturePool);
+        }
+    }
+
     public class ObjectClass : INamedResource, INotifyPropertyChanged, IPropertyProvider
     {
         private class BatchEditBlock : ResourceReleaser
@@ -40,11 +199,7 @@ namespace Treefrog.Framework.Model
         private bool _canRotate;
         private bool _canScale;
 
-        private TextureResource _image;
-
         private Point _origin;
-        private Rectangle _maskBounds;
-        private Rectangle _imageBounds;
 
         private PropertyManager _propertyManager;
 
@@ -59,37 +214,12 @@ namespace Treefrog.Framework.Model
             _propertyManager.CustomProperties.Modified += (s, e) => OnModified(EventArgs.Empty);
         }
 
-        public ObjectClass (string name, TextureResource image)
-            : this(name)
-        {
-            _image = image;
-            _imageBounds = image.Bounds;
-            _maskBounds = image.Bounds;
-        }
-
-        public ObjectClass (string name, TextureResource image, Rectangle maskBounds)
-            : this(name, image)
-        {
-            _maskBounds = maskBounds;
-        }
-
-        public ObjectClass (string name, TextureResource image, Rectangle maskBounds, Point origin)
-            : this(name, image, maskBounds)
-        {
-            _origin = origin;
-        }
-
         public ObjectClass (string name, ObjectClass template)
             : this(name)
         {
             if (template != null) {
-                if (template.Image != null)
-                    _image = template.Image.Crop(template.Image.Bounds);
-
                 _canRotate = template._canRotate;
                 _canScale = template._canScale;
-                _imageBounds = template._imageBounds;
-                _maskBounds = template._maskBounds;
                 _origin = template._origin;
 
                 foreach (var item in template.PropertyManager.CustomProperties)
@@ -97,13 +227,10 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        private ObjectClass (LibraryX.ObjectClassX proxy, ITexturePool texturePool)
+        protected ObjectClass (LibraryX.ObjectClassX proxy, ITexturePool texturePool)
             : this(proxy.Name)
         {
             _uid = proxy.Uid;
-            _image = texturePool.GetResource(proxy.Texture);
-            _imageBounds = proxy.ImageBounds;
-            _maskBounds = proxy.MaskBounds;
             _origin = proxy.Origin;
 
             if (proxy.Properties != null) {
@@ -117,7 +244,7 @@ namespace Treefrog.Framework.Model
             get { return _uid; }
         }
 
-        internal int Version { get; private set; }
+        internal int Version { get; set; }
 
         public ObjectPool Pool
         {
@@ -127,24 +254,14 @@ namespace Treefrog.Framework.Model
                 if (_pool == value)
                     return;
 
-                ITexturePool oldTexturePool = null;
-                if (_pool != null)
-                    oldTexturePool = _pool.TexturePool;
+                PoolChanging(value);
 
                 _pool = value;
-
-                ITexturePool newTexturePool = null;
-                if (_pool != null)
-                    newTexturePool = _pool.TexturePool;
-
-                if (_image != null) {
-                    if (newTexturePool != null)
-                        newTexturePool.AddResource(_image);
-                    if (oldTexturePool != null)
-                        oldTexturePool.RemoveResource(_image.Uid);
-                }
             }
         }
+
+        protected virtual void PoolChanging (ObjectPool newPool)
+        { }
 
         public bool CanRotate
         {
@@ -170,23 +287,6 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public Rectangle ImageBounds
-        {
-            get { return _imageBounds; }
-        }
-
-        public Rectangle MaskBounds
-        {
-            get { return _maskBounds; }
-            set {
-                if (_maskBounds != value) {
-                    _maskBounds = value;
-                    Version++;
-                    RaisePropertyChanged("MaskBounds");
-                }
-            }
-        }
-
         public Point Origin
         {
             get { return _origin; }
@@ -200,39 +300,9 @@ namespace Treefrog.Framework.Model
             }
         }
 
-        public Guid ImageId
+        public virtual IEnumerable<TextureResource> ReferencedTextures
         {
-            get { return _image != null ? _image.Uid : Guid.Empty; }
-        }
-
-        public TextureResource Image
-        {
-            get { return _image; }
-            set
-            {
-                if (_image != value) {
-                    if (_image == null)
-                        _pool.TexturePool.AddResource(value);
-                    else if (value == null)
-                        _pool.TexturePool.RemoveResource(_image.Uid);
-                    else {
-                        _pool.TexturePool.RemoveResource(_image.Uid);
-                        _pool.TexturePool.AddResource(value);
-                    }
-
-                    _image = value;
-                    Version++;
-                    if (_image == null) {
-                        _imageBounds = Rectangle.Empty;
-                        RaisePropertyChanged("ImageBounds");
-                    }
-                    else if (_imageBounds.Width != _image.Width || _imageBounds.Height != _image.Height) {
-                        _imageBounds = _image.Bounds;
-                        RaisePropertyChanged("ImageBounds");
-                    }
-                    RaisePropertyChanged("Image");
-                }
-            }
+            get { yield break; }
         }
 
         private int ModifyBlockCount { get; set; }
@@ -331,7 +401,7 @@ namespace Treefrog.Framework.Model
                 PropertyChanged(this, e);
         }
 
-        private void RaisePropertyChanged (string name)
+        protected void RaisePropertyChanged (string name)
         {
             OnPropertyChanged(new PropertyChangedEventArgs(name));
             OnModified(EventArgs.Empty);
@@ -351,9 +421,6 @@ namespace Treefrog.Framework.Model
             return new LibraryX.ObjectClassX() {
                 Uid = objClass.Uid,
                 Name = objClass.Name,
-                Texture = objClass._image != null ? objClass._image.Uid : Guid.Empty,
-                ImageBounds = objClass._imageBounds,
-                MaskBounds = objClass._maskBounds,
                 Origin = objClass._origin,
                 Properties = props.Count > 0 ? props : null,
             };

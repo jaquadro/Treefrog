@@ -251,7 +251,7 @@ namespace Treefrog.Presentation
 
         private bool CommandCanImportObject ()
         {
-            return _selectedPool != null;
+            return _selectedPool != Guid.Empty;
         }
 
         private void CommandImportObject ()
@@ -263,7 +263,7 @@ namespace Treefrog.Presentation
 
                     if (form.ShowDialog() == DialogResult.OK) {
                         TextureResource resource = TextureResourceBitmapExt.CreateTextureResource(form.SourceFile);
-                        ObjectClass objClass = new ObjectClass(form.ObjectName) {
+                        RasterObjectClass objClass = new RasterObjectClass(form.ObjectName) {
                             MaskBounds = new Rectangle(form.MaskLeft ?? 0, form.MaskTop ?? 0,
                                 (form.MaskRight ?? 0) - (form.MaskLeft ?? 0), (form.MaskBottom ?? 0) - (form.MaskTop ?? 0)),
                             Origin = new Point(form.OriginX ?? 0, form.OriginY ?? 0),

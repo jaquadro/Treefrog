@@ -95,10 +95,14 @@ namespace Treefrog.Presentation.Layers
 
                 Rectangle region = geometry.VisibleBounds;
                 foreach (ObjectInstance inst in Layer.ObjectsInRegion(region, ObjectRegionTest.PartialImage)) {
-                    Rectangle srcRect = inst.ObjectClass.ImageBounds;
-                    Rectangle dstRect = inst.ObjectClass.ImageBounds;
+                    RasterObjectClass objClass = inst.ObjectClass as RasterObjectClass;
+                    if (objClass == null)
+                        continue;
+
+                    Rectangle srcRect = objClass.ImageBounds;
+                    Rectangle dstRect = objClass.ImageBounds;
                     yield return new DrawCommand() {
-                        Texture = inst.ObjectClass.ImageId,
+                        Texture = objClass.ImageId,
                         SourceRect = new Rectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height),
                         DestRect = new Rectangle(
                             (int)((inst.Position.X + dstRect.X) * geometry.ZoomFactor),

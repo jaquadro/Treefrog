@@ -28,6 +28,11 @@ namespace Treefrog.Presentation.Tools
             HidePreviewMarker();
         }
 
+        protected new RasterObjectClass ActiveObjectClass
+        {
+            get { return base.ActiveObjectClass as RasterObjectClass; }
+        }
+
         protected override void StartPointerSequenceCore (PointerEventInfo info, ILevelGeometry viewport)
         {
             switch (info.Type) {
@@ -57,7 +62,7 @@ namespace Treefrog.Presentation.Tools
         #region Preview Marker
 
         private bool _previewMarkerVisible;
-        private ObjectClass _activeClass;
+        private RasterObjectClass _activeClass;
 
         private void ShowPreviewMarker (PointerEventInfo info)
         {

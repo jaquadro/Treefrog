@@ -72,13 +72,14 @@ namespace Treefrog.Framework.Model.Proxy
 
             [XmlArray]
             [XmlArrayItem("ObjectClass")]
-            public List<ObjectClassX> ObjectClasses { get; set; }
+            public List<RasterObjectClassX> ObjectClasses { get; set; }
 
             [XmlArray]
             [XmlArrayItem("Property")]
             public List<CommonX.PropertyX> Properties { get; set; }
         }
 
+        //[XmlRoot("ObjectClassBase", Namespace = "http://jaquadro.com/schemas/treefrog/library")]
         public class ObjectClassX
         {
             [XmlAttribute]
@@ -87,6 +88,17 @@ namespace Treefrog.Framework.Model.Proxy
             [XmlAttribute]
             public string Name { get; set; }
 
+            [XmlElement]
+            public Point Origin { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public List<CommonX.PropertyX> Properties { get; set; }
+        }
+
+        //[XmlRoot("ObjectClass", Namespace = "http://jaquadro.com/schemas/treefrog/library")]
+        public class RasterObjectClassX : ObjectClassX
+        {
             [XmlAttribute]
             public Guid Texture { get; set; }
 
@@ -95,13 +107,6 @@ namespace Treefrog.Framework.Model.Proxy
 
             [XmlElement]
             public Rectangle MaskBounds { get; set; }
-
-            [XmlElement]
-            public Point Origin { get; set; }
-
-            [XmlArray]
-            [XmlArrayItem("Property")]
-            public List<CommonX.PropertyX> Properties { get; set; }
         }
 
         public class TilePoolX

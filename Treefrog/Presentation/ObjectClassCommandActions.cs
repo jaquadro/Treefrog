@@ -33,7 +33,10 @@ namespace Treefrog.Presentation
 
             Guid uid = (Guid)param;
             ObjectPool objPool = _editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
-            ObjectClass objClass = objPool.GetObject(uid);
+            RasterObjectClass objClass = objPool.GetObject(uid) as RasterObjectClass;
+
+            if (objClass == null)
+                return;
 
             using (ImportObject form = new ImportObject(objClass)) {
                 foreach (ObjectClass obj in objPool.Objects) {

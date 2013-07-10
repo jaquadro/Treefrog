@@ -254,9 +254,11 @@ namespace Treefrog.Presentation
             _project.Modified += ProjectModifiedHandler;
             //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
+            _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
+
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
-            _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
+            
 
             //_openContent = new List<Guid>();
             //_levels = new Dictionary<Guid, LevelPresenter>();

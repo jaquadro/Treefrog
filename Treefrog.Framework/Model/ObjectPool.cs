@@ -49,10 +49,18 @@ namespace Treefrog.Framework.Model
             TexturePool = manager.TexturePool;
 
             foreach (var objClass in proxy.ObjectClasses) {
-                ObjectClass obj = ObjectClass.FromXProxy(objClass, TexturePool);
-                obj.Pool = this;
+                if (objClass is LibraryX.RasterObjectClassX) {
+                    RasterObjectClass obj = RasterObjectClass.FromXProxy(objClass as LibraryX.RasterObjectClassX, TexturePool);
+                    obj.Pool = this;
 
-                Objects.Add(obj);
+                    Objects.Add(obj);
+                }
+                else {
+                    ObjectClass obj = ObjectClass.FromXProxy(objClass, TexturePool);
+                    obj.Pool = this;
+
+                    Objects.Add(obj);
+                }
             }
 
             manager.Pools.Add(this);
@@ -241,10 +249,16 @@ namespace Treefrog.Framework.Model
             if (pool == null)
                 return null;
 
-            List<LibraryX.ObjectClassX> objects = new List<LibraryX.ObjectClassX>();
+            List<LibraryX.RasterObjectClassX> objects = new List<LibraryX.RasterObjectClassX>();
             foreach (ObjectClass objClass in pool.Objects) {
-                LibraryX.ObjectClassX classProxy = ObjectClass.ToXProxy(objClass);
-                objects.Add(classProxy);
+                if (objClass is RasterObjectClass) {
+                    LibraryX.RasterObjectClassX classProxy = RasterObjectClass.ToXProxy(objClass as RasterObjectClass);
+                    objects.Add(classProxy);
+                }
+                else {
+                    //LibraryX.ObjectClassX classProxy = ObjectClass.ToXProxy(objClass);
+                    //objects.Add(classProxy);
+                }
             }
 
             return new LibraryX.ObjectPoolX() {

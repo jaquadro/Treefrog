@@ -109,6 +109,7 @@
     <Compile Include="Model\Project.cs" />
     <Compile Include="Attributes.cs" />
     <Compile Include="Model\Property.cs" />
+    <Compile Include="Model\VectorLayer.cs" />
     <Compile Include="PropertyClassManager.cs" />
     <Compile Include="PropertyConverter.cs" />
     <Compile Include="PropertyManager.cs" />

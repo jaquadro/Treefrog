@@ -15,7 +15,7 @@ namespace Treefrog.Framework.Model
         private readonly Guid _uid;
 
         [NonSerialized]
-        private ObjectClass _class;
+        private RasterObjectClass _class;
 
         [NonSerialized]
         private int _classVersion;
@@ -31,7 +31,7 @@ namespace Treefrog.Framework.Model
         private Rectangle _maskRotatedBounds;
         private Rectangle _imageRotatedBounds;
 
-        public ObjectInstance (ObjectClass objClass, int posX, int posY)
+        public ObjectInstance (RasterObjectClass objClass, int posX, int posY)
         {
             _uid = Guid.NewGuid();
             _class = objClass;
@@ -48,7 +48,7 @@ namespace Treefrog.Framework.Model
             UpdateBounds();
         }
 
-        public ObjectInstance (ObjectClass objClass)
+        public ObjectInstance (RasterObjectClass objClass)
             : this(objClass, 0, 0)
         {
         }
@@ -67,7 +67,7 @@ namespace Treefrog.Framework.Model
             UpdateBounds();
         }
 
-        private ObjectInstance (LevelX.ObjectInstanceX proxy, ObjectClass objClass)
+        private ObjectInstance (LevelX.ObjectInstanceX proxy, RasterObjectClass objClass)
             : this(objClass, proxy.X, proxy.Y)
         {
             _uid = proxy.Uid;
@@ -306,7 +306,7 @@ namespace Treefrog.Framework.Model
             if (pool == null)
                 throw new Exception("Invalid ObjectClass Id");
 
-            _class = pool.GetObject(_classId);
+            _class = pool.GetObject(_classId) as RasterObjectClass;
             if (_class == null)
                 throw new Exception("Invalid ObjectClass Id");
 
@@ -373,7 +373,7 @@ namespace Treefrog.Framework.Model
             if (pool == null)
                 return null;
 
-            ObjectClass objClass = pool.Objects[proxy.Class];
+            RasterObjectClass objClass = pool.Objects[proxy.Class] as RasterObjectClass;
             if (objClass == null)
                 return null;
 

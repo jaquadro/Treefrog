@@ -137,6 +137,25 @@ namespace Treefrog.Framework.Model.Proxy
             public Guid Uid { get; set; }
         }
 
+        public class VectorShapeX
+        {
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
+            public int X { get; set; }
+
+            [XmlAttribute]
+            public int Y { get; set; }
+
+            [XmlAttribute]
+            public float Rotation { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public List<CommonX.PropertyX> Properties { get; set; }
+        }
+
         [XmlAttribute]
         public string Name { get; set; }
 

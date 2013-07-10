@@ -2,6 +2,7 @@
 using System.Xml.Serialization;
 using System;
 using Treefrog.Framework.Model.Proxy;
+using Treefrog.Framework.Imaging;
 
 namespace Treefrog.Framework.Model
 {
@@ -29,8 +30,12 @@ namespace Treefrog.Framework.Model
         {
             if (pool.TexturePool != _texPool) {
                 foreach (ObjectClass objClass in pool.Objects) {
-                    if (!_texPool.Contains(objClass.Image.Uid))
-                        _texPool.AddResource(objClass.Image);
+                    //if (!_texPool.Contains(objClass.Image.Uid))
+                    //    _texPool.AddResource(objClass.Image);
+                    foreach (TextureResource res in objClass.ReferencedTextures) {
+                        if (!_texPool.Contains(res.Uid))
+                            _texPool.AddResource(res);
+                    }
                 }
 
                 pool.TexturePool = _texPool;

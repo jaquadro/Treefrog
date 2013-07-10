@@ -170,10 +170,13 @@ namespace Treefrog.Presentation.Tools
 
         private Rectangle GetSnappingSourceBounds ()
         {
-            return GetSnappingSourceBounds(ActiveObjectClass);
+            if (ActiveObjectClass is RasterObjectClass)
+                return GetSnappingSourceBounds(ActiveObjectClass as RasterObjectClass);
+            else
+                return GetSnappingSourceBounds(ActiveObjectClass);
         }
 
-        protected Rectangle GetSnappingSourceBounds (ObjectClass objClass)
+        protected Rectangle GetSnappingSourceBounds (RasterObjectClass objClass)
         {
             if (objClass == null)
                 return Rectangle.Empty;
@@ -188,6 +191,14 @@ namespace Treefrog.Presentation.Tools
                 default:
                     return Rectangle.Empty;
             }
+        }
+
+        protected Rectangle GetSnappingSourceBounds (ObjectClass objClass)
+        {
+            if (objClass == null)
+                return Rectangle.Empty;
+
+            return new Rectangle(objClass.Origin, Size.Zero);
         }
     }
 }

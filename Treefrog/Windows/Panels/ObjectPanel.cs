@@ -147,8 +147,9 @@ namespace Treefrog.Windows.Panels
             Dictionary<string, Image> imgList = new Dictionary<string, Image>();
 
             foreach (ObjectClass obj in _controller.ObjectPoolManager.Pools[objectPoolUid].Objects) {
-                if (obj.Image != null) {
-                    Bitmap image = CreateCenteredBitmap(obj.Image, 64, 64);
+                RasterObjectClass objClass = obj as RasterObjectClass;
+                if (objClass != null && objClass.Image != null) {
+                    Bitmap image = CreateCenteredBitmap(objClass.Image, 64, 64);
                     image.Tag = obj.Uid;
                     imgList.Add(obj.Name, image);
                 }

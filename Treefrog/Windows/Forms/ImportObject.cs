@@ -32,7 +32,7 @@ namespace Treefrog.Windows.Forms
             _validateController.Validate();
         }
 
-        public ImportObject (ObjectClass obj)
+        public ImportObject (RasterObjectClass obj)
         {
             InitializeForm();
 
