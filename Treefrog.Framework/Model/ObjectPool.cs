@@ -9,6 +9,242 @@ using System.Collections;
 
 namespace Treefrog.Framework.Model
 {
+    public interface IObjectCollection : IResourceManager<ObjectClass>
+    {
+        ObjectClass GetObject (Guid uid);
+        //void AddObject (ObjectClass objClass);
+        //void RemoveObject (Guid uid);
+    }
+
+    public abstract class ObjectCollection : INamedResource, IObjectCollection
+    {
+        private readonly Guid _uid;
+        private readonly ResourceName _name;
+
+        protected ObjectCollection (Guid uid, string name)
+        {
+            _uid = uid;
+            _name = new ResourceName(this, name);
+        }
+
+        public Guid Uid
+        {
+            get { return _uid; }
+        }
+
+        public ObjectClass GetObject (Guid uid)
+        {
+            return GetObjectCore(uid);
+        }
+
+        protected abstract ObjectClass GetObjectCore (Guid uid);
+
+        public bool IsModified { get; private set; }
+
+        public virtual void ResetModified ()
+        {
+            IsModified = false;
+            foreach (var obj in this)
+                obj.ResetModified();
+            //foreach (var property in PropertyManager.CustomProperties)
+            //    property.ResetModified();
+        }
+
+        public event EventHandler Modified;
+
+        protected virtual void OnModified (EventArgs e)
+        {
+            if (!IsModified) {
+                IsModified = true;
+                var ev = Modified;
+                if (ev != null)
+                    ev(this, e);
+            }
+        }
+
+        #region Name Interface
+
+        public event EventHandler<NameChangingEventArgs> NameChanging
+        {
+            add { _name.NameChanging += value; }
+            remove { _name.NameChanging -= value; }
+        }
+
+        public event EventHandler<NameChangedEventArgs> NameChanged
+        {
+            add { _name.NameChanged += value; }
+            remove { _name.NameChanged -= value; }
+        }
+
+        [SpecialProperty]
+        public string Name
+        {
+            get { return _name.Name; }
+        }
+
+        public bool TrySetName (string name)
+        {
+            bool result = _name.TrySetName(name);
+            if (result)
+                OnModified(EventArgs.Empty);
+
+            return result;
+        }
+
+        #endregion
+
+        #region Resource Manager Explicit Interface
+
+        private EventHandler<ResourceEventArgs<ObjectClass>> _objectResourceAdded;
+        private EventHandler<ResourceEventArgs<ObjectClass>> _objectResourceRemoved;
+        private EventHandler<ResourceEventArgs<ObjectClass>> _objectResourceModified;
+
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager<ObjectClass>.ResourceAdded
+        {
+            add { _objectResourceAdded += value; }
+            remove { _objectResourceAdded -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager<ObjectClass>.ResourceRemoved
+        {
+            add { _objectResourceRemoved += value; }
+            remove { _objectResourceRemoved -= value; }
+        }
+
+        event EventHandler<ResourceEventArgs<ObjectClass>> IResourceManager<ObjectClass>.ResourceModified
+        {
+            add { _objectResourceModified += value; }
+            remove { _objectResourceModified -= value; }
+        }
+
+        IResourceCollection<ObjectClass> IResourceManager<ObjectClass>.Collection
+        {
+            get { return Collection; }
+        }
+
+        IEnumerator<ObjectClass> System.Collections.Generic.IEnumerable<ObjectClass>.GetEnumerator ()
+        {
+            return GetObjectEnumerator();
+        }
+
+        IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+        {
+            return GetObjectEnumerator();
+        }
+
+        protected virtual void OnResourceAdded (ObjectClass resource)
+        {
+            var ev = _objectResourceAdded;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<ObjectClass>(resource));
+        }
+
+        protected virtual void OnResourceRemoved (ObjectClass resource)
+        {
+            var ev = _objectResourceRemoved;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<ObjectClass>(resource));
+        }
+
+        protected virtual void OnResourceModified (ObjectClass resource)
+        {
+            var ev = _objectResourceModified;
+            if (ev != null)
+                ev(this, new ResourceEventArgs<ObjectClass>(resource));
+        }
+
+        protected virtual IEnumerator<ObjectClass> GetObjectEnumerator ()
+        {
+            yield break;
+        }
+
+        protected virtual IResourceCollection<ObjectClass> Collection
+        {
+            get { return null; }
+        }
+
+        #endregion
+    }
+
+    public interface IObjectCollection<T> : IObjectCollection
+        where T : ObjectClass
+    {
+        NamedResourceCollection<T> Objects { get; }
+        int Count { get; }
+
+        new T GetObject (Guid uid);
+    }
+
+    public class ObjectCollection<T> : ObjectCollection, IObjectCollection<T>
+        where T : ObjectClass
+    {
+        private ResourceCollectionAdapter<ObjectClass, T> _objectCollectionAdapter;
+
+        protected ObjectCollection (Guid uid, string name)
+            : base(uid, name)
+        {
+            Objects = new NamedResourceCollection<T>();
+
+            _objectCollectionAdapter = new ResourceCollectionAdapter<ObjectClass, T>(Objects);
+
+            Objects.Modified += (s, e) => OnModified(EventArgs.Empty);
+            Objects.ResourceAdded += (s, e) => OnResourceAdded(e.Resource);
+            Objects.ResourceRemoved += (s, e) => OnResourceRemoved(e.Resource);
+            Objects.ResourceModified += (s, e) => OnResourceModified(e.Resource);
+        }
+
+        public ObjectCollection (string name)
+            : this(Guid.NewGuid(), name)
+        { }
+
+        public NamedResourceCollection<T> Objects { get; private set; }
+
+        public int Count
+        {
+            get { return Objects.Count; }
+        }
+
+        protected override ObjectClass GetObjectCore (Guid uid)
+        {
+            return GetObject(uid);
+        }
+
+        public new T GetObject (Guid uid)
+        {
+            foreach (T obj in Objects) {
+                if (obj.Uid == uid)
+                    return obj;
+            }
+
+            return null;
+        }
+
+        protected override IEnumerator<ObjectClass> GetObjectEnumerator ()
+        {
+            foreach (ObjectClass obj in Objects)
+                yield return obj;
+        }
+
+        public static LibraryX.ObjectCollectionX<TProxy> ToXProxy<TProxy> (ObjectCollection<T> objectCollection, Func<T, TProxy> itemXmlFunc)
+            where TProxy : LibraryX.ObjectClassX
+        {
+            if (objectCollection == null)
+                return null;
+
+            List<TProxy> objects = new List<TProxy>();
+            foreach (T obj in objectCollection.Objects) {
+                TProxy brushProxy = itemXmlFunc(obj);
+                objects.Add(brushProxy);
+            }
+
+            return new LibraryX.ObjectCollectionX<TProxy>() {
+                Uid = objectCollection.Uid,
+                Name = objectCollection.Name,
+                ObjectClasses = objects,
+            };
+        }
+    }
+
     public class ObjectPool : INamedResource, IResourceManager<ObjectClass>, IPropertyProvider, INotifyPropertyChanged
     {
         private static PropertyClassManager _propertyClassManager = new PropertyClassManager(typeof(ObjectPool));

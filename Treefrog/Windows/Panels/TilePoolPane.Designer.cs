@@ -30,6 +30,7 @@ namespace Treefrog.Windows
         private void InitializeComponent ()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TilePoolPane));
+            Treefrog.Render.TextureCache textureCache1 = new Treefrog.Render.TextureCache();
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.viewportControl1 = new Treefrog.Windows.Controls.ViewportControl();
             this._layerControl = new Treefrog.Windows.Controls.LayerGraphicsControl();
@@ -67,6 +68,7 @@ namespace Treefrog.Windows
             // 
             // viewportControl1
             // 
+            this.viewportControl1.AutoShowScrollbars = true;
             this.viewportControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.viewportControl1.Control = this._layerControl;
             this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -76,15 +78,26 @@ namespace Treefrog.Windows
             this.viewportControl1.Size = new System.Drawing.Size(290, 448);
             this.viewportControl1.TabIndex = 0;
             // 
-            // _tileControl
+            // _layerControl
             // 
+            this._layerControl.BackColor = System.Drawing.Color.Black;
+            this._layerControl.CanvasAlignment = Treefrog.Presentation.CanvasAlignment.Center;
+            this._layerControl.ClearColor = ((Microsoft.Xna.Framework.Color)(resources.GetObject("_layerControl.ClearColor")));
             this._layerControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._layerControl.HeightSynced = false;
             this._layerControl.Location = new System.Drawing.Point(0, 0);
-            this._layerControl.Name = "_tileControl";
-            this._layerControl.Size = new System.Drawing.Size(271, 429);
+            this._layerControl.Name = "_layerControl";
+            this._layerControl.ReferenceHeight = 0;
+            this._layerControl.ReferenceOriginX = 0;
+            this._layerControl.ReferenceOriginY = 0;
+            this._layerControl.ReferenceWidth = 0;
+            this._layerControl.RootLayer = null;
+            this._layerControl.Size = new System.Drawing.Size(288, 446);
             this._layerControl.TabIndex = 0;
-            this._layerControl.Text = "tileControl1D1";
+            textureCache1.GraphicsDevice = null;
+            textureCache1.SourcePool = null;
+            this._layerControl.TextureCache = textureCache1;
+            this._layerControl.VSync = false;
             this._layerControl.WidthSynced = false;
             // 
             // toolStrip1
@@ -152,6 +165,7 @@ namespace Treefrog.Windows
             // 
             // _poolComboBox
             // 
+            this._poolComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._poolComboBox.Name = "_poolComboBox";
             this._poolComboBox.Size = new System.Drawing.Size(121, 25);
             // 

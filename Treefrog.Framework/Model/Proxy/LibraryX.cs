@@ -148,6 +148,23 @@ namespace Treefrog.Framework.Model.Proxy
             public List<CommonX.PropertyX> Properties { get; set; }
         }
 
+        public class ObjectCollectionX<TProxy>
+            where TProxy : ObjectClassX
+        {
+            [XmlAttribute]
+            public Guid Uid { get; set; }
+
+            [XmlAttribute]
+            public string Name { get; set; }
+
+            [XmlElement("ObjectClass")]
+            public List<TProxy> ObjectClasses { get; set; }
+
+            [XmlArray]
+            [XmlArrayItem("Property")]
+            public List<CommonX.PropertyX> Properties { get; set; }
+        }
+
         public class TileBrushCollectionX<TProxy>
             where TProxy : TileBrushX
         {
