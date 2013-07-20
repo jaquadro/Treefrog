@@ -185,6 +185,16 @@ namespace Treefrog.Framework.Model
             get { return _layers; }
         }
 
+        public IEnumerable<T> GetLayers<T> ()
+            where T : Layer
+        {
+            foreach (Layer layer in _layers) {
+                T subtype = layer as T;
+                if (layer != null)
+                    yield return subtype;
+            }
+        }
+
         public void Resize (int originX, int originY, int width, int height)
         {
             if (width <= 0 || height <= 0)
