@@ -64,11 +64,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common.cs" />
-    <None Include="Content\LevelContent.cs" />
     <None Include="Content\LevelIndexContent.cs" />
     <None Include="Content\ObjectRegistryContent.cs" />
     <None Include="Content\TileRegistryContent.cs" />
-    <Compile Include="Content\LevelContent2.cs" />
+    <Compile Include="Content\LevelContent.cs" />
     <Compile Include="LevelImporter.cs" />
     <Compile Include="LevelProcessor.cs" />
     <Compile Include="LevelWriter.cs" />

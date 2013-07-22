@@ -70,7 +70,14 @@ namespace Treefrog.Pipeline
                     pools[key] = outputProject.TilePoolManager.CreatePool(key, layer.TileWidth, layer.TileHeight);
 
                 TilePool layerTilePool = pools[key];
-                MultiTileGridLayer outLayer = new MultiTileGridLayer(layer.Name, layer.TileWidth, layer.TileHeight, layer.TilesWide, layer.TilesHigh);
+                MultiTileGridLayer outLayer = new MultiTileGridLayer(layer.Name, layer.TileWidth, layer.TileHeight, layer.TilesWide, layer.TilesHigh) {
+                    IsVisible = layer.IsVisible,
+                    Opacity = layer.Opacity,
+                    RasterMode = layer.RasterMode,
+                };
+
+                foreach (Property prop in layer.PropertyManager.CustomProperties)
+                    outLayer.PropertyManager.CustomProperties.Add(prop);
 
                 foreach (LocatedTile tile in layer.Tiles) {
                     Guid tileUid;
@@ -78,6 +85,9 @@ namespace Treefrog.Pipeline
                         Tile mappedTile = layerTilePool.Tiles.Add(tile.Tile.Pool.Tiles.GetTileTexture(tile.Tile.Uid));
                         tileUidMap[tile.Tile.Uid] = mappedTile.Uid;
                         tileUid = mappedTile.Uid;
+
+                        foreach (Property prop in tile.Tile.PropertyManager.CustomProperties)
+                            mappedTile.PropertyManager.CustomProperties.Add(prop);
                     }
 
                     outLayer.AddTile(tile.X, tile.Y, layerTilePool.Tiles[tileUid]);
