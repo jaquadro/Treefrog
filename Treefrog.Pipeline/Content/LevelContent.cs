@@ -3,28 +3,71 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model;
+using System.Diagnostics;
 
 namespace Treefrog.Pipeline.Content
 {
     public class LevelContent
     {
-        public LevelContent (Project project)
+        private int _lastIndex = 0;
+
+        public LevelContent (Level level)
         {
-            Project = project;
+            Level = level;
+            UidMap = new Dictionary<Guid, int>();
+            AssetMap = new Dictionary<Guid, string>();
+
+            PopulateUidMap();
         }
 
-        public short Version
+        public LevelContent (Level level, IEnumerable<KeyValuePair<Guid, string>> assetMap)
+            : this(level)
         {
-            get { return 1; }
+            foreach (var kvp in assetMap)
+                AssetMap.Add(kvp.Key, kvp.Value);
         }
 
-        public Project Project { get; private set; }
-        public Level Level { get; set; }
+        public Level Level { get; private set; }
 
-        public List<string> TilesetAssets { get; set; }
-        public List<string> ObjectPoolAssets { get; set; }
+        public Dictionary<Guid, int> UidMap { get; private set; }
 
-        public string Filename { get; set; }
-        public string Directory { get; set; }
+        public Dictionary<Guid, string> AssetMap { get; private set; }
+
+        public int Translate (Guid uid)
+        {
+            if (!UidMap.ContainsKey(uid))
+                Debugger.Launch();
+
+            return UidMap[uid];
+        }
+
+        private void PopulateUidMap ()
+        {
+            foreach (Layer layer in Level.Layers)
+                MapUid(layer.Uid);
+
+            foreach (TilePool pool in Level.Project.TilePoolManager.Pools) {
+                MapUid(pool.Uid);
+                foreach (Tile tile in pool.Tiles)
+                    MapUid(tile.Uid);
+            }
+
+            foreach (ObjectPool pool in Level.Project.ObjectPoolManager.Pools) {
+                MapUid(pool.Uid);
+                foreach (ObjectClass obj in pool.Objects)
+                    MapUid(obj.Uid);
+            }
+        }
+
+        private void MapUid (Guid uid)
+        {
+            if (!UidMap.ContainsKey(uid))
+                UidMap[uid] = NextIndex();
+        }
+
+        private int NextIndex ()
+        {
+            return ++_lastIndex;
+        }
     }
 }

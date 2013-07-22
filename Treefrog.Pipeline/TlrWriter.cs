@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Pipeline.Content;
+using System;
 
 namespace Treefrog.Pipeline
 {
@@ -14,7 +15,7 @@ namespace Treefrog.Pipeline
         {
             output.Write(value.Version);
 
-            int id = value.Id;
+            Guid id = value.Id;
             TilePool pool = value.TilePool;
 
             output.Write((short)id);

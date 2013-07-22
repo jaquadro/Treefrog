@@ -11,11 +11,14 @@ using Treefrog.Aux;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using Microsoft.Xna.Framework.Content.Pipeline.Processors;
+using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
+using Treefrog.Pipeline.Content;
 
 namespace Treefrog.Pipeline
 {
     [ContentProcessor(DisplayName = "Treefrog Level Processor")]
-    public class LevelProcessor : ContentProcessor<Project, Level>
+    public class LevelProcessor : ContentProcessor<Project, LevelContent>
     {
         [DisplayName("Level Uid")]
         [Description("A level's internal GUID.")]
@@ -31,7 +34,7 @@ namespace Treefrog.Pipeline
             BuildPath = Common.BuildPath;
         }
 
-        public override Level Process (Project input, ContentProcessorContext context)
+        public override LevelContent Process (Project input, ContentProcessorContext context)
         {
             if (!Directory.Exists(BuildPath))
                 Directory.CreateDirectory(BuildPath);
@@ -43,9 +46,9 @@ namespace Treefrog.Pipeline
 
             Level level = ProcessLevel(input.Levels[uid]);
 
-            ProcessTileSetTextures(level.Project, context);
+            Dictionary<Guid, string> texAssetMap = ProcessTileSetTextures(level.Project, context);
 
-            return level;
+            return new LevelContent(level, texAssetMap);
         }
 
         private Level ProcessLevel (Level level)
@@ -86,13 +89,40 @@ namespace Treefrog.Pipeline
             return outputLevel;
         }
 
-        private void ProcessTileSetTextures (Project input, ContentProcessorContext context)
+        private Dictionary<Guid, string> ProcessTileSetTextures (Project input, ContentProcessorContext context)
         {
+            Dictionary<Guid, string> texAssetMap = new Dictionary<Guid, string>();
+
+            string assetPath = Path.GetDirectoryName(context.OutputFilename).Substring(context.OutputDirectory.Length);
+
+            if (!Directory.Exists(Path.Combine(BuildPath, assetPath)))
+                Directory.CreateDirectory(Path.Combine(BuildPath, assetPath));
+
             foreach (TilePool pool in input.TilePoolManager.Pools) {
-                string path = Path.Combine(BuildPath, "tiles_" + pool.Uid + ".png");
+                //Debugger.Launch();
+                string path = Path.Combine(BuildPath, assetPath, "tiles-" + pool.Uid + ".png");
                 Bitmap image = pool.TileSource.CreateBitmap();
                 image.Save(path, ImageFormat.Png);
+
+                string assetName = Path.GetFileNameWithoutExtension(path).Substring(BuildPath.Length);
+
+                OpaqueDataDictionary data = new OpaqueDataDictionary() {
+                    { "GenerateMipmaps", false },
+                    { "ResizeToPowerofTwo", false },
+                    { "TextureFormat", TextureProcessorOutputFormat.Color },
+                };
+
+                context.BuildAsset<TextureContent, TextureContent>(
+                    new ExternalReference<TextureContent>(path),
+                    "TextureProcessor",
+                    data,
+                    "TextureImporter",
+                    assetName);
+
+                texAssetMap[pool.Uid] = assetName;
             }
+
+            return texAssetMap;
         }
 
         private string KeyFromDims (int w, int h)

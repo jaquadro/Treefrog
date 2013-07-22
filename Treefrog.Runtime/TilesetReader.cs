@@ -4,19 +4,19 @@ using Microsoft.Xna.Framework.Content;
 namespace Treefrog.Runtime
 {
     /// <summary>
-    /// Reads in a <see cref="Tileset"/> from an XNB through a <see cref="ContentReader"/>.
+    /// Reads in a <see cref="TileSet"/> from an XNB through a <see cref="ContentReader"/>.
     /// </summary>
-    public class TilesetReader : ContentTypeReader<Tileset>
+    public class TilesetReader : ContentTypeReader<TileSet>
     {
         /// <summary>
-        /// Reads in a <see cref="Tileset"/> from an XNB.
+        /// Reads in a <see cref="TileSet"/> from an XNB.
         /// </summary>
         /// <param name="input">The <see cref="ContentReader"/> for reading the file.</param>
-        /// <param name="existingInstance">An existing <see cref="Tileset"/> instance.</param>
+        /// <param name="existingInstance">An existing <see cref="TileSet"/> instance.</param>
         /// <returns>A new <see cref="Level"/>.</returns>
-        protected override Tileset Read (ContentReader input, Tileset existingInstance)
+        protected override TileSet Read (ContentReader input, TileSet existingInstance)
         {
-            return new Tileset(input);
+            return new TileSet(input);
         }
     }
 }

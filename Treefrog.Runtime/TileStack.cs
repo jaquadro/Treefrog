@@ -11,6 +11,18 @@ namespace Treefrog.Runtime
     {
         private readonly Tile[] _tiles;
 
+        internal TileStack (Tile tile)
+        {
+            _tiles = new Tile[1] { tile };
+        }
+
+        internal TileStack (TileStack tiles, Tile tile)
+        {
+            _tiles = new Tile[tiles.Count + 1];
+            tiles._tiles.CopyTo(_tiles, 0);
+            _tiles[_tiles.Length - 1] = tile;
+        }
+
         internal TileStack (ICollection<Tile> tiles)
         {
             _tiles = new Tile[tiles.Count];

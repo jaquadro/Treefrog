@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Pipeline.Content;
+using System.Xml.Serialization;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Pipeline
 {
@@ -14,34 +16,48 @@ namespace Treefrog.Pipeline
     {
         public override TileRegistryContent Import (string filename, ContentImporterContext context)
         {
-            Form form = new Form();
+            //Form form = new Form();
 
-            PresentationParameters presentation = new PresentationParameters();
-            presentation.DeviceWindowHandle = form.Handle;
+            //PresentationParameters presentation = new PresentationParameters();
+            //presentation.DeviceWindowHandle = form.Handle;
 
-            GraphicsAdapter.UseReferenceDevice = true;
-            GraphicsAdapter.UseNullDevice = true;
+            //GraphicsAdapter.UseReferenceDevice = true;
+            //GraphicsAdapter.UseNullDevice = true;
 
-            GraphicsDevice device = new GraphicsDevice(
-                GraphicsAdapter.DefaultAdapter,
-                GraphicsProfile.Reach,
-                presentation
-                );
+            //GraphicsDevice device = new GraphicsDevice(
+            //    GraphicsAdapter.DefaultAdapter,
+            //    GraphicsProfile.Reach,
+            //    presentation
+            //    );
 
             Project project = new Project();
    //         project.Initialize(device);
 
             using (FileStream fs = File.OpenRead(filename)) {
-                XmlReader reader = XmlTextReader.Create(fs);
+                XmlReaderSettings settings = new XmlReaderSettings() {
+                    CloseInput = true,
+                    IgnoreComments = true,
+                    IgnoreWhitespace = true,
+                };
+
+                using (XmlReader reader = XmlTextReader.Create(fs, settings)) {
+                    XmlSerializer serializer = new XmlSerializer(typeof(LibraryX.TilePoolX));
+                    LibraryX.TilePoolX proxy = serializer.Deserialize(reader) as LibraryX.TilePoolX;
+
+                    TilePool.FromXProxy(proxy, (TilePoolManager)project.TilePoolManager);
+                }
+
+                /*XmlReader reader = XmlTextReader.Create(fs);
 
                 XmlHelper.SwitchAll(reader, (xmlr, s) =>
                 {
                     switch (s) {
                         case "tilesets":
+                            
                             project.ReadXmlTilesets(reader);
                             break;
                     }
-                });
+                });*/
             }
 
             TileRegistryContent content = new TileRegistryContent(project);

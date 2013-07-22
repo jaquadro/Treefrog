@@ -7,12 +7,12 @@ namespace Treefrog.Runtime
 {
     public class TileRegistry
     {
-        private Dictionary<int, Tileset> _registry;
+        private Dictionary<int, TileSet> _registry;
         private Dictionary<int, Tile> _tileRegistry;
 
         internal TileRegistry ()
         {
-            _registry = new Dictionary<int, Tileset>();
+            _registry = new Dictionary<int, TileSet>();
             _tileRegistry = new Dictionary<int, Tile>();
         }
 
@@ -21,12 +21,12 @@ namespace Treefrog.Runtime
             get { return _tileRegistry[id]; }
         }
 
-        public Tileset GetTileset (int id)
+        public TileSet GetTileset (int id)
         {
             return _registry[id];
         }
 
-        public void Add (Tileset tileset)
+        public void Add (TileSet tileset)
         {
             foreach (Tile tile in tileset.Tiles.Values) {
                 _registry[tile.Id] = tileset;

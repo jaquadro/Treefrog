@@ -31,10 +31,12 @@ namespace Treefrog.Runtime
             ScaleX = 1f;
             ScaleY = 1f;
 
-            Id = reader.ReadInt16();
+            Id = reader.ReadInt32();
             Name = reader.ReadString();
             Visible = reader.ReadBoolean();
             Opacity = reader.ReadSingle();
+            int rasterMode = reader.ReadInt16();
+
             Properties = new PropertyCollection(reader);
         }
 

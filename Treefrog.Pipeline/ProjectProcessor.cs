@@ -2,6 +2,8 @@
 using System.IO;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Treefrog.Framework.Model;
+using Treefrog.Pipeline.Content;
+using System.Diagnostics;
 
 namespace Treefrog.Pipeline
 {
@@ -20,19 +22,22 @@ namespace Treefrog.Pipeline
 
         public override Project Process (Project input, ContentProcessorContext context)
         {
-            if (!Directory.Exists(BuildPath))
-                Directory.CreateDirectory(BuildPath);
+            string levelPath = Path.Combine(BuildPath, input.Name, "levels");
+
+            if (!Directory.Exists(levelPath))
+                Directory.CreateDirectory(levelPath);
 
             string assetName = context.OutputFilename.Remove(context.OutputFilename.LastIndexOf('.')).Substring(context.OutputDirectory.Length);
+            string assetPath = Path.GetDirectoryName(context.OutputFilename).Substring(context.OutputDirectory.Length);
 
             foreach (Level level in input.Levels) {
-                string levelAsset = "level_" + level.Uid.ToString();
+                string levelAsset = Path.Combine(assetPath, input.Name, level.Name);
 
                 OpaqueDataDictionary data = new OpaqueDataDictionary() {
                     { "LevelUid", level.Uid.ToString() },
                 };
 
-                context.BuildAsset<Project, Level>(
+                context.BuildAsset<Project, LevelContent>(
                     new ExternalReference<Project>(assetName + ".tlpx"),
                     "LevelProcessor",
                     data,

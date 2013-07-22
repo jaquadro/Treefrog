@@ -8,6 +8,10 @@ namespace Treefrog.Runtime
     /// </summary>
     public sealed class LevelReader : ContentTypeReader<Level>
     {
+        public LevelReader ()
+            : base()
+        { }
+
         /// <summary>
         /// Reads in a <see cref="Level"/> from an XNB.
         /// </summary>
@@ -18,5 +22,17 @@ namespace Treefrog.Runtime
         {
             return new Level(input);
         }
+
+        /*private void ReadTileLayer (ContentReader input, Level level)
+        {
+            int tileWidth = input.ReadInt16();
+            int tileHeight = input.ReadInt16();
+            int tilesWide = input.ReadInt16();
+            int tilesHigh = input.ReadInt16();
+
+            int tileCount = input.ReadInt32();
+
+            TileLayer layer = new TileLayer(
+        }*/
     }
 }

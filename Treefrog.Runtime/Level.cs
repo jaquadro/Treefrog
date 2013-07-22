@@ -69,35 +69,30 @@ namespace Treefrog.Runtime
         internal Level (ContentReader reader)
             : this()
         {
-            int version = reader.ReadInt16();
+            string levelName = reader.ReadString();
 
-            int tileWidth = reader.ReadInt16();
-            int tileHeight = reader.ReadInt16();
-            int width = reader.ReadInt16();
-            int height = reader.ReadInt16();
-
-            Width = tileWidth * width;
-            Height = tileHeight * height;
+            int originX = reader.ReadInt32();
+            int originY = reader.ReadInt32();
+            Width = reader.ReadInt32();
+            Height = reader.ReadInt32();
 
             Properties = new PropertyCollection(reader);
 
             int tilesetCount = reader.ReadInt32();
             for (int i = 0; i < tilesetCount; i++) {
-                string asset = reader.ReadString();
-                Tileset tileset = reader.ContentManager.Load<Tileset>(asset);
-
+                TileSet tileset = new TileSet(reader);
                 _tileRegistry.Add(tileset);
             }
 
-            int objectPoolCount = reader.ReadInt32();
+            /*int objectPoolCount = reader.ReadInt32();
             for (int i = 0; i < objectPoolCount; i++) {
                 string asset = reader.ReadString();
                 ObjectPool pool = reader.ContentManager.Load<ObjectPool>(asset);
 
                 _objectRegistry.Add(pool);
-            }
+            }*/
 
-            int layerCount = reader.ReadInt16();
+            int layerCount = reader.ReadInt32();
             for (int i = 0; i < layerCount; i++) {
                 string type = reader.ReadString();
 

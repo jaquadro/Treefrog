@@ -29,7 +29,7 @@ namespace Treefrog.Pipeline
 
         [DisplayName("Tileset Id")]
         [Description("The id of a Treefrog project tile pool.")]
-        public int TilesetId { get; set; }
+        public Guid TilesetId { get; set; }
 
         public override TileRegistryContent Process (TileRegistryContent input, ContentProcessorContext context)
         {
@@ -37,7 +37,7 @@ namespace Treefrog.Pipeline
                 Directory.CreateDirectory("build");
             }
 
-            input.TilePool = input.Project.TilePools[TilesetKey];
+            input.TilePool = input.Project.TilePoolManager.Pools[TilesetId];
             input.Id = TilesetId;
 
             string path = "build\\" + ProjectKey + "_tileset_tex_" + TilesetId + ".png";

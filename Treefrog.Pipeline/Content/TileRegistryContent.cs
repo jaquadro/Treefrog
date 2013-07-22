@@ -20,7 +20,7 @@ namespace Treefrog.Pipeline.Content
 
         public Project Project { get; private set; }
         public TilePool TilePool { get; set; }
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string TextureAsset { get; set; }
 
         public string Filename { get; set; }

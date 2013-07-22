@@ -8,25 +8,25 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.Runtime
 {
-    public class Tileset
+    public class TileSet
     {
         private ContentManager _manager;
 
         private Dictionary<int, Tile> _tiles;
         private Texture2D _texture;
 
-        internal Tileset ()
+        internal TileSet ()
         {
             _tiles = new Dictionary<int, Tile>();
         }
 
-        internal Tileset (ContentReader reader)
+        internal TileSet (ContentReader reader)
             : this()
         {
             _manager = reader.ContentManager;
 
-            int version = reader.ReadInt16();
-            int id = reader.ReadInt16();
+            //int version = reader.ReadInt16();
+            int id = reader.ReadInt32();
 
             TileWidth = reader.ReadInt16();
             TileHeight = reader.ReadInt16();
@@ -34,9 +34,9 @@ namespace Treefrog.Runtime
 
             Properties = new PropertyCollection(reader);
 
-            int tileCount = reader.ReadInt16();
+            int tileCount = reader.ReadInt32();
             for (int i = 0; i < tileCount; i++) {
-                int tileId = reader.ReadInt16();
+                int tileId = reader.ReadInt32();
                 int tileX = reader.ReadInt16();
                 int tileY = reader.ReadInt16();
 

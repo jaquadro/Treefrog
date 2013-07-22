@@ -38,7 +38,19 @@ namespace Treefrog.Runtime
 
             _tiles = new TileGrid(Width, Height);
 
-            int stackCount = reader.ReadInt32();
+            int tileCount = reader.ReadInt32();
+            for (int i = 0; i < tileCount; i++) {
+                int dx = reader.ReadInt16();
+                int dy = reader.ReadInt16();
+                int tileId = reader.ReadInt32();
+
+                if (_tiles[dx, dy] == null)
+                    _tiles[dx, dy] = new TileStack(_registry[tileId]);
+                else
+                    _tiles[dx, dy] = new TileStack(_tiles[dx, dy], _registry[tileId]);
+            }
+
+            /*int stackCount = reader.ReadInt32();
             for (int i = 0; i < stackCount; i++) {
                 int dx = reader.ReadInt16();
                 int dy = reader.ReadInt16();
@@ -51,7 +63,7 @@ namespace Treefrog.Runtime
                 }
 
                 _tiles[dx, dy] = new TileStack(st);
-            }
+            }*/
         }
 
         public override void Draw (SpriteBatch spriteBatch, Rectangle region)

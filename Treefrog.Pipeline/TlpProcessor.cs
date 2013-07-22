@@ -9,6 +9,7 @@ using System.Xml;
 using Treefrog.Pipeline.Content;
 using Treefrog.Framework.Model.Support;
 using System.Xml.Serialization;
+using Treefrog.Framework.Model.Proxy;
 
 namespace Treefrog.Pipeline
 {
@@ -37,8 +38,10 @@ namespace Treefrog.Pipeline
 
                 using (FileStream fs = File.Create(build_reg)) {
                     XmlWriter writer = XmlTextWriter.Create(fs);
-                    XmlSerializer ser = new XmlSerializer(typeof(ProjectXmlProxy));
-                    ser.Serialize(writer, Project.ToXmlProxy(poolContent));
+                    //XmlSerializer ser = new XmlSerializer(typeof(ProjectXmlProxy));
+                    //ser.Serialize(writer, Project.ToXmlProxy(poolContent));
+                    XmlSerializer ser = new XmlSerializer(typeof(LibraryX));
+                    ser.Serialize(writer, Library.ToXProxy(poolContent.DefaultLibrary));
                     writer.Close();
                 }
 
@@ -63,13 +66,15 @@ namespace Treefrog.Pipeline
             Dictionary<TilePool, string> tilesetAssetIndex = new Dictionary<TilePool, string>();
 
             id = 0;
-            foreach (TilePool pool in input.TilePools) {
+            foreach (TilePool pool in input.TilePoolManager.Pools) {
                 string asset_reg = asset + "_tileset_map_" + id;
                 string build_reg = "build\\" + asset_reg + ".tlr";
 
                 using (FileStream fs = File.Create(build_reg)) {
                     XmlWriter writer = XmlTextWriter.Create(fs);
-                    input.WriteXmlTilesets(writer);
+                    //input.WriteXmlTilesets(writer);
+                    XmlSerializer ser = new XmlSerializer(typeof(LibraryX.TilePoolX));
+                    ser.Serialize(writer, TilePool.ToXProxy(pool));
                     writer.Close();
                 }
 
@@ -112,8 +117,8 @@ namespace Treefrog.Pipeline
 
                 using (FileStream fs = File.Create(build_level)) {
                     XmlWriter writer = XmlTextWriter.Create(fs);
-                    XmlSerializer ser = new XmlSerializer(typeof(ProjectXmlProxy));
-                    ser.Serialize(writer, Project.ToXmlProxy(input));
+                    XmlSerializer ser = new XmlSerializer(typeof(LevelX));
+                    ser.Serialize(writer, Level.ToXProxy(level));
                     //input.WriteXml(writer);
                     writer.Close();
                 }
@@ -134,7 +139,7 @@ namespace Treefrog.Pipeline
                 LevelIndexEntry entry = new LevelIndexEntry(id, level.Name);
                 entry.Asset = asset_level;
 
-                foreach (Property prop in level.CustomProperties) {
+                foreach (Property prop in level.PropertyManager.CustomProperties) {
                     entry.Properties.Add(prop);
                 }
 

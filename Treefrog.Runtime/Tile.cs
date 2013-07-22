@@ -9,9 +9,9 @@ namespace Treefrog.Runtime
 {
     public class Tile
     {
-        private Tileset _tileset;
+        private TileSet _tileset;
 
-        public Tile (int id, Tileset tileset, int x, int y)
+        public Tile (int id, TileSet tileset, int x, int y)
         {
             Id = id;
             _tileset = tileset;
@@ -20,7 +20,7 @@ namespace Treefrog.Runtime
 
         public int Id { get; private set; }
 
-        public Tileset Tileset
+        public TileSet Tileset
         {
             get { return _tileset; }
         }
