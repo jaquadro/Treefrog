@@ -68,6 +68,14 @@
     <None Include="Content\ObjectRegistryContent.cs" />
     <None Include="Content\TileRegistryContent.cs" />
     <Compile Include="Content\LevelContent.cs" />
+    <Compile Include="ImagePacker\Alias.cs" />
+    <Compile Include="ImagePacker\ImageProcessor.cs" />
+    <Compile Include="ImagePacker\MathUtils.cs" />
+    <Compile Include="ImagePacker\MaxRectsPacker.cs" />
+    <Compile Include="ImagePacker\Page.cs" />
+    <Compile Include="ImagePacker\Rect.cs" />
+    <Compile Include="ImagePacker\Settings.cs" />
+    <Compile Include="ImagePacker\TexturePacker.cs" />
     <Compile Include="LevelImporter.cs" />
     <Compile Include="LevelProcessor.cs" />
     <Compile Include="LevelWriter.cs" />
@@ -94,6 +102,7 @@
       <Name>Treefrog.Framework</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

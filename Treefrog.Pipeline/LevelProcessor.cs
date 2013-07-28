@@ -14,6 +14,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Treefrog.Pipeline.Content;
+using Treefrog.Pipeline.ImagePacker;
 
 namespace Treefrog.Pipeline
 {
@@ -47,6 +48,7 @@ namespace Treefrog.Pipeline
             Level level = ProcessLevel(input.Levels[uid]);
 
             Dictionary<Guid, string> texAssetMap = ProcessTileSetTextures(level.Project, context);
+            ProcessObjectTextures(level.Project, context);
 
             return new LevelContent(level, texAssetMap);
         }
@@ -64,39 +66,77 @@ namespace Treefrog.Pipeline
             Dictionary<string, TilePool> pools = new Dictionary<string,TilePool>();
             Dictionary<Guid, Guid> tileUidMap = new Dictionary<Guid, Guid>();
 
-            foreach (TileGridLayer layer in level.GetLayers<TileGridLayer>()) {
-                string key = KeyFromDims(layer.TileWidth, layer.TileHeight);
-                if (!pools.ContainsKey(key))
-                    pools[key] = outputProject.TilePoolManager.CreatePool(key, layer.TileWidth, layer.TileHeight);
+            ObjectPool objPool = new ObjectPool("default");
 
-                TilePool layerTilePool = pools[key];
-                MultiTileGridLayer outLayer = new MultiTileGridLayer(layer.Name, layer.TileWidth, layer.TileHeight, layer.TilesWide, layer.TilesHigh) {
-                    IsVisible = layer.IsVisible,
-                    Opacity = layer.Opacity,
-                    RasterMode = layer.RasterMode,
-                };
+            foreach (Layer layer in level.Layers) {
+                TileGridLayer tileLayer = layer as TileGridLayer;
+                if (tileLayer != null) {
+                    string key = KeyFromDims(tileLayer.TileWidth, tileLayer.TileHeight);
+                    if (!pools.ContainsKey(key))
+                        pools[key] = outputProject.TilePoolManager.CreatePool(key, tileLayer.TileWidth, tileLayer.TileHeight);
 
-                foreach (Property prop in layer.PropertyManager.CustomProperties)
-                    outLayer.PropertyManager.CustomProperties.Add(prop);
-
-                foreach (LocatedTile tile in layer.Tiles) {
-                    Guid tileUid;
-                    if (!tileUidMap.TryGetValue(tile.Tile.Uid, out tileUid)) {
-                        Tile mappedTile = layerTilePool.Tiles.Add(tile.Tile.Pool.Tiles.GetTileTexture(tile.Tile.Uid));
-                        tileUidMap[tile.Tile.Uid] = mappedTile.Uid;
-                        tileUid = mappedTile.Uid;
-
-                        foreach (Property prop in tile.Tile.PropertyManager.CustomProperties)
-                            mappedTile.PropertyManager.CustomProperties.Add(prop);
-                    }
-
-                    outLayer.AddTile(tile.X, tile.Y, layerTilePool.Tiles[tileUid]);
+                    outputLevel.Layers.Add(ProcessTileLayer(tileLayer, pools[key], tileUidMap));
                 }
 
-                outputLevel.Layers.Add(outLayer);
+                ObjectLayer objLayer = layer as ObjectLayer;
+                if (objLayer != null) {
+                    outputLevel.Layers.Add(ProcessObjectLayer(objLayer, objPool));
+                }
             }
 
+            if (objPool.Count > 0)
+                outputProject.ObjectPoolManager.Pools.Add(objPool);
+
             return outputLevel;
+        }
+
+        private TileGridLayer ProcessTileLayer (TileGridLayer layer, TilePool layerTilePool, Dictionary<Guid, Guid> tileUidMap)
+        {
+            MultiTileGridLayer outLayer = new MultiTileGridLayer(layer.Name, layer.TileWidth, layer.TileHeight, layer.TilesWide, layer.TilesHigh) {
+                IsVisible = layer.IsVisible,
+                Opacity = layer.Opacity,
+                RasterMode = layer.RasterMode,
+            };
+
+            foreach (Property prop in layer.PropertyManager.CustomProperties)
+                outLayer.PropertyManager.CustomProperties.Add(prop);
+
+            foreach (LocatedTile tile in layer.Tiles) {
+                Guid tileUid;
+                if (!tileUidMap.TryGetValue(tile.Tile.Uid, out tileUid)) {
+                    Tile mappedTile = layerTilePool.Tiles.Add(tile.Tile.Pool.Tiles.GetTileTexture(tile.Tile.Uid));
+                    tileUidMap[tile.Tile.Uid] = mappedTile.Uid;
+                    tileUid = mappedTile.Uid;
+
+                    foreach (Property prop in tile.Tile.PropertyManager.CustomProperties)
+                        mappedTile.PropertyManager.CustomProperties.Add(prop);
+                }
+
+                outLayer.AddTile(tile.X, tile.Y, layerTilePool.Tiles[tileUid]);
+            }
+
+            return outLayer;
+        }
+
+        private ObjectLayer ProcessObjectLayer (ObjectLayer layer, ObjectPool objectLayerPool)
+        {
+            ObjectLayer outLayer = new ObjectLayer(layer.Name, layer.LayerOriginX, layer.LayerOriginY, layer.LayerWidth, layer.LayerHeight) {
+                IsVisible = layer.IsVisible,
+                Opacity = layer.Opacity,
+                RasterMode = layer.RasterMode,
+            };
+
+            foreach (Property prop in layer.PropertyManager.CustomProperties)
+                outLayer.PropertyManager.CustomProperties.Add(prop);
+
+            foreach (ObjectInstance obj in layer.Objects) {
+                if (!objectLayerPool.Objects.Contains(obj.ObjectClass.Uid))
+                    objectLayerPool.Objects.Add(obj.ObjectClass);
+
+                outLayer.AddObject(obj);
+            }
+
+            return outLayer;
         }
 
         private Dictionary<Guid, string> ProcessTileSetTextures (Project input, ContentProcessorContext context)
@@ -130,6 +170,37 @@ namespace Treefrog.Pipeline
                     assetName);
 
                 texAssetMap[pool.Uid] = assetName;
+            }
+
+            return texAssetMap;
+        }
+
+        private Dictionary<Guid, string> ProcessObjectTextures (Project input, ContentProcessorContext context)
+        {
+            Dictionary<Guid, string> texAssetMap = new Dictionary<Guid, string>();
+
+            string assetPath = Path.GetDirectoryName(context.OutputFilename).Substring(context.OutputDirectory.Length);
+
+            if (!Directory.Exists(Path.Combine(BuildPath, assetPath)))
+                Directory.CreateDirectory(Path.Combine(BuildPath, assetPath));
+
+            foreach (ObjectPool pool in input.ObjectPoolManager.Pools) {
+                string path = Path.Combine(BuildPath, assetPath, "objects-" + pool.Uid + ".png");
+                //Debugger.Launch();
+                TexturePacker packer = new TexturePacker(Path.Combine(BuildPath, assetPath), new Settings() {
+                    Rotation = false,
+                });
+                foreach (ObjectClass obj in pool.Objects) {
+                    using (Bitmap image = obj.Image.CreateBitmap()) {
+                        packer.AddImage(image, obj.Uid.ToString());
+                    }
+                }
+
+                packer.Pack(Path.Combine(BuildPath, assetPath), "objects-" + pool.Uid);
+
+                string assetName = Path.GetFileNameWithoutExtension(path).Substring(BuildPath.Length);
+
+
             }
 
             return texAssetMap;
