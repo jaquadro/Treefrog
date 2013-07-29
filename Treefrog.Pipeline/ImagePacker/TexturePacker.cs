@@ -61,7 +61,7 @@ namespace Treefrog.Pipeline.ImagePacker
             _imageProcessor.AddImage(image, name);
         }
 
-        public void Pack (string outputDir, string packFileName)
+        public List<Page> Pack (string outputDir, string packFileName)
         {
             if (!Directory.Exists(outputDir))
                 Directory.CreateDirectory(outputDir);
@@ -78,6 +78,8 @@ namespace Treefrog.Pipeline.ImagePacker
             catch (Exception e) {
                 throw new Exception("Error writing pack file.", e);
             }
+
+            return pages;
         }
 
         private void WriteImages (string outputDir, List<Page> pages, string packFileName)
