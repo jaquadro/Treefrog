@@ -100,7 +100,7 @@ namespace Treefrog.Pipeline
                 output.Write(objRect.OriginalHeight);
                 output.Write(objRect.OffsetX);
                 output.Write(objRect.OffsetY);
-                output.Write(objRect.Index);
+                //output.Write(objRect.Index);
 
                 Common.WritePropertyBlock(output, obj.PropertyManager.CustomProperties);
             }

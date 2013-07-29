@@ -84,13 +84,13 @@ namespace Treefrog.Runtime
                 _tileRegistry.Add(tileset);
             }
 
-            /*int objectPoolCount = reader.ReadInt32();
+            int objectPoolCount = reader.ReadInt32();
             for (int i = 0; i < objectPoolCount; i++) {
-                string asset = reader.ReadString();
-                ObjectPool pool = reader.ContentManager.Load<ObjectPool>(asset);
-
+                //string asset = reader.ReadString();
+                //ObjectPool pool = reader.ContentManager.Load<ObjectPool>(asset);
+                ObjectPool pool = new ObjectPool(reader);
                 _objectRegistry.Add(pool);
-            }*/
+            }
 
             int layerCount = reader.ReadInt32();
             for (int i = 0; i < layerCount; i++) {

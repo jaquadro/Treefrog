@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace Treefrog.Runtime
 {
@@ -21,5 +22,18 @@ namespace Treefrog.Runtime
         public string Name { get; private set; }
 
         public PropertyCollection Properties { get; internal set; }
+
+        public Point Origin { get; set; }
+        public Rectangle MaskBounds { get; set; }
+
+        public bool TexRotated { get; set; }
+        public int TexX { get; set; }
+        public int TexY { get; set; }
+        public int TexWidth { get; set; }
+        public int TexHeight { get; set; }
+        public int TexOriginalWidth { get; set; }
+        public int TexOriginalHeight { get; set; }
+        public int TexOffsetX { get; set; }
+        public int TexOffsetY { get; set; }
     }
 }

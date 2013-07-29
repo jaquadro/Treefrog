@@ -22,6 +22,12 @@ namespace Treefrog.Runtime
         public int X { get; private set; }
         public int Y { get; private set; }
 
+        public float Rotation { get; set; }
+        public float ScaleX { get; set; }
+        public float ScaleY { get; set; }
+
+        public PropertyCollection Properties { get; set; }
+
         public ObjectPool ObjectPool
         {
             get { return _objectPool; }

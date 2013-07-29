@@ -19,11 +19,21 @@ namespace Treefrog.Runtime
 
             int objCount = reader.ReadInt32();
             for (int i = 0; i < objCount; i++) {
+                int id = reader.ReadInt32();
                 int dx = reader.ReadInt32();
                 int dy = reader.ReadInt32();
-                int id = reader.ReadInt16();
+                float rotation = reader.ReadSingle();
+                float scaleX = reader.ReadSingle();
+                float scaleY = reader.ReadSingle();
 
-                _objects.Add(new ObjectInstance(_registry.GetObjectPool(id), id, dx, dy));
+                PropertyCollection properties = new PropertyCollection(reader);
+
+                _objects.Add(new ObjectInstance(_registry.GetObjectPool(id), id, dx, dy) {
+                    Rotation = rotation,
+                    ScaleX = scaleX,
+                    ScaleY = scaleY,
+                    Properties = properties,
+                });
             }
         }
 
