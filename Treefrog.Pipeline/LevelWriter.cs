@@ -78,7 +78,8 @@ namespace Treefrog.Pipeline
 
             output.Write(pool.Count);
             foreach (ObjectClass obj in pool.Objects) {
-                Rect objRect = FindRectByName(content.AtlasPages, obj.Uid.ToString());
+                Page page;
+                Rect objRect = FindRectByName(content.AtlasPages, obj.Uid.ToString(), out page);
                 if (objRect == null)
                     continue;
 
@@ -92,29 +93,31 @@ namespace Treefrog.Pipeline
                 output.Write(obj.MaskBounds.Height);
 
                 output.Write(objRect.Rotated);
-                output.Write(objRect.X);
-                output.Write(objRect.Y);
-                output.Write(objRect.Width);
-                output.Write(objRect.Height);
+                output.Write(page.X + objRect.X);
+                output.Write(page.Y + page.Height - objRect.Height - objRect.Y);
+                output.Write(objRect.Image.Width);
+                output.Write(objRect.Image.Height);
                 output.Write(objRect.OriginalWidth);
                 output.Write(objRect.OriginalHeight);
                 output.Write(objRect.OffsetX);
-                output.Write(objRect.OffsetY);
+                output.Write(objRect.OriginalHeight - objRect.Image.Height - objRect.OffsetY);
                 //output.Write(objRect.Index);
-
                 Common.WritePropertyBlock(output, obj.PropertyManager.CustomProperties);
             }
         }
 
-        private Rect FindRectByName (List<Page> pages, string name)
+        private Rect FindRectByName (List<Page> pages, string name, out Page parentPage)
         {
             foreach (Page page in pages) {
                 foreach (Rect rect in page.OutputRects) {
-                    if (rect.Name == name)
+                    if (rect.Name == name) {
+                        parentPage = page;
                         return rect;
+                    }
                 }
             }
 
+            parentPage = null;
             return null;
         }
 
