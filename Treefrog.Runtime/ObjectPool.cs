@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.Runtime
 {
     public class ObjectPool
     {
         private ContentManager _manager;
+
         private Dictionary<int, ObjectClass> _objects;
+        private Texture2D _texture;
 
         internal ObjectPool ()
         {
@@ -50,6 +53,8 @@ namespace Treefrog.Runtime
 
                 _objects.Add(objId, objClass);
             }
+
+            _texture = _manager.Load<Texture2D>(texAsset);
         }
 
         public PropertyCollection Properties { get; private set; }
@@ -57,6 +62,11 @@ namespace Treefrog.Runtime
         public Dictionary<int, ObjectClass> ObjectClasses
         {
             get { return _objects; }
+        }
+
+        public Texture2D Texture
+        {
+            get { return _texture; }
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace Treefrog.Runtime
 {
@@ -36,6 +37,14 @@ namespace Treefrog.Runtime
         public ObjectClass ObjectClass
         {
             get { return _objectPool.ObjectClasses[Id]; }
+        }
+
+        public Rectangle Bounds
+        {
+            get 
+            {
+                return new Rectangle(X - ObjectClass.Origin.X, Y - ObjectClass.Origin.Y, ObjectClass.TexWidth, ObjectClass.TexHeight);
+            }
         }
     }
 }

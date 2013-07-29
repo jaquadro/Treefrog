@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Treefrog.Runtime
 {
@@ -35,5 +36,19 @@ namespace Treefrog.Runtime
         public int TexOriginalHeight { get; set; }
         public int TexOffsetX { get; set; }
         public int TexOffsetY { get; set; }
+
+        public Rectangle Source
+        {
+            get { return new Rectangle(TexX, TexY, TexWidth, TexHeight); }
+        }
+
+        public void Draw (SpriteBatch spriteBatch, Rectangle dest, Color color, float layerDepth, float rotation)
+        {
+            spriteBatch.Draw(_objectPool.Texture, 
+                dest, Source, 
+                color, 
+                rotation, new Vector2(Origin.X, Origin.Y), 
+                SpriteEffects.None, layerDepth);
+        }
     }
 }
