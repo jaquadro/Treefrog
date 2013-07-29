@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content.Pipeline;
 using Treefrog.Framework;
 using Treefrog.Pipeline.Content;
 using Treefrog.Framework.Model.Support;
+using Treefrog.Pipeline.ImagePacker;
 
 namespace Treefrog.Pipeline
 {
@@ -25,6 +26,7 @@ namespace Treefrog.Pipeline
             Common.WritePropertyBlock(output, value.Level.PropertyManager.CustomProperties);
 
             WriteTileSets(output, value);
+            WriteObjectSets(output, value);
             WriteLayers(output, value);
         }
 
@@ -56,6 +58,64 @@ namespace Treefrog.Pipeline
 
                 Common.WritePropertyBlock(output, tile.PropertyManager.CustomProperties);
             }
+        }
+
+        private void WriteObjectSets (ContentWriter output, LevelContent content)
+        {
+            IObjectPoolManager mgr = content.Level.Project.ObjectPoolManager;
+
+            output.Write(mgr.Pools.Count);
+            foreach (ObjectPool pool in mgr.Pools)
+                WriteObjectSet(output, content, pool);
+        }
+
+        private void WriteObjectSet (ContentWriter output, LevelContent content, ObjectPool pool)
+        {
+            output.Write(content.Translate(pool.Uid));
+            output.Write(content.AssetMap[pool.Uid]);
+
+            Common.WritePropertyBlock(output, pool.PropertyManager.CustomProperties);
+
+            output.Write(pool.Count);
+            foreach (ObjectClass obj in pool.Objects) {
+                Rect objRect = FindRectByName(content.AtlasPages, obj.Uid.ToString());
+                if (objRect == null)
+                    continue;
+
+                output.Write(content.Translate(obj.Uid));
+                output.Write(obj.Name);
+                output.Write(obj.Origin.X);
+                output.Write(obj.Origin.Y);
+                output.Write(obj.MaskBounds.Left);
+                output.Write(obj.MaskBounds.Top);
+                output.Write(obj.MaskBounds.Width);
+                output.Write(obj.MaskBounds.Height);
+
+                output.Write(objRect.Rotated);
+                output.Write(objRect.X);
+                output.Write(objRect.Y);
+                output.Write(objRect.Width);
+                output.Write(objRect.Height);
+                output.Write(objRect.OriginalWidth);
+                output.Write(objRect.OriginalHeight);
+                output.Write(objRect.OffsetX);
+                output.Write(objRect.OffsetY);
+                output.Write(objRect.Index);
+
+                Common.WritePropertyBlock(output, obj.PropertyManager.CustomProperties);
+            }
+        }
+
+        private Rect FindRectByName (List<Page> pages, string name)
+        {
+            foreach (Page page in pages) {
+                foreach (Rect rect in page.OutputRects) {
+                    if (rect.Name == name)
+                        return rect;
+                }
+            }
+
+            return null;
         }
 
         private void WriteLayers (ContentWriter output, LevelContent content)
@@ -115,7 +175,21 @@ namespace Treefrog.Pipeline
 
         private void WriteObjectLayer (ContentWriter output, LevelContent content, ObjectLayer layer)
         {
+            int objCount = 0;
+            foreach (ObjectInstance obj in layer.Objects)
+                objCount++;
 
+            output.Write(objCount);
+            foreach (ObjectInstance obj in layer.Objects) {
+                output.Write(content.Translate(obj.ObjectClass.Uid));
+                output.Write(obj.Position.X);
+                output.Write(obj.Position.Y);
+                output.Write(obj.Rotation);
+                output.Write(obj.ScaleX);
+                output.Write(obj.ScaleY);
+
+                Common.WritePropertyBlock(output, obj.PropertyManager.CustomProperties);
+            }
         }
 
         public override string GetRuntimeReader (TargetPlatform targetPlatform)

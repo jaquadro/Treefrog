@@ -22,16 +22,17 @@ namespace Treefrog.Pipeline
 
         public override Project Process (Project input, ContentProcessorContext context)
         {
-            //Debugger.Launch();
             string projectPath = Path.Combine(BuildPath, "Levels");
-            if (Directory.Exists(projectPath))
-                Directory.Delete(projectPath, true);
-
-            Directory.CreateDirectory(projectPath);
-
             string levelPath = Path.Combine(projectPath, input.Name);
 
-            Directory.CreateDirectory(levelPath);
+            try {
+                if (Directory.Exists(projectPath))
+                    Directory.Delete(projectPath, true);
+
+                Directory.CreateDirectory(projectPath);
+                Directory.CreateDirectory(levelPath);
+            }
+            catch { }
 
             string assetName = context.OutputFilename.Remove(context.OutputFilename.LastIndexOf('.')).Substring(context.OutputDirectory.Length);
             string assetPath = Path.GetDirectoryName(context.OutputFilename).Substring(context.OutputDirectory.Length);

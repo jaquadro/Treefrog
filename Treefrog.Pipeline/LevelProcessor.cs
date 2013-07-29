@@ -47,10 +47,14 @@ namespace Treefrog.Pipeline
 
             Level level = ProcessLevel(input.Levels[uid]);
 
-            Dictionary<Guid, string> texAssetMap = ProcessTileSetTextures(level.Project, context);
-            ProcessObjectTextures(level.Project, context);
+            List<Page> atlasPages;
 
-            return new LevelContent(level, texAssetMap);
+            Dictionary<Guid, string> texAssetMap1 = ProcessTileSetTextures(level.Project, context);
+            Dictionary<Guid, string> texAssetMap2 = ProcessObjectTextures(level.Project, context, out atlasPages);
+
+            return new LevelContent(level, texAssetMap1.Union(texAssetMap2)) {
+                AtlasPages = atlasPages,
+            };
         }
 
         private Level ProcessLevel (Level level)
@@ -175,9 +179,10 @@ namespace Treefrog.Pipeline
             return texAssetMap;
         }
 
-        private Dictionary<Guid, string> ProcessObjectTextures (Project input, ContentProcessorContext context)
+        private Dictionary<Guid, string> ProcessObjectTextures (Project input, ContentProcessorContext context, out List<Page> pages)
         {
             Dictionary<Guid, string> texAssetMap = new Dictionary<Guid, string>();
+            pages = new List<Page>();
 
             string assetPath = Path.GetDirectoryName(context.OutputFilename).Substring(context.OutputDirectory.Length);
 
@@ -196,11 +201,24 @@ namespace Treefrog.Pipeline
                     }
                 }
 
-                packer.Pack(Path.Combine(BuildPath, assetPath), "objects-" + pool.Uid);
+                pages.AddRange(packer.Pack(Path.Combine(BuildPath, assetPath), "objects-" + pool.Uid));
 
                 string assetName = Path.GetFileNameWithoutExtension(path).Substring(BuildPath.Length);
 
+                OpaqueDataDictionary data = new OpaqueDataDictionary() {
+                    { "GenerateMipmaps", false },
+                    { "ResizeToPowerofTwo", false },
+                    { "TextureFormat", TextureProcessorOutputFormat.Color },
+                };
 
+                context.BuildAsset<TextureContent, TextureContent>(
+                    new ExternalReference<TextureContent>(path),
+                    "TextureProcessor",
+                    data,
+                    "TextureImporter",
+                    assetName);
+
+                texAssetMap[pool.Uid] = assetName;
             }
 
             return texAssetMap;

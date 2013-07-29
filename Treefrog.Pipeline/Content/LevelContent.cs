@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Treefrog.Framework.Model;
 using System.Diagnostics;
+using Treefrog.Pipeline.ImagePacker;
 
 namespace Treefrog.Pipeline.Content
 {
@@ -32,6 +33,8 @@ namespace Treefrog.Pipeline.Content
         public Dictionary<Guid, int> UidMap { get; private set; }
 
         public Dictionary<Guid, string> AssetMap { get; private set; }
+
+        public List<Page> AtlasPages { get; set; }
 
         public int Translate (Guid uid)
         {
