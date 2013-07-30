@@ -29,18 +29,19 @@ namespace Treefrog.Windows
         /// </summary>
         private void InitializeComponent ()
         {
+            Treefrog.Render.TextureCache textureCache2 = new Treefrog.Render.TextureCache();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TilePoolPane));
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.viewportControl1 = new Treefrog.Windows.Controls.ViewportControl();
             this._layerControl = new Treefrog.Windows.Controls.LayerGraphicsControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this._buttonAdd = new System.Windows.Forms.ToolStripDropDownButton();
-            this.createEmptyPoolToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._buttonRemove = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this._buttonProperties = new System.Windows.Forms.ToolStripButton();
             this._poolComboBox = new System.Windows.Forms.ToolStripComboBox();
+            this.importMergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
@@ -67,6 +68,7 @@ namespace Treefrog.Windows
             // 
             // viewportControl1
             // 
+            this.viewportControl1.AutoShowScrollbars = true;
             this.viewportControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.viewportControl1.Control = this._layerControl;
             this.viewportControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -76,15 +78,26 @@ namespace Treefrog.Windows
             this.viewportControl1.Size = new System.Drawing.Size(290, 448);
             this.viewportControl1.TabIndex = 0;
             // 
-            // _tileControl
+            // _layerControl
             // 
+            this._layerControl.BackColor = System.Drawing.Color.Black;
+            this._layerControl.CanvasAlignment = Treefrog.Presentation.CanvasAlignment.Center;
+            this._layerControl.ClearColor = ((Microsoft.Xna.Framework.Color)(resources.GetObject("_layerControl.ClearColor")));
             this._layerControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._layerControl.HeightSynced = false;
             this._layerControl.Location = new System.Drawing.Point(0, 0);
-            this._layerControl.Name = "_tileControl";
-            this._layerControl.Size = new System.Drawing.Size(271, 429);
+            this._layerControl.Name = "_layerControl";
+            this._layerControl.ReferenceHeight = 0;
+            this._layerControl.ReferenceOriginX = 0;
+            this._layerControl.ReferenceOriginY = 0;
+            this._layerControl.ReferenceWidth = 0;
+            this._layerControl.RootLayer = null;
+            this._layerControl.Size = new System.Drawing.Size(288, 446);
             this._layerControl.TabIndex = 0;
-            this._layerControl.Text = "tileControl1D1";
+            textureCache2.GraphicsDevice = null;
+            textureCache2.SourcePool = null;
+            this._layerControl.TextureCache = textureCache2;
+            this._layerControl.VSync = false;
             this._layerControl.WidthSynced = false;
             // 
             // toolStrip1
@@ -107,19 +120,13 @@ namespace Treefrog.Windows
             // 
             this._buttonAdd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this._buttonAdd.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.createEmptyPoolToolStripMenuItem,
-            this.importNewToolStripMenuItem});
+            this.importNewToolStripMenuItem,
+            this.importMergeToolStripMenuItem});
             this._buttonAdd.Image = ((System.Drawing.Image)(resources.GetObject("_buttonAdd.Image")));
             this._buttonAdd.ImageTransparentColor = System.Drawing.Color.Magenta;
             this._buttonAdd.Name = "_buttonAdd";
             this._buttonAdd.Size = new System.Drawing.Size(29, 22);
             this._buttonAdd.Text = "Add Tile Pool";
-            // 
-            // createEmptyPoolToolStripMenuItem
-            // 
-            this.createEmptyPoolToolStripMenuItem.Name = "createEmptyPoolToolStripMenuItem";
-            this.createEmptyPoolToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.createEmptyPoolToolStripMenuItem.Text = "Add new pool...";
             // 
             // importNewToolStripMenuItem
             // 
@@ -155,6 +162,12 @@ namespace Treefrog.Windows
             this._poolComboBox.Name = "_poolComboBox";
             this._poolComboBox.Size = new System.Drawing.Size(121, 25);
             // 
+            // importMergeToolStripMenuItem
+            // 
+            this.importMergeToolStripMenuItem.Name = "importMergeToolStripMenuItem";
+            this.importMergeToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.importMergeToolStripMenuItem.Text = "Import merge...";
+            // 
             // TilePoolPane
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -183,8 +196,8 @@ namespace Treefrog.Windows
         private System.Windows.Forms.ToolStripButton _buttonRemove;
         private System.Windows.Forms.ToolStripButton _buttonProperties;
         private System.Windows.Forms.ToolStripDropDownButton _buttonAdd;
-        private System.Windows.Forms.ToolStripMenuItem createEmptyPoolToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importNewToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem importMergeToolStripMenuItem;
     }
 }

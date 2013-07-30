@@ -363,6 +363,11 @@ namespace Treefrog.Presentation
             _selectedPoolRef = _tilePoolPresenters[poolUid];
 
             _commandManager.Invalidate(CommandKey.TilePoolProperties);
+            _commandManager.Invalidate(CommandKey.TilePoolDelete);
+            _commandManager.Invalidate(CommandKey.TilePoolImportMerge);
+            _commandManager.Invalidate(CommandKey.TilePoolRename);
+            _commandManager.Invalidate(CommandKey.TilePoolExport);
+            _commandManager.Invalidate(CommandKey.TilePoolImportOver);
 
             OnSelectedTilePoolChanged(EventArgs.Empty);
         }
@@ -406,6 +411,7 @@ namespace Treefrog.Presentation
 
             TilePoolCommandActions tilePoolActions = _editor.CommandActions.TilePoolActions;
             _commandManager.Register(CommandKey.TilePoolImport, () => { return true; }, tilePoolActions.CommandImport);
+            _commandManager.Register(CommandKey.TilePoolImportMerge, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandImportMerge));
             _commandManager.Register(CommandKey.TilePoolDelete, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandDelete));
             _commandManager.Register(CommandKey.TilePoolRename, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandRename));
             _commandManager.Register(CommandKey.TilePoolProperties, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandProperties));

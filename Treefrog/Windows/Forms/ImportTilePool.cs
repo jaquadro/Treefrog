@@ -14,8 +14,6 @@ namespace Treefrog.Windows.Forms
 {
     public partial class ImportTilePool : Form
     {
-        Project _project;
-
         LayerGraphicsControl _layerControl;
 
         TexturePool _localTexturePool;
@@ -31,11 +29,9 @@ namespace Treefrog.Windows.Forms
         int _width;
         int _height;
 
-        public ImportTilePool (Project project)
+        public ImportTilePool ()
         {
             InitializeComponent();
-
-            _project = project;
 
             _localTexturePool = new TexturePool();
             _localManager = new TilePoolManager(_localTexturePool);
@@ -59,6 +55,21 @@ namespace Treefrog.Windows.Forms
             _checkboxTransColor.Click += CheckboxTransColorClickHandler;
             _layerControl.MouseDown += PreviewControlClickHandler;
         }
+
+        public ImportTilePool (string poolName, int tileWidth, int tileHeight)
+            : this()
+        {
+            _textName.Text = poolName;
+            _textName.Enabled = false;
+
+            _numTileWidth.Value = tileWidth;
+            _numTileWidth.Enabled = false;
+
+            _numTileHeight.Value = tileHeight;
+            _numTileHeight.Enabled = false;
+        }
+
+        public TilePool Pool { get; private set; }
 
         private void _buttonBrowse_Click (object sender, EventArgs e)
         {
@@ -94,14 +105,9 @@ namespace Treefrog.Windows.Forms
 
         private void _buttonOK_Click (object sender, EventArgs e)
         {
-            TilePool pool = LoadFile(_project.TilePoolManager);
-            if (pool != null) {
-                if (_checkboxTransColor.Checked) {
-                    System.Drawing.Color c = _buttonTransColor.Color;
-                }
-                _project.TilePoolManager.MergePool(pool.Name, pool);
-            }
+            Pool = LoadFile();
 
+            DialogResult = DialogResult.OK;
             Close();
         }
 
@@ -110,11 +116,6 @@ namespace Treefrog.Windows.Forms
             if (_fileStream != null) {
                 _fileStream.Close();
             }
-        }
-
-        private TilePool LoadFile ()
-        {
-            return LoadFile(_localManager);
         }
 
         private void FileInfo ()
@@ -130,7 +131,7 @@ namespace Treefrog.Windows.Forms
         private TilePool _previewPool;
         private TextureResource _originalResource;
 
-        private TilePool LoadFile (ITilePoolManager manager)
+        private TilePool LoadFile ()
         {
             if (_fileStream == null) {
                 return null;

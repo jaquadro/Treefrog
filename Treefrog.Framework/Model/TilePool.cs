@@ -599,6 +599,35 @@ namespace Treefrog.Framework.Model
             }
         }
 
+        public void Merge (TilePool pool, TileImportPolicy policy)
+        {
+            Dictionary<string, Tile> existingHashes = new Dictionary<string, Tile>();
+            Dictionary<string, Tile> newHashes = new Dictionary<string, Tile>();
+
+            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider()) {
+                foreach (Tile tile in _tiles) {
+                    TextureResource tileTex = Tiles.GetTileTexture(tile.Uid);
+                    string hash = Convert.ToBase64String(sha1.ComputeHash(tileTex.RawData));
+                    existingHashes[hash] = tile;
+                }
+
+                foreach (Tile tile in pool.Tiles) {
+                    TextureResource tileTex = pool.Tiles.GetTileTexture(tile.Uid);
+                    string hash = Convert.ToBase64String(sha1.ComputeHash(tileTex.RawData));
+
+                    if (policy == TileImportPolicy.SourceUnique && newHashes.ContainsKey(hash))
+                        continue;
+                    else if (policy == TileImportPolicy.SetUnique && existingHashes.ContainsKey(hash))
+                        continue;
+
+                    Tile newTile = _tiles.Add(tileTex);
+
+                    existingHashes[hash] = newTile;
+                    newHashes[hash] = newTile;
+                }
+            }
+        }
+
         /*public void ApplyTransparentColor (Color color)
         {
             _tileSource.Apply(c =>

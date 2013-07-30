@@ -34,8 +34,23 @@ namespace Treefrog.Presentation
             foreach (TilePool pool in _editor.Project.TilePoolManager.Pools)
                 currentNames.Add(pool.Name);
 
-            using (ImportTilePool form = new ImportTilePool(_editor.Project)) {
-                form.ShowDialog();
+            using (ImportTilePool form = new ImportTilePool()) {
+                if (form.ShowDialog() == DialogResult.OK && form.Pool != null)
+                    _editor.Project.TilePoolManager.MergePool(form.Pool.Name, form.Pool);
+            }
+        }
+
+        public void CommandImportMerge (object param)
+        {
+            if (!TilePoolExists(param))
+                return;
+
+            Guid uid = (Guid)param;
+            TilePool tilePool = _editor.Project.TilePoolManager.Pools[uid];
+
+            using (ImportTilePool form = new ImportTilePool(tilePool.Name, tilePool.TileWidth, tilePool.TileHeight)) {
+                if (form.ShowDialog() == DialogResult.OK && form.Pool != null)
+                    tilePool.Merge(form.Pool, TileImportPolicy.SetUnique);
             }
         }
 

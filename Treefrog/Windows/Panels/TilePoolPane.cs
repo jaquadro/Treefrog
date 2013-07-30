@@ -73,6 +73,7 @@ namespace Treefrog.Windows
             });
             _commandController.MapMenuItems(new Dictionary<CommandKey, ToolStripMenuItem>() {
                 { CommandKey.TilePoolImport, importNewToolStripMenuItem },
+                { CommandKey.TilePoolImportMerge, importMergeToolStripMenuItem },
                 { CommandKey.TileProperties, tilePropertiesItem },
             });
 
