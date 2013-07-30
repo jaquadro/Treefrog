@@ -55,6 +55,11 @@ namespace Treefrog.Windows
 
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
             _listControl.ItemChecked += ItemCheckedHandler;
+
+            _listControl.DoubleClick += (s, v) => {
+                if (_controller != null)
+                    _controller.CommandManager.Perform(CommandKey.LayerEdit);
+            };
         }
 
         public void BindController (ILayerListPresenter controller) {
