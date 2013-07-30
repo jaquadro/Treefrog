@@ -13,6 +13,8 @@ namespace Treefrog.Windows
         private ILayerListPresenter _controller;
         private UICommandController _commandController;
 
+        private ContextMenuStrip _itemContextMenu;
+
         public LayerPane ()
         {
             InitializeComponent();
@@ -44,9 +46,27 @@ namespace Treefrog.Windows
                 { CommandKey.NewObjectLayer, _menuNewObjectLayer },
             });
 
-            // Wire events
+            _itemContextMenu = CommandMenuBuilder.BuildContextMenu(new CommandMenu("", new List<CommandMenuGroup>() {
+                new CommandMenuGroup() {
+                    new CommandMenuEntry(CommandKey.LayerEdit) { Default = true },
+                },
+                new CommandMenuGroup() {
+                    CommandKey.LayerClone,
+                    CommandKey.LayerDelete,
+                },
+                new CommandMenuGroup() {
+                    CommandKey.LayerMoveTop,
+                    CommandKey.LayerMoveUp,
+                    CommandKey.LayerMoveDown,
+                    CommandKey.LayerMoveBottom,
+                },
+                new CommandMenuGroup() {
+                    CommandKey.LayerExportRaster,
+                    CommandKey.LayerProperties,
+                },
+            }));
 
-            
+            _commandController.MapMenuItems(_itemContextMenu.Items);
         }
 
         protected override void OnLoad (EventArgs e)
@@ -55,6 +75,7 @@ namespace Treefrog.Windows
 
             _listControl.ItemSelectionChanged += SelectedItemChangedHandler;
             _listControl.ItemChecked += ItemCheckedHandler;
+            _listControl.MouseClick += ListViewMouseClickHandler;
 
             _listControl.DoubleClick += (s, v) => {
                 if (_controller != null)
@@ -177,6 +198,15 @@ namespace Treefrog.Windows
             _listControl.Items.Clear();
 
             _buttonProperties.Enabled = false;
+        }
+
+        private void ListViewMouseClickHandler (object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right) {
+                ListViewItem item = _listControl.GetItemAt(e.X, e.Y);
+                if (item != null && item.Selected)
+                    _itemContextMenu.Show(_listControl, e.Location);
+            }
         }
     }
 }
