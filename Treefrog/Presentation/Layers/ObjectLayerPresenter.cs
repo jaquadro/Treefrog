@@ -105,7 +105,7 @@ namespace Treefrog.Presentation.Layers
                             (int)((inst.Position.Y + dstRect.Y) * geometry.ZoomFactor),
                             (int)(dstRect.Width * geometry.ZoomFactor),
                             (int)(dstRect.Height * geometry.ZoomFactor)),
-                        BlendColor = Colors.White,
+                        BlendColor = new Color(Colors.White, (byte)(Opacity * 255)),
                         Rotation = inst.Rotation,
                         OriginX = inst.ObjectClass.Origin.X,
                         OriginY = inst.ObjectClass.Origin.Y,

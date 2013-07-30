@@ -42,7 +42,7 @@ namespace Treefrog.Presentation.Layers
                             (int)(tile.Y * tile.Tile.Height * geometry.ZoomFactor),
                             (int)(tile.Tile.Width * geometry.ZoomFactor),
                             (int)(tile.Tile.Height * geometry.ZoomFactor)),
-                        BlendColor = Colors.White,
+                        BlendColor = new Color(Colors.White, (byte)(Opacity * 255)),
                     };
                 }
 
@@ -60,7 +60,7 @@ namespace Treefrog.Presentation.Layers
                                     (int)((dcoord.Y + TileSelection.Offset.Y) * tile.Height * geometry.ZoomFactor),
                                     (int)(tile.Width * geometry.ZoomFactor),
                                     (int)(tile.Height * geometry.ZoomFactor)),
-                                BlendColor = Colors.White,
+                                BlendColor = new Color(Colors.White, (byte)(Opacity * 255)),
                             };
                         }
                     }

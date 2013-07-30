@@ -21,8 +21,11 @@ namespace Treefrog.Framework.Imaging
 
         public Color (byte r, byte g, byte b)
             : this(r, g, b, 255)
-        {
-        }
+        { }
+
+        public Color (Color c, byte a)
+            : this(c.R, c.G, c.B, a)
+        { }
 
         public static bool operator == (Color a, Color b)
         {
@@ -38,6 +41,11 @@ namespace Treefrog.Framework.Imaging
                 || a.R != b.R
                 || a.G != b.G
                 || a.B != b.B;
+        }
+
+        public static Color operator * (Color c, float f)
+        {
+            return new Color((byte)(c.R * f), (byte)(c.G * f), (byte)(c.B * f), (byte)(c.A * f));
         }
 
         public bool Equals (Color other)
