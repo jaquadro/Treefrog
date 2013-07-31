@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using TF = Treefrog.Framework.Imaging;
 using Xna = Microsoft.Xna.Framework;
-using TF = Treefrog.Framework.Imaging;
 
 namespace Treefrog.Render
 {

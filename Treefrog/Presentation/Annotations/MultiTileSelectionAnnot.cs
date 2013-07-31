@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Treefrog.Framework;
 using Treefrog.Framework.Imaging;
-using Treefrog.Framework.Imaging.Drawing;
 
 namespace Treefrog.Presentation.Annotations
 {

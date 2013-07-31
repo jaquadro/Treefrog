@@ -7,7 +7,6 @@ using Treefrog.Framework.Imaging.Drawing;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Annotations;
 using Treefrog.Presentation.Commands;
-using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation.Tools
 {

@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Microsoft.Xna.Framework.Graphics;
+using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 
 namespace Treefrog.Aux
 {
-    using Microsoft.Xna.Framework.Graphics;
-
-    using TextureResource = Treefrog.Framework.Imaging.TextureResource;
-
     public static class TextureResourceXnaExt
     {
         public static TextureResource CreateTextureResource (Texture2D texture)

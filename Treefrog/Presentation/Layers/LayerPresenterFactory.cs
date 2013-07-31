@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Treefrog.Framework.Model;
 using Treefrog.Utility;
-using Treefrog.Framework.Model;
 
 namespace Treefrog.Presentation.Layers
 {

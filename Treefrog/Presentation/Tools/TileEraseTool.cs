@@ -1,9 +1,9 @@
 ﻿using System;
-using Treefrog.Framework;
-using Treefrog.Framework.Model;
 using System.Collections.ObjectModel;
+using Treefrog.Framework;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework.Model;
 using Treefrog.Presentation.Annotations;
 using Treefrog.Presentation.Commands;
 

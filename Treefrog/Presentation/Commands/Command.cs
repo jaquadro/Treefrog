@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Treefrog.Presentation.Commands
 {
     public abstract class Command

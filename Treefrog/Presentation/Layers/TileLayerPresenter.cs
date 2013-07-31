@@ -10,10 +10,10 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Presentation.Tools;
 using Treefrog.Prseentation.Tools;
+using Treefrog.Utility;
 using SysDrawing = System.Drawing;
 using SysDrawing2D = System.Drawing.Drawing2D;
 using SysImaging = System.Drawing.Imaging;
-using Treefrog.Utility;
 
 namespace Treefrog.Presentation.Layers
 {

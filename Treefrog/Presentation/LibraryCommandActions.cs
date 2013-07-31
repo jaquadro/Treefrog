@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Presentation;
-using Treefrog.Windows.Forms;
 using System.Windows.Forms;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation;
+using Treefrog.Windows.Forms;
 
 namespace Treefrog
 {

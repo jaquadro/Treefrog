@@ -1,9 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LilyPath.Brushes;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Aux;
 using Drawing = Treefrog.Framework.Imaging.Drawing;
 using XnaDrawing = LilyPath;
-using LilyPath.Brushes;
 
 namespace Treefrog.Render.Annotations
 {

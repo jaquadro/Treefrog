@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Layers;
 

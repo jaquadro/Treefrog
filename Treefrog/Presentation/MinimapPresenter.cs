@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections.ObjectModel;
-using Treefrog.Presentation.Annotations;
-using Treefrog.Framework.Model;
-using Treefrog.Presentation.Layers;
 using Treefrog.Framework;
-using Treefrog.Presentation.Commands;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework.Model;
+using Treefrog.Presentation.Annotations;
+using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
+using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Tools;
 
 namespace Treefrog.Presentation

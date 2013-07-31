@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Presentation.Tools;
+﻿using System.Collections.Generic;
 using Treefrog.Framework.Model;
-using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation.Commands
 {

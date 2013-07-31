@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Presentation.Tools;
 using Treefrog.Utility;
-using System.Windows.Forms;
 
 namespace Treefrog.Presentation.Layers
 {

@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Treefrog.Framework.Model;
-using Treefrog.Framework;
-using Treefrog.Presentation.Tools;
-using Treefrog.Presentation.Commands;
-using Treefrog.Windows.Forms;
 using System.Windows.Forms;
-using Treefrog.Framework.Imaging;
 using Treefrog.Aux;
+using Treefrog.Framework;
+using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Model;
+using Treefrog.Presentation.Commands;
+using Treefrog.Presentation.Tools;
+using Treefrog.Windows.Forms;
 
 namespace Treefrog.Presentation
 {

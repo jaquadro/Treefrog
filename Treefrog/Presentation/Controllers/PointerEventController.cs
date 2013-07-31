@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
-using Treefrog.Presentation.Layers;
-using Treefrog.Presentation.Tools;
+using System.Linq;
 using System.Windows.Forms;
+using Treefrog.Presentation.Tools;
 
 namespace Treefrog.Presentation.Controllers
 {

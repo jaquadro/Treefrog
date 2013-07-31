@@ -1,8 +1,6 @@
 ﻿using System;
-using Treefrog.Framework.Model;
-using Treefrog.Presentation.Layers;
 using Treefrog.Presentation.Controllers;
-using Treefrog.Framework.Imaging;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation
 {

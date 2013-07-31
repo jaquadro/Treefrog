@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml;
-using Treefrog.Framework;
 using Treefrog.Framework.Model;
 
 namespace Treefrog.Model

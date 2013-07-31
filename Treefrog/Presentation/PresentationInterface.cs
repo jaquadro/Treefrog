@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Windows.Forms;
-using Treefrog.Framework.Model;
-using Treefrog.Presentation.Commands;
 using Treefrog.Framework;
+using Treefrog.Presentation.Commands;
 
 namespace Treefrog.Presentation
 {

@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Treefrog.Framework.Model;
-using Treefrog.Windows.Forms;
+using System.Collections.ObjectModel;
 using Treefrog.Framework;
-using Treefrog.Presentation.Commands;
-using System.Drawing;
-using Treefrog.Aux;
-using System.Windows.Forms;
-using Treefrog.Framework.Imaging;
-using Treefrog.Presentation.Layers;
+using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework.Model;
 using Treefrog.Model;
 using Treefrog.Presentation.Annotations;
-using System.Collections.ObjectModel;
+using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
-using Treefrog.Framework.Imaging.Drawing;
-using Treefrog.Framework.Compat;
+using Treefrog.Presentation.Layers;
 
 namespace Treefrog.Presentation
 {
