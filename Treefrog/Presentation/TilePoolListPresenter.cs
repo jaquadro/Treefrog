@@ -28,37 +28,6 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface ITilePoolListPresenter : ICommandSubscriber
-    {
-        //bool CanAddTilePool { get; }
-        //bool CanRemoveSelectedTilePool { get; }
-        //bool CanShowSelectedTilePoolProperties { get; }
-
-        ITilePoolManager TilePoolManager { get; }
-
-        IEnumerable<TilePoolPresenter> TilePoolList { get; }
-        TilePoolPresenter SelectedTilePool { get; }
-        Tile SelectedTile { get; }                      // Send to ITilePoolPresenter
-
-        event EventHandler SyncTilePoolManager;
-        //event EventHandler SyncTilePoolActions;
-        event EventHandler SyncTilePoolList;
-        event EventHandler SyncTilePoolControl;         // Send to ITilePoolPresenter
-        event EventHandler TileSelectionChanged;
-
-        event EventHandler SelectedTilePoolChanged;
-
-        //event EventHandler<SyncTilePoolEventArgs> SyncCurrentTilePool;
-
-        //void ActionImportTilePool ();
-        //void ActionRemoveSelectedTilePool ();
-        void ActionSelectTilePool (Guid poolUid);
-        //void ActionSelectTile (Tile tile);              // Send to ITilePoolPresenter
-        //void ActionShowTilePoolProperties ();
-
-        //void RefreshTilePoolList ();
-    }
-
     public class TilePoolPresenter : IPointerResponderProvider, IDisposable
     {
         private TilePool _tilePool;
@@ -146,7 +115,6 @@ namespace Treefrog.Presentation
 
             _rootLayer = new GroupLayerPresenter();
             _rootLayer.Layers.Add(_tileLayer);
-            //_rootLayer.Layers.Add(_gridLayer);
             _rootLayer.Layers.Add(_annotLayer);
         }
 
@@ -197,17 +165,16 @@ namespace Treefrog.Presentation
         }
     }
 
-    public class TilePoolListPresenter : IDisposable, ITilePoolListPresenter, ICommandSubscriber
+    public class TilePoolListPresenter : IDisposable, ICommandSubscriber
     {
-        private IEditorPresenter _editor;
+        private EditorPresenter _editor;
         private ITilePoolManager _poolManager;
 
         private Dictionary<Guid, TilePoolPresenter> _tilePoolPresenters;
-        //private string _selectedPool;
         private Guid _selectedPool;
         private TilePoolPresenter _selectedPoolRef;
 
-        public TilePoolListPresenter (IEditorPresenter editor)
+        public TilePoolListPresenter (EditorPresenter editor)
         {
             _editor = editor;
             _editor.SyncCurrentProject += EditorSyncCurrentProject;

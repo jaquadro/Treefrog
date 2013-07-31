@@ -157,7 +157,7 @@ namespace Treefrog.Windows.Forms
         // TODO: Overlays need a separate registry if planning plugin support
         private Dictionary<string, Texture2D> _brushClassOverlays = new Dictionary<string, Texture2D>();
 
-        private ITilePoolListPresenter _tileController;
+        private TilePoolListPresenter _tileController;
 
         private DynamicTileBrush _brush;
         private PointerEventController _pointerController;
@@ -227,7 +227,7 @@ namespace Treefrog.Windows.Forms
             base.Dispose(disposing);
         }
 
-        public void BindTileController (ITilePoolListPresenter controller)
+        public void BindTileController (TilePoolListPresenter controller)
         {
             if (_tileController != null) {
                 _tileController.SyncTilePoolList -= SyncTilePoolListHandler;

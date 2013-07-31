@@ -223,13 +223,13 @@ namespace Treefrog.Presentation
 
     public class ContentWorkspacePresenter : IDisposable, ICommandSubscriber
     {
-        private IEditorPresenter _editor;
+        private EditorPresenter _editor;
         private Project _project;
 
         private List<ContentTypeController> _contentControllers;
         private Dictionary<Guid, ContentPresenter> _openContent;
 
-        public ContentWorkspacePresenter (IEditorPresenter editor)
+        public ContentWorkspacePresenter (EditorPresenter editor)
         {
             _editor = editor;
             _editor.SyncCurrentProject += EditorSyncCurrentProject;

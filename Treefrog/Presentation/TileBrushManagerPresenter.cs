@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Windows.Forms;
 using Treefrog.Framework.Model;
+using Treefrog.Framework.Model.Support;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
-using System.Windows.Forms;
-using Treefrog.Framework.Model.Support;
 
 namespace Treefrog.Presentation
 {
@@ -20,38 +19,36 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface ITileBrushManagerPresenter : ICommandSubscriber
+    public class TileBrushManagerPresenter : IDisposable, ICommandSubscriber
     {
-        ITileBrushManager TileBrushManager { get; }
-
-        TileBrush SelectedBrush { get; }
-
-        event EventHandler SyncTileBrushManager;
-        event EventHandler SyncTileBrushCollection;
-
-        event EventHandler<SyncTileBrushEventArgs> SyncCurrentBrush;
-
-        event EventHandler TileBrushSelected;
-
-        void ActionSelectBrush (Guid brushId);
-        void ActionEditBrush (Guid brushId);
-
-        void RefreshTileBrushCollection ();
-    }
-
-    public class TileBrushManagerPresenter : ITileBrushManagerPresenter
-    {
-        private IEditorPresenter _editor;
+        private EditorPresenter _editor;
 
         private Guid _selectedBrush;
         private TileBrush _selectedBrushRef;
 
-        public TileBrushManagerPresenter (IEditorPresenter editor)
+        public TileBrushManagerPresenter (EditorPresenter editor)
         {
             _editor = editor;
             _editor.SyncCurrentProject += SyncCurrentProjectHandler;
 
             InitializeCommandManager();
+        }
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (_editor != null) {
+                if (disposing) {
+                    _editor.SyncCurrentProject -= SyncCurrentProjectHandler;
+                }
+
+                _editor = null;
+            }
         }
 
         private void SyncCurrentProjectHandler (object sender, SyncProjectEventArgs e)
@@ -74,8 +71,6 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.NewDynamicTileBrush, CommandCanCreateDynamicBrush, CommandCreateDynamicBrush);
             _commandManager.Register(CommandKey.TileBrushClone, CommandCanCloneBrush, CommandCloneBrush);
             _commandManager.Register(CommandKey.TileBrushDelete, CommandCanDeleteBrush, CommandDeleteBrush);
-
-            //_commandManager.Register(CommandKey.TileBrushFilter, CommandCanToggleFilter, CommandToggleFilter);
         }
 
         public CommandManager CommandManager

@@ -8,7 +8,7 @@ namespace Treefrog.Windows.Controls.Composite
 {
     public class StandardMenu
     {
-        private IEditorPresenter _controller;
+        private EditorPresenter _controller;
 
         private UICommandController _commandController;
 
@@ -186,7 +186,7 @@ namespace Treefrog.Windows.Controls.Composite
             _commandController.BindCommandManager(commandManager);
         }
 
-        public void BindController (IEditorPresenter controller)
+        public void BindController (EditorPresenter controller)
         {
             if (_controller == controller) {
                 return;

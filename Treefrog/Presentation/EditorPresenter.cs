@@ -42,46 +42,6 @@ namespace Treefrog.Presentation
         }
     }
 
-    public interface IEditorPresenter
-    {
-        bool CanShowProjectPanel { get; }
-        bool CanShowLayerPanel { get; }
-        bool CanShowPropertyPanel { get; }
-        bool CanShowTilePoolPanel { get; }
-        bool CanShowObjectPoolPanel { get; }
-        bool CanShowTileBrushPanel { get; }
-
-        bool ShowGrid { get; }
-
-        bool Modified { get; }
-
-        Project Project { get; }
-
-        Presentation Presentation { get; }
-        CommandActions CommandActions { get; }
-
-        //IEnumerable<LevelPresenter> OpenContent { get; }
-
-        void OpenLevel (Guid uid);
-
-        void ActionSelectContent (Guid uid);
-
-        event EventHandler SyncContentTabs;
-        event EventHandler SyncContentView;
-        event EventHandler SyncModified;
-
-        event EventHandler<SyncProjectEventArgs> SyncCurrentProject;
-
-        event EventHandler<SyncLevelEventArgs> SyncCurrentLevel;
-
-        event EventHandler<PanelEventArgs> PanelActivation;
-
-        void RefreshEditor ();
-
-        // TODO: Change this to something more general
-        void ActivatePropertyPanel ();
-    }
-
     public class CommandActions
     {
         private EditorPresenter _editor;
@@ -166,11 +126,6 @@ namespace Treefrog.Presentation
             get { return _editor.CurrentLevel; }
         }
 
-        /*public ILevelToolsPresenter LevelTools
-        {
-            get { return _levelTools; }
-        }*/
-
         public PropertyListPresenter PropertyList
         {
             get { return _propertyList; }
@@ -191,7 +146,7 @@ namespace Treefrog.Presentation
             get { return _stdTools; }
         }
 
-        public ITilePoolListPresenter TilePoolList
+        public TilePoolListPresenter TilePoolList
         {
             get { return _tilePoolList; }
         }
@@ -201,20 +156,19 @@ namespace Treefrog.Presentation
             get { return _objectPoolCollection; }
         }
 
-        public ITileBrushManagerPresenter TileBrushes
+        public TileBrushManagerPresenter TileBrushes
         {
             get { return _tileBrushManager; }
         }
     }
 
-    public class EditorPresenter : IEditorPresenter, ICommandSubscriber
+    public class EditorPresenter : ICommandSubscriber
     {
         private Project _project;
 
         private ContentWorkspacePresenter _content;
         private LevelContentTypeController _levelContentController;
 
-        //private Dictionary<Guid, LevelPresenter> _levels;
         private Guid _currentLevel;
         private LevelPresenter _currentLevelRef;
 
@@ -254,34 +208,16 @@ namespace Treefrog.Presentation
             _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
 
             _project.Modified += ProjectModifiedHandler;
-            //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             Program.CurrentProject = _project;
 
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
-            //_openContent = new List<Guid>();
-            //_levels = new Dictionary<Guid, LevelPresenter>();
-
             Level level = new Level("Level 1", 0, 0, 800, 480);
             level.Project = _project;
             level.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 16, 16, 50, 30));
 
-            //Level level2 = new Level("Level 2", 0, 0, 800, 480);
-            //level2.Project = _project;
-            //level2.Layers.Add(new MultiTileGridLayer("Tile Layer 1", 32, 32, 25, 15));
-
-            //LevelPresenter pres = new LevelPresenter(this, level);
-            //_levels[level.Uid] = pres;
-
-            //LevelPresenter pres2 = new LevelPresenter(this, level2);
-            //_levels[level2.Uid] = pres2;
-
-            //_openContent.Add(level.Uid);
-            //_openContent.Add(level2.Uid);
-
             _project.Levels.Add(level);
-            //_project.Levels.Add(level2);
 
             SelectLevel(level.Uid);
 
@@ -295,7 +231,6 @@ namespace Treefrog.Presentation
             Project.ResetModified();
 
             _content.OpenContent(level.Uid);
-            //_content.OpenContent(level2.Uid);
 
             RefreshEditor();
         }
@@ -320,23 +255,14 @@ namespace Treefrog.Presentation
 
             _project = project;
             _project.Modified += ProjectModifiedHandler;
-            //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
             _project.ObjectPoolManager.Pools.Add(new ObjectPool("Default"));
 
-            //_openContent = new List<Guid>();
-            //_levels = new Dictionary<Guid, LevelPresenter>();
-
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
-                //LevelPresenter pres = new LevelPresenter(this, level);
-                //_levels[level.Uid] = pres;
-
-                //_openContent.Add(level.Uid);
-
                 _content.OpenContent(level.Uid);
 
                 if (_currentLevel == Guid.Empty) {
@@ -344,8 +270,6 @@ namespace Treefrog.Presentation
                     propList.Provider = level; // Initial Property Provider
                 }
             }
-
-            //_project.ObjectPoolManager.CreatePool("Default");
 
             ContentInfoArbitrationPresenter info = _presentation.ContentInfo as ContentInfoArbitrationPresenter;
             info.BindInfoPresenter(CurrentLevel.InfoPresenter);
@@ -356,10 +280,6 @@ namespace Treefrog.Presentation
             
 
             RefreshEditor();
-
-            if (CurrentLevel != null) {
-                //CurrentLevel.RefreshLayerList();
-            }
         }
 
         public void Open (Project project)
@@ -377,22 +297,14 @@ namespace Treefrog.Presentation
 
             _project = project;
             _project.Modified += ProjectModifiedHandler;
-            //_project.Levels.ResourceRemapped += LevelNameChangedHandler;
 
             OnSyncCurrentProject(new SyncProjectEventArgs(prevProject));
 
             _currentLevel = Guid.Empty;
 
-            //_openContent = new List<Guid>();
-            //_levels = new Dictionary<Guid, LevelPresenter>();
-
             PropertyListPresenter propList = _presentation.PropertyList as PropertyListPresenter;
 
             foreach (Level level in _project.Levels) {
-                //LevelPresenter pres = new LevelPresenter(this, level);
-                //_levels[level.Uid] = pres;
-
-                //_openContent.Add(level.Uid);
                 _levelContentController.OpenContent(level.Uid);
 
                 if (_currentLevel == Guid.Empty) {
@@ -410,10 +322,6 @@ namespace Treefrog.Presentation
             Project.ResetModified();
 
             RefreshEditor();
-
-            if (CurrentLevel != null) {
-                //CurrentLevel.RefreshLayerList();
-            }
         }
 
         public void Save (Stream stream, ProjectResolver resolver)
@@ -431,13 +339,9 @@ namespace Treefrog.Presentation
 
         private Project EmptyProject ()
         {
-            //Form form = new Form();
-            //GraphicsDeviceService gds = GraphicsDeviceService.AddRef(form.Handle, 128, 128);
-
             Project project = new Project() {
                 Name = "New Project"
             };
-            //project.Initialize(gds.GraphicsDevice);
 
             return project;
         }
@@ -471,10 +375,6 @@ namespace Treefrog.Presentation
         {
             get { return _commandActions; }
         }
-
-        #region IEditorPresenter Members
-
-        //List<Guid> _openContent;
 
         private bool _modified;
 
@@ -526,16 +426,6 @@ namespace Treefrog.Presentation
                 }
             }
         }
-
-        /*public IEnumerable<LevelPresenter> OpenContent
-        {
-            get 
-            {
-                foreach (Guid uid in _openContent) {
-                    yield return _levels[uid];
-                }
-            }
-        }*/
 
         public void ActionSelectContent (Guid uid)
         {
@@ -613,8 +503,6 @@ namespace Treefrog.Presentation
             OnPanelActivation(new PanelEventArgs(Presentation.PropertyList));
         }
 
-        #endregion
-
         private string _projectPath;
 
         public void OpenLevel (Guid uid)
@@ -652,10 +540,6 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.ProjectAddLevel, CommandCanAddLevel, CommandAddLevel);
             _commandManager.Register(CommandKey.LevelClose, CommandCanCloseLevel, CommandCloseLevel);
             _commandManager.Register(CommandKey.LevelCloseAllOther, CommandCanCloseAllOtherLevels, CommandCloseAllOtherLevels);
-
-            //_commandManager.RegisterToggle(CommandKey.ViewGrid);
-
-            //_commandManager.Perform(CommandKey.ViewGrid);
         }
 
         public CommandManager CommandManager
@@ -792,10 +676,6 @@ namespace Treefrog.Presentation
             if (CommandCanAddLevel()) {
                 NewLevel form = new NewLevel(_project);
                 if (form.ShowDialog() == DialogResult.OK) {
-                    //LevelPresenter pres = new LevelPresenter(this, form.Level);
-                    //_levels[form.Level.Uid] = pres;
-
-                    //_openContent.Add(form.Level.Uid);
                     SelectLevel(form.Level.Uid);
                     Presentation.PropertyList.Provider = form.Level;
 
@@ -813,7 +693,6 @@ namespace Treefrog.Presentation
         private void CommandCloseLevel ()
         {
             if (CommandCanCloseLevel()) {
-                //_openContent.Remove(_currentLevel);
                 _content.CloseContent(_currentLevel);
 
                 OnSyncContentTabs(EventArgs.Empty);
@@ -908,22 +787,5 @@ namespace Treefrog.Presentation
             OnSyncCurrentLevel(new SyncLevelEventArgs(prev, prevLevel));
             OnSyncContentView(EventArgs.Empty);
         }
-
-        /*private void LevelNameChangedHandler (object sender, NamedResourceRemappedEventArgs<Level> e)
-        {
-            if (_levels.ContainsKey(e.OldName)) {
-                LevelPresenter lp = _levels[e.OldName];
-                _levels.Remove(e.OldName);
-                _levels.Add(e.NewName, lp);
-            }
-
-            if (_openContent.Contains(e.OldName)) {
-                int index = _openContent.IndexOf(e.OldName);
-                _openContent.Remove(e.OldName);
-                _openContent.Insert(index, e.NewName);
-            }
-
-            OnSyncContentTabs(EventArgs.Empty);
-        }*/
     }
 }

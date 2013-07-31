@@ -13,8 +13,8 @@ namespace Treefrog.Windows.Panels
 {
     public partial class TileBrushPanel : UserControl
     {
-        private ITileBrushManagerPresenter _controller;
-        private ITilePoolListPresenter _tileController;
+        private TileBrushManagerPresenter _controller;
+        private TilePoolListPresenter _tileController;
 
         private UICommandController _commandController;
 
@@ -57,7 +57,7 @@ namespace Treefrog.Windows.Panels
             _listView.MouseDoubleClick += ListViewMouseDoubleClick;
         }
 
-        public void BindController (ITileBrushManagerPresenter controller)
+        public void BindController (TileBrushManagerPresenter controller)
         {
             if (_controller == controller)
                 return;
@@ -82,7 +82,7 @@ namespace Treefrog.Windows.Panels
             }
         }
 
-        public void BindTileController (ITilePoolListPresenter controller)
+        public void BindTileController (TilePoolListPresenter controller)
         {
             _tileController = controller;
         }

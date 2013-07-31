@@ -36,7 +36,7 @@ namespace Treefrog.Windows
             }
         }
 
-        private ITilePoolListPresenter _controller;
+        private TilePoolListPresenter _controller;
         private TilePoolPresenter _tilePool;
         private ControlPointerEventController _pointerController;
         private GroupLayer _root;
@@ -92,7 +92,7 @@ namespace Treefrog.Windows
             _poolComboBox.SelectedIndexChanged += SelectTilePoolHandler;
         }
 
-        public void BindController (ITilePoolListPresenter controller)
+        public void BindController (TilePoolListPresenter controller)
         {
             if (_controller == controller) {
                 return;

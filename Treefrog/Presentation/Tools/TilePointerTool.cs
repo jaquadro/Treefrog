@@ -16,8 +16,8 @@ namespace Treefrog.Presentation.Tools
 
     public class TilePointerTool : PointerTool
     {
-        private ITilePoolListPresenter _tilePool;
-        private ITileBrushManagerPresenter _brushManager;
+        private TilePoolListPresenter _tilePool;
+        private TileBrushManagerPresenter _brushManager;
 
         private CommandHistory _history;
         private MultiTileGridLayer _layer;
@@ -48,7 +48,7 @@ namespace Treefrog.Presentation.Tools
             base.DisposeManaged();
         }
 
-        public void BindTilePoolController (ITilePoolListPresenter controller)
+        public void BindTilePoolController (TilePoolListPresenter controller)
         {
             if (_tilePool != null) {
                 _tilePool.TileSelectionChanged -= TileSelectionChangedHandler;
@@ -61,7 +61,7 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        public void BindTileBrushManager (ITileBrushManagerPresenter controller)
+        public void BindTileBrushManager (TileBrushManagerPresenter controller)
         {
             if (_brushManager != null) {
                 _brushManager.TileBrushSelected -= TileBrushSelectedHandler;
@@ -141,12 +141,12 @@ namespace Treefrog.Presentation.Tools
             }
         }
 
-        protected ITilePoolListPresenter PoolPresenter
+        protected TilePoolListPresenter PoolPresenter
         {
             get { return _tilePool; }
         }
 
-        protected ITileBrushManagerPresenter BrushManager
+        protected TileBrushManagerPresenter BrushManager
         {
             get { return _brushManager; }
         }

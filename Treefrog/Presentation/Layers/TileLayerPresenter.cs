@@ -26,12 +26,12 @@ namespace Treefrog.Presentation.Layers
     }
 
     public class TileLayerPresenter : LevelLayerPresenter, ICommandSubscriber, IPointerResponder, ITileSelectionLayer, 
-        IBindable<ITilePoolListPresenter>, IBindable<ITileBrushManagerPresenter>
+        IBindable<TilePoolListPresenter>, IBindable<TileBrushManagerPresenter>
     {
         private TileLayer _layer;
 
-        private ITilePoolListPresenter _tilePoolController;
-        private ITileBrushManagerPresenter _tileBrushController;
+        private TilePoolListPresenter _tilePoolController;
+        private TileBrushManagerPresenter _tileBrushController;
         private TileSourceType _sourceType = TileSourceType.Tile;
 
         public TileLayerPresenter (ILayerContext layerContext, TileLayer layer)
@@ -44,13 +44,13 @@ namespace Treefrog.Presentation.Layers
 
         protected override void DisposeManaged ()
         {
-            Bind((ITilePoolListPresenter)null);
-            Bind((ITileBrushManagerPresenter)null);
+            Bind((TilePoolListPresenter)null);
+            Bind((TileBrushManagerPresenter)null);
 
             base.DisposeManaged();
         }
 
-        public void Bind (ITilePoolListPresenter controller)
+        public void Bind (TilePoolListPresenter controller)
         {
             if (_tilePoolController != null) {
                 _tilePoolController.TileSelectionChanged -= TileSelectionChangedHandler;
@@ -63,7 +63,7 @@ namespace Treefrog.Presentation.Layers
             }
         }
 
-        public void Bind (ITileBrushManagerPresenter controller)
+        public void Bind (TileBrushManagerPresenter controller)
         {
             if (_tileBrushController != null) {
                 _tileBrushController.TileBrushSelected -= TileBrushSelectedHandler;

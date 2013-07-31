@@ -248,8 +248,8 @@ namespace Treefrog.Presentation
             _layerPresenters[layer.Uid] = layerp;
             _rootContentLayer.Layers.Add(layerp);
 
-            BindingHelper.TryBind<ITilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
-            BindingHelper.TryBind<ITileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
+            BindingHelper.TryBind<TilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
+            BindingHelper.TryBind<TileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
             BindingHelper.TryBind<ObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
 
             BindLayerEvents(layer);

@@ -115,7 +115,7 @@ namespace Treefrog.Windows.Forms
             { }
         }
 
-        private ITilePoolListPresenter _tileController;
+        private TilePoolListPresenter _tileController;
 
         private StaticTileBrush _brush;
         private PointerEventController _pointerController;
@@ -180,7 +180,7 @@ namespace Treefrog.Windows.Forms
             base.Dispose(disposing);
         }
 
-        public void BindTileController (ITilePoolListPresenter controller)
+        public void BindTileController (TilePoolListPresenter controller)
         {
             if (_tileController != null) {
                 _tileController.SyncTilePoolList -= SyncTilePoolListHandler;

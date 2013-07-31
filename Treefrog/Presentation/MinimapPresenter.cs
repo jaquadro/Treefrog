@@ -15,7 +15,7 @@ using Treefrog.Presentation.Tools;
 
 namespace Treefrog.Presentation
 {
-    public class MinimapPresenter : ILayerContext, IPointerResponderProvider, IPointerResponder
+    public class MinimapPresenter : IDisposable, ILayerContext, IPointerResponderProvider, IPointerResponder
     {
         private EditorPresenter _editor;
         private ObservableCollection<Annotation> _annotations;
@@ -41,6 +41,25 @@ namespace Treefrog.Presentation
                 OutlineGlow = _boxOutlineGlow,
             };
             _annotations.Add(_boxAnnot);
+        }
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (_editor != null) {
+                if (disposing) {
+                    BindLevel(null);
+
+                    _editor.SyncCurrentLevel -= SyncCurrentLevel;
+                }
+
+                _editor = null;
+            }
         }
 
         private void SyncCurrentLevel (object sender, SyncLevelEventArgs e)

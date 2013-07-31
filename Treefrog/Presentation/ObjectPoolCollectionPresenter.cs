@@ -35,7 +35,7 @@ namespace Treefrog.Presentation
 
     public class ObjectPoolCollectionPresenter : ICommandSubscriber
     {
-        private IEditorPresenter _editor;
+        private EditorPresenter _editor;
 
         private Guid _selectedPool;
         private ObjectPool _selectedPoolRef;
@@ -43,7 +43,7 @@ namespace Treefrog.Presentation
 
         private Dictionary<Guid, ObjectClass> _selectedObjects;
 
-        public ObjectPoolCollectionPresenter (IEditorPresenter editor)
+        public ObjectPoolCollectionPresenter (EditorPresenter editor)
         {
             _editor = editor;
             _editor.SyncCurrentProject += SyncCurrentProjectHandler;
