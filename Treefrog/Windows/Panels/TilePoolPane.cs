@@ -60,9 +60,14 @@ namespace Treefrog.Windows
             ToolStripMenuItem tilePropertiesItem = new ToolStripMenuItem("Tile Properties") {
                 Image = Properties.Resources.Tags,
             };
+            ToolStripMenuItem tileDeleteItem = new ToolStripMenuItem("Delete Tile") {
+                Image = Properties.Resources.Cross,
+            };
 
             _tileContextMenu = new ContextMenuStrip();
             _tileContextMenu.Items.AddRange(new ToolStripItem[] {
+                tileDeleteItem,
+                new ToolStripSeparator(),
                 tilePropertiesItem,
             });
 
@@ -75,6 +80,7 @@ namespace Treefrog.Windows
                 { CommandKey.TilePoolImport, importNewToolStripMenuItem },
                 { CommandKey.TilePoolImportMerge, importMergeToolStripMenuItem },
                 { CommandKey.TileProperties, tilePropertiesItem },
+                { CommandKey.TileDelete, tileDeleteItem },
             });
 
             _pointerController = new ControlPointerEventController(_layerControl, _layerControl);

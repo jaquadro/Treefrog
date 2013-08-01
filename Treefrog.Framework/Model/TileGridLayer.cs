@@ -116,6 +116,15 @@ namespace Treefrog.Framework.Model
             OnTileCleared(ea);
         }
 
+        public void RemoveAllMatchingTiles (Tile tile)
+        {
+            for (int y = TileOriginY; y < TileOriginY + TilesHigh; y++) {
+                for (int x = TileOriginX; x < TileOriginX + TilesWide; x++) {
+                    RemoveTile(x, y, tile);
+                }
+            }
+        }
+
         public abstract IEnumerable<LocatedTile> Tiles { get; }
 
         public abstract IEnumerable<LocatedTile> TilesAt (TileCoord location);
