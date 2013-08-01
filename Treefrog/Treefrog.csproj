@@ -45,6 +45,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <PlatformTarget>x86</PlatformTarget>
     <XnaCompressContent>false</XnaCompressContent>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -183,6 +184,7 @@
     </Compile>
     <Compile Include="Utility\DependentTypeFactory.cs" />
     <Compile Include="Utility\IBindable.cs" />
+    <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\NotificationExtensions.cs" />
     <Compile Include="Render\Annotations\AnnotationRenderer.cs" />
     <Compile Include="Render\Annotations\Factory.cs" />
@@ -445,7 +447,6 @@
     <None Include="Resources\Icons16\ClipboardPaste.png" />
     <None Include="Resources\Icons16\BookBookmark.png" />
     <None Include="Resources\Icons16\AsteriskSmallYellow.png" />
-    <None Include="Resources\Icons16\ArrowTurn180Left.png" />
     <None Include="Resources\Icons16\ArrowTurn.png" />
     <None Include="Resources\Icons16\ArrowSkip270.png" />
     <None Include="Resources\Icons16\ArrowSkip90.png" />
@@ -461,81 +462,25 @@
     <None Include="Resources\Icons16\ApplicationsBlue.png" />
     <None Include="Resources\Icons16\ApplicationBlue.png" />
     <None Include="Resources\Icons16\tags.png" />
-    <None Include="Resources\Icons16\tag--plus.png" />
-    <None Include="Resources\Icons16\tag--minus.png" />
-    <None Include="Resources\Icons16\table-dynamic.png" />
     <None Include="Resources\Icons16\stamp.png" />
-    <None Include="Resources\Icons16\snap-vertical.png" />
-    <None Include="Resources\Icons16\snap-topright.png" />
-    <None Include="Resources\Icons16\snap-topleft.png" />
-    <None Include="Resources\Icons16\snap-top.png" />
-    <None Include="Resources\Icons16\snap-right.png" />
-    <None Include="Resources\Icons16\snap-origin.png" />
-    <None Include="Resources\Icons16\snap-none.png" />
-    <None Include="Resources\Icons16\snap-left.png" />
-    <None Include="Resources\Icons16\snap-horizontal.png" />
-    <None Include="Resources\Icons16\snap-center.png" />
-    <None Include="Resources\Icons16\snap-bounds.png" />
-    <None Include="Resources\Icons16\snap-bottomright.png" />
-    <None Include="Resources\Icons16\snap-bottomleft.png" />
-    <None Include="Resources\Icons16\snap-bottom.png" />
-    <None Include="Resources\Icons16\snap-borders.png" />
-    <None Include="Resources\Icons16\selection-select.png" />
     <None Include="Resources\Icons16\selection.png" />
     <None Include="Resources\Icons16\scissors.png" />
     <None Include="Resources\Icons16\plus.png" />
-    <None Include="Resources\Icons16\paint-brush--plus.png" />
-    <None Include="Resources\Icons16\paint-brush--minus.png" />
     <None Include="Resources\Icons16\minus.png" />
     <None Include="Resources\Icons16\maps.png" />
-    <None Include="Resources\Icons16\map--asterisk.png" />
     <None Include="Resources\Icons16\map.png" />
-    <None Include="Resources\Icons16\magnifier-zoom-out.png" />
-    <None Include="Resources\Icons16\magnifier-zoom-in.png" />
-    <None Include="Resources\Icons16\magnifier-zoom-actual.png" />
-    <None Include="Resources\Icons16\layer-select.png" />
     <None Include="Resources\Icons16\layers.png" />
-    <None Include="Resources\Icons16\layer--plus.png" />
-    <None Include="Resources\Icons16\layer--minus.png" />
     <None Include="Resources\Icons16\grid.png" />
-    <None Include="Resources\Icons16\game--plus.png" />
-    <None Include="Resources\Icons16\game--minus.png" />
     <None Include="Resources\Icons16\game.png" />
     <None Include="Resources\Icons16\funnel.png" />
-    <None Include="Resources\Icons16\folder-open.png" />
-    <None Include="Resources\Icons16\folder-map.png" />
-    <None Include="Resources\Icons16\folder-layer.png" />
-    <None Include="Resources\Icons16\folder-grid.png" />
-    <None Include="Resources\Icons16\folder-game.png" />
-    <None Include="Resources\Icons16\drive-upload.png" />
-    <None Include="Resources\Icons16\drive-download.png" />
     <None Include="Resources\Icons16\documents.png" />
     <None Include="Resources\Icons16\disks.png" />
-    <None Include="Resources\Icons16\disk--pencil.png" />
     <None Include="Resources\Icons16\disk.png" />
     <None Include="Resources\Icons16\cross.png" />
     <None Include="Resources\Icons16\compile.png" />
-    <None Include="Resources\Icons16\clipboard-paste.png" />
     <None Include="Resources\Icons16\books.png" />
-    <None Include="Resources\Icons16\book-bookmark.png" />
     <None Include="Resources\Icons16\book.png" />
-    <None Include="Resources\Icons16\asterisk-small-yellow.png" />
-    <None Include="Resources\Icons16\arrow-turn-180-left.png" />
-    <None Include="Resources\Icons16\arrow-turn.png" />
-    <None Include="Resources\Icons16\arrow-skip-270.png" />
-    <None Include="Resources\Icons16\arrow-skip-090.png" />
-    <None Include="Resources\Icons16\arrow-resize-135.png" />
-    <None Include="Resources\Icons16\arrow-315.png" />
-    <None Include="Resources\Icons16\arrow-270.png" />
-    <None Include="Resources\Icons16\arrow-225.png" />
-    <None Include="Resources\Icons16\arrow-180.png" />
-    <None Include="Resources\Icons16\arrow-135.png" />
-    <None Include="Resources\Icons16\arrow-090.png" />
-    <None Include="Resources\Icons16\arrow-045.png" />
     <None Include="Resources\Icons16\arrow.png" />
-    <None Include="Resources\Icons16\applications-blue--asterisk.png" />
-    <None Include="Resources\Icons16\applications-blue.png" />
-    <None Include="Resources\Icons16\application-blue.png" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

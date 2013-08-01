@@ -7,34 +7,20 @@ namespace Treefrog.Windows
 {
     public class GraphicsDeviceService : IGraphicsDeviceService
     {
-        #region Fields
-
         private static readonly GraphicsDeviceService _instance = new GraphicsDeviceService();
         private static int _refCount;
 
         private GraphicsDevice _device;
-
-        //private PresentationParameters _parameters;
-
-        #endregion
-
-        #region Properties
 
         public GraphicsDevice GraphicsDevice
         {
             get { return _device; }
         }
 
-        #endregion
-
-        #region Events
-
         public event EventHandler<EventArgs> DeviceCreated;
         public event EventHandler<EventArgs> DeviceDisposing;
         public event EventHandler<EventArgs> DeviceReset;
         public event EventHandler<EventArgs> DeviceResetting;
-
-        #endregion
 
         protected GraphicsDeviceService ()
         {

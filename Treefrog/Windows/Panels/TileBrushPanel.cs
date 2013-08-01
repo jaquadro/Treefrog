@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Treefrog.Aux;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Controllers;
-using TextureResource = Treefrog.Framework.Imaging.TextureResource;
+using Treefrog.Utility;
 
 namespace Treefrog.Windows.Panels
 {
@@ -188,61 +187,20 @@ namespace Treefrog.Windows.Panels
 
             foreach (var brushCollection in _controller.TileBrushManager.DynamicBrushCollections) {
                 foreach (DynamicTileBrush brush in brushCollection.Brushes) {
-                    Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
+                    Bitmap image = ImageUtility.CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
                     image.Tag = brush.Uid;
                     imgList.Add(brush.Name, image);
                 }
             }
             foreach (var brushCollection in _controller.TileBrushManager.StaticBrushCollections) {
                 foreach (StaticTileBrush brush in brushCollection.Brushes) {
-                    Bitmap image = CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
+                    Bitmap image = ImageUtility.CreateCenteredBitmap(brush.MakePreview(64, 64), 64, 64);
                     image.Tag = brush.Uid;
                     imgList.Add(brush.Name, image);
                 }
             }
 
             return imgList;
-        }
-
-        private Bitmap CreateCenteredBitmap (TextureResource source, int width, int height)
-        {
-            using (Bitmap tmp = source.CreateBitmap()) {
-                return CreateCenteredBitmap(tmp, width, height);
-            }
-        }
-
-        private Bitmap CreateCenteredBitmap (Bitmap source, int width, int height)
-        {
-            if (source == null)
-                return new Bitmap(width, height);
-
-            Bitmap dest = new Bitmap(width, height, source.PixelFormat);
-            int x = Math.Max(0, (width - source.Width) / 2);
-            int y = Math.Max(0, (height - source.Height) / 2);
-            int w = Math.Min(width, source.Width);
-            int h = Math.Min(height, source.Height);
-
-            Rectangle srcRect = new Rectangle(Point.Empty, source.Size);
-            Point[] destPoints = new Point[] {
-                new Point(x, y), new Point(x + w, y), new Point(x, y + h),
-            };
-            Rectangle destRect = new Rectangle(x, y, w, h);
-
-            if (source.Width > width || source.Height > height) {
-                double aspectRatio = source.Width * 1.0 / source.Height;
-                double scale = (aspectRatio > 1)
-                    ? (width * 1.0 / source.Width) : (height * 1.0 / source.Height);
-
-                destRect = new Rectangle(x, y, (int)(scale * source.Width), (int)(scale * source.Height));
-            }
-
-            using (Graphics g = Graphics.FromImage(dest)) {
-                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
-                g.DrawImage(source, destRect);
-            }
-
-            return dest;
         }
     }
 }

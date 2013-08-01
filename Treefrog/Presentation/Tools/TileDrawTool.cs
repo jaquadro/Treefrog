@@ -1,13 +1,13 @@
 ﻿using System;
-using Treefrog.Framework;
-using Treefrog.Framework.Model;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework;
 using Treefrog.Framework.Imaging;
+using Treefrog.Framework.Imaging.Drawing;
+using Treefrog.Framework.Model;
+using Treefrog.Framework.Model.Support;
 using Treefrog.Presentation.Annotations;
 using Treefrog.Presentation.Commands;
-using System.Collections.Generic;
-using Treefrog.Framework.Model.Support;
 
 namespace Treefrog.Presentation.Tools
 {

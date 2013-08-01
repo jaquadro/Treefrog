@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Treefrog.Aux;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
+using Treefrog.Utility;
 using Treefrog.Windows.Controllers;
-using TextureResource = Treefrog.Framework.Imaging.TextureResource;
 
 namespace Treefrog.Windows.Panels
 {
@@ -148,7 +147,7 @@ namespace Treefrog.Windows.Panels
 
             foreach (ObjectClass obj in _controller.ObjectPoolManager.Pools[objectPoolUid].Objects) {
                 if (obj.Image != null) {
-                    Bitmap image = CreateCenteredBitmap(obj.Image, 64, 64);
+                    Bitmap image = ImageUtility.CreateCenteredBitmap(obj.Image, 64, 64);
                     image.Tag = obj.Uid;
                     imgList.Add(obj.Name, image);
                 }
@@ -172,33 +171,6 @@ namespace Treefrog.Windows.Panels
             foreach (var item in list) {
                 _listView.Items.Add(new ListViewItem(item.Key, item.Key) { Tag = item.Value.Tag });
             }
-        }
-
-        private Bitmap CreateCenteredBitmap (TextureResource source, int width, int height)
-        {
-            using (Bitmap tmp = source.CreateBitmap()) {
-                return CreateCenteredBitmap(tmp, width, height);
-            }
-        }
-
-        private Bitmap CreateCenteredBitmap (Bitmap source, int width, int height)
-        {
-            if (source == null)
-                return null;
-
-            Bitmap dest = new Bitmap(width, height, source.PixelFormat);
-            int x = Math.Max(0, (width - source.Width) / 2);
-            int y = Math.Max(0, (height - source.Height) / 2);
-            int w = Math.Min(width, source.Width);
-            int h = Math.Min(height, source.Height);
-
-            using (Graphics g = Graphics.FromImage(dest)) {
-                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
-                g.DrawImage(source, x, y, w, h);
-            }
-
-            return dest;
         }
 
         private void _listView_DoubleClick (object sender, EventArgs e)

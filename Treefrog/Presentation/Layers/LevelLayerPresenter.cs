@@ -59,7 +59,7 @@ namespace Treefrog.Presentation.Layers
             set { _layer.Name = value; }
         }
 
-        public bool IsVisible
+        public override bool IsVisible
         {
             get { return _layer.IsVisible; }
             set { _layer.IsVisible = value; }

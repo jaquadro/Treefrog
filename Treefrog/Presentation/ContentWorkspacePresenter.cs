@@ -89,7 +89,7 @@ namespace Treefrog.Presentation
             BindProject(_editor.Project);
         }
 
-        protected virtual void Dispose (bool disposing)
+        protected override void Dispose (bool disposing)
         {
             if (_editor != null) {
                 if (disposing) {

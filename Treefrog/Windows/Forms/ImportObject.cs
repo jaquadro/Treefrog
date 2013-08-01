@@ -276,13 +276,7 @@ namespace Treefrog.Windows.Forms
             get
             {
                 return ValidateObjectName() == null
-                    && ValidateSourceFile() == null
-                    /*&& ValidateMaskLeft() == null
-                    && ValidateMaskTop() == null
-                    && ValidateMaskRight() == null
-                    && ValidateMaskBottom() == null
-                    && ValidateOriginX() == null
-                    && ValidateOriginY() == null*/;
+                    && ValidateSourceFile() == null;
             }
         }
 
@@ -313,12 +307,6 @@ namespace Treefrog.Windows.Forms
 
         #region Object Preview Management
 
-        private TexturePool _localTexturePool;
-        private TilePoolManager _localManager;
-        private LayerGraphicsControl _layerControl;
-        private GroupLayerPresenter _rootLayer;
-        private TileSetLayerPresenter _previewLayer;
-
         private LilyPathControl _drawControl;
 
         private bool _sourceFileValid = false;
@@ -336,24 +324,11 @@ namespace Treefrog.Windows.Forms
             _drawControl.DrawAction = DrawObjectAction;
 
             panel1.Controls.Add(_drawControl);
-
-            /*_layerControl = new LayerGraphicsControl();
-            _layerControl.Dock = DockStyle.Fill;
-            _layerControl.WidthSynced = true;
-            _layerControl.CanvasAlignment = CanvasAlignment.UpperLeft;
-            _layerControl.TextureCache.SourcePool = _localManager.TexturePool;
-
-            _rootLayer = new GroupLayerPresenter();
-            _layerControl.RootLayer = new GroupLayer(_rootLayer);
-
-            _previewPanel.Controls.Add(_layerControl);*/
         }
 
         private void ClearObjectPreiew ()
         {
             _sourceImage = null;
-
-            //RaisePreviewProperties();
         }
 
         private void LoadObjectPreview (String path)
@@ -370,8 +345,6 @@ namespace Treefrog.Windows.Forms
 
                 _sourceFileValid = true;
                 UpdateMaskPropertyFields();
-                //RaisePreviewProperties();
-                //RaiseMaskProperties();
             }
             catch (Exception) {
                 _sourceFileValid = false;
@@ -426,33 +399,6 @@ namespace Treefrog.Windows.Forms
             if (ValidateSourceFile() != null)
                 ClearObjectPreiew();
         }
-
-        /*private void RaiseMaskProperties ()
-        {
-            RaisePropertyChanged("OriginX");
-            RaisePropertyChanged("OriginY");
-            RaisePropertyChanged("MaskLeft");
-            RaisePropertyChanged("MaskTop");
-            RaisePropertyChanged("MaskRight");
-            RaisePropertyChanged("MaskBottom");
-        }
-
-        private void RaisePreviewProperties ()
-        {
-            RaisePropertyChanged("PreviewCanvasWidth");
-            RaisePropertyChanged("PreviewCanvasHeight");
-            RaisePropertyChanged("PreviewImageX");
-            RaisePropertyChanged("PreviewImageY");
-            RaisePropertyChanged("PreviewImageWidth");
-            RaisePropertyChanged("PreviewImageHeight");
-            RaisePropertyChanged("PreviewMaskX");
-            RaisePropertyChanged("PreviewMaskY");
-            RaisePropertyChanged("PreviewMaskWidth");
-            RaisePropertyChanged("PreviewMaskHeight");
-            RaisePropertyChanged("PreviewOriginX");
-            RaisePropertyChanged("PreviewOriginY");
-            RaisePropertyChanged("SourceImage");
-        }*/
 
         private void UpdateMaskPropertyFields ()
         {
