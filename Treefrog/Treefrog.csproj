@@ -128,6 +128,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\Loader.cs" />
+    <Compile Include="Extensibility\ExportAttributes.cs" />
+    <Compile Include="Plugins\Object\Registration.cs" />
     <Compile Include="Presentation\LibraryCommandActions.cs" />
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />

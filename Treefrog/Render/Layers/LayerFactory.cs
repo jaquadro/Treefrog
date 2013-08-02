@@ -1,8 +1,6 @@
 ﻿using Treefrog.Presentation.Layers;
 using Treefrog.Utility;
 
-using Treefrog.Plugins.Object.Layers;
-
 namespace Treefrog.Render.Layers
 {
     
@@ -36,9 +34,9 @@ namespace Treefrog.Render.Layers
             Default.Register<TileGridLayerPresenter, LevelRenderLayer>(layer => {
                 return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
-            Default.Register<ObjectLayerPresenter, LevelRenderLayer>(layer => {
-                return new LevelRenderLayer(layer as LevelLayerPresenter);
-            });
+            //Default.Register<ObjectLayerPresenter, LevelRenderLayer>(layer => {
+            //    return new LevelRenderLayer(layer as LevelLayerPresenter);
+            //});
             Default.Register<AnnotationLayerPresenter, AnnotationRenderLayer>(layer => {
                 return new AnnotationRenderLayer(layer as AnnotationLayerPresenter);
             });

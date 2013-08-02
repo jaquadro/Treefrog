@@ -8,13 +8,18 @@ using Treefrog.Framework.Model;
 using Treefrog.Presentation;
 using System.ComponentModel.Composition.Hosting;
 using Treefrog.Plugins.Object.Layers;
+using Treefrog.Extensibility;
+using Treefrog.Render.Layers;
 
 namespace Treefrog.Core
 {
     internal class Loader
     {
         [Import]
-        LayerPresenterFactoryLoader _layerPresenterFactoryLoader;
+        LayerPresenterFactoryLoader _layerPresenterFactoryLoader = null;
+
+        [Import]
+        CanvasLayerFactoryLoader _canvasLayerFacotryLoader = null;
 
         public void Compose ()
         {
@@ -23,17 +28,18 @@ namespace Treefrog.Core
             container.SatisfyImportsOnce(this);
 
             _layerPresenterFactoryLoader.CompleteLoading();
+            _canvasLayerFacotryLoader.CompleteLoading();
         }
     }
 
-    public interface ILayerPresenterDesc
+    /*public interface ILayerPresenterDesc
     {
         Type LayerType { get; }
         Type PresenterType { get; }
         Func<Layer, ILayerContext, LevelLayerPresenter> Create { get; }
-    }
+    }*/
 
-    [Export(typeof(ILayerPresenterDesc))]
+    /*[Export(typeof(ILayerPresenterDesc))]
     internal class ObjectLayerPresenterDesc : ILayerPresenterDesc
     {
         public Type LayerType {
@@ -52,30 +58,15 @@ namespace Treefrog.Core
                 };
             }
         }
-    }
+    }*/
 
-    [MetadataAttribute]
-    [AttributeUsage(AttributeTargets.Method)]
-    public class TypeFactoryExportAttribute : ExportAttribute
+    public interface ILevelLayerPresenterMetadata
     {
-        public TypeFactoryExportAttribute ()
-            : base(typeof(Func<Layer, ILayerContext, LevelLayerPresenter>))
-        { }
-
-        public Type LayerType { get; set; }
-        public Type TargetType { get; set; }
+        Type LayerType { get; }
+        Type TargetType { get; }
     }
 
-    public static class FactoryRegistrants
-    {
-        [TypeFactoryExport(LayerType = typeof(ObjectLayer), TargetType = typeof(ObjectLayerPresenter))]
-        public static LevelLayerPresenter CreateObjectLayerPresenter (Layer layer, ILayerContext context)
-        {
-            return new ObjectLayerPresenter(context, layer as ObjectLayer);
-        }
-    }
-
-    public interface ITypeFactoryMetadata
+    public interface ICanvasLayerMetadata
     {
         Type LayerType { get; }
         Type TargetType { get; }
@@ -84,17 +75,26 @@ namespace Treefrog.Core
     [Export]
     internal class LayerPresenterFactoryLoader
     {
-        //[ImportMany]
-        //List<ILayerPresenterDesc> _registrants;
-
         [ImportMany]
-        List<Lazy<Func<Layer, ILayerContext, LevelLayerPresenter>, ITypeFactoryMetadata>> _registrants;
+        List<Lazy<Func<Layer, ILayerContext, LevelLayerPresenter>, ILevelLayerPresenterMetadata>> _registrants = null;
 
         public void CompleteLoading ()
         {
             foreach (var entry in _registrants)
                 LayerPresenterFactory.Default.Register(entry.Metadata.LayerType, entry.Metadata.TargetType, entry.Value);
-                //LayerPresenterFactory.Default.Register(entry.LayerType, entry.PresenterType, entry.Create);
+        }
+    }
+
+    [Export]
+    internal class CanvasLayerFactoryLoader
+    {
+        [ImportMany]
+        List<Lazy<Func<LayerPresenter, CanvasLayer>, ICanvasLayerMetadata>> _registrants = null;
+
+        public void CompleteLoading ()
+        {
+            foreach (var entry in _registrants)
+                LayerFactory.Default.Register(entry.Metadata.LayerType, entry.Metadata.TargetType, entry.Value);
         }
     }
 }

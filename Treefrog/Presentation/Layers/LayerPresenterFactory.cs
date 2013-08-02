@@ -1,6 +1,5 @@
 ﻿using Treefrog.Framework.Model;
 using Treefrog.Utility;
-using Treefrog.Plugins.Object.Layers;
 
 namespace Treefrog.Presentation.Layers
 {
