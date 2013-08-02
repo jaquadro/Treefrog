@@ -5,6 +5,7 @@ using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Layers;
 using Treefrog.Windows.Controllers;
+using Treefrog.Plugins.Object.Layers;
 
 namespace Treefrog.Windows
 {

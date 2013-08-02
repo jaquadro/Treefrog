@@ -7,6 +7,7 @@ using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
 using Treefrog.Utility;
 using Treefrog.Windows.Controllers;
+using Treefrog.Plugins.Object;
 
 namespace Treefrog.Windows.Panels
 {

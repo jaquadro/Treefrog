@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Treefrog.Utility;
 
 namespace Treefrog.Presentation.Commands
 {
@@ -9,114 +10,120 @@ namespace Treefrog.Presentation.Commands
         public CommandCollection SubCollection { get; }
     }*/
 
-    public enum CommandKey
+    public class CommandKey : Symbol
     {
-        Unknown,
+        public CommandKey (Symbol prototype)
+            : base(prototype)
+        { }
 
-        NewProject,
-        OpenProject,
-        Save,
-        SaveAs,
-        Exit,
+        public static SymbolPool<CommandKey> Registry = new SymbolPool<CommandKey>();
 
-        Undo,
-        Redo,
-        Cut,
-        Copy,
-        Paste,
-        Delete,
-        SelectAll,
-        SelectNone,
+        public static readonly CommandKey Unknown = Registry.GenerateSymbol("Unknown");
 
-        ViewZoomNormal,
-        ViewZoomIn,
-        ViewZoomOut,
-        ViewGrid,
+        public static readonly CommandKey NewProject = Registry.GenerateSymbol("NewProject");
+        public static readonly CommandKey OpenProject = Registry.GenerateSymbol("OpenProject");
+        public static readonly CommandKey Save = Registry.GenerateSymbol("Save");
+        public static readonly CommandKey SaveAs = Registry.GenerateSymbol("SaveAs");
+        public static readonly CommandKey Exit = Registry.GenerateSymbol("Exit");
 
-        TileToolSelect,
-        TileToolDraw,
-        TileToolErase,
-        TileToolFill,
+        public static readonly CommandKey Undo = Registry.GenerateSymbol("Undo");
+        public static readonly CommandKey Redo = Registry.GenerateSymbol("Redo");
+        public static readonly CommandKey Cut = Registry.GenerateSymbol("Cut");
+        public static readonly CommandKey Copy = Registry.GenerateSymbol("Copy");
+        public static readonly CommandKey Paste = Registry.GenerateSymbol("Paste");
+        public static readonly CommandKey Delete = Registry.GenerateSymbol("Delete");
+        public static readonly CommandKey SelectAll = Registry.GenerateSymbol("SelectAll");
+        public static readonly CommandKey SelectNone = Registry.GenerateSymbol("SelectNone");
 
-        ProjectAddLevel,
-        ProjectAddNewLibrary,
-        ProjectAddExistingLibrary,
-        ProjectRemoveLibrary,
-        ProjectSetLibraryDefault,
+        public static readonly CommandKey ViewZoomNormal = Registry.GenerateSymbol("ViewZoomNormal");
+        public static readonly CommandKey ViewZoomIn = Registry.GenerateSymbol("ViewZoomIn");
+        public static readonly CommandKey ViewZoomOut = Registry.GenerateSymbol("ViewZoomOut");
+        public static readonly CommandKey ViewGrid = Registry.GenerateSymbol("ViewGrid");
 
-        LevelOpen,
-        LevelClose,
-        LevelCloseAllOther,
-        LevelClone,
-        LevelDelete,
-        LevelRename,
-        LevelResize,
-        LevelProperties,
+        public static readonly CommandKey TileToolSelect = Registry.GenerateSymbol("TileToolSelect");
+        public static readonly CommandKey TileToolDraw = Registry.GenerateSymbol("TileToolDraw");
+        public static readonly CommandKey TileToolErase = Registry.GenerateSymbol("TileToolErase");
+        public static readonly CommandKey TileToolFill = Registry.GenerateSymbol("TileToolFill");
 
-        NewTileLayer,
-        NewObjectLayer,
-        LayerEdit,
-        LayerClone,
-        LayerDelete,
-        LayerProperties,
-        LayerMoveTop,
-        LayerMoveUp,
-        LayerMoveDown,
-        LayerMoveBottom,
-        LayerShowCurrentOnly,
-        LayerShowAll,
-        LayerShowNone,
-        LayerExportRaster,
+        public static readonly CommandKey ProjectAddLevel = Registry.GenerateSymbol("ProjectAddLevel");
+        public static readonly CommandKey ProjectAddNewLibrary = Registry.GenerateSymbol("ProjectAddNewLibrary");
+        public static readonly CommandKey ProjectAddExistingLibrary = Registry.GenerateSymbol("ProjectAddExistingLibrary");
+        public static readonly CommandKey ProjectRemoveLibrary = Registry.GenerateSymbol("ProjectRemoveLibrary");
+        public static readonly CommandKey ProjectSetLibraryDefault = Registry.GenerateSymbol("ProjectSetLibraryDefault");
 
-        TileProperties,
-        TileDelete,
+        public static readonly CommandKey LevelOpen = Registry.GenerateSymbol("LevelOpen");
+        public static readonly CommandKey LevelClose = Registry.GenerateSymbol("LevelClose");
+        public static readonly CommandKey LevelCloseAllOther = Registry.GenerateSymbol("LevelCloseAllOther");
+        public static readonly CommandKey LevelClone = Registry.GenerateSymbol("LevelClone");
+        public static readonly CommandKey LevelDelete = Registry.GenerateSymbol("LevelDelete");
+        public static readonly CommandKey LevelRename = Registry.GenerateSymbol("LevelRename");
+        public static readonly CommandKey LevelResize = Registry.GenerateSymbol("LevelResize");
+        public static readonly CommandKey LevelProperties = Registry.GenerateSymbol("LevelProperties");
 
-        TilePoolExport,
-        TilePoolImportOver,
-        TilePoolImport,
-        TilePoolImportMerge,
-        TilePoolDelete,
-        TilePoolRename,
-        TilePoolProperties,
+        public static readonly CommandKey NewTileLayer = Registry.GenerateSymbol("NewTileLayer");
+        public static readonly CommandKey NewObjectLayer = Registry.GenerateSymbol("NewObjectLayer");
+        public static readonly CommandKey LayerEdit = Registry.GenerateSymbol("LayerEdit");
+        public static readonly CommandKey LayerClone = Registry.GenerateSymbol("LayerClone");
+        public static readonly CommandKey LayerDelete = Registry.GenerateSymbol("LayerDelete");
+        public static readonly CommandKey LayerProperties = Registry.GenerateSymbol("LayerProperties");
+        public static readonly CommandKey LayerMoveTop = Registry.GenerateSymbol("LayerMoveTop");
+        public static readonly CommandKey LayerMoveUp = Registry.GenerateSymbol("LayerMoveUp");
+        public static readonly CommandKey LayerMoveDown = Registry.GenerateSymbol("LayerMoveDown");
+        public static readonly CommandKey LayerMoveBottom = Registry.GenerateSymbol("LayerMoveBottom");
+        public static readonly CommandKey LayerShowCurrentOnly = Registry.GenerateSymbol("LayerShowCurrentOnly");
+        public static readonly CommandKey LayerShowAll = Registry.GenerateSymbol("LayerShowAll");
+        public static readonly CommandKey LayerShowNone = Registry.GenerateSymbol("LayerShowNone");
+        public static readonly CommandKey LayerExportRaster = Registry.GenerateSymbol("LayerExportRaster");
 
-        NewStaticTileBrush,
-        NewDynamicTileBrush,
-        TileBrushClone,
-        TileBrushDelete,
-        TileBrushFilter,
+        public static readonly CommandKey TileProperties = Registry.GenerateSymbol("TileProperties");
+        public static readonly CommandKey TileDelete = Registry.GenerateSymbol("TileDelete");
 
-        TileSelectionCreateBrush,
-        TileSelectionPromoteLayer,
-        TileSelectionFloat,
-        TileSelectionDefloat,
+        public static readonly CommandKey TilePoolExport = Registry.GenerateSymbol("TilePoolExport");
+        public static readonly CommandKey TilePoolImportOver = Registry.GenerateSymbol("TilePoolImportOver");
+        public static readonly CommandKey TilePoolImport = Registry.GenerateSymbol("TilePoolImport");
+        public static readonly CommandKey TilePoolImportMerge = Registry.GenerateSymbol("TilePoolImportMerge");
+        public static readonly CommandKey TilePoolDelete = Registry.GenerateSymbol("TilePoolDelete");
+        public static readonly CommandKey TilePoolRename = Registry.GenerateSymbol("TilePoolRename");
+        public static readonly CommandKey TilePoolProperties = Registry.GenerateSymbol("TilePoolProperties");
 
-        ObjectProtoImport,
-        ObjectProtoEdit,
-        ObjectProtoDelete,
-        ObjectProtoRename,
-        ObjectProtoClone,
-        ObjectProtoProperties,
-        ObjectMoveTop,
-        ObjectMoveUp,
-        ObjectMoveDown,
-        ObjectMoveBottom,
-        ObjectReferenceImage,
-        ObjectReferenceMask,
-        ObjectReferenceOrigin,
-        ObjectSnappingNone,
-        ObjectSnappingTopLeft,
-        ObjectSnappingTopRight,
-        ObjectSnappingBottomLeft,
-        ObjectSnappingBottomRight,
-        ObjectSnappingTop,
-        ObjectSnappingBottom,
-        ObjectSnappingLeft,
-        ObjectSnappingRight,
-        ObjectSnappingVert,
-        ObjectSnappingHorz,
-        ObjectSnappingCenter,
+        public static readonly CommandKey NewStaticTileBrush = Registry.GenerateSymbol("NewStaticTileBrush");
+        public static readonly CommandKey NewDynamicTileBrush = Registry.GenerateSymbol("NewDynamicTileBrush");
+        public static readonly CommandKey TileBrushClone = Registry.GenerateSymbol("TileBrushClone");
+        public static readonly CommandKey TileBrushDelete = Registry.GenerateSymbol("TileBrushDelete");
+        public static readonly CommandKey TileBrushFilter = Registry.GenerateSymbol("TileBrushFilter");
 
-        ObjectProperties,
+        public static readonly CommandKey TileSelectionCreateBrush = Registry.GenerateSymbol("TileSelectionCreateBrush");
+        public static readonly CommandKey TileSelectionPromoteLayer = Registry.GenerateSymbol("TileSelectionPromoteLayer");
+        public static readonly CommandKey TileSelectionFloat = Registry.GenerateSymbol("TileSelectionFloat");
+        public static readonly CommandKey TileSelectionDefloat = Registry.GenerateSymbol("TileSelectionDefloat");
+
+        public static readonly CommandKey ObjectProtoImport = Registry.GenerateSymbol("ObjectProtoImport");
+        public static readonly CommandKey ObjectProtoEdit = Registry.GenerateSymbol("ObjectProtoEdit");
+        public static readonly CommandKey ObjectProtoDelete = Registry.GenerateSymbol("ObjectProtoDelete");
+        public static readonly CommandKey ObjectProtoRename = Registry.GenerateSymbol("ObjectProtoRename");
+        public static readonly CommandKey ObjectProtoClone = Registry.GenerateSymbol("ObjectProtoClone");
+        public static readonly CommandKey ObjectProtoProperties = Registry.GenerateSymbol("ObjectProtoProperties");
+        public static readonly CommandKey ObjectMoveTop = Registry.GenerateSymbol("ObjectMoveTop");
+        public static readonly CommandKey ObjectMoveUp = Registry.GenerateSymbol("ObjectMoveUp");
+        public static readonly CommandKey ObjectMoveDown = Registry.GenerateSymbol("ObjectMoveDown");
+        public static readonly CommandKey ObjectMoveBottom = Registry.GenerateSymbol("ObjectMoveBottom");
+        public static readonly CommandKey ObjectReferenceImage = Registry.GenerateSymbol("ObjectReferenceImage");
+        public static readonly CommandKey ObjectReferenceMask = Registry.GenerateSymbol("ObjectReferenceMask");
+        public static readonly CommandKey ObjectReferenceOrigin = Registry.GenerateSymbol("ObjectReferenceOrigin");
+        public static readonly CommandKey ObjectSnappingNone = Registry.GenerateSymbol("ObjectSnappingNone");
+        public static readonly CommandKey ObjectSnappingTopLeft = Registry.GenerateSymbol("ObjectSnappingTopLeft");
+        public static readonly CommandKey ObjectSnappingTopRight = Registry.GenerateSymbol("ObjectSnappingTopRight");
+        public static readonly CommandKey ObjectSnappingBottomLeft = Registry.GenerateSymbol("ObjectSnappingBottomLeft");
+        public static readonly CommandKey ObjectSnappingBottomRight = Registry.GenerateSymbol("ObjectSnappingBottomRight");
+        public static readonly CommandKey ObjectSnappingTop = Registry.GenerateSymbol("ObjectSnappingTop");
+        public static readonly CommandKey ObjectSnappingBottom = Registry.GenerateSymbol("ObjectSnappingBottom");
+        public static readonly CommandKey ObjectSnappingLeft = Registry.GenerateSymbol("ObjectSnappingLeft");
+        public static readonly CommandKey ObjectSnappingRight = Registry.GenerateSymbol("ObjectSnappingRight");
+        public static readonly CommandKey ObjectSnappingVert = Registry.GenerateSymbol("ObjectSnappingVert");
+        public static readonly CommandKey ObjectSnappingHorz = Registry.GenerateSymbol("ObjectSnappingHorz");
+        public static readonly CommandKey ObjectSnappingCenter = Registry.GenerateSymbol("ObjectSnappingCenter");
+
+        public static readonly CommandKey ObjectProperties = Registry.GenerateSymbol("ObjectProperties");
     }
 
     public enum CommandToggleGroup

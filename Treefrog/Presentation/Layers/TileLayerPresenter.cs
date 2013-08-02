@@ -95,24 +95,40 @@ namespace Treefrog.Presentation.Layers
         {
             _sourceType = TileSourceType.Tile;
 
-            switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
+            List<CommandKey> filter = new List<CommandKey> { 
+                CommandKey.TileToolErase, 
+                CommandKey.TileToolSelect,
+            };
+
+            if (filter.Contains(CommandManager.SelectedCommand(CommandToggleGroup.TileTool)))
+                CommandManager.Perform(CommandKey.TileToolDraw);
+
+            /*switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
                 case CommandKey.TileToolErase:
                 case CommandKey.TileToolSelect:
                     CommandManager.Perform(CommandKey.TileToolDraw);
                     break;
-            }
+            }*/
         }
 
         private void TileBrushSelectedHandler (object sender, EventArgs e)
         {
             _sourceType = TileSourceType.Brush;
 
-            switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
+            List<CommandKey> filter = new List<CommandKey> { 
+                CommandKey.TileToolErase, 
+                CommandKey.TileToolSelect,
+            };
+
+            if (filter.Contains(CommandManager.SelectedCommand(CommandToggleGroup.TileTool)))
+                CommandManager.Perform(CommandKey.TileToolDraw);
+
+            /*switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
                 case CommandKey.TileToolErase:
                 case CommandKey.TileToolSelect:
                     CommandManager.Perform(CommandKey.TileToolDraw);
                     break;
-            }
+            }*/
         }
 
         protected new TileLayer Layer
@@ -505,7 +521,13 @@ namespace Treefrog.Presentation.Layers
 
         private void CommandGroupPerformTileTool ()
         {
-            switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
+            Switch.On(CommandManager.SelectedCommand(CommandToggleGroup.TileTool))
+                .Case(CommandKey.TileToolSelect, c => SetTool(TileTool.Select))
+                .Case(CommandKey.TileToolDraw, c => SetTool(TileTool.Draw))
+                .Case(CommandKey.TileToolErase, c => SetTool(TileTool.Erase))
+                .Case(CommandKey.TileToolFill, c => SetTool(TileTool.Fill));
+
+            /*switch (CommandManager.SelectedCommand(CommandToggleGroup.TileTool)) {
                 case CommandKey.TileToolSelect:
                     SetTool(TileTool.Select);
                     break;
@@ -518,7 +540,7 @@ namespace Treefrog.Presentation.Layers
                 case CommandKey.TileToolFill:
                     SetTool(TileTool.Fill);
                     break;
-            }
+            }*/
         }
 
         #region Export Raster

@@ -1,8 +1,11 @@
 ﻿using Treefrog.Presentation.Layers;
 using Treefrog.Utility;
 
+using Treefrog.Plugins.Object.Layers;
+
 namespace Treefrog.Render.Layers
 {
+    
     public class LayerFactory : DependentTypeFactory<LayerPresenter, CanvasLayer>
     {
         public static LayerFactory Default { get; private set; }

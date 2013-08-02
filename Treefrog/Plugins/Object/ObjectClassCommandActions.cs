@@ -3,8 +3,9 @@ using System.Windows.Forms;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
 using Treefrog.Windows.Forms;
+using Treefrog.Presentation;
 
-namespace Treefrog.Presentation
+namespace Treefrog.Plugins.Object
 {
     public class ObjectClassCommandActions
     {

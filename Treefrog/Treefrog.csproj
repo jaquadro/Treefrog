@@ -109,6 +109,7 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -126,6 +127,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Loader.cs" />
     <Compile Include="Presentation\LibraryCommandActions.cs" />
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />
@@ -139,11 +141,11 @@
     <Compile Include="Presentation\Commands\CommandSubscriber.cs" />
     <Compile Include="Presentation\Commands\CompoundCommand.cs" />
     <Compile Include="Presentation\Commands\EventArgs.cs" />
-    <Compile Include="Presentation\Commands\ObjectAddCommand.cs" />
-    <Compile Include="Presentation\Commands\ObjectLayerCommand.cs" />
-    <Compile Include="Presentation\Commands\ObjectMoveCommand.cs" />
-    <Compile Include="Presentation\Commands\ObjectOrderCommand.cs" />
-    <Compile Include="Presentation\Commands\ObjectRemoveCommand.cs" />
+    <Compile Include="Plugins\Object\Commands\ObjectAddCommand.cs" />
+    <Compile Include="Plugins\Object\Commands\ObjectLayerCommand.cs" />
+    <Compile Include="Plugins\Object\Commands\ObjectMoveCommand.cs" />
+    <Compile Include="Plugins\Object\Commands\ObjectOrderCommand.cs" />
+    <Compile Include="Plugins\Object\Commands\ObjectRemoveCommand.cs" />
     <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
     <Compile Include="Presentation\Commands\TileSelectionCommands.cs" />
     <Compile Include="Presentation\ContentWorkspacePresenter.cs" />
@@ -156,7 +158,7 @@
     <Compile Include="Presentation\Layers\LayerPresenter.cs" />
     <Compile Include="Presentation\Layers\LayerPresenterFactory.cs" />
     <Compile Include="Presentation\Layers\LevelLayerPresenter.cs" />
-    <Compile Include="Presentation\Layers\ObjectLayerPresenter.cs" />
+    <Compile Include="Plugins\Object\Layers\ObjectLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\RenderLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\TileGridLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\TileLayerPresenter.cs" />
@@ -164,16 +166,16 @@
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter.cs" />
     <Compile Include="Presentation\MinimapPresenter.cs" />
-    <Compile Include="Presentation\ObjectClassCommandActions.cs" />
-    <Compile Include="Presentation\ObjectPoolCollectionPresenter.cs" />
-    <Compile Include="Presentation\ObjectSelectionManager.cs" />
+    <Compile Include="Plugins\Object\ObjectClassCommandActions.cs" />
+    <Compile Include="Plugins\Object\ObjectPoolCollectionPresenter.cs" />
+    <Compile Include="Plugins\Object\ObjectSelectionManager.cs" />
     <Compile Include="Presentation\ProjectExplorerPresenter.cs" />
     <Compile Include="Presentation\TextureResourceRegistry.cs" />
     <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
     <Compile Include="Presentation\TilePoolCommandActions.cs" />
-    <Compile Include="Presentation\Tools\ObjectDrawTool.cs" />
-    <Compile Include="Presentation\Tools\ObjectPointerTool.cs" />
-    <Compile Include="Presentation\Tools\ObjectSelectTool.cs" />
+    <Compile Include="Plugins\Object\Tools\ObjectDrawTool.cs" />
+    <Compile Include="Plugins\Object\Tools\ObjectPointerTool.cs" />
+    <Compile Include="Plugins\Object\Tools\ObjectSelectTool.cs" />
     <Compile Include="Presentation\Tools\PointerTool.cs" />
     <Compile Include="Presentation\Tools\RubberBand.cs" />
     <Compile Include="Presentation\Tools\TileSelectionClipboard.cs" />
@@ -193,6 +195,8 @@
     <Compile Include="Render\Annotations\GripAnnotationRenderer.cs" />
     <Compile Include="Render\Annotations\ImageAnnotRenderer.cs" />
     <Compile Include="Render\Annotations\MultiTileSelectionAnnotRenderer.cs" />
+    <Compile Include="Utility\Switch.cs" />
+    <Compile Include="Utility\Symbol.cs" />
     <Compile Include="Windows\Controllers\CommandRegistry.cs" />
     <Compile Include="Windows\Controls\LayerGraphicsControl.cs">
       <SubType>UserControl</SubType>

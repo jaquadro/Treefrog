@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Treefrog.Presentation;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Presentation.Layers;
+using Treefrog.Plugins.Object.Layers;
 
 namespace Treefrog.Windows.Controls.Composite
 {

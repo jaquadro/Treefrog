@@ -1,5 +1,6 @@
 ﻿using Treefrog.Framework.Model;
 using Treefrog.Utility;
+using Treefrog.Plugins.Object.Layers;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -20,9 +21,9 @@ namespace Treefrog.Presentation.Layers
             Default.Register<MultiTileGridLayer, TileGridLayerPresenter>((layer, context) => {
                 return new TileGridLayerPresenter(context, layer as TileGridLayer);
             });
-            Default.Register<ObjectLayer, ObjectLayerPresenter>((layer, context) => {
-                return new ObjectLayerPresenter(context, layer as ObjectLayer);
-            });
+            //Default.Register<ObjectLayer, ObjectLayerPresenter>((layer, context) => {
+            //    return new ObjectLayerPresenter(context, layer as ObjectLayer);
+            //});
         }
     }
 }

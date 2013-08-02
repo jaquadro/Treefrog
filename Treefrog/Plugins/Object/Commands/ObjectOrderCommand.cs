@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Treefrog.Framework.Model;
 
-namespace Treefrog.Presentation.Commands
+namespace Treefrog.Plugins.Object.Commands
 {
     public class ObjectOrderCommand : ObjectLayerCommand
     {

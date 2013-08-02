@@ -6,6 +6,7 @@ using System.IO;
 using Treefrog.Framework;
 using System.Threading;
 using ExceptionReporting;
+using Treefrog.Core;
 
 namespace Treefrog
 {
@@ -27,6 +28,9 @@ namespace Treefrog
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
             AppDomain.CurrentDomain.UnhandledException += HandleDomainException;
+
+            Loader loader = new Loader();
+            loader.Compose();
 
             Application.Run(new Main());
         }
