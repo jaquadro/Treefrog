@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Collections;
 
 namespace Treefrog.Framework
 {
@@ -47,7 +48,7 @@ namespace Treefrog.Framework
         }
     }
 
-    public class InstanceRegistry<T>
+    public class InstanceRegistry<T> : IEnumerable<KeyValuePair<Type, T>>
         where T : class
     {
         private Dictionary<Type, T> _registry = new Dictionary<Type, T>();
@@ -74,11 +75,12 @@ namespace Treefrog.Framework
 
         public IEnumerable<T> RegisteredInstances
         {
-            get
-            {
-                foreach (KeyValuePair<Type, T> kv in _registry)
-                    yield return kv.Value;
-            }
+            get { return _registry.Values; }
+        }
+
+        public IEnumerable<Type> RegisteredTypes
+        {
+            get { return _registry.Keys; }
         }
 
         public T Lookup (Type type)
@@ -127,6 +129,17 @@ namespace Treefrog.Framework
             where TKey : class, T
         {
             Unregister(typeof(TKey));
+        }
+
+        public IEnumerator<KeyValuePair<Type, T>> GetEnumerator ()
+        {
+            foreach (var kv in _registry)
+                yield return kv;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator ()
+        {
+            return GetEnumerator();
         }
     }
 }

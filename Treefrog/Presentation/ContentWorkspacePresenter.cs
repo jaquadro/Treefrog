@@ -72,14 +72,16 @@ namespace Treefrog.Presentation
 
     public class LevelContentTypeController : ContentTypeController
     {
+        private PresenterManager _pm;
         private EditorPresenter _editor;
         private Project _project;
 
         private Dictionary<Guid, LevelPresenter> _content;
         private Dictionary<Guid, LevelPresenter> _openContent;
 
-        public LevelContentTypeController (EditorPresenter editor)
+        public LevelContentTypeController (PresenterManager pm, EditorPresenter editor)
         {
+            _pm = pm;
             _editor = editor;
             _editor.SyncCurrentProject += EditorSyncCurrentProject;
 
@@ -136,13 +138,13 @@ namespace Treefrog.Presentation
                 _project.Levels.ResourceModified += LevelModifiedHandler;
 
                 foreach (Level level in _project.Levels)
-                    _content[level.Uid] = new LevelPresenter(_editor, level);
+                    _content[level.Uid] = new LevelPresenter(_pm, _editor, level);
             }
         }
 
         private void LevelAddedHandler (object sender, ResourceEventArgs<Level> e)
         {
-            _content[e.Uid] = new LevelPresenter(_editor, e.Resource);
+            _content[e.Uid] = new LevelPresenter(_pm, _editor, e.Resource);
         }
 
         private void LevelRemovedHandler (object sender, ResourceEventArgs<Level> e)

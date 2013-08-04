@@ -269,7 +269,7 @@ namespace Treefrog.Presentation
             _presentation = new Presentation(pm, this);
             _presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
 
-            _levelContentController = new LevelContentTypeController(this);
+            _levelContentController = new LevelContentTypeController(pm, this);
 
             _content = new ContentWorkspacePresenter(this);
             _content.AddContentController(_levelContentController);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Forms;
 using Treefrog.Framework;
 using Treefrog.Framework.Imaging;
@@ -49,6 +50,7 @@ namespace Treefrog.Presentation
     {
         private bool _disposed;
         private EditorPresenter _editor;
+        private PresenterManager _pm;
         private Level _level;
         private LevelInfoPresenter _info;
         private ZoomState _zoom;
@@ -65,8 +67,9 @@ namespace Treefrog.Presentation
         private CommandHistory _history;
         private ObservableCollection<Annotation> _annotations;
 
-        public LevelPresenter (EditorPresenter editor, Level level)
+        public LevelPresenter (PresenterManager pm, EditorPresenter editor, Level level)
         {
+            _pm = pm;
             _editor = editor;
             _level = level;
 
@@ -253,6 +256,8 @@ namespace Treefrog.Presentation
             BindingHelper.TryBind<TilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
             BindingHelper.TryBind<TileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
             //BindingHelper.TryBind<ObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
+
+            BindingHelper.TryBindAny(layerp, _pm.Select(kv => new KeyValuePair<Type, object>(kv.Key, kv.Value)));
 
             BindLayerEvents(layer);
         }

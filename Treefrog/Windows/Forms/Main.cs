@@ -47,6 +47,8 @@ namespace Treefrog.Windows.Forms
             PresenterManager pm = new PresenterManager();
 
             _editor = new EditorPresenter(pm);
+            pm.Register(_editor);
+
             //_editor.SyncContentTabs += SyncContentTabsHandler;
             _editor.SyncContentView += SyncContentViewHandler;
             _editor.SyncModified += SyncProjectModified;
