@@ -44,7 +44,9 @@ namespace Treefrog.Windows.Forms
 
             _infoStatus = new InfoStatus(statusBar);
 
-            _editor = new EditorPresenter();
+            PresenterManager pm = new PresenterManager();
+
+            _editor = new EditorPresenter(pm);
             //_editor.SyncContentTabs += SyncContentTabsHandler;
             _editor.SyncContentView += SyncContentViewHandler;
             _editor.SyncModified += SyncProjectModified;

@@ -7,6 +7,7 @@ using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
 using Treefrog.Plugins.Object;
+using System.Collections.Generic;
 
 namespace Treefrog.Presentation
 {
@@ -44,24 +45,31 @@ namespace Treefrog.Presentation
 
     public class CommandActions
     {
+        private PresenterManager _pm;
         private EditorPresenter _editor;
 
-        private ObjectClassCommandActions _objectClassActions;
+        //private ObjectClassCommandActions _objectClassActions;
         private TilePoolCommandActions _tilePoolActions;
         private LibraryCommandActions _libraryActions;
 
-        public CommandActions (EditorPresenter editor)
+        public CommandActions (PresenterManager pm, EditorPresenter editor)
         {
+            _pm = pm;
             _editor = editor;
 
-            _objectClassActions = new ObjectClassCommandActions(_editor);
+            //_objectClassActions = new ObjectClassCommandActions(pm);
             _tilePoolActions = new TilePoolCommandActions(_editor);
             _libraryActions = new LibraryCommandActions(_editor);
         }
 
         public ObjectClassCommandActions ObjectClassActions
         {
-            get { return _objectClassActions; }
+            get
+            {
+                var presenter = _pm.Lookup<ObjectPoolCollectionPresenter>();
+                return (presenter != null) ? presenter.ObjectClassActions : null;
+            }
+            //get { return _objectClassActions; }
         }
 
         public TilePoolCommandActions TilePoolActions
@@ -75,12 +83,86 @@ namespace Treefrog.Presentation
         }
     }
 
+    //public interface IPresenter
+    //{
+    //    void Initialize (PresenterManager pm);
+    //}
+
+    public abstract class Presenter : IDisposable
+    {
+        private Dictionary<Type, Action<Presenter>> _attachActions;
+        private Dictionary<Type, Action<Presenter>> _detachActions;
+
+        protected Presenter (PresenterManager pm)
+        {
+            Manager = pm;
+
+            _attachActions = new Dictionary<Type, Action<Presenter>>();
+            _detachActions = new Dictionary<Type, Action<Presenter>>();
+
+            Manager.InstanceRegistered += HandlePresenterRegistered;
+            Manager.InstanceUnregistered += HandlePresenterUnregistered;
+        }
+
+        public void Dispose ()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose (bool disposing)
+        {
+            if (disposing) {
+                Manager.InstanceRegistered -= HandlePresenterRegistered;
+                Manager.InstanceUnregistered -= HandlePresenterUnregistered;
+            }
+        }
+
+        protected PresenterManager Manager { get; private set; }
+
+        protected void OnAttach<T> (Action<T> action)
+            where T : Presenter
+        {
+            _attachActions.Add(typeof(T), p => action(p as T));
+
+            T target = Manager.Lookup<T>();
+            if (target != null)
+                action(target);
+        }
+
+        protected void OnDetach<T> (Action<T> action)
+            where T : Presenter
+        {
+            _detachActions.Add(typeof(T), p => action(p as T));
+
+            T target = Manager.Lookup<T>();
+            if (target != null)
+                action(target);
+        }
+
+        private void HandlePresenterRegistered (object sender, InstanceRegistryEventArgs<Presenter> e)
+        {
+            if (_attachActions.ContainsKey(e.Type) && e.Type != GetType())
+                _attachActions[e.Type](e.Instance);
+        }
+
+        private void HandlePresenterUnregistered (object sender, InstanceRegistryEventArgs<Presenter> e)
+        {
+            if (_detachActions.ContainsKey(e.Type) && e.Type != GetType())
+                _detachActions[e.Type](e.Instance);
+        }
+    }
+
+    public class PresenterManager : InstanceRegistry<Presenter>
+    { }
+
     public class Presentation
     {
+        private PresenterManager _pm;
         private EditorPresenter _editor;
 
         private TilePoolListPresenter _tilePoolList;
-        private ObjectPoolCollectionPresenter _objectPoolCollection;
+        //private ObjectPoolCollectionPresenter _objectPoolCollection;
         private TileBrushManagerPresenter _tileBrushManager;
         private PropertyListPresenter _propertyList;
         private ProjectExplorerPresenter _projectExplorer;
@@ -90,8 +172,9 @@ namespace Treefrog.Presentation
         private DocumentToolsPresenter _docTools;
         private ContentInfoArbitrationPresenter _contentInfo;
 
-        public Presentation (EditorPresenter editor)
+        public Presentation (PresenterManager pm, EditorPresenter editor)
         {
+            _pm = pm;
             _editor = editor;
 
             _stdTools = new StandardToolsPresenter(_editor);
@@ -99,7 +182,9 @@ namespace Treefrog.Presentation
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
 
             _tilePoolList = new TilePoolListPresenter(_editor);
-            _objectPoolCollection = new ObjectPoolCollectionPresenter(_editor);
+            //_objectPoolCollection = new ObjectPoolCollectionPresenter(pm);
+            pm.Register(new ObjectPoolCollectionPresenter(pm));
+
             _tileBrushManager = new TileBrushManagerPresenter(_editor);
             _propertyList = new PropertyListPresenter();
             _projectExplorer = new ProjectExplorerPresenter(_editor);
@@ -141,7 +226,7 @@ namespace Treefrog.Presentation
             get { return _minimap; }
         }
 
-        public IStandardToolsPresenter StandardTools
+        public StandardToolsPresenter StandardTools
         {
             get { return _stdTools; }
         }
@@ -153,7 +238,8 @@ namespace Treefrog.Presentation
 
         public ObjectPoolCollectionPresenter ObjectPoolCollection
         {
-            get { return _objectPoolCollection; }
+            get { return _pm.Lookup<ObjectPoolCollectionPresenter>(); }
+        //    get { return _objectPoolCollection; }
         }
 
         public TileBrushManagerPresenter TileBrushes
@@ -162,7 +248,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    public class EditorPresenter : ICommandSubscriber
+    public class EditorPresenter : Presenter, ICommandSubscriber
     {
         private Project _project;
 
@@ -175,11 +261,12 @@ namespace Treefrog.Presentation
         private Presentation _presentation;
         private CommandActions _commandActions;
 
-        public EditorPresenter ()
+        public EditorPresenter (PresenterManager pm)
+            : base(pm)
         {
-            _commandActions = new CommandActions(this);
+            _commandActions = new CommandActions(pm, this);
 
-            _presentation = new Presentation(this);
+            _presentation = new Presentation(pm, this);
             _presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
 
             _levelContentController = new LevelContentTypeController(this);
@@ -188,12 +275,6 @@ namespace Treefrog.Presentation
             _content.AddContentController(_levelContentController);
 
             InitializeCommandManager();
-        }
-
-        public EditorPresenter (Project project)
-            : this()
-        {
-            Open(project);
         }
 
         public void NewDefault ()

@@ -9,11 +9,22 @@ namespace Treefrog.Plugins.Object
 {
     public class ObjectClassCommandActions
     {
-        private EditorPresenter _editor;
+        private PresenterManager _pm;
+        //private EditorPresenter Editor;
 
-        public ObjectClassCommandActions (EditorPresenter editor)
+        /*public ObjectClassCommandActions (EditorPresenter editor)
         {
             _editor = editor;
+        }*/
+
+        public ObjectClassCommandActions (PresenterManager pm)
+        {
+            _pm = pm;
+        }
+
+        private EditorPresenter Editor
+        {
+            get { return _pm.Lookup<EditorPresenter>(); }
         }
 
         public bool ObjectExists (object param)
@@ -21,10 +32,10 @@ namespace Treefrog.Plugins.Object
             if (!(param is Guid))
                 return false;
 
-            if (_editor.Project == null)
+            if (Editor == null || Editor.Project == null)
                 return false;
 
-            return _editor.Project.ObjectPoolManager.Contains((Guid)param);
+            return Editor.Project.ObjectPoolManager.Contains((Guid)param);
         }
 
         public void CommandEdit (object param)
@@ -33,7 +44,7 @@ namespace Treefrog.Plugins.Object
                 return;
 
             Guid uid = (Guid)param;
-            ObjectPool objPool = _editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
+            ObjectPool objPool = Editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
             ObjectClass objClass = objPool.GetObject(uid);
 
             using (ImportObject form = new ImportObject(objClass)) {
@@ -61,7 +72,7 @@ namespace Treefrog.Plugins.Object
                 return;
 
             Guid uid = (Guid)param;
-            ObjectPool objPool = _editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
+            ObjectPool objPool = Editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
             ObjectClass objClass = objPool.GetObject(uid);
 
             ObjectClass newClass = new ObjectClass(objPool.Objects.CompatibleName(objClass.Name), objClass);
@@ -74,7 +85,7 @@ namespace Treefrog.Plugins.Object
                 return;
 
             Guid uid = (Guid)param;
-            ObjectPool objPool = _editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
+            ObjectPool objPool = Editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
 
             objPool.RemoveObject(uid);
         }
@@ -85,7 +96,7 @@ namespace Treefrog.Plugins.Object
                 return;
 
             Guid uid = (Guid)param;
-            ObjectPool objPool = _editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
+            ObjectPool objPool = Editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
             ObjectClass objClass = objPool.GetObject(uid);
 
             using (NameChangeForm form = new NameChangeForm(objClass.Name)) {
@@ -105,11 +116,11 @@ namespace Treefrog.Plugins.Object
                 return;
 
             Guid uid = (Guid)param;
-            ObjectPool objPool = _editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
+            ObjectPool objPool = Editor.Project.ObjectPoolManager.PoolFromItemKey(uid);
             ObjectClass objClass = objPool.GetObject(uid);
 
-            _editor.Presentation.PropertyList.Provider = objClass;
-            _editor.ActivatePropertyPanel();
+            Editor.Presentation.PropertyList.Provider = objClass;
+            Editor.ActivatePropertyPanel();
         }
     }
 }

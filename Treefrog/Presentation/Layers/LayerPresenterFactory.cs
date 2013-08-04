@@ -25,4 +25,18 @@ namespace Treefrog.Presentation.Layers
             //});
         }
     }
+
+    public class LayerFromPresenterFactory : DependentTypeFactory<LevelLayerPresenter, Layer, string>
+    {
+        public static LayerFromPresenterFactory Default { get; private set; }
+
+        static LayerFromPresenterFactory ()
+        {
+            Default = new LayerFromPresenterFactory();
+
+            Default.Register<TileGridLayerPresenter, MultiTileGridLayer>((layer, name) => {
+                return new MultiTileGridLayer(name, layer.Layer as MultiTileGridLayer);
+            });
+        }
+    }
 }

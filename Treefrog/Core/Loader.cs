@@ -19,6 +19,9 @@ namespace Treefrog.Core
         LayerPresenterFactoryLoader _layerPresenterFactoryLoader = null;
 
         [Import]
+        LayerFromPresenterFactoryLoader _layerFromPresenterFactoryLoader = null;
+
+        [Import]
         CanvasLayerFactoryLoader _canvasLayerFacotryLoader = null;
 
         public void Compose ()
@@ -28,6 +31,7 @@ namespace Treefrog.Core
             container.SatisfyImportsOnce(this);
 
             _layerPresenterFactoryLoader.CompleteLoading();
+            _layerFromPresenterFactoryLoader.CompleteLoading();
             _canvasLayerFacotryLoader.CompleteLoading();
         }
     }
@@ -66,6 +70,12 @@ namespace Treefrog.Core
         Type TargetType { get; }
     }
 
+    public interface ILayerFromPresenterMetadata
+    {
+        Type SourceType { get; }
+        Type TargetType { get; }
+    }
+
     public interface ICanvasLayerMetadata
     {
         Type LayerType { get; }
@@ -82,6 +92,19 @@ namespace Treefrog.Core
         {
             foreach (var entry in _registrants)
                 LayerPresenterFactory.Default.Register(entry.Metadata.LayerType, entry.Metadata.TargetType, entry.Value);
+        }
+    }
+
+    [Export]
+    internal class LayerFromPresenterFactoryLoader
+    {
+        [ImportMany]
+        List<Lazy<Func<LayerPresenter, string, Layer>, ILayerFromPresenterMetadata>> _registrants = null;
+
+        public void CompleteLoading ()
+        {
+            foreach (var entry in _registrants)
+                LayerFromPresenterFactory.Default.Register(entry.Metadata.SourceType, entry.Metadata.TargetType, entry.Value);
         }
     }
 

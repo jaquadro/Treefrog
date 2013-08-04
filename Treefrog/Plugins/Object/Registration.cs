@@ -15,6 +15,12 @@ namespace Treefrog.Plugins.Object
             return new ObjectLayerPresenter(context, layer as ObjectLayer);
         }
 
+        [LayerFromPresenterExport(SourceType = typeof(ObjectLayerPresenter), TargetType = typeof(ObjectLayer))]
+        public static Layer CreateObjectLayerPresenter (LayerPresenter layer, string name)
+        {
+            return new ObjectLayer(name, (layer as ObjectLayerPresenter).Layer as ObjectLayer);
+        }
+
         [CanvasLayerExport(LayerType = typeof(ObjectLayerPresenter), TargetType = typeof(LevelRenderLayer))]
         public static CanvasLayer CreateObjectCanvasLayer (LayerPresenter layer) 
         {

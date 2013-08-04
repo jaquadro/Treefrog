@@ -11,8 +11,8 @@ using Treefrog.Presentation.Controllers;
 using Treefrog.Presentation.Layers;
 using Treefrog.Utility;
 using Treefrog.Windows.Forms;
-using Treefrog.Plugins.Object.Layers;
-using Treefrog.Plugins.Object;
+//using Treefrog.Plugins.Object.Layers;
+//using Treefrog.Plugins.Object;
 
 namespace Treefrog.Presentation
 {
@@ -252,7 +252,7 @@ namespace Treefrog.Presentation
 
             BindingHelper.TryBind<TilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
             BindingHelper.TryBind<TileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
-            BindingHelper.TryBind<ObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
+            //BindingHelper.TryBind<ObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
 
             BindLayerEvents(layer);
         }
@@ -644,12 +644,16 @@ namespace Treefrog.Presentation
             if (CommandCanCloneLayer() && _layerPresenters.ContainsKey(_selectedLayer)) {
                 string name = FindCloneLayerName(SelectedLayer.LayerName);
 
-                Layer layer = null;
+                /*Layer layer = null;
                 if (_selectedLayerRef is TileLayerPresenter)
                     layer = new MultiTileGridLayer(name, SelectedLayer.Layer as MultiTileGridLayer);
                 else if (_selectedLayerRef is ObjectLayerPresenter)
                     layer = new ObjectLayer(name, SelectedLayer.Layer as ObjectLayer);
                 else
+                    return;*/
+
+                Layer layer = LayerFromPresenterFactory.Default.Create(_selectedLayerRef, name);
+                if (layer == null)
                     return;
 
                 _level.Layers.Add(layer);

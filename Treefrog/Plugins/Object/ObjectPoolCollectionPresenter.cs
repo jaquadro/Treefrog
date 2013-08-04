@@ -33,9 +33,12 @@ namespace Treefrog.Plugins.Object
         }
     }
 
-    public class ObjectPoolCollectionPresenter : ICommandSubscriber
+    public class ObjectPoolCollectionPresenter : Presenter, ICommandSubscriber
     {
+        private PresenterManager _pm;
         private EditorPresenter _editor;
+
+        private ObjectClassCommandActions _objectClassActions;
 
         private Guid _selectedPool;
         private ObjectPool _selectedPoolRef;
@@ -43,12 +46,38 @@ namespace Treefrog.Plugins.Object
 
         private Dictionary<Guid, ObjectClass> _selectedObjects;
 
-        public ObjectPoolCollectionPresenter (EditorPresenter editor)
+        public ObjectPoolCollectionPresenter (PresenterManager pm)
+            : base(pm)
+        {
+            OnAttach<EditorPresenter>(editor => {
+                _editor = editor;
+                _editor.SyncCurrentProject += SyncCurrentProjectHandler;
+            });
+
+            OnDetach<EditorPresenter>(editor => {
+                _editor.SyncCurrentProject -= SyncCurrentProjectHandler;
+                _editor = null;
+            });
+
+            InitializeCommandManager();
+        }
+
+        /*public ObjectPoolCollectionPresenter (EditorPresenter editor)
         {
             _editor = editor;
             _editor.SyncCurrentProject += SyncCurrentProjectHandler;
 
             InitializeCommandManager();
+        }*/
+
+        /*public void Initialize (PresenterManager pm)
+        {
+
+        }*/
+
+        public ObjectClassCommandActions ObjectClassActions
+        {
+            get { return _objectClassActions; }
         }
 
         private void SyncCurrentProjectHandler (object sender, SyncProjectEventArgs e)
@@ -196,12 +225,12 @@ namespace Treefrog.Plugins.Object
 
             _commandManager.Register(CommandKey.ObjectProtoImport, CommandCanImportObject, CommandImportObject);
 
-            ObjectClassCommandActions objClassActions = _editor.CommandActions.ObjectClassActions;
-            _commandManager.Register(CommandKey.ObjectProtoEdit, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandEdit));
-            _commandManager.Register(CommandKey.ObjectProtoClone, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandClone));
-            _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandDelete));
-            _commandManager.Register(CommandKey.ObjectProtoRename, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandRename));
-            _commandManager.Register(CommandKey.ObjectProtoProperties, CommandCanOperateOnSelected, WrapCommand(objClassActions.CommandProperties));
+            _objectClassActions = new ObjectClassCommandActions(Manager);
+            _commandManager.Register(CommandKey.ObjectProtoEdit, CommandCanOperateOnSelected, WrapCommand(_objectClassActions.CommandEdit));
+            _commandManager.Register(CommandKey.ObjectProtoClone, CommandCanOperateOnSelected, WrapCommand(_objectClassActions.CommandClone));
+            _commandManager.Register(CommandKey.ObjectProtoDelete, CommandCanOperateOnSelected, WrapCommand(_objectClassActions.CommandDelete));
+            _commandManager.Register(CommandKey.ObjectProtoRename, CommandCanOperateOnSelected, WrapCommand(_objectClassActions.CommandRename));
+            _commandManager.Register(CommandKey.ObjectProtoProperties, CommandCanOperateOnSelected, WrapCommand(_objectClassActions.CommandProperties));
 
             _commandManager.RegisterToggleGroup(CommandToggleGroup.ObjectReference);
             _commandManager.RegisterToggle(CommandToggleGroup.ObjectReference, CommandKey.ObjectReferenceImage);
