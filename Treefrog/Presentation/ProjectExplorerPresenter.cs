@@ -21,25 +21,27 @@ namespace Treefrog.Presentation
             LevelRemoved,
             LevelModified,
 
-            ObjectAdded,
-            ObjectRemoved,
-            ObjectModified,
+            //ObjectAdded,
+            //ObjectRemoved,
+            //ObjectModified,
 
             TilePoolAdded,
             TilePoolRemoved,
             TilePoolModified,
         }
 
+        
+
         private EditorPresenter _editor;
 
         private Project _project;
         private LibraryManager _libraryManager;
-        private IObjectPoolManager _objectPoolManager;
+        //private IObjectPoolManager _objectPoolManager;
         private ITilePoolManager _tilePoolManager;
 
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<Library>>> _libraryEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<Level>>> _levelEventBindings;
-        private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
+        //private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>> _tilePoolEventBindings;
 
         public ProjectExplorerPresenter (EditorPresenter editor)
@@ -59,11 +61,11 @@ namespace Treefrog.Presentation
                 { EventBindings.LevelModified, (s, e) => OnLevelModified(new ResourceEventArgs<Level>(e.Resource)) },
             };
 
-            _objectEventBindings = new Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>>() {
+            /*_objectEventBindings = new Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>>() {
                 { EventBindings.ObjectAdded, (s, e) => OnObjectAdded(new ResourceEventArgs<ObjectClass>(e.Resource)) },
                 { EventBindings.ObjectRemoved, (s, e) => OnObjectRemoved(new ResourceEventArgs<ObjectClass>(e.Resource)) },
                 { EventBindings.ObjectModified, (s, e) => OnObjectModified(new ResourceEventArgs<ObjectClass>(e.Resource)) },
-            };
+            };*/
 
             _tilePoolEventBindings = new Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>>() {
                 { EventBindings.TilePoolAdded, (s, e) => OnTilePoolAdded(new ResourceEventArgs<TilePool>(e.Resource)) },
@@ -74,10 +76,15 @@ namespace Treefrog.Presentation
             LibraryManagerTag = Guid.NewGuid();
             ProjectManagerTag = Guid.NewGuid();
             ProjectLevelsTag = Guid.NewGuid();
-            ProjectObjectsTag = Guid.NewGuid();
+            //ProjectObjectsTag = Guid.NewGuid();
             ProjectTilesetsTag = Guid.NewGuid();
 
             InitializeCommandManager();
+        }
+
+        public EditorPresenter Editor
+        {
+            get { return _editor; }
         }
 
         public void Dispose ()
@@ -132,12 +139,12 @@ namespace Treefrog.Presentation
                 _project.Levels.ResourceModified += _levelEventBindings[EventBindings.LevelModified];
 
                 BindLibraryManager(_project.LibraryManager);
-                BindObjectManager(_project.ObjectPoolManager);
+                //BindObjectManager(_project.ObjectPoolManager);
                 BindTilePoolManager(_project.TilePoolManager);
             }
             else {
                 BindLibraryManager(null);
-                BindObjectManager(null);
+                //BindObjectManager(null);
                 BindTilePoolManager(null);
             }
 
@@ -164,7 +171,7 @@ namespace Treefrog.Presentation
             }
         }
 
-        private void BindObjectManager (IObjectPoolManager manager)
+        /*private void BindObjectManager (IObjectPoolManager manager)
         {
             if (_objectPoolManager == manager)
                 return;
@@ -204,7 +211,7 @@ namespace Treefrog.Presentation
                 pool.Objects.ResourceRemoved += _objectEventBindings[EventBindings.ObjectRemoved];
                 pool.Objects.ResourceModified += _objectEventBindings[EventBindings.ObjectModified];
             }
-        }
+        }*/
 
         private void BindTilePoolManager (ITilePoolManager manager)
         {
@@ -234,10 +241,10 @@ namespace Treefrog.Presentation
         public Guid LibraryManagerTag { get; private set; }
         public Guid ProjectManagerTag { get; private set; }
         public Guid ProjectLevelsTag { get; private set; }
-        public Guid ProjectObjectsTag { get; private set; }
+        //public Guid ProjectObjectsTag { get; private set; }
         public Guid ProjectTilesetsTag { get; private set; }
 
-        private void ObjectPoolAddedHandler (object sender, ResourceEventArgs<ObjectPool> e)
+        /*private void ObjectPoolAddedHandler (object sender, ResourceEventArgs<ObjectPool> e)
         {
             HookObjectPool(e.Resource);
         }
@@ -245,7 +252,7 @@ namespace Treefrog.Presentation
         private void ObjectPoolRemovedHandler (object sender, ResourceEventArgs<ObjectPool> e)
         {
             UnhookObjectPool(e.Resource);
-        }
+        }*/
 
         public event EventHandler ProjectReset;
 
@@ -320,7 +327,7 @@ namespace Treefrog.Presentation
                 ev(this, e);
         }
 
-        public event EventHandler<ResourceEventArgs<ObjectClass>> ObjectAdded;
+        /*public event EventHandler<ResourceEventArgs<ObjectClass>> ObjectAdded;
         public event EventHandler<ResourceEventArgs<ObjectClass>> ObjectRemoved;
         public event EventHandler<ResourceEventArgs<ObjectClass>> ObjectModified;
 
@@ -343,7 +350,7 @@ namespace Treefrog.Presentation
             var ev = ObjectModified;
             if (ev != null)
                 ev(this, e);
-        }
+        }*/
 
         public event EventHandler<ResourceEventArgs<TilePool>> TilePoolAdded;
         public event EventHandler<ResourceEventArgs<TilePool>> TilePoolRemoved;
@@ -385,8 +392,8 @@ namespace Treefrog.Presentation
 
             if (_project.Levels.Contains(uid))
                 return LevelMenu(uid);
-            if (_project.ObjectPoolManager.Contains(uid))
-                return ObjectProtoMenu(uid);
+            //if (_project.ObjectPoolManager.Contains(uid))
+            //    return ObjectProtoMenu(uid);
             if (_project.TilePoolManager.Pools.Contains(uid))
                 return TileSetMenu(uid);
             if (_project.LibraryManager.Libraries.Contains(uid))
@@ -412,7 +419,7 @@ namespace Treefrog.Presentation
             });
         }
 
-        public CommandMenu ObjectProtoMenu (Guid uid)
+        /*public CommandMenu ObjectProtoMenu (Guid uid)
         {
             return new CommandMenu("", new List<CommandMenuGroup>() {
                 new CommandMenuGroup() {
@@ -427,7 +434,7 @@ namespace Treefrog.Presentation
                     new CommandMenuEntry(CommandKey.ObjectProtoProperties, uid),
                 },
             });
-        }
+        }*/
 
         public CommandMenu TileSetMenu (Guid uid)
         {
@@ -480,12 +487,12 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.LevelRename, CommandCanRenameLevel, CommandRenameLevel);
             _commandManager.Register(CommandKey.LevelProperties, CommandCanLevelProperties, CommandLevelProperties);
 
-            ObjectClassCommandActions objClassActions = _editor.CommandActions.ObjectClassActions;
+            /*ObjectClassCommandActions objClassActions = _editor.CommandActions.ObjectClassActions;
             _commandManager.Register(CommandKey.ObjectProtoEdit, objClassActions.ObjectExists, objClassActions.CommandEdit);
             _commandManager.Register(CommandKey.ObjectProtoClone, objClassActions.ObjectExists, objClassActions.CommandClone);
             _commandManager.Register(CommandKey.ObjectProtoDelete, objClassActions.ObjectExists, objClassActions.CommandDelete);
             _commandManager.Register(CommandKey.ObjectProtoRename, objClassActions.ObjectExists, objClassActions.CommandRename);
-            _commandManager.Register(CommandKey.ObjectProtoProperties, objClassActions.ObjectExists, objClassActions.CommandProperties);
+            _commandManager.Register(CommandKey.ObjectProtoProperties, objClassActions.ObjectExists, objClassActions.CommandProperties);*/
 
             TilePoolCommandActions tilePoolActions = _editor.CommandActions.TilePoolActions;
             _commandManager.Register(CommandKey.TilePoolDelete, tilePoolActions.TilePoolExists, tilePoolActions.CommandDelete);

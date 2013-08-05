@@ -70,6 +70,9 @@ namespace Treefrog.Presentation
         public LevelPresenter (PresenterManager pm, EditorPresenter editor, Level level)
         {
             _pm = pm;
+            _pm.InstanceRegistered += PresenterRegsitered;
+            _pm.InstanceUnregistered += PresenterUnregistered;
+
             _editor = editor;
             _level = level;
 
@@ -100,6 +103,9 @@ namespace Treefrog.Presentation
         {
             if (!_disposed) {
                 if (disposing) {
+                    _pm.InstanceRegistered -= PresenterRegsitered;
+                    _pm.InstanceUnregistered -= PresenterUnregistered;
+
                     foreach (LevelLayerPresenter layer in _layerPresenters.Values) {
                         UnbindLayerEvents(layer);
                         layer.Dispose();
@@ -111,6 +117,18 @@ namespace Treefrog.Presentation
 
                 _disposed = true;
             }
+        }
+
+        private void PresenterRegsitered (object sender, InstanceRegistryEventArgs<Presenter> e)
+        {
+            foreach (LevelLayerPresenter layer in _layerPresenters.Values)
+                BindingHelper.TryBind(layer, e.Type, e.Instance);
+        }
+
+        private void PresenterUnregistered (object sender, InstanceRegistryEventArgs<Presenter> e)
+        {
+            foreach (LevelLayerPresenter layer in _layerPresenters.Values)
+                BindingHelper.TryBind(layer, e.Type, null);
         }
 
         private IPropertyProvider _currentPropertyProvider;

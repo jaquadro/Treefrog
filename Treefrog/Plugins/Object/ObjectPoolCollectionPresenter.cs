@@ -260,22 +260,31 @@ namespace Treefrog.Plugins.Object
             get { return _commandManager; }
         }
 
-        private bool CommandCanOperateOnSelected ()
+        private bool CommandCanOperateOnSelected (object param)
         {
+            if (SelectedObject == null && param == null)
+                return false;
+
+            return _editor.CommandActions.ObjectClassActions.ObjectExists(param ?? SelectedObject.Uid);
+        }
+
+        /*private bool CommandCanOperateOnSelected ()
+        {
+
             if (SelectedObject == null)
                 return false;
 
             return _editor.CommandActions.ObjectClassActions.ObjectExists(SelectedObject.Uid);
-        }
+        }*/
 
         private Guid SelectedObjectUid
         {
             get { return SelectedObject != null ? SelectedObject.Uid : Guid.Empty; }
         }
 
-        private Action WrapCommand (Action<object> action)
+        private Action<object> WrapCommand (Action<object> action)
         {
-            return () => action(SelectedObjectUid);
+            return p => action(p ?? SelectedObjectUid);
         }
 
         private bool CommandCanImportObject ()

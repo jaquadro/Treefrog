@@ -10,12 +10,15 @@ using Treefrog.Presentation;
 using Treefrog.Framework.Model;
 using Treefrog.Framework;
 using Treefrog.Windows.Controllers;
+using Treefrog.Utility;
+using Treefrog.Presentation.Commands;
+using Treefrog.Plugins.Object;
 
 namespace Treefrog.Windows.Panels
 {
     public partial class ProjectPanel : UserControl
     {
-        private static class IconIndex
+        public static class IconIndex
         {
             public static int Application = 0;
             public static int Folder = 1;
@@ -35,7 +38,7 @@ namespace Treefrog.Windows.Panels
 
         private TreeNode _rootNode;
         private TreeNode _levelNode;
-        private TreeNode _objectNode;
+        //private TreeNode _objectNode;
         private TreeNode _tileNode;
 
         private TreeNode _libraryRoot;
@@ -63,10 +66,10 @@ namespace Treefrog.Windows.Panels
             _rootNode = new TreeNode("Project", IconIndex.Application, IconIndex.Application);
             _levelNode = new TreeNode("Levels", IconIndex.FolderLevels, IconIndex.FolderLevels);
             _tileNode = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles);
-            _objectNode = new TreeNode("Object Groups", IconIndex.FolderObjects, IconIndex.FolderObjects);
+            //_objectNode = new TreeNode("Object Groups", IconIndex.FolderObjects, IconIndex.FolderObjects);
 
             _rootNode.Nodes.AddRange(new TreeNode[] {
-                _levelNode, _tileNode, _objectNode,
+                _levelNode, _tileNode, /*_objectNode,*/
             });
 
             _tree.Nodes.Add(_rootNode);
@@ -96,9 +99,9 @@ namespace Treefrog.Windows.Panels
                 _controller.LevelRemoved -= LevelRemovedHandler;
                 _controller.LevelModified -= LevelModifiedHandler;
 
-                _controller.ObjectAdded -= ObjectAddedHandler;
-                _controller.ObjectRemoved -= ObjectRemovedHandler;
-                _controller.ObjectModified -= ObjectModifiedHandler;
+                //_controller.ObjectAdded -= ObjectAddedHandler;
+                //_controller.ObjectRemoved -= ObjectRemovedHandler;
+                //_controller.ObjectModified -= ObjectModifiedHandler;
 
                 _controller.TilePoolAdded -= TilePoolAddedHandler;
                 _controller.TilePoolRemoved -= TilePoolRemovedHandler;
@@ -121,9 +124,9 @@ namespace Treefrog.Windows.Panels
                 _controller.LevelRemoved += LevelRemovedHandler;
                 _controller.LevelModified += LevelModifiedHandler;
 
-                _controller.ObjectAdded += ObjectAddedHandler;
-                _controller.ObjectRemoved += ObjectRemovedHandler;
-                _controller.ObjectModified += ObjectModifiedHandler;
+                //_controller.ObjectAdded += ObjectAddedHandler;
+                //_controller.ObjectRemoved += ObjectRemovedHandler;
+                //_controller.ObjectModified += ObjectModifiedHandler;
 
                 _controller.TilePoolAdded += TilePoolAddedHandler;
                 _controller.TilePoolRemoved += TilePoolRemovedHandler;
@@ -131,9 +134,17 @@ namespace Treefrog.Windows.Panels
 
                 _rootNode.Tag = _controller.ProjectManagerTag;
                 _levelNode.Tag = _controller.ProjectLevelsTag;
-                _objectNode.Tag = _controller.ProjectObjectsTag;
+                //_objectNode.Tag = _controller.ProjectObjectsTag;
                 _tileNode.Tag = _controller.ProjectTilesetsTag;
                 _libraryRoot.Tag = _controller.LibraryManagerTag;
+
+                ProjectExplorerExt objectComponentPres = new ProjectExplorerExt();
+                objectComponentPres.Bind(_controller.Editor.Presentation.ObjectPoolCollection);
+                
+                ObjectProjectPanelComponent objectComponent = new ObjectProjectPanelComponent(_rootNode);
+                objectComponent.Bind(objectComponentPres);
+
+                _components.Add(objectComponent);
 
                 SyncAll();
             }
@@ -230,7 +241,9 @@ namespace Treefrog.Windows.Panels
             SyncLibraries();
             SyncLevels();
             SyncTilePools();
-            SyncObjectPools();
+            //SyncObjectPools();
+
+            _components.ForEach(c => c.Sync());
         }
 
         private void SyncLibraries ()
@@ -288,7 +301,7 @@ namespace Treefrog.Windows.Panels
             ModifyResource(e.Resource);
         }
 
-        private void SyncObjectPools ()
+        /*private void SyncObjectPools ()
         {
             SyncNode(_objectNode, (node) => AddResources<ObjectPool>(_objectNode, _controller.Project.ObjectPoolManager.Pools, IconIndex.ObjectGroup, (subNode, r) => {
                 AddResources<ObjectClass>(subNode, r.Objects, IconIndex.ObjectGroup);
@@ -317,7 +330,7 @@ namespace Treefrog.Windows.Panels
         private void ObjectModifiedHandler (object sender, ResourceEventArgs<ObjectClass> e)
         {
             ModifyResource(e.Resource);
-        }
+        }*/
 
         private void SyncNode (TreeNode node, Action<TreeNode> action)
         {
@@ -440,6 +453,13 @@ namespace Treefrog.Windows.Panels
 
             Guid tag = (Guid)e.Node.Tag;
 
+            ProjectPanelComponent targetComponent = _components.FirstOrDefault(c => c.ShouldHandle(tag));
+            if (targetComponent != null) {
+                targetComponent.DefaultAction(tag);
+                return;
+            }
+
+            // TODO: Remove when fully on components
             _controller.DefaultAction(tag);
         }
 
@@ -453,17 +473,181 @@ namespace Treefrog.Windows.Panels
             Guid tag = (Guid)e.Node.Tag;
 
             if (e.Button == MouseButtons.Right) {
+                ProjectPanelComponent targetComponent = _components.FirstOrDefault(c => c.ShouldHandle(tag));
+                if (targetComponent != null) {
+                    targetComponent.ShowContextMenu(_commandController, e.Location, tag);
+                    return;
+                }
+
+                // TODO: Remove when fully on components
                 ContextMenuStrip contextMenu = CommandMenuBuilder.BuildContextMenu(_controller.Menu(tag));
 
+                _commandController.BindCommandManager(_controller.CommandManager);
                 _commandController.Clear();
                 _commandController.MapMenuItems(contextMenu.Items);
 
-                Point location = new Point(Cursor.Position.X + _tree.Location.X, Cursor.Position.Y + _tree.Location.Y);
-                Point p = _tree.PointToClient(location);
-
                 contextMenu.Show(_tree, e.Location);
+            }
+        }
 
-                //_commandController.Clear();
+        private List<ProjectPanelComponent> _components = new List<ProjectPanelComponent>();
+    }
+
+    public abstract class ProjectPanelComponent
+    {
+        protected ProjectPanelComponent (TreeNode rootNode)
+        {
+            RootNode = rootNode;
+
+            NodeMap = new Dictionary<Guid, List<TreeNode>>();
+        }
+
+        protected TreeNode RootNode { get; private set; }
+
+        protected abstract bool ControllerValid { get; }
+
+        protected Dictionary<Guid, List<TreeNode>> NodeMap { get; private set; }
+
+        public virtual bool ShouldHandle (Guid tag)
+        {
+            return NodeMap.ContainsKey(tag);
+        }
+
+        public void ShowContextMenu (UICommandController commandController, Point location, Guid tag)
+        {
+            ContextMenuStrip contextMenu = CommandMenuBuilder.BuildContextMenu(GetCommandMenu(tag));
+
+            commandController.BindCommandManager(CommandManager);
+            commandController.Clear();
+            commandController.MapMenuItems(contextMenu.Items);
+
+            contextMenu.Show(RootNode.TreeView, location);
+        }
+
+        protected virtual CommandMenu GetCommandMenu (Guid tag)
+        {
+            return new CommandMenu("");
+        }
+
+        protected virtual CommandManager CommandManager
+        {
+            get { return null; }
+        }
+
+        public virtual void DefaultAction (Guid tag)
+        { }
+
+        public virtual void Sync ()
+        { }
+
+        protected void SyncNode (TreeNode node, Action<TreeNode> action)
+        {
+            ClearNodeCache(node);
+            node.Nodes.Clear();
+
+            if (!ControllerValid)
+                return;
+
+            action(node);
+        }
+
+        protected void ClearNodeCache (TreeNode node)
+        {
+            if (node == null)
+                return;
+
+            if (node.Tag is Guid) {
+                Guid uid = (Guid)node.Tag;
+                if (NodeMap.ContainsKey(uid)) {
+                    NodeMap[uid].Remove(node);
+                    if (NodeMap[uid].Count == 0)
+                        NodeMap.Remove(uid);
+                }
+            }
+
+            foreach (TreeNode subNode in node.Nodes)
+                ClearNodeCache(subNode);
+        }
+
+        protected void AddResources<T> (TreeNode node, IResourceCollection<T> resources, int icon)
+            where T : INamedResource
+        {
+            foreach (T resource in resources)
+                AddResource(node, resource, icon, null);
+        }
+
+        protected void AddResources<T> (TreeNode node, IResourceCollection<T> resources, int icon, Action<TreeNode, T> subNodeAction)
+            where T : INamedResource
+        {
+            foreach (T resource in resources)
+                AddResource(node, resource, icon, subNodeAction);
+        }
+
+        protected void AddResource<T> (TreeNode node, T resource, int icon)
+            where T : INamedResource
+        {
+            AddResource(node, resource, icon, null);
+        }
+
+        protected void AddResource<T> (TreeNode node, T resource, int icon, Action<TreeNode, T> subNodeAction)
+            where T : INamedResource
+        {
+            TreeNode subNode = new TreeNode(resource.Name, icon, icon) {
+                Tag = resource.Uid,
+            };
+
+            if (subNodeAction != null)
+                subNodeAction(subNode, resource);
+
+            node.Nodes.Add(subNode);
+
+            if (!NodeMap.ContainsKey(resource.Uid))
+                NodeMap[resource.Uid] = new List<TreeNode>();
+            if (!NodeMap[resource.Uid].Contains(subNode))
+                NodeMap[resource.Uid].Add(subNode);
+        }
+
+        protected void RemoveResource<T> (T resource)
+            where T : INamedResource
+        {
+            RemoveResource(resource, null);
+        }
+
+        protected void RemoveResource<T> (T resource, Action<TreeNode, T> nodeAction)
+            where T : INamedResource
+        {
+            List<TreeNode> nodeList;
+            if (!NodeMap.TryGetValue(resource.Uid, out nodeList))
+                return;
+
+            foreach (TreeNode node in nodeList.ToArray()) {
+                if (nodeAction != null)
+                    nodeAction(node, resource);
+
+                ClearNodeCache(node);
+                node.Remove();
+            }
+        }
+
+        protected void ModifyResource<T> (T resource)
+            where T : INamedResource
+        {
+            ModifyResource(resource, null);
+        }
+
+        protected void ModifyResource<T> (T resource, Action<TreeNode, T> nodeAction)
+            where T : INamedResource
+        {
+            List<TreeNode> nodeList;
+            if (!NodeMap.TryGetValue(resource.Uid, out nodeList))
+                return;
+
+            foreach (TreeNode node in nodeList.ToArray()) {
+                if (node.Text != resource.Name)
+                    node.Text = resource.Name;
+
+                if (nodeAction != null)
+                    nodeAction(node, resource);
             }
         }
     }
