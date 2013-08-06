@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Treefrog.Extensibility;
 using Treefrog.Framework;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Imaging.Drawing;
@@ -13,7 +14,7 @@ using Treefrog.Presentation.Tools;
 
 namespace Treefrog.Presentation
 {
-    public class MinimapPresenter : IDisposable, ILayerContext, IPointerResponderProvider, IPointerResponder
+    public class MinimapPresenter : Presenter, ILayerContext, IPointerResponderProvider, IPointerResponder
     {
         private EditorPresenter _editor;
         private ObservableCollection<Annotation> _annotations;
@@ -26,10 +27,20 @@ namespace Treefrog.Presentation
 
         private SelectionAnnot _boxAnnot;
 
-        public MinimapPresenter (EditorPresenter editor)
+        public MinimapPresenter (PresenterManager pm)
+            : base(pm)
         {
-            _editor = editor;
-            _editor.SyncCurrentLevel += SyncCurrentLevel;
+            OnAttach<EditorPresenter>(editor => {
+                _editor = editor;
+                _editor.SyncCurrentLevel += SyncCurrentLevel;
+            });
+
+            OnDetach<EditorPresenter>(editor => {
+                BindLevel(null);
+
+                _editor.SyncCurrentLevel -= SyncCurrentLevel;
+                _editor = null;
+            });
 
             _annotations = new ObservableCollection<Annotation>();
             _layerPresenters = new Dictionary<Guid, LevelLayerPresenter>();
@@ -41,7 +52,7 @@ namespace Treefrog.Presentation
             _annotations.Add(_boxAnnot);
         }
 
-        public void Dispose ()
+        /*public void Dispose ()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -58,7 +69,7 @@ namespace Treefrog.Presentation
 
                 _editor = null;
             }
-        }
+        }*/
 
         private void SyncCurrentLevel (object sender, SyncLevelEventArgs e)
         {

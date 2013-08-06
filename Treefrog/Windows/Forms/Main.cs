@@ -204,7 +204,7 @@ namespace Treefrog.Windows.Forms
 
         private void PanelActivated (object sender, PanelEventArgs e)
         {
-            if (e.PanelPresenter is IPropertyListPresenter) {
+            if (e.PanelPresenter is PropertyListPresenter) {
                 TabControl control = _tabProperties.Parent as TabControl;
                 if (control != null)
                     control.SelectedTab = _tabProperties;

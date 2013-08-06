@@ -8,6 +8,7 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
 using Treefrog.Plugins.Object;
 using System.Collections.Generic;
+using Treefrog.Extensibility;
 
 namespace Treefrog.Presentation
 {
@@ -88,77 +89,7 @@ namespace Treefrog.Presentation
     //    void Initialize (PresenterManager pm);
     //}
 
-    public abstract class Presenter : IDisposable
-    {
-        private Dictionary<Type, Action<Presenter>> _attachActions;
-        private Dictionary<Type, Action<Presenter>> _detachActions;
-
-        protected Presenter (PresenterManager pm)
-        {
-            Manager = pm;
-
-            _attachActions = new Dictionary<Type, Action<Presenter>>();
-            _detachActions = new Dictionary<Type, Action<Presenter>>();
-
-            Manager.InstanceRegistered += HandlePresenterRegistered;
-            Manager.InstanceUnregistered += HandlePresenterUnregistered;
-        }
-
-        public void Dispose ()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose (bool disposing)
-        {
-            if (disposing) {
-                Manager.InstanceRegistered -= HandlePresenterRegistered;
-                Manager.InstanceUnregistered -= HandlePresenterUnregistered;
-
-                // Run all registered detach events on disposed object
-                foreach (var kv in _detachActions) {
-                    Presenter instance = Manager.Lookup(kv.Key);
-                    kv.Value(instance);
-                }
-
-            }
-        }
-
-        protected PresenterManager Manager { get; private set; }
-
-        protected void OnAttach<T> (Action<T> action)
-            where T : Presenter
-        {
-            _attachActions.Add(typeof(T), p => action(p as T));
-
-            T target = Manager.Lookup<T>();
-            if (target != null)
-                action(target);
-        }
-
-        protected void OnDetach<T> (Action<T> action)
-            where T : Presenter
-        {
-            _detachActions.Add(typeof(T), p => action(p as T));
-
-            T target = Manager.Lookup<T>();
-            if (target != null)
-                action(target);
-        }
-
-        private void HandlePresenterRegistered (object sender, InstanceRegistryEventArgs<Presenter> e)
-        {
-            if (_attachActions.ContainsKey(e.Type) && e.Type != GetType())
-                _attachActions[e.Type](e.Instance);
-        }
-
-        private void HandlePresenterUnregistered (object sender, InstanceRegistryEventArgs<Presenter> e)
-        {
-            if (_detachActions.ContainsKey(e.Type) && e.Type != GetType())
-                _detachActions[e.Type](e.Instance);
-        }
-    }
+    
 
     public class PresenterManager : InstanceRegistry<Presenter>
     { }
@@ -188,20 +119,26 @@ namespace Treefrog.Presentation
             _docTools = new DocumentToolsPresenter(_editor);
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
 
-            _tilePoolList = new TilePoolListPresenter(_editor);
+            //_tilePoolList = new TilePoolListPresenter(_editor);
+            pm.Register(new TilePoolListPresenter(pm));
             //_objectPoolCollection = new ObjectPoolCollectionPresenter(pm);
             pm.Register(new ObjectPoolCollectionPresenter(pm));
 
-            _tileBrushManager = new TileBrushManagerPresenter(_editor);
-            _propertyList = new PropertyListPresenter();
+            //_tileBrushManager = new TileBrushManagerPresenter(_editor);
+            pm.Register(new TileBrushManagerPresenter(pm));
+
+            //_propertyList = new PropertyListPresenter();
+            pm.Register(new PropertyListPresenter(pm));
             //_projectExplorer = new ProjectExplorerPresenter(pm);
             pm.Register(new ProjectExplorerPresenter(pm));
 
+            // Temporary until exported by MEF
             ProjectExplorerExt objExplorer = new ProjectExplorerExt();
             objExplorer.Bind(pm.Lookup<ObjectPoolCollectionPresenter>());
             pm.Lookup<ProjectExplorerPresenter>().Components.Register<ProjectExplorerExt>(objExplorer);
 
-            _minimap = new MinimapPresenter(_editor);
+            //_minimap = new MinimapPresenter(_editor);
+            pm.Register(new MinimapPresenter(pm));
         }
 
         public IContentInfoPresenter ContentInfo
@@ -226,7 +163,8 @@ namespace Treefrog.Presentation
 
         public PropertyListPresenter PropertyList
         {
-            get { return _propertyList; }
+            get { return _pm.Lookup<PropertyListPresenter>(); }
+            //get { return _propertyList; }
         }
 
         public ProjectExplorerPresenter ProjectExplorer
@@ -237,7 +175,8 @@ namespace Treefrog.Presentation
 
         public MinimapPresenter Minimap
         {
-            get { return _minimap; }
+            get { return _pm.Lookup<MinimapPresenter>(); }
+            //get { return _minimap; }
         }
 
         public StandardToolsPresenter StandardTools
@@ -247,7 +186,8 @@ namespace Treefrog.Presentation
 
         public TilePoolListPresenter TilePoolList
         {
-            get { return _tilePoolList; }
+            get { return _pm.Lookup<TilePoolListPresenter>(); }
+            //get { return _tilePoolList; }
         }
 
         public ObjectPoolCollectionPresenter ObjectPoolCollection
@@ -258,7 +198,8 @@ namespace Treefrog.Presentation
 
         public TileBrushManagerPresenter TileBrushes
         {
-            get { return _tileBrushManager; }
+            get { return _pm.Lookup<TileBrushManagerPresenter>(); }
+            //get { return _tileBrushManager; }
         }
     }
 

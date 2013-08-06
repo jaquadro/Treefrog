@@ -9,6 +9,7 @@ using Treefrog.Presentation.Annotations;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Controllers;
 using Treefrog.Presentation.Layers;
+using Treefrog.Extensibility;
 
 namespace Treefrog.Presentation
 {
@@ -168,7 +169,7 @@ namespace Treefrog.Presentation
         }
     }
 
-    public class TilePoolListPresenter : IDisposable, ICommandSubscriber
+    public class TilePoolListPresenter : Presenter, ICommandSubscriber
     {
         private EditorPresenter _editor;
         private ITilePoolManager _poolManager;
@@ -177,23 +178,37 @@ namespace Treefrog.Presentation
         private Guid _selectedPool;
         private TilePoolPresenter _selectedPoolRef;
 
-        public TilePoolListPresenter (EditorPresenter editor)
+        public TilePoolListPresenter (PresenterManager pm)
+            : base(pm)
         {
-            _editor = editor;
-            _editor.SyncCurrentProject += EditorSyncCurrentProject;
+            InitializeCommandManager();
+
+            OnAttach<EditorPresenter>(editor => {
+                _editor = editor;
+                _editor.SyncCurrentProject += EditorSyncCurrentProject;
+
+                InitializeCommandManager(editor);
+            });
+
+            OnDetach<EditorPresenter>(editor => {
+                BindTilePoolManager(null);
+
+                _editor.SyncCurrentProject -= EditorSyncCurrentProject;
+                _editor = null;
+            });
 
             _tilePoolPresenters = new Dictionary<Guid, TilePoolPresenter>();
 
-            InitializeCommandManager();
+            
         }
 
-        public void Dispose ()
+        /*public void Dispose ()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
+        }*/
 
-        protected virtual void Dispose (bool disposing)
+        /*protected virtual void Dispose (bool disposing)
         {
             if (_editor != null) {
                 if (disposing) {
@@ -203,7 +218,7 @@ namespace Treefrog.Presentation
 
                 _editor = null;
             }
-        }
+        }*/
 
         private void EditorSyncCurrentProject (object sender, SyncProjectEventArgs e)
         {
@@ -380,7 +395,10 @@ namespace Treefrog.Presentation
 
             _commandManager.Register(CommandKey.TileProperties, CommandCanTileProperties, CommandTileProperties);
             _commandManager.Register(CommandKey.TileDelete, CommandCanDeleteTile, CommandDeleteTile);
+        }
 
+        private void InitializeCommandManager (EditorPresenter editor)
+        {
             TilePoolCommandActions tilePoolActions = _editor.CommandActions.TilePoolActions;
             _commandManager.Register(CommandKey.TilePoolImport, () => { return true; }, tilePoolActions.CommandImport);
             _commandManager.Register(CommandKey.TilePoolImportMerge, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandImportMerge));

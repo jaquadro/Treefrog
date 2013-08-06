@@ -129,6 +129,7 @@
   <ItemGroup>
     <Compile Include="Core\Loader.cs" />
     <Compile Include="Extensibility\ExportAttributes.cs" />
+    <Compile Include="Extensibility\Presenter.cs" />
     <Compile Include="Extensibility\ProjectExplorer.cs" />
     <Compile Include="Plugins\Object\ProjectExplorerExt.cs" />
     <Compile Include="Plugins\Object\Registration.cs" />

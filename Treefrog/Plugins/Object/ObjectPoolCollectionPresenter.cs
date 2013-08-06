@@ -10,6 +10,7 @@ using Treefrog.Presentation.Tools;
 using Treefrog.Windows.Forms;
 using Treefrog.Utility;
 using Treefrog.Presentation;
+using Treefrog.Extensibility;
 
 namespace Treefrog.Plugins.Object
 {

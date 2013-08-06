@@ -6,6 +6,7 @@ using Treefrog.Framework.Model;
 using Treefrog.Framework.Model.Support;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
+using Treefrog.Extensibility;
 
 namespace Treefrog.Presentation
 {
@@ -19,28 +20,36 @@ namespace Treefrog.Presentation
         }
     }
 
-    public class TileBrushManagerPresenter : IDisposable, ICommandSubscriber
+    public class TileBrushManagerPresenter : Presenter, ICommandSubscriber
     {
         private EditorPresenter _editor;
 
         private Guid _selectedBrush;
         private TileBrush _selectedBrushRef;
 
-        public TileBrushManagerPresenter (EditorPresenter editor)
+        public TileBrushManagerPresenter (PresenterManager pm)
+            : base(pm)
         {
-            _editor = editor;
-            _editor.SyncCurrentProject += SyncCurrentProjectHandler;
+            OnAttach<EditorPresenter>(editor => {
+                _editor = editor;
+                _editor.SyncCurrentProject += SyncCurrentProjectHandler;
+            });
+
+            OnDetach<EditorPresenter>(editor => {
+                _editor.SyncCurrentProject -= SyncCurrentProjectHandler;
+                _editor = null;
+            });
 
             InitializeCommandManager();
         }
 
-        public void Dispose ()
+        /*public void Dispose ()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
+        }*/
 
-        protected virtual void Dispose (bool disposing)
+        /*protected virtual void Dispose (bool disposing)
         {
             if (_editor != null) {
                 if (disposing) {
@@ -49,7 +58,7 @@ namespace Treefrog.Presentation
 
                 _editor = null;
             }
-        }
+        }*/
 
         private void SyncCurrentProjectHandler (object sender, SyncProjectEventArgs e)
         {
@@ -87,7 +96,10 @@ namespace Treefrog.Presentation
         {
             if (CommandCanCreateStaticBrush()) {
                 using (StaticBrushForm form = new StaticBrushForm()) {
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
+                    PresenterManager manager = new PresenterManager();
+                    manager.Register<EditorPresenter>(_editor);
+
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -116,7 +128,10 @@ namespace Treefrog.Presentation
         {
             if (CommandCanCreateDynamicBrush()) {
                 using (DynamicBrushForm form = new DynamicBrushForm()) {
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
+                    PresenterManager manager = new PresenterManager();
+                    manager.Register<EditorPresenter>(_editor);
+
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -258,7 +273,10 @@ namespace Treefrog.Presentation
 
             if (brush is DynamicTileBrush) {
                 using (DynamicBrushForm form = new DynamicBrushForm(brush as DynamicTileBrush)) {
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
+                    PresenterManager manager = new PresenterManager();
+                    manager.Register<EditorPresenter>(_editor);
+
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -276,7 +294,10 @@ namespace Treefrog.Presentation
             }
             else if (brush is StaticTileBrush) {
                 using (StaticBrushForm form = new StaticBrushForm(brush as StaticTileBrush)) {
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(_editor)) {
+                    PresenterManager manager = new PresenterManager();
+                    manager.Register<EditorPresenter>(_editor);
+
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 

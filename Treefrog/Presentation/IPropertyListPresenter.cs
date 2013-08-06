@@ -2,50 +2,19 @@
 using System.Collections.Generic;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Treefrog.Extensibility;
 
 namespace Treefrog.Presentation
 {
-    public interface IPropertyListPresenter
-    {
-        bool CanAddProperty { get; }
-        bool CanRemoveSelectedProperty { get; }
-        bool CanRenameSelectedProperty { get; }
-        bool CanEditSelectedProperty { get; }
-
-        IPropertyProvider Provider { get; set; }
-        string ProviderName { get; }
-        IEnumerable<Property> PredefinedProperties { get; }
-        IEnumerable<Property> CustomProperties { get; }
-        Property SelectedProperty { get; }
-
-        event EventHandler SyncPropertyContainer;
-        event EventHandler SyncPropertyActions;
-        event EventHandler SyncPropertyList;
-        event EventHandler SyncPropertySelection;
-
-        void ActionAddCustomProperty ();
-        void ActionRemoveSelectedProperty ();
-        void ActionRenameSelectedProperty (string name);
-        void ActionEditSelectedProperty (string value);
-        void ActionSelectProperty (string name);
-
-        void RefreshPropertyList ();
-    }
-
-    public class PropertyListPresenter : IPropertyListPresenter
+    public class PropertyListPresenter : Presenter
     {
         IPropertyProvider _provider;
 
         string _selectedProperty;
 
-        public PropertyListPresenter ()
-        {
-        }
-
-        public PropertyListPresenter (IPropertyProvider provider)
-        {
-            Provider = provider;
-        }
+        public PropertyListPresenter (PresenterManager pm)
+            : base(pm)
+        { }
 
         public IPropertyProvider Provider
         {
