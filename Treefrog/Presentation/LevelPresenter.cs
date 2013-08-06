@@ -397,7 +397,7 @@ namespace Treefrog.Presentation
         private void InitializeCommandManager ()
         {
             _commandManager = new ForwardingCommandManager();
-            _commandManager.CommandInvalidated += HandleCommandInvalidated;
+            //_commandManager.CommandInvalidated += HandleCommandInvalidated;
 
             _commandManager.Register(CommandKey.Undo, CommandCanUndo, CommandUndo);
             _commandManager.Register(CommandKey.Redo, CommandCanRedo, CommandRedo);
@@ -432,10 +432,10 @@ namespace Treefrog.Presentation
             get { return _commandManager; }
         }
 
-        private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
+        /*private void HandleCommandInvalidated (object sender, CommandSubscriberEventArgs e)
         {
             _editor.Presentation.DocumentTools.RefreshDocumentTools();
-        }
+        }*/
 
         private bool CommandCanUndo ()
         {

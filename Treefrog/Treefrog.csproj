@@ -235,7 +235,6 @@
     <Compile Include="Presentation\ILayerListPresenter.cs" />
     <Compile Include="Presentation\IPropertyListPresenter.cs" />
     <Compile Include="Presentation\TilePoolListPresenter.cs" />
-    <Compile Include="Presentation\PresentationInterface.cs" />
     <Compile Include="Presentation\Commands\Command.cs" />
     <None Include="ContentBuilder.cs" />
     <Compile Include="Model\TileSetLayer.cs" />

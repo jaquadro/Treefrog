@@ -99,15 +99,15 @@ namespace Treefrog.Presentation
         private PresenterManager _pm;
         private EditorPresenter _editor;
 
-        private TilePoolListPresenter _tilePoolList;
+        //private TilePoolListPresenter _tilePoolList;
         //private ObjectPoolCollectionPresenter _objectPoolCollection;
-        private TileBrushManagerPresenter _tileBrushManager;
-        private PropertyListPresenter _propertyList;
+        //private TileBrushManagerPresenter _tileBrushManager;
+        //private PropertyListPresenter _propertyList;
         //private ProjectExplorerPresenter _projectExplorer;
-        private MinimapPresenter _minimap;
+        //private MinimapPresenter _minimap;
 
-        private StandardToolsPresenter _stdTools;
-        private DocumentToolsPresenter _docTools;
+        //private StandardToolsPresenter _stdTools;
+        //private DocumentToolsPresenter _docTools;
         private ContentInfoArbitrationPresenter _contentInfo;
 
         public Presentation (PresenterManager pm, EditorPresenter editor)
@@ -115,8 +115,8 @@ namespace Treefrog.Presentation
             _pm = pm;
             _editor = editor;
 
-            _stdTools = new StandardToolsPresenter(_editor);
-            _docTools = new DocumentToolsPresenter(_editor);
+            //_stdTools = new StandardToolsPresenter(_editor);
+            //_docTools = new DocumentToolsPresenter(_editor);
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
 
             //_tilePoolList = new TilePoolListPresenter(_editor);
@@ -146,10 +146,10 @@ namespace Treefrog.Presentation
             get { return _contentInfo; }
         }
 
-        public IDocumentToolsPresenter DocumentTools
+        /*public IDocumentToolsPresenter DocumentTools
         {
             get { return _docTools; }
-        }
+        }*/
 
         public LevelPresenter LayerList
         {
@@ -179,10 +179,10 @@ namespace Treefrog.Presentation
             //get { return _minimap; }
         }
 
-        public StandardToolsPresenter StandardTools
+        /*public StandardToolsPresenter StandardTools
         {
             get { return _stdTools; }
-        }
+        }*/
 
         public TilePoolListPresenter TilePoolList
         {
