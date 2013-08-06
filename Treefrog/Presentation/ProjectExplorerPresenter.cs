@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Treefrog.Extensibility;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
-using Treefrog.Plugins.Object;
 
 namespace Treefrog.Presentation
 {
-    public class ProjectExplorerPresenter : IDisposable, ICommandSubscriber
+    public class ProjectExplorerPresenter : Presenter, ICommandSubscriber
     {
         private enum EventBindings
         {
@@ -44,10 +44,26 @@ namespace Treefrog.Presentation
         //private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>> _tilePoolEventBindings;
 
-        public ProjectExplorerPresenter (EditorPresenter editor)
+        public ProjectExplorerPresenter (PresenterManager pm)
+            : base(pm)
         {
-            _editor = editor;
-            _editor.SyncCurrentProject += EditorSyncCurrentProject;
+            InitializeCommandManager();
+
+            OnAttach<EditorPresenter>(editor => {
+                _editor = editor;
+                _editor.SyncCurrentProject += EditorSyncCurrentProject;
+
+                InitializeCommandManager(editor);
+            });
+
+            OnDetach<EditorPresenter>(editor => {
+                BindProject(null);
+
+                _editor.SyncCurrentProject -= EditorSyncCurrentProject;
+                _editor = null;
+            });
+
+            Components = new InstanceRegistry<ProjectExplorerComponent>();
 
             _libraryEventBindings = new Dictionary<EventBindings, EventHandler<ResourceEventArgs<Library>>>() {
                 { EventBindings.LibraryAdded, (s, e) => OnLibraryAdded(new ResourceEventArgs<Library>(e.Resource)) },
@@ -78,8 +94,6 @@ namespace Treefrog.Presentation
             ProjectLevelsTag = Guid.NewGuid();
             //ProjectObjectsTag = Guid.NewGuid();
             ProjectTilesetsTag = Guid.NewGuid();
-
-            InitializeCommandManager();
         }
 
         public EditorPresenter Editor
@@ -87,13 +101,9 @@ namespace Treefrog.Presentation
             get { return _editor; }
         }
 
-        public void Dispose ()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public InstanceRegistry<ProjectExplorerComponent> Components { get; private set; }
 
-        protected virtual void Dispose (bool disposing)
+        /*protected override void Dispose (bool disposing)
         {
             if (_editor != null) {
                 if (disposing) {
@@ -104,7 +114,9 @@ namespace Treefrog.Presentation
 
                 _editor = null;
             }
-        }
+
+            base.Dispose(disposing);
+        }*/
 
         private void EditorSyncCurrentProject (object sender, SyncProjectEventArgs e)
         {
@@ -487,6 +499,11 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.LevelRename, CommandCanRenameLevel, CommandRenameLevel);
             _commandManager.Register(CommandKey.LevelProperties, CommandCanLevelProperties, CommandLevelProperties);
 
+            _commandManager.Perform(CommandKey.ViewGrid);
+        }
+
+        private void InitializeCommandManager (EditorPresenter editor)
+        {
             /*ObjectClassCommandActions objClassActions = _editor.CommandActions.ObjectClassActions;
             _commandManager.Register(CommandKey.ObjectProtoEdit, objClassActions.ObjectExists, objClassActions.CommandEdit);
             _commandManager.Register(CommandKey.ObjectProtoClone, objClassActions.ObjectExists, objClassActions.CommandClone);
@@ -504,8 +521,6 @@ namespace Treefrog.Presentation
             LibraryCommandActions libraryActions = _editor.CommandActions.LibraryActions;
             _commandManager.Register(CommandKey.ProjectAddNewLibrary, () => { return true; }, libraryActions.CommandCreate);
             _commandManager.Register(CommandKey.ProjectSetLibraryDefault, libraryActions.LibraryExists, libraryActions.CommandSetDefault);
-
-            _commandManager.Perform(CommandKey.ViewGrid);
         }
 
         public CommandManager CommandManager

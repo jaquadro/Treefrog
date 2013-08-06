@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Treefrog.Presentation.Commands;
+using System.Windows.Forms;
+using Treefrog.Extensibility;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Treefrog.Presentation.Commands;
 using Treefrog.Utility;
 using Treefrog.Windows.Panels;
-using System.Windows.Forms;
 
 namespace Treefrog.Plugins.Object
 {
-    class ProjectExplorerExt : IBindable<ObjectPoolCollectionPresenter>
+    class ProjectExplorerExt : ProjectExplorerComponent, IBindable<ObjectPoolCollectionPresenter>
     {
         private enum EventBindings
         {

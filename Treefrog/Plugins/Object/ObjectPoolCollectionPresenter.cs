@@ -354,7 +354,7 @@ namespace Treefrog.Plugins.Object
 
         public IObjectPoolManager ObjectPoolManager
         {
-            get { return _editor.Project.ObjectPoolManager; }
+            get { return _editor != null ? _editor.Project.ObjectPoolManager : null; }
         }
 
         public IEnumerable<ObjectPool> ObjectPoolCollection

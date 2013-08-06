@@ -115,6 +115,13 @@ namespace Treefrog.Presentation
             if (disposing) {
                 Manager.InstanceRegistered -= HandlePresenterRegistered;
                 Manager.InstanceUnregistered -= HandlePresenterUnregistered;
+
+                // Run all registered detach events on disposed object
+                foreach (var kv in _detachActions) {
+                    Presenter instance = Manager.Lookup(kv.Key);
+                    kv.Value(instance);
+                }
+
             }
         }
 
@@ -165,7 +172,7 @@ namespace Treefrog.Presentation
         //private ObjectPoolCollectionPresenter _objectPoolCollection;
         private TileBrushManagerPresenter _tileBrushManager;
         private PropertyListPresenter _propertyList;
-        private ProjectExplorerPresenter _projectExplorer;
+        //private ProjectExplorerPresenter _projectExplorer;
         private MinimapPresenter _minimap;
 
         private StandardToolsPresenter _stdTools;
@@ -187,7 +194,13 @@ namespace Treefrog.Presentation
 
             _tileBrushManager = new TileBrushManagerPresenter(_editor);
             _propertyList = new PropertyListPresenter();
-            _projectExplorer = new ProjectExplorerPresenter(_editor);
+            //_projectExplorer = new ProjectExplorerPresenter(pm);
+            pm.Register(new ProjectExplorerPresenter(pm));
+
+            ProjectExplorerExt objExplorer = new ProjectExplorerExt();
+            objExplorer.Bind(pm.Lookup<ObjectPoolCollectionPresenter>());
+            pm.Lookup<ProjectExplorerPresenter>().Components.Register<ProjectExplorerExt>(objExplorer);
+
             _minimap = new MinimapPresenter(_editor);
         }
 
@@ -218,7 +231,8 @@ namespace Treefrog.Presentation
 
         public ProjectExplorerPresenter ProjectExplorer
         {
-            get { return _projectExplorer; }
+            get { return _pm.Lookup<ProjectExplorerPresenter>(); }
+            //get { return _projectExplorer; }
         }
 
         public MinimapPresenter Minimap
