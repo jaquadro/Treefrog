@@ -12,8 +12,10 @@ namespace Treefrog.Presentation
 
         string _selectedProperty;
 
-        public PropertyListPresenter (PresenterManager pm)
-            : base(pm)
+        public PropertyListPresenter ()
+        { }
+
+        protected override void InitializeCore ()
         { }
 
         public IPropertyProvider Provider

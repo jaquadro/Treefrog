@@ -44,8 +44,10 @@ namespace Treefrog.Presentation
         //private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>> _tilePoolEventBindings;
 
-        public ProjectExplorerPresenter (PresenterManager pm)
-            : base(pm)
+        public ProjectExplorerPresenter ()
+        { }
+
+        protected override void InitializeCore ()
         {
             InitializeCommandManager();
 

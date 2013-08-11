@@ -27,8 +27,10 @@ namespace Treefrog.Presentation
         private Guid _selectedBrush;
         private TileBrush _selectedBrushRef;
 
-        public TileBrushManagerPresenter (PresenterManager pm)
-            : base(pm)
+        public TileBrushManagerPresenter ()
+        { }
+
+        protected override void InitializeCore ()
         {
             OnAttach<EditorPresenter>(editor => {
                 _editor = editor;
@@ -99,7 +101,8 @@ namespace Treefrog.Presentation
                     PresenterManager manager = new PresenterManager();
                     manager.Register<EditorPresenter>(_editor);
 
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter()) {
+                        tilePoolList.Initialize(manager);
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -131,7 +134,8 @@ namespace Treefrog.Presentation
                     PresenterManager manager = new PresenterManager();
                     manager.Register<EditorPresenter>(_editor);
 
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter()) {
+                        tilePoolList.Initialize(manager);
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -276,7 +280,8 @@ namespace Treefrog.Presentation
                     PresenterManager manager = new PresenterManager();
                     manager.Register<EditorPresenter>(_editor);
 
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter()) {
+                        tilePoolList.Initialize(manager);
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 
@@ -297,7 +302,8 @@ namespace Treefrog.Presentation
                     PresenterManager manager = new PresenterManager();
                     manager.Register<EditorPresenter>(_editor);
 
-                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter(manager)) {
+                    using (TilePoolListPresenter tilePoolList = new TilePoolListPresenter()) {
+                        tilePoolList.Initialize(manager);
                         tilePoolList.BindTilePoolManager(_editor.Project.TilePoolManager);
                         form.BindTileController(tilePoolList);
 

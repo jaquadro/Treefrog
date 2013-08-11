@@ -115,6 +115,11 @@ namespace Treefrog.Framework
             Register(typeof(TKey), inst);
         }
 
+        public void Register (T inst)
+        {
+            Register(inst.GetType(), inst);
+        }
+
         public void Unregister (Type type)
         {
             if (_registry.ContainsKey(type)) {

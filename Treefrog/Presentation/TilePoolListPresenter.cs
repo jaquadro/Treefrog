@@ -178,8 +178,12 @@ namespace Treefrog.Presentation
         private Guid _selectedPool;
         private TilePoolPresenter _selectedPoolRef;
 
-        public TilePoolListPresenter (PresenterManager pm)
-            : base(pm)
+        public TilePoolListPresenter ()
+        {
+            _tilePoolPresenters = new Dictionary<Guid, TilePoolPresenter>();
+        }
+
+        protected override void InitializeCore ()
         {
             InitializeCommandManager();
 
@@ -196,10 +200,6 @@ namespace Treefrog.Presentation
                 _editor.SyncCurrentProject -= EditorSyncCurrentProject;
                 _editor = null;
             });
-
-            _tilePoolPresenters = new Dictionary<Guid, TilePoolPresenter>();
-
-            
         }
 
         /*public void Dispose ()

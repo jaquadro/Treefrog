@@ -27,8 +27,19 @@ namespace Treefrog.Presentation
 
         private SelectionAnnot _boxAnnot;
 
-        public MinimapPresenter (PresenterManager pm)
-            : base(pm)
+        public MinimapPresenter ()
+        {
+            _annotations = new ObservableCollection<Annotation>();
+            _layerPresenters = new Dictionary<Guid, LevelLayerPresenter>();
+
+            _boxAnnot = new SelectionAnnot() {
+                Outline = _boxOutline,
+                OutlineGlow = _boxOutlineGlow,
+            };
+            _annotations.Add(_boxAnnot);
+        }
+
+        protected override void InitializeCore ()
         {
             OnAttach<EditorPresenter>(editor => {
                 _editor = editor;
@@ -41,15 +52,6 @@ namespace Treefrog.Presentation
                 _editor.SyncCurrentLevel -= SyncCurrentLevel;
                 _editor = null;
             });
-
-            _annotations = new ObservableCollection<Annotation>();
-            _layerPresenters = new Dictionary<Guid, LevelLayerPresenter>();
-
-            _boxAnnot = new SelectionAnnot() {
-                Outline = _boxOutline,
-                OutlineGlow = _boxOutlineGlow,
-            };
-            _annotations.Add(_boxAnnot);
         }
 
         /*public void Dispose ()

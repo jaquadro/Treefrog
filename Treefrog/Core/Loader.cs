@@ -24,6 +24,9 @@ namespace Treefrog.Core
         [Import]
         CanvasLayerFactoryLoader _canvasLayerFacotryLoader = null;
 
+        [ImportMany(typeof(Presenter))]
+        List<Lazy<Presenter>> _presenters = null;
+
         public void Compose ()
         {
             AssemblyCatalog catalog = new AssemblyCatalog(System.Reflection.Assembly.GetExecutingAssembly());
@@ -33,6 +36,17 @@ namespace Treefrog.Core
             _layerPresenterFactoryLoader.CompleteLoading();
             _layerFromPresenterFactoryLoader.CompleteLoading();
             _canvasLayerFacotryLoader.CompleteLoading();
+        }
+
+        public PresenterManager InitializePresenterManager ()
+        {
+            PresenterManager pm = new PresenterManager();
+
+            foreach (var presenter in _presenters) {
+                pm.Register(presenter.Value.Initialize(pm));
+            }
+
+            return pm;
         }
     }
 

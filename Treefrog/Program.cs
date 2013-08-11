@@ -32,7 +32,7 @@ namespace Treefrog
             Loader loader = new Loader();
             loader.Compose();
 
-            Application.Run(new Main());
+            Application.Run(new Main(loader));
         }
 
         private static void HandleException(Exception e)

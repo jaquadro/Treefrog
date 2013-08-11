@@ -47,8 +47,10 @@ namespace Treefrog.Plugins.Object
 
         private Dictionary<Guid, ObjectClass> _selectedObjects;
 
-        public ObjectPoolCollectionPresenter (PresenterManager pm)
-            : base(pm)
+        public ObjectPoolCollectionPresenter ()
+        { }
+
+        protected override void InitializeCore ()
         {
             OnAttach<EditorPresenter>(editor => {
                 _editor = editor;
@@ -61,6 +63,13 @@ namespace Treefrog.Plugins.Object
             });
 
             InitializeCommandManager();
+
+            // Temporary until exported by MEF??
+            OnAttach<ProjectExplorerPresenter>(p => {
+                ProjectExplorerExt objExplorer = new ProjectExplorerExt();
+                objExplorer.Bind(this);
+                p.Components.Register(objExplorer);
+            });
         }
 
         /*public ObjectPoolCollectionPresenter (EditorPresenter editor)
@@ -355,7 +364,7 @@ namespace Treefrog.Plugins.Object
 
         public IObjectPoolManager ObjectPoolManager
         {
-            get { return _editor != null ? _editor.Project.ObjectPoolManager : null; }
+            get { return (_editor != null && _editor.Project != null) ? _editor.Project.ObjectPoolManager : null; }
         }
 
         public IEnumerable<ObjectPool> ObjectPoolCollection

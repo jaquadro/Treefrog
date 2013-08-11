@@ -2,24 +2,35 @@
 using System.Collections.Generic;
 using Treefrog.Framework;
 using Treefrog.Presentation;
+using System.ComponentModel.Composition;
 
 namespace Treefrog.Extensibility
 {
+    [InheritedExport]
     public abstract class Presenter : IDisposable
     {
         private Dictionary<Type, Action<Presenter>> _attachActions;
         private Dictionary<Type, Action<Presenter>> _detachActions;
 
-        protected Presenter (PresenterManager pm)
+        protected Presenter ()
+        {
+            _attachActions = new Dictionary<Type, Action<Presenter>>();
+            _detachActions = new Dictionary<Type, Action<Presenter>>();
+        }
+
+        public Presenter Initialize (PresenterManager pm)
         {
             Manager = pm;
 
-            _attachActions = new Dictionary<Type, Action<Presenter>>();
-            _detachActions = new Dictionary<Type, Action<Presenter>>();
-
             Manager.InstanceRegistered += HandlePresenterRegistered;
             Manager.InstanceUnregistered += HandlePresenterUnregistered;
+
+            InitializeCore();
+
+            return this;
         }
+
+        protected abstract void InitializeCore ();
 
         public void Dispose ()
         {

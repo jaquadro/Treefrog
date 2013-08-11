@@ -120,25 +120,20 @@ namespace Treefrog.Presentation
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
 
             //_tilePoolList = new TilePoolListPresenter(_editor);
-            pm.Register(new TilePoolListPresenter(pm));
+            //pm.Register(new TilePoolListPresenter().Initialize(pm));
             //_objectPoolCollection = new ObjectPoolCollectionPresenter(pm);
-            pm.Register(new ObjectPoolCollectionPresenter(pm));
+            //pm.Register(new ObjectPoolCollectionPresenter().Initialize(pm));
 
             //_tileBrushManager = new TileBrushManagerPresenter(_editor);
-            pm.Register(new TileBrushManagerPresenter(pm));
+            //pm.Register(new TileBrushManagerPresenter().Initialize(pm));
 
             //_propertyList = new PropertyListPresenter();
-            pm.Register(new PropertyListPresenter(pm));
+            //pm.Register(new PropertyListPresenter().Initialize(pm));
             //_projectExplorer = new ProjectExplorerPresenter(pm);
-            pm.Register(new ProjectExplorerPresenter(pm));
-
-            // Temporary until exported by MEF
-            ProjectExplorerExt objExplorer = new ProjectExplorerExt();
-            objExplorer.Bind(pm.Lookup<ObjectPoolCollectionPresenter>());
-            pm.Lookup<ProjectExplorerPresenter>().Components.Register<ProjectExplorerExt>(objExplorer);
+            //pm.Register(new ProjectExplorerPresenter().Initialize(pm));
 
             //_minimap = new MinimapPresenter(_editor);
-            pm.Register(new MinimapPresenter(pm));
+            //pm.Register(new MinimapPresenter().Initialize(pm));
         }
 
         public IContentInfoPresenter ContentInfo
@@ -216,15 +211,17 @@ namespace Treefrog.Presentation
         private Presentation _presentation;
         private CommandActions _commandActions;
 
-        public EditorPresenter (PresenterManager pm)
-            : base(pm)
-        {
-            _commandActions = new CommandActions(pm, this);
+        public EditorPresenter ()
+        { }
 
-            _presentation = new Presentation(pm, this);
+        protected override void InitializeCore ()
+        {
+            _commandActions = new CommandActions(Manager, this);
+
+            _presentation = new Presentation(Manager, this);
             _presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
 
-            _levelContentController = new LevelContentTypeController(pm, this);
+            _levelContentController = new LevelContentTypeController(Manager, this);
 
             _content = new ContentWorkspacePresenter(this);
             _content.AddContentController(_levelContentController);

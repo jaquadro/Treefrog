@@ -7,6 +7,7 @@ using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Controllers;
 using Treefrog.Windows.Controls.Composite;
+using Treefrog.Core;
 
 namespace Treefrog.Windows.Forms
 {
@@ -21,7 +22,7 @@ namespace Treefrog.Windows.Forms
 
         private EditorPresenter _editor;
 
-        public Main ()
+        internal Main (Loader loader)
         {
             InitializeComponent();
 
@@ -44,10 +45,15 @@ namespace Treefrog.Windows.Forms
 
             _infoStatus = new InfoStatus(statusBar);
 
-            PresenterManager pm = new PresenterManager();
+            //PresenterManager pm = new PresenterManager();
 
-            _editor = new EditorPresenter(pm);
-            pm.Register(_editor);
+            //_editor = new EditorPresenter();
+            //_editor.Initialize(pm);
+
+            PresenterManager pm = loader.InitializePresenterManager();
+            _editor = pm.Lookup<EditorPresenter>();
+
+            //pm.Register(_editor);
 
             //_editor.SyncContentTabs += SyncContentTabsHandler;
             _editor.SyncContentView += SyncContentViewHandler;
