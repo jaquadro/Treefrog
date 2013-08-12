@@ -14,6 +14,9 @@ using Treefrog.Utility;
 using Treefrog.Windows.Forms;
 using Treefrog.Extensibility;
 using Treefrog.Plugins.Object.UI;
+using Treefrog.Plugins.Tiles;
+using Treefrog.Plugins.Tiles.Layers;
+using Treefrog.Plugins.Tiles.UI;
 //using Treefrog.Plugins.Object.Layers;
 //using Treefrog.Plugins.Object;
 

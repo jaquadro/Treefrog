@@ -9,6 +9,7 @@ using Treefrog.Windows.Forms;
 //using Treefrog.Plugins.Object;
 using System.Collections.Generic;
 using Treefrog.Extensibility;
+using Treefrog.Plugins.Tiles;
 
 namespace Treefrog.Presentation
 {
@@ -219,7 +220,15 @@ namespace Treefrog.Presentation
             _commandActions = new CommandActions(Manager, this);
 
             _presentation = new Presentation(Manager, this);
-            _presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
+            //_presentation.TilePoolList.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
+
+            OnAttach<TilePoolListPresenter>(presenter => {
+                presenter.TileSelectionChanged += TilePoolSelectedTileChangedHandler;
+            });
+
+            OnDetach<TilePoolListPresenter>(presenter => {
+                presenter.TileSelectionChanged -= TilePoolSelectedTileChangedHandler;
+            });
 
             _levelContentController = new LevelContentTypeController(Manager, this);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Graphics;
 using Treefrog.Presentation.Layers;
+using Treefrog.Plugins.Tiles.Layers;
 
 namespace Treefrog.Render.Layers
 {

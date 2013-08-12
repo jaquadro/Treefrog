@@ -151,8 +151,8 @@
     <Compile Include="Plugins\Object\Commands\ObjectMoveCommand.cs" />
     <Compile Include="Plugins\Object\Commands\ObjectOrderCommand.cs" />
     <Compile Include="Plugins\Object\Commands\ObjectRemoveCommand.cs" />
-    <Compile Include="Presentation\Commands\TileReplace2DCommand.cs" />
-    <Compile Include="Presentation\Commands\TileSelectionCommands.cs" />
+    <Compile Include="Plugins\Tile\Commands\TileReplace2DCommand.cs" />
+    <Compile Include="Plugins\Tile\Commands\TileSelectionCommands.cs" />
     <Compile Include="Presentation\ContentWorkspacePresenter.cs" />
     <Compile Include="Presentation\Controllers\PointerEventController.cs" />
     <Compile Include="Presentation\Controllers\ZoomController.cs" />
@@ -165,9 +165,9 @@
     <Compile Include="Presentation\Layers\LevelLayerPresenter.cs" />
     <Compile Include="Plugins\Object\Layers\ObjectLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\RenderLayerPresenter.cs" />
-    <Compile Include="Presentation\Layers\TileGridLayerPresenter.cs" />
-    <Compile Include="Presentation\Layers\TileLayerPresenter.cs" />
-    <Compile Include="Presentation\Layers\TileSetLayerPresenter.cs" />
+    <Compile Include="Plugins\Tile\Layers\TileGridLayerPresenter.cs" />
+    <Compile Include="Plugins\Tile\Layers\TileLayerPresenter.cs" />
+    <Compile Include="Plugins\Tile\Layers\TileSetLayerPresenter.cs" />
     <Compile Include="Presentation\Layers\WorkspaceLayerPresenter.cs" />
     <Compile Include="Presentation\LevelPresenter.cs" />
     <Compile Include="Presentation\MinimapPresenter.cs" />
@@ -176,14 +176,14 @@
     <Compile Include="Plugins\Object\ObjectSelectionManager.cs" />
     <Compile Include="Presentation\ProjectExplorerPresenter.cs" />
     <Compile Include="Presentation\TextureResourceRegistry.cs" />
-    <Compile Include="Presentation\TileBrushManagerPresenter.cs" />
-    <Compile Include="Presentation\TilePoolCommandActions.cs" />
+    <Compile Include="Plugins\Tile\TileBrushManagerPresenter.cs" />
+    <Compile Include="Plugins\Tile\TilePoolCommandActions.cs" />
     <Compile Include="Plugins\Object\Tools\ObjectDrawTool.cs" />
     <Compile Include="Plugins\Object\Tools\ObjectPointerTool.cs" />
     <Compile Include="Plugins\Object\Tools\ObjectSelectTool.cs" />
     <Compile Include="Presentation\Tools\PointerTool.cs" />
     <Compile Include="Presentation\Tools\RubberBand.cs" />
-    <Compile Include="Presentation\Tools\TileSelectionClipboard.cs" />
+    <Compile Include="Plugins\Tile\Tools\TileSelectionClipboard.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -234,17 +234,17 @@
     <Compile Include="Presentation\EditorPresenter.cs" />
     <Compile Include="Presentation\ILayerListPresenter.cs" />
     <Compile Include="Presentation\IPropertyListPresenter.cs" />
-    <Compile Include="Presentation\TilePoolListPresenter.cs" />
+    <Compile Include="Plugins\Tile\TilePoolListPresenter.cs" />
     <Compile Include="Presentation\Commands\Command.cs" />
     <None Include="ContentBuilder.cs" />
     <Compile Include="Model\TileSetLayer.cs" />
     <Compile Include="Presentation\Tools\SnappingManager.cs" />
-    <Compile Include="Presentation\Tools\TileDrawTool.cs" />
-    <Compile Include="Presentation\Tools\TileEraseTool.cs" />
-    <Compile Include="Presentation\Tools\TileFillTool.cs" />
-    <Compile Include="Presentation\Tools\TilePointerTool.cs" />
-    <Compile Include="Presentation\Tools\TileSelection.cs" />
-    <Compile Include="Presentation\Tools\TileSelectTool.cs" />
+    <Compile Include="Plugins\Tile\Tools\TileDrawTool.cs" />
+    <Compile Include="Plugins\Tile\Tools\TileEraseTool.cs" />
+    <Compile Include="Plugins\Tile\Tools\TileFillTool.cs" />
+    <Compile Include="Plugins\Tile\Tools\TilePointerTool.cs" />
+    <Compile Include="Plugins\Tile\Tools\TileSelection.cs" />
+    <Compile Include="Plugins\Tile\Tools\TileSelectTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <None Include="Windows\Controls\AmphibianGameControl.cs" />
@@ -289,16 +289,16 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\EventArgs.cs" />
-    <Compile Include="Windows\Forms\StaticBrushForm.cs">
+    <Compile Include="Plugins\Tile\UI\StaticBrushForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\StaticBrushForm.Designer.cs">
+    <Compile Include="Plugins\Tile\UI\StaticBrushForm.Designer.cs">
       <DependentUpon>StaticBrushForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\DynamicBrushForm.cs">
+    <Compile Include="Plugins\Tile\UI\DynamicBrushForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\DynamicBrushForm.Designer.cs">
+    <Compile Include="Plugins\Tile\UI\DynamicBrushForm.Designer.cs">
       <DependentUpon>DynamicBrushForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Plugins\Object\UI\ImportObject.cs">
@@ -307,10 +307,10 @@
     <Compile Include="Plugins\Object\UI\ImportObject.Designer.cs">
       <DependentUpon>ImportObject.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\ImportTilePool.cs">
+    <Compile Include="Plugins\Tile\UI\ImportTilePool.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ImportTilePool.Designer.cs">
+    <Compile Include="Plugins\Tile\UI\ImportTilePool.Designer.cs">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Main.cs">
@@ -325,10 +325,10 @@
     <Compile Include="Windows\Forms\NewLevel.Designer.cs">
       <DependentUpon>NewLevel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\TileLayerForm.cs">
+    <Compile Include="Plugins\Tile\UI\TileLayerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\TileLayerForm.Designer.cs">
+    <Compile Include="Plugins\Tile\UI\TileLayerForm.Designer.cs">
       <DependentUpon>TileLayerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\ResizeLevelForm.cs">
@@ -375,16 +375,16 @@
     <Compile Include="Windows\Panels\PropertyPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Panels\TileBrushPanel.cs">
+    <Compile Include="Plugins\Tile\UI\TileBrushPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Panels\TileBrushPanel.Designer.cs">
+    <Compile Include="Plugins\Tile\UI\TileBrushPanel.Designer.cs">
       <DependentUpon>TileBrushPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Panels\TilePoolPane.cs">
+    <Compile Include="Plugins\Tile\UI\TilePoolPane.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Panels\TilePoolPane.Designer.cs">
+    <Compile Include="Plugins\Tile\UI\TilePoolPane.Designer.cs">
       <DependentUpon>TilePoolPane.cs</DependentUpon>
     </Compile>
     <None Include="app.config" />
@@ -505,16 +505,16 @@
     <EmbeddedResource Include="Plugins\Object\UI\ObjectLayerForm.resx">
       <DependentUpon>ObjectLayerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\StaticBrushForm.resx">
+    <EmbeddedResource Include="Plugins\Tile\UI\StaticBrushForm.resx">
       <DependentUpon>StaticBrushForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\DynamicBrushForm.resx">
+    <EmbeddedResource Include="Plugins\Tile\UI\DynamicBrushForm.resx">
       <DependentUpon>DynamicBrushForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Plugins\Object\UI\ImportObject.resx">
       <DependentUpon>ImportObject.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\ImportTilePool.resx">
+    <EmbeddedResource Include="Plugins\Tile\UI\ImportTilePool.resx">
       <DependentUpon>ImportTilePool.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main.resx">
@@ -523,7 +523,7 @@
     <EmbeddedResource Include="Windows\Forms\NewLevel.resx">
       <DependentUpon>NewLevel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\TileLayerForm.resx">
+    <EmbeddedResource Include="Plugins\Tile\UI\TileLayerForm.resx">
       <DependentUpon>TileLayerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\ResizeLevelForm.resx">
@@ -547,10 +547,10 @@
     <EmbeddedResource Include="Windows\Panels\PropertyPane.resx">
       <DependentUpon>PropertyPane.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Panels\TileBrushPanel.resx">
+    <EmbeddedResource Include="Plugins\Tile\UI\TileBrushPanel.resx">
       <DependentUpon>TileBrushPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Panels\TilePoolPane.resx">
+    <EmbeddedResource Include="Plugins\Tile\UI\TilePoolPane.resx">
       <DependentUpon>TilePoolPane.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
@@ -587,7 +587,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Plugins\Tile\Render\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

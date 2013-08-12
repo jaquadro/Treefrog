@@ -6,6 +6,7 @@ using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
+using Treefrog.Plugins.Tiles;
 
 namespace Treefrog.Presentation
 {

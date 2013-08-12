@@ -66,9 +66,9 @@ namespace Treefrog.Windows.Forms
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this._tabTilePools = new System.Windows.Forms.TabPage();
-            this.tilePoolPane1 = new Treefrog.Windows.TilePoolPane();
+            this.tilePoolPane1 = new Treefrog.Plugins.Tiles.UI.TilePoolPane();
             this._tabTileBrushes = new System.Windows.Forms.TabPage();
-            this.tileBrushPanel1 = new Treefrog.Windows.Panels.TileBrushPanel();
+            this.tileBrushPanel1 = new Treefrog.Plugins.Tiles.UI.TileBrushPanel();
             this._tabObjects = new System.Windows.Forms.TabPage();
             this.objectPanel1 = new Treefrog.Plugins.Object.UI.ObjectPanel();
             this.tabControl2 = new System.Windows.Forms.TabControl();
@@ -668,7 +668,7 @@ namespace Treefrog.Windows.Forms
         private System.Windows.Forms.TabControl tabControl2;
         private TabControlEx tabControlEx1;
         private System.Windows.Forms.TabPage _tabTilePools;
-        private TilePoolPane tilePoolPane1;
+        private Treefrog.Plugins.Tiles.UI.TilePoolPane tilePoolPane1;
         private System.Windows.Forms.TabPage _tabLayers;
         private LayerPane layerPane1;
         private System.Windows.Forms.TabPage _tabProperties;
@@ -678,7 +678,7 @@ namespace Treefrog.Windows.Forms
         private System.Windows.Forms.TabPage _tabProject;
         private Panels.ProjectPanel projectPanel1;
         private System.Windows.Forms.TabPage _tabTileBrushes;
-        private Panels.TileBrushPanel tileBrushPanel1;
+        private Treefrog.Plugins.Tiles.UI.TileBrushPanel tileBrushPanel1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem contextClose;
         private System.Windows.Forms.ToolStripMenuItem contextCloseAllOther;
