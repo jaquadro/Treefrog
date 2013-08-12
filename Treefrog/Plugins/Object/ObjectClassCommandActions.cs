@@ -2,8 +2,9 @@
 using System.Windows.Forms;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
-using Treefrog.Windows.Forms;
+using Treefrog.Plugins.Object.UI;
 using Treefrog.Presentation;
+using Treefrog.Windows.Forms;
 
 namespace Treefrog.Plugins.Object
 {

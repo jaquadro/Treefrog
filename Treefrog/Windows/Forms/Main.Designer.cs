@@ -70,7 +70,7 @@ namespace Treefrog.Windows.Forms
             this._tabTileBrushes = new System.Windows.Forms.TabPage();
             this.tileBrushPanel1 = new Treefrog.Windows.Panels.TileBrushPanel();
             this._tabObjects = new System.Windows.Forms.TabPage();
-            this.objectPanel1 = new Treefrog.Windows.Panels.ObjectPanel();
+            this.objectPanel1 = new Treefrog.Plugins.Object.UI.ObjectPanel();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this._tabProject = new System.Windows.Forms.TabPage();
             this.projectPanel1 = new Treefrog.Windows.Panels.ProjectPanel();
@@ -674,7 +674,7 @@ namespace Treefrog.Windows.Forms
         private System.Windows.Forms.TabPage _tabProperties;
         private PropertyPane propertyPane1;
         private System.Windows.Forms.TabPage _tabObjects;
-        private Panels.ObjectPanel objectPanel1;
+        private Treefrog.Plugins.Object.UI.ObjectPanel objectPanel1;
         private System.Windows.Forms.TabPage _tabProject;
         private Panels.ProjectPanel projectPanel1;
         private System.Windows.Forms.TabPage _tabTileBrushes;

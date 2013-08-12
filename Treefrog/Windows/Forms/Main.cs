@@ -8,6 +8,7 @@ using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Controllers;
 using Treefrog.Windows.Controls.Composite;
 using Treefrog.Core;
+using Treefrog.Plugins.Object;
 
 namespace Treefrog.Windows.Forms
 {
@@ -20,6 +21,7 @@ namespace Treefrog.Windows.Forms
 
         private UICommandController _commandController;
 
+        private PresenterManager _pm;
         private EditorPresenter _editor;
 
         internal Main (Loader loader)
@@ -50,8 +52,8 @@ namespace Treefrog.Windows.Forms
             //_editor = new EditorPresenter();
             //_editor.Initialize(pm);
 
-            PresenterManager pm = loader.InitializePresenterManager();
-            _editor = pm.Lookup<EditorPresenter>();
+            _pm = loader.InitializePresenterManager();
+            _editor = _pm.Lookup<EditorPresenter>();
 
             //pm.Register(_editor);
 
@@ -158,7 +160,8 @@ namespace Treefrog.Windows.Forms
                 tilePoolPane1.BindController(_editor.Presentation.TilePoolList);
 
             if (_editor.CanShowObjectPoolPanel)
-                objectPanel1.BindController(_editor.Presentation.ObjectPoolCollection);
+                objectPanel1.BindController(_pm.Lookup<ObjectPoolCollectionPresenter>());
+                //objectPanel1.BindController(_editor.Presentation.ObjectPoolCollection);
 
             if (_editor.CanShowPropertyPanel)
                 propertyPane1.BindController(_editor.Presentation.PropertyList);

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Treefrog.Aux;
+using Treefrog.Extensibility;
 using Treefrog.Framework;
 using Treefrog.Framework.Imaging;
 using Treefrog.Framework.Model;
+using Treefrog.Plugins.Object.UI;
+using Treefrog.Presentation;
 using Treefrog.Presentation.Commands;
 using Treefrog.Presentation.Tools;
-using Treefrog.Windows.Forms;
 using Treefrog.Utility;
-using Treefrog.Presentation;
-using Treefrog.Extensibility;
 
 namespace Treefrog.Plugins.Object
 {
@@ -36,7 +36,6 @@ namespace Treefrog.Plugins.Object
 
     public class ObjectPoolCollectionPresenter : Presenter, ICommandSubscriber
     {
-        private PresenterManager _pm;
         private EditorPresenter _editor;
 
         private ObjectClassCommandActions _objectClassActions;
@@ -275,7 +274,7 @@ namespace Treefrog.Plugins.Object
             if (SelectedObject == null && param == null)
                 return false;
 
-            return _editor.CommandActions.ObjectClassActions.ObjectExists(param ?? SelectedObject.Uid);
+            return _objectClassActions.ObjectExists(param ?? SelectedObject.Uid);
         }
 
         /*private bool CommandCanOperateOnSelected ()
@@ -342,7 +341,7 @@ namespace Treefrog.Plugins.Object
         public void ActionEditObject (Guid uid)
         {
             SelectObject(uid);
-            _editor.CommandActions.ObjectClassActions.CommandEdit(uid);
+            _objectClassActions.CommandEdit(uid);
         }
 
         #region Properties

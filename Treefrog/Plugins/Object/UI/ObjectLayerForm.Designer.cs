@@ -1,4 +1,4 @@
-﻿namespace Treefrog.Windows.Forms
+﻿namespace Treefrog.Plugins.Object.UI
 {
     partial class ObjectLayerForm
     {
@@ -283,7 +283,7 @@
         private System.Windows.Forms.Button _cancelButton;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label5;
-        private Controls.WinEx.ColorButton _gridColorButton;
+        private Treefrog.Windows.Controls.WinEx.ColorButton _gridColorButton;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown _gridWidthField;

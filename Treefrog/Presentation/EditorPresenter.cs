@@ -6,7 +6,7 @@ using Treefrog.Framework;
 using Treefrog.Framework.Model;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
-using Treefrog.Plugins.Object;
+//using Treefrog.Plugins.Object;
 using System.Collections.Generic;
 using Treefrog.Extensibility;
 
@@ -63,15 +63,15 @@ namespace Treefrog.Presentation
             _libraryActions = new LibraryCommandActions(_editor);
         }
 
-        public ObjectClassCommandActions ObjectClassActions
-        {
-            get
-            {
-                var presenter = _pm.Lookup<ObjectPoolCollectionPresenter>();
-                return (presenter != null) ? presenter.ObjectClassActions : null;
-            }
+        //public ObjectClassCommandActions ObjectClassActions
+        //{
+        //    get
+        //    {
+        //        var presenter = _pm.Lookup<ObjectPoolCollectionPresenter>();
+        //        return (presenter != null) ? presenter.ObjectClassActions : null;
+        //    }
             //get { return _objectClassActions; }
-        }
+        //}
 
         public TilePoolCommandActions TilePoolActions
         {
@@ -185,12 +185,12 @@ namespace Treefrog.Presentation
             //get { return _tilePoolList; }
         }
 
-        public ObjectPoolCollectionPresenter ObjectPoolCollection
-        {
-            get { return _pm.Lookup<ObjectPoolCollectionPresenter>(); }
+        //public ObjectPoolCollectionPresenter ObjectPoolCollection
+        //{
+        //    get { return _pm.Lookup<ObjectPoolCollectionPresenter>(); }
         //    get { return _objectPoolCollection; }
-        }
-
+        //}
+    
         public TileBrushManagerPresenter TileBrushes
         {
             get { return _pm.Lookup<TileBrushManagerPresenter>(); }
@@ -562,7 +562,7 @@ namespace Treefrog.Presentation
             _commandManager = new ForwardingCommandManager();
 
             _commandManager.AddCommandSubscriber(_presentation.TilePoolList);
-            _commandManager.AddCommandSubscriber(_presentation.ObjectPoolCollection);
+            //_commandManager.AddCommandSubscriber(_presentation.ObjectPoolCollection);
             _commandManager.AddCommandSubscriber(_presentation.TileBrushes);
 
             _commandManager.Register(CommandKey.NewProject, CommandCanCreateProject, CommandCreateProject);

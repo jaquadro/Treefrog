@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using Treefrog.Windows.Controllers;
 using Treefrog.Framework.Model;
 
-namespace Treefrog.Windows.Forms
+namespace Treefrog.Plugins.Object.UI
 {
     public partial class ObjectLayerForm : Form
     {

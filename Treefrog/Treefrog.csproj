@@ -209,10 +209,10 @@
     <Compile Include="Windows\Controls\LilyPathControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ObjectLayerForm.cs">
+    <Compile Include="Plugins\Object\UI\ObjectLayerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ObjectLayerForm.Designer.cs">
+    <Compile Include="Plugins\Object\UI\ObjectLayerForm.Designer.cs">
       <DependentUpon>ObjectLayerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\NameChangeForm.cs">
@@ -301,10 +301,10 @@
     <Compile Include="Windows\Forms\DynamicBrushForm.Designer.cs">
       <DependentUpon>DynamicBrushForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\ImportObject.cs">
+    <Compile Include="Plugins\Object\UI\ImportObject.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\ImportObject.Designer.cs">
+    <Compile Include="Plugins\Object\UI\ImportObject.Designer.cs">
       <DependentUpon>ImportObject.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\ImportTilePool.cs">
@@ -360,10 +360,10 @@
     <Compile Include="Windows\Panels\MinimapPanel.Designer.cs">
       <DependentUpon>MinimapPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Panels\ObjectPanel.cs">
+    <Compile Include="Plugins\Object\UI\ObjectPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Panels\ObjectPanel.Designer.cs">
+    <Compile Include="Plugins\Object\UI\ObjectPanel.Designer.cs">
       <DependentUpon>ObjectPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Panels\ProjectPanel.cs">
@@ -502,7 +502,7 @@
     <EmbeddedResource Include="Windows\Forms\NameChangeForm.resx">
       <DependentUpon>NameChangeForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\ObjectLayerForm.resx">
+    <EmbeddedResource Include="Plugins\Object\UI\ObjectLayerForm.resx">
       <DependentUpon>ObjectLayerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\StaticBrushForm.resx">
@@ -511,7 +511,7 @@
     <EmbeddedResource Include="Windows\Forms\DynamicBrushForm.resx">
       <DependentUpon>DynamicBrushForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\ImportObject.resx">
+    <EmbeddedResource Include="Plugins\Object\UI\ImportObject.resx">
       <DependentUpon>ImportObject.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\ImportTilePool.resx">
@@ -538,7 +538,7 @@
     <EmbeddedResource Include="Windows\Panels\MinimapPanel.resx">
       <DependentUpon>MinimapPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Panels\ObjectPanel.resx">
+    <EmbeddedResource Include="Plugins\Object\UI\ObjectPanel.resx">
       <DependentUpon>ObjectPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\ProjectPanel.resx">

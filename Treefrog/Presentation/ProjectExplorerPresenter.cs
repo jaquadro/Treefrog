@@ -395,8 +395,8 @@ namespace Treefrog.Presentation
         {
             if (_project.Levels.Contains(uid))
                 _editor.OpenLevel(uid);
-            else if (_project.ObjectPoolManager.Contains(uid))
-                _editor.CommandActions.ObjectClassActions.CommandEdit(uid);
+            //else if (_project.ObjectPoolManager.Contains(uid))
+            //    _editor.CommandActions.ObjectClassActions.CommandEdit(uid);
         }
 
         public CommandMenu Menu (Guid uid)
