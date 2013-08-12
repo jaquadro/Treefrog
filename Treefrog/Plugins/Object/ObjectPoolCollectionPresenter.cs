@@ -65,7 +65,7 @@ namespace Treefrog.Plugins.Object
 
             // Temporary until exported by MEF??
             OnAttach<ProjectExplorerPresenter>(p => {
-                ProjectExplorerExt objExplorer = new ProjectExplorerExt();
+                ObjectExplorerComponent objExplorer = new ObjectExplorerComponent();
                 objExplorer.Bind(this);
                 p.Components.Register(objExplorer);
             });

@@ -14,6 +14,7 @@ using Treefrog.Utility;
 using Treefrog.Presentation.Commands;
 using Treefrog.Plugins.Object;
 using Treefrog.Extensibility;
+using Treefrog.Plugins.Tiles;
 
 namespace Treefrog.Windows.Panels
 {
@@ -40,7 +41,7 @@ namespace Treefrog.Windows.Panels
         private TreeNode _rootNode;
         private TreeNode _levelNode;
         //private TreeNode _objectNode;
-        private TreeNode _tileNode;
+        //private TreeNode _tileNode;
 
         private TreeNode _libraryRoot;
 
@@ -66,11 +67,11 @@ namespace Treefrog.Windows.Panels
 
             _rootNode = new TreeNode("Project", IconIndex.Application, IconIndex.Application);
             _levelNode = new TreeNode("Levels", IconIndex.FolderLevels, IconIndex.FolderLevels);
-            _tileNode = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles);
+            //_tileNode = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles);
             //_objectNode = new TreeNode("Object Groups", IconIndex.FolderObjects, IconIndex.FolderObjects);
 
             _rootNode.Nodes.AddRange(new TreeNode[] {
-                _levelNode, _tileNode, /*_objectNode,*/
+                _levelNode, /*_tileNode,*/ /*_objectNode,*/
             });
 
             _tree.Nodes.Add(_rootNode);
@@ -104,9 +105,9 @@ namespace Treefrog.Windows.Panels
                 //_controller.ObjectRemoved -= ObjectRemovedHandler;
                 //_controller.ObjectModified -= ObjectModifiedHandler;
 
-                _controller.TilePoolAdded -= TilePoolAddedHandler;
-                _controller.TilePoolRemoved -= TilePoolRemovedHandler;
-                _controller.TilePoolModified -= TilePoolModifiedHandler;
+                //_controller.TilePoolAdded -= TilePoolAddedHandler;
+                //_controller.TilePoolRemoved -= TilePoolRemovedHandler;
+                //_controller.TilePoolModified -= TilePoolModifiedHandler;
             }
 
             _controller = controller;
@@ -129,23 +130,29 @@ namespace Treefrog.Windows.Panels
                 //_controller.ObjectRemoved += ObjectRemovedHandler;
                 //_controller.ObjectModified += ObjectModifiedHandler;
 
-                _controller.TilePoolAdded += TilePoolAddedHandler;
-                _controller.TilePoolRemoved += TilePoolRemovedHandler;
-                _controller.TilePoolModified += TilePoolModifiedHandler;
+                //_controller.TilePoolAdded += TilePoolAddedHandler;
+                //_controller.TilePoolRemoved += TilePoolRemovedHandler;
+                //_controller.TilePoolModified += TilePoolModifiedHandler;
 
                 _rootNode.Tag = _controller.ProjectManagerTag;
                 _levelNode.Tag = _controller.ProjectLevelsTag;
                 //_objectNode.Tag = _controller.ProjectObjectsTag;
-                _tileNode.Tag = _controller.ProjectTilesetsTag;
+                //_tileNode.Tag = _controller.ProjectTilesetsTag;
                 _libraryRoot.Tag = _controller.LibraryManagerTag;
 
                 /*ProjectExplorerExt objectComponentPres = new ProjectExplorerExt();
                 objectComponentPres.Bind(_controller.Editor.Presentation.ObjectPoolCollection);*/
+
+                // TODO: This goes somewhere?
+                TileSetExplorerPanelComponent tileSetComponent = new TileSetExplorerPanelComponent(_rootNode);
+                BindingHelper.TryBindAny(tileSetComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
                 
-                ObjectProjectPanelComponent objectComponent = new ObjectProjectPanelComponent(_rootNode);
+                ObjectExplorerPanelComponent objectComponent = new ObjectExplorerPanelComponent(_rootNode);
                 BindingHelper.TryBindAny(objectComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
+
                 //objectComponent.Bind(objectComponentPres);
 
+                _components.Add(tileSetComponent);
                 _components.Add(objectComponent);
 
                 SyncAll();
@@ -242,7 +249,7 @@ namespace Treefrog.Windows.Panels
         {
             SyncLibraries();
             SyncLevels();
-            SyncTilePools();
+            //SyncTilePools();
             //SyncObjectPools();
 
             _components.ForEach(c => c.Sync());
@@ -272,7 +279,7 @@ namespace Treefrog.Windows.Panels
                 _libraryRoot.Expand();
         }
 
-        private void SyncTilePools ()
+        /*private void SyncTilePools ()
         {
             SyncNode(_tileNode, (node) => AddResources<TilePool>(_tileNode, _controller.Project.TilePoolManager.Pools, IconIndex.TileGroup));
         }
@@ -301,7 +308,7 @@ namespace Treefrog.Windows.Panels
         private void TilePoolModifiedHandler (object sender, ResourceEventArgs<TilePool> e)
         {
             ModifyResource(e.Resource);
-        }
+        }*/
 
         /*private void SyncObjectPools ()
         {

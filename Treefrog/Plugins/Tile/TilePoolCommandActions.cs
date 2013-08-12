@@ -12,11 +12,22 @@ namespace Treefrog.Plugins.Tiles
 {
     public class TilePoolCommandActions
     {
-        private EditorPresenter _editor;
+        private PresenterManager _pm;
+        //private EditorPresenter _editor;
 
-        public TilePoolCommandActions (EditorPresenter editor)
+        /*public TilePoolCommandActions (EditorPresenter editor)
         {
             _editor = editor;
+        }*/
+
+        public TilePoolCommandActions (PresenterManager pm)
+        {
+            _pm = pm;
+        }
+
+        private EditorPresenter Editor
+        {
+            get { return _pm.Lookup<EditorPresenter>(); }
         }
 
         public bool TilePoolExists (object param)
@@ -24,21 +35,21 @@ namespace Treefrog.Plugins.Tiles
             if (!(param is Guid))
                 return false;
 
-            if (_editor.Project == null)
+            if (Editor == null || Editor.Project == null)
                 return false;
 
-            return _editor.Project.TilePoolManager.Pools.Contains((Guid)param);
+            return Editor.Project.TilePoolManager.Pools.Contains((Guid)param);
         }
 
         public void CommandImport ()
         {
             List<string> currentNames = new List<string>();
-            foreach (TilePool pool in _editor.Project.TilePoolManager.Pools)
+            foreach (TilePool pool in Editor.Project.TilePoolManager.Pools)
                 currentNames.Add(pool.Name);
 
             using (ImportTilePool form = new ImportTilePool()) {
                 if (form.ShowDialog() == DialogResult.OK && form.Pool != null)
-                    _editor.Project.TilePoolManager.MergePool(form.Pool.Name, form.Pool);
+                    Editor.Project.TilePoolManager.MergePool(form.Pool.Name, form.Pool);
             }
         }
 
@@ -48,7 +59,7 @@ namespace Treefrog.Plugins.Tiles
                 return;
 
             Guid uid = (Guid)param;
-            TilePool tilePool = _editor.Project.TilePoolManager.Pools[uid];
+            TilePool tilePool = Editor.Project.TilePoolManager.Pools[uid];
 
             using (ImportTilePool form = new ImportTilePool(tilePool.Name, tilePool.TileWidth, tilePool.TileHeight)) {
                 if (form.ShowDialog() == DialogResult.OK && form.Pool != null)
@@ -61,7 +72,7 @@ namespace Treefrog.Plugins.Tiles
             if (!TilePoolExists(param))
                 return;
 
-            _editor.Project.TilePoolManager.Pools.Remove((Guid)param);
+            Editor.Project.TilePoolManager.Pools.Remove((Guid)param);
         }
 
         public void CommandRename (object param)
@@ -70,10 +81,10 @@ namespace Treefrog.Plugins.Tiles
                 return;
 
             Guid uid = (Guid)param;
-            TilePool tilePool = _editor.Project.TilePoolManager.Pools[uid];
+            TilePool tilePool = Editor.Project.TilePoolManager.Pools[uid];
 
             using (NameChangeForm form = new NameChangeForm(tilePool.Name)) {
-                foreach (TilePool pool in _editor.Project.TilePoolManager.Pools) {
+                foreach (TilePool pool in Editor.Project.TilePoolManager.Pools) {
                     if (pool.Name != tilePool.Name)
                         form.ReservedNames.Add(pool.Name);
                 }
@@ -89,10 +100,10 @@ namespace Treefrog.Plugins.Tiles
                 return;
 
             Guid uid = (Guid)param;
-            TilePool pool = _editor.Project.TilePoolManager.Pools[uid];
+            TilePool pool = Editor.Project.TilePoolManager.Pools[uid];
 
-            _editor.Presentation.PropertyList.Provider = pool;
-            _editor.ActivatePropertyPanel();
+            Editor.Presentation.PropertyList.Provider = pool;
+            Editor.ActivatePropertyPanel();
         }
 
         public void CommandExport (object param)
@@ -101,7 +112,7 @@ namespace Treefrog.Plugins.Tiles
                 return;
 
             Guid uid = (Guid)param;
-            TilePool tilePool = _editor.Project.TilePoolManager.Pools[uid];
+            TilePool tilePool = Editor.Project.TilePoolManager.Pools[uid];
 
             using (System.Drawing.Bitmap export = tilePool.TileSource.CreateBitmap()) {
                 using (SaveFileDialog ofd = new SaveFileDialog()) {
@@ -128,7 +139,7 @@ namespace Treefrog.Plugins.Tiles
                 return;
 
             Guid uid = (Guid)param;
-            TilePool tilePool = _editor.Project.TilePoolManager.Pools[uid];
+            TilePool tilePool = Editor.Project.TilePoolManager.Pools[uid];
 
             using (OpenFileDialog ofd = new OpenFileDialog()) {
                 ofd.Title = "Import Raw Tileset";

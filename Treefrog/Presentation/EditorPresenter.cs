@@ -10,6 +10,7 @@ using Treefrog.Windows.Forms;
 using System.Collections.Generic;
 using Treefrog.Extensibility;
 using Treefrog.Plugins.Tiles;
+//using Treefrog.Plugins.Tiles;
 
 namespace Treefrog.Presentation
 {
@@ -51,7 +52,7 @@ namespace Treefrog.Presentation
         private EditorPresenter _editor;
 
         //private ObjectClassCommandActions _objectClassActions;
-        private TilePoolCommandActions _tilePoolActions;
+        //private TilePoolCommandActions _tilePoolActions;
         private LibraryCommandActions _libraryActions;
 
         public CommandActions (PresenterManager pm, EditorPresenter editor)
@@ -60,7 +61,7 @@ namespace Treefrog.Presentation
             _editor = editor;
 
             //_objectClassActions = new ObjectClassCommandActions(pm);
-            _tilePoolActions = new TilePoolCommandActions(_editor);
+            //_tilePoolActions = new TilePoolCommandActions(_editor);
             _libraryActions = new LibraryCommandActions(_editor);
         }
 
@@ -74,10 +75,10 @@ namespace Treefrog.Presentation
             //get { return _objectClassActions; }
         //}
 
-        public TilePoolCommandActions TilePoolActions
+        /*public TilePoolCommandActions TilePoolActions
         {
             get { return _tilePoolActions; }
-        }
+        }*/
 
         public LibraryCommandActions LibraryActions
         {

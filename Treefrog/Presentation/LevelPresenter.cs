@@ -14,8 +14,8 @@ using Treefrog.Utility;
 using Treefrog.Windows.Forms;
 using Treefrog.Extensibility;
 using Treefrog.Plugins.Object.UI;
-using Treefrog.Plugins.Tiles;
-using Treefrog.Plugins.Tiles.Layers;
+//using Treefrog.Plugins.Tiles;
+//using Treefrog.Plugins.Tiles.Layers;
 using Treefrog.Plugins.Tiles.UI;
 //using Treefrog.Plugins.Object.Layers;
 //using Treefrog.Plugins.Object;
@@ -276,8 +276,8 @@ namespace Treefrog.Presentation
             _layerPresenters[layer.Uid] = layerp;
             _rootContentLayer.Layers.Add(layerp);
 
-            BindingHelper.TryBind<TilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
-            BindingHelper.TryBind<TileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
+            //BindingHelper.TryBind<TilePoolListPresenter>(layerp, _editor.Presentation.TilePoolList);
+            //BindingHelper.TryBind<TileBrushManagerPresenter>(layerp, _editor.Presentation.TileBrushes);
             //BindingHelper.TryBind<ObjectPoolCollectionPresenter>(layerp, _editor.Presentation.ObjectPoolCollection);
 
             BindingHelper.TryBindAny(layerp, _pm.Select(kv => new KeyValuePair<Type, object>(kv.Key, kv.Value)));
@@ -898,10 +898,10 @@ namespace Treefrog.Presentation
         private void RefreshGridVisibility ()
         {
             if (_gridLayer != null) {
-                if (_selectedLayerRef is TileGridLayerPresenter)
+                //if (_selectedLayerRef is TileGridLayerPresenter)
                     _gridLayer.IsVisible = CommandManager.IsSelected(CommandKey.ViewGrid);
-                else
-                    _gridLayer.IsVisible = false;
+                //else
+                //    _gridLayer.IsVisible = false;
             }
         }
 

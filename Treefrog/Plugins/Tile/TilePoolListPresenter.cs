@@ -176,6 +176,8 @@ namespace Treefrog.Plugins.Tiles
         private EditorPresenter _editor;
         private ITilePoolManager _poolManager;
 
+        private TilePoolCommandActions _tilePoolActions;
+
         private Dictionary<Guid, TilePoolPresenter> _tilePoolPresenters;
         private Guid _selectedPool;
         private TilePoolPresenter _selectedPoolRef;
@@ -192,8 +194,6 @@ namespace Treefrog.Plugins.Tiles
             OnAttach<EditorPresenter>(editor => {
                 _editor = editor;
                 _editor.SyncCurrentProject += EditorSyncCurrentProject;
-
-                InitializeCommandManager(editor);
             });
 
             OnDetach<EditorPresenter>(editor => {
@@ -201,6 +201,13 @@ namespace Treefrog.Plugins.Tiles
 
                 _editor.SyncCurrentProject -= EditorSyncCurrentProject;
                 _editor = null;
+            });
+
+            // Temporary until exported by MEF??
+            OnAttach<ProjectExplorerPresenter>(p => {
+                TileSetExplorerComponent tilesetExplorer = new TileSetExplorerComponent();
+                tilesetExplorer.Bind(this);
+                p.Components.Register(tilesetExplorer);
             });
         }
 
@@ -397,18 +404,15 @@ namespace Treefrog.Plugins.Tiles
 
             _commandManager.Register(CommandKey.TileProperties, CommandCanTileProperties, CommandTileProperties);
             _commandManager.Register(CommandKey.TileDelete, CommandCanDeleteTile, CommandDeleteTile);
-        }
 
-        private void InitializeCommandManager (EditorPresenter editor)
-        {
-            TilePoolCommandActions tilePoolActions = _editor.CommandActions.TilePoolActions;
-            _commandManager.Register(CommandKey.TilePoolImport, () => { return true; }, tilePoolActions.CommandImport);
-            _commandManager.Register(CommandKey.TilePoolImportMerge, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandImportMerge));
-            _commandManager.Register(CommandKey.TilePoolDelete, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandDelete));
-            _commandManager.Register(CommandKey.TilePoolRename, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandRename));
-            _commandManager.Register(CommandKey.TilePoolProperties, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandProperties));
-            _commandManager.Register(CommandKey.TilePoolExport, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandExport));
-            _commandManager.Register(CommandKey.TilePoolImportOver, CommandCanOperateOnSelected, WrapCommand(tilePoolActions.CommandImportOver));
+            _tilePoolActions = new TilePoolCommandActions(Manager);
+            _commandManager.Register(CommandKey.TilePoolImport, () => { return true; }, _tilePoolActions.CommandImport);
+            _commandManager.Register(CommandKey.TilePoolImportMerge, CommandCanOperateOnSelected, WrapCommand(_tilePoolActions.CommandImportMerge));
+            _commandManager.Register(CommandKey.TilePoolDelete, CommandCanOperateOnSelected, WrapCommand(_tilePoolActions.CommandDelete));
+            _commandManager.Register(CommandKey.TilePoolRename, CommandCanOperateOnSelected, WrapCommand(_tilePoolActions.CommandRename));
+            _commandManager.Register(CommandKey.TilePoolProperties, CommandCanOperateOnSelected, WrapCommand(_tilePoolActions.CommandProperties));
+            _commandManager.Register(CommandKey.TilePoolExport, CommandCanOperateOnSelected, WrapCommand(_tilePoolActions.CommandExport));
+            _commandManager.Register(CommandKey.TilePoolImportOver, CommandCanOperateOnSelected, WrapCommand(_tilePoolActions.CommandImportOver));
         }
 
         public CommandManager CommandManager
@@ -418,7 +422,7 @@ namespace Treefrog.Plugins.Tiles
 
         private bool CommandCanOperateOnSelected ()
         {
-            return _editor.CommandActions.TilePoolActions.TilePoolExists(_selectedPool);
+            return _tilePoolActions.TilePoolExists(_selectedPool);
         }
 
         private System.Action WrapCommand (Action<object> action)

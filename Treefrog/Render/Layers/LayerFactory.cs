@@ -1,6 +1,5 @@
 ﻿using Treefrog.Presentation.Layers;
 using Treefrog.Utility;
-using Treefrog.Plugins.Tiles.Layers;
 
 namespace Treefrog.Render.Layers
 {
@@ -26,15 +25,15 @@ namespace Treefrog.Render.Layers
             Default.Register<LevelLayerPresenter, LevelRenderLayer>(layer => {
                 return new LevelRenderLayer(layer as LevelLayerPresenter);
             });
-            Default.Register<TileLayerPresenter, LevelRenderLayer>(layer => {
-                return new LevelRenderLayer(layer as LevelLayerPresenter);
-            });
-            Default.Register<TileSetLayerPresenter, TileSetRenderLayer>(layer => {
-                return new TileSetRenderLayer(layer as TileSetLayerPresenter);
-            });
-            Default.Register<TileGridLayerPresenter, LevelRenderLayer>(layer => {
-                return new LevelRenderLayer(layer as LevelLayerPresenter);
-            });
+            //Default.Register<TileLayerPresenter, LevelRenderLayer>(layer => {
+            //    return new LevelRenderLayer(layer as LevelLayerPresenter);
+            //});
+            //Default.Register<TileSetLayerPresenter, TileSetRenderLayer>(layer => {
+            //    return new TileSetRenderLayer(layer as TileSetLayerPresenter);
+            //});
+            //Default.Register<TileGridLayerPresenter, LevelRenderLayer>(layer => {
+            //    return new LevelRenderLayer(layer as LevelLayerPresenter);
+            //});
             //Default.Register<ObjectLayerPresenter, LevelRenderLayer>(layer => {
             //    return new LevelRenderLayer(layer as LevelLayerPresenter);
             //});

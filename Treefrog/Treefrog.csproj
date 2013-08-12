@@ -131,8 +131,10 @@
     <Compile Include="Extensibility\ExportAttributes.cs" />
     <Compile Include="Extensibility\Presenter.cs" />
     <Compile Include="Extensibility\ProjectExplorer.cs" />
-    <Compile Include="Plugins\Object\ProjectExplorerExt.cs" />
+    <Compile Include="Plugins\Object\ObjectExplorerComponent.cs" />
     <Compile Include="Plugins\Object\Registration.cs" />
+    <Compile Include="Plugins\Tile\TileSetExplorerComponent.cs" />
+    <Compile Include="Plugins\Tile\Registration.cs" />
     <Compile Include="Presentation\LibraryCommandActions.cs" />
     <Compile Include="Model\TreefrogAux.cs" />
     <Compile Include="Presentation\Annotations\Annotation.cs" />

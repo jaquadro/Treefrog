@@ -1,6 +1,5 @@
 ﻿using Treefrog.Framework.Model;
 using Treefrog.Utility;
-using Treefrog.Plugins.Tiles.Layers;
 
 namespace Treefrog.Presentation.Layers
 {
@@ -12,15 +11,15 @@ namespace Treefrog.Presentation.Layers
         {
             Default = new LayerPresenterFactory();
 
-            Default.Register<TileLayer, TileLayerPresenter>((layer, context) => {
-                return new TileLayerPresenter(context, layer as TileLayer);
-            });
-            Default.Register<TileGridLayer, TileGridLayerPresenter>((layer, context) => {
-                return new TileGridLayerPresenter(context, layer as TileGridLayer);
-            });
-            Default.Register<MultiTileGridLayer, TileGridLayerPresenter>((layer, context) => {
-                return new TileGridLayerPresenter(context, layer as TileGridLayer);
-            });
+            //Default.Register<TileLayer, TileLayerPresenter>((layer, context) => {
+            //    return new TileLayerPresenter(context, layer as TileLayer);
+            //});
+            //Default.Register<TileGridLayer, TileGridLayerPresenter>((layer, context) => {
+            //    return new TileGridLayerPresenter(context, layer as TileGridLayer);
+            //});
+            //Default.Register<MultiTileGridLayer, TileGridLayerPresenter>((layer, context) => {
+            //    return new TileGridLayerPresenter(context, layer as TileGridLayer);
+            //});
             //Default.Register<ObjectLayer, ObjectLayerPresenter>((layer, context) => {
             //    return new ObjectLayerPresenter(context, layer as ObjectLayer);
             //});
@@ -35,9 +34,9 @@ namespace Treefrog.Presentation.Layers
         {
             Default = new LayerFromPresenterFactory();
 
-            Default.Register<TileGridLayerPresenter, MultiTileGridLayer>((layer, name) => {
-                return new MultiTileGridLayer(name, layer.Layer as MultiTileGridLayer);
-            });
+            //Default.Register<TileGridLayerPresenter, MultiTileGridLayer>((layer, name) => {
+            //    return new MultiTileGridLayer(name, layer.Layer as MultiTileGridLayer);
+            //});
         }
     }
 }

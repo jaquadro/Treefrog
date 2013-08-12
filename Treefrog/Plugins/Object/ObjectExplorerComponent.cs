@@ -11,7 +11,7 @@ using Treefrog.Windows.Panels;
 
 namespace Treefrog.Plugins.Object
 {
-    class ProjectExplorerExt : ProjectExplorerComponent, IBindable<ObjectPoolCollectionPresenter>
+    class ObjectExplorerComponent : ProjectExplorerComponent, IBindable<ObjectPoolCollectionPresenter>
     {
         private enum EventBindings
         {
@@ -22,7 +22,6 @@ namespace Treefrog.Plugins.Object
 
         private ObjectPoolCollectionPresenter _conroller;
         private IObjectPoolManager _objectPoolManager;
-        //private CommandManager _commandManager;
 
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
 
@@ -33,7 +32,7 @@ namespace Treefrog.Plugins.Object
             get { return _conroller.ObjectPoolManager; }
         }
 
-        public ProjectExplorerExt ()
+        public ObjectExplorerComponent ()
         {
             _objectEventBindings = new Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>>() {
                 { EventBindings.ObjectAdded, (s, e) => OnObjectAdded(new ResourceEventArgs<ObjectClass>(e.Resource)) },
@@ -180,26 +179,14 @@ namespace Treefrog.Plugins.Object
                 },
             });
         }
-
-        /*private void InitializeCommandManager ()
-        {
-            _commandManager = new ForwardingCommandManager();
-
-            ObjectClassCommandActions objClassActions = _editor.CommandActions.ObjectClassActions;
-            _commandManager.Register(CommandKey.ObjectProtoEdit, objClassActions.ObjectExists, objClassActions.CommandEdit);
-            _commandManager.Register(CommandKey.ObjectProtoClone, objClassActions.ObjectExists, objClassActions.CommandClone);
-            _commandManager.Register(CommandKey.ObjectProtoDelete, objClassActions.ObjectExists, objClassActions.CommandDelete);
-            _commandManager.Register(CommandKey.ObjectProtoRename, objClassActions.ObjectExists, objClassActions.CommandRename);
-            _commandManager.Register(CommandKey.ObjectProtoProperties, objClassActions.ObjectExists, objClassActions.CommandProperties);
-        }*/
     }
 
-    class ObjectProjectPanelComponent : ProjectPanelComponent, IBindable<ProjectExplorerExt>
+    class ObjectExplorerPanelComponent : ProjectPanelComponent, IBindable<ObjectExplorerComponent>
     {
-        private ProjectExplorerExt _controller;
+        private ObjectExplorerComponent _controller;
         private TreeNode _objectNode;
 
-        public ObjectProjectPanelComponent (TreeNode rootNode)
+        public ObjectExplorerPanelComponent (TreeNode rootNode)
             : base(rootNode)
         {
             Reset();
@@ -212,7 +199,7 @@ namespace Treefrog.Plugins.Object
             RootNode.Nodes.Add(_objectNode);
         }
 
-        public void Bind (ProjectExplorerExt controller)
+        public void Bind (ObjectExplorerComponent controller)
         {
             if (_controller == controller)
                 return;
