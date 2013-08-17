@@ -20,7 +20,7 @@ namespace Treefrog.Plugins.Object
             ObjectModified,
         }
 
-        private ObjectPoolCollectionPresenter _conroller;
+        private ObjectPoolCollectionPresenter _controller;
         private IObjectPoolManager _objectPoolManager;
 
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<ObjectClass>>> _objectEventBindings;
@@ -29,7 +29,7 @@ namespace Treefrog.Plugins.Object
 
         public IObjectPoolManager ObjectManager
         {
-            get { return _conroller.ObjectPoolManager; }
+            get { return (_controller != null) ? _controller.ObjectPoolManager : null; }
         }
 
         public ObjectExplorerComponent ()
@@ -45,18 +45,18 @@ namespace Treefrog.Plugins.Object
 
         public void Bind (ObjectPoolCollectionPresenter controller)
         {
-            if (_conroller == controller)
+            if (_controller == controller)
                 return;
 
-            if (_conroller != null) {
-                _conroller.SyncObjectPoolManager -= SyncObjectPoolManager;
+            if (_controller != null) {
+                _controller.SyncObjectPoolManager -= SyncObjectPoolManager;
             }
 
-            _conroller = controller;
+            _controller = controller;
 
-            if (_conroller != null) {
-                _conroller.SyncObjectPoolManager += SyncObjectPoolManager;
-                Bind(_conroller.ObjectPoolManager);
+            if (_controller != null) {
+                _controller.SyncObjectPoolManager += SyncObjectPoolManager;
+                Bind(_controller.ObjectPoolManager);
             }
             else
                 Bind((IObjectPoolManager)null);
@@ -64,7 +64,7 @@ namespace Treefrog.Plugins.Object
 
         private void SyncObjectPoolManager (object sender, EventArgs e)
         {
-            Bind(_conroller.ObjectPoolManager);
+            Bind(_controller.ObjectPoolManager);
         }
 
         private void Bind (IObjectPoolManager manager)
@@ -146,18 +146,18 @@ namespace Treefrog.Plugins.Object
 
         public CommandManager CommandManager
         {
-            get { return _conroller.CommandManager; }
+            get { return _controller.CommandManager; }
         }
 
         public void DefaultAction (Guid uid)
         {
-            if (_conroller.ObjectPoolManager.Contains(uid))
-                _conroller.CommandManager.Perform(CommandKey.ObjectProtoEdit, uid);
+            if (_controller.ObjectPoolManager.Contains(uid))
+                _controller.CommandManager.Perform(CommandKey.ObjectProtoEdit, uid);
         }
 
         public CommandMenu Menu (Guid uid)
         {
-            if (_conroller.ObjectPoolManager.Contains(uid))
+            if (_controller.ObjectPoolManager.Contains(uid))
                 return ObjectProtoMenu(uid);
 
             return new CommandMenu("");
@@ -186,8 +186,10 @@ namespace Treefrog.Plugins.Object
         private ObjectExplorerComponent _controller;
         private TreeNode _objectNode;
 
-        public ObjectExplorerPanelComponent (TreeNode rootNode)
-            : base(rootNode)
+        public ObjectExplorerPanelComponent ()
+        { }
+
+        protected override void InitializeCore ()
         {
             Reset();
         }

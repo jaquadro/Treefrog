@@ -21,7 +21,7 @@ namespace Treefrog.Plugins.Tiles
             TilePoolModified,
         }
 
-        private TilePoolListPresenter _conroller;
+        private TilePoolListPresenter _controller;
         private ITilePoolManager _tilePoolManager;
 
         private Dictionary<EventBindings, EventHandler<ResourceEventArgs<TilePool>>> _tilePoolEventBindings;
@@ -30,7 +30,7 @@ namespace Treefrog.Plugins.Tiles
 
         public ITilePoolManager TileSetManager
         {
-            get { return _conroller.TilePoolManager; }
+            get { return (_controller != null) ? _controller.TilePoolManager : null; }
         }
 
         public TileSetExplorerComponent ()
@@ -46,18 +46,18 @@ namespace Treefrog.Plugins.Tiles
 
         public void Bind (TilePoolListPresenter controller)
         {
-            if (_conroller == controller)
+            if (_controller == controller)
                 return;
 
-            if (_conroller != null) {
-                _conroller.SyncTilePoolManager -= SyncTilePoolManager;
+            if (_controller != null) {
+                _controller.SyncTilePoolManager -= SyncTilePoolManager;
             }
 
-            _conroller = controller;
+            _controller = controller;
 
-            if (_conroller != null) {
-                _conroller.SyncTilePoolManager += SyncTilePoolManager;
-                Bind(_conroller.TilePoolManager);
+            if (_controller != null) {
+                _controller.SyncTilePoolManager += SyncTilePoolManager;
+                Bind(_controller.TilePoolManager);
             }
             else
                 Bind((TilePoolManager)null);
@@ -65,7 +65,7 @@ namespace Treefrog.Plugins.Tiles
 
         private void SyncTilePoolManager (object sender, EventArgs e)
         {
-            Bind(_conroller.TilePoolManager);
+            Bind(_controller.TilePoolManager);
         }
 
         private void Bind (ITilePoolManager manager)
@@ -115,7 +115,7 @@ namespace Treefrog.Plugins.Tiles
 
         public CommandManager CommandManager
         {
-            get { return _conroller.CommandManager; }
+            get { return _controller.CommandManager; }
         }
 
         public void DefaultAction (Guid uid)
@@ -126,7 +126,7 @@ namespace Treefrog.Plugins.Tiles
 
         public CommandMenu Menu (Guid uid)
         {
-            if (_conroller.TilePoolManager.Contains(uid))
+            if (_controller.TilePoolManager.Contains(uid))
                 return TileSetMenu(uid);
 
             return new CommandMenu("");
@@ -155,8 +155,10 @@ namespace Treefrog.Plugins.Tiles
         private TileSetExplorerComponent _controller;
         private TreeNode _tileNode;
 
-        public TileSetExplorerPanelComponent (TreeNode rootNode)
-            : base(rootNode)
+        public TileSetExplorerPanelComponent ()
+        { }
+
+        protected override void InitializeCore ()
         {
             Reset();
         }

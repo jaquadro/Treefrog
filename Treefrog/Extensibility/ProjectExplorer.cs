@@ -5,20 +5,39 @@ using System.Windows.Forms;
 using Treefrog.Framework;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Controllers;
+using System.ComponentModel.Composition;
 
 namespace Treefrog.Extensibility
 {
+    [InheritedExport]
     public abstract class ProjectExplorerComponent
     { }
 
+    [InheritedExport]
     public abstract class ProjectPanelComponent
     {
-        protected ProjectPanelComponent (TreeNode rootNode)
+        protected ProjectPanelComponent ()
         {
-            RootNode = rootNode;
-
             NodeMap = new Dictionary<Guid, List<TreeNode>>();
         }
+
+        public void Initialize (TreeNode rootNode)
+        {
+            RootNode = rootNode;
+            InitializeCore();
+        }
+
+        public void Reset (TreeNode rootNode)
+        {
+            RootNode = rootNode;
+            ResetCore();
+        }
+
+        protected virtual void InitializeCore ()
+        { }
+
+        protected virtual void ResetCore ()
+        { }
 
         protected TreeNode RootNode { get; private set; }
 

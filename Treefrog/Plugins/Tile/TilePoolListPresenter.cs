@@ -204,11 +204,11 @@ namespace Treefrog.Plugins.Tiles
             });
 
             // Temporary until exported by MEF??
-            OnAttach<ProjectExplorerPresenter>(p => {
+            /*OnAttach<ProjectExplorerPresenter>(p => {
                 TileSetExplorerComponent tilesetExplorer = new TileSetExplorerComponent();
                 tilesetExplorer.Bind(this);
                 p.Components.Register(tilesetExplorer);
-            });
+            });*/
         }
 
         /*public void Dispose ()

@@ -10,6 +10,8 @@ using System.ComponentModel.Composition.Hosting;
 using Treefrog.Plugins.Object.Layers;
 using Treefrog.Extensibility;
 using Treefrog.Render.Layers;
+using Treefrog.Framework;
+using Treefrog.Utility;
 
 namespace Treefrog.Core
 {
@@ -26,6 +28,12 @@ namespace Treefrog.Core
 
         [ImportMany(typeof(Presenter))]
         List<Lazy<Presenter>> _presenters = null;
+
+        [ImportMany(typeof(ProjectExplorerComponent))]
+        List<Lazy<ProjectExplorerComponent>> _projectExplorerComponents = null;
+
+        [ImportMany(typeof(ProjectPanelComponent))]
+        List<Lazy<ProjectPanelComponent>> _projectPanelComponents = null;
 
         public void Compose ()
         {
@@ -46,7 +54,22 @@ namespace Treefrog.Core
                 pm.Register(presenter.Value.Initialize(pm));
             }
 
+            // Populate project explorer components
+            ProjectExplorerPresenter projectExplorer = pm.Lookup<ProjectExplorerPresenter>();
+            if (projectExplorer != null) {
+                foreach (var component in _projectExplorerComponents) {
+                    BindingHelper.TryBindAny(component.Value, pm.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
+                    projectExplorer.Components.Register(component.Value);
+                }
+            }
+
             return pm;
+        }
+
+        public void InitializeProjectPanelComponents (InstanceRegistry<ProjectPanelComponent> manager)
+        {
+            foreach (var component in _projectPanelComponents)
+                manager.Register(component.Value);
         }
     }
 

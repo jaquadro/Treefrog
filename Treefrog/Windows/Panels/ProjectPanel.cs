@@ -12,9 +12,9 @@ using Treefrog.Framework;
 using Treefrog.Windows.Controllers;
 using Treefrog.Utility;
 using Treefrog.Presentation.Commands;
-using Treefrog.Plugins.Object;
+//using Treefrog.Plugins.Object;
 using Treefrog.Extensibility;
-using Treefrog.Plugins.Tiles;
+//using Treefrog.Plugins.Tiles;
 
 namespace Treefrog.Windows.Panels
 {
@@ -58,8 +58,18 @@ namespace Treefrog.Windows.Panels
 
             _commandController = new UICommandController();
 
+            ComponentManager = new InstanceRegistry<ProjectPanelComponent>();
+            ComponentManager.InstanceRegistered += (s, e) => {
+                e.Instance.Initialize(_rootNode);
+
+                if (_controller != null)
+                    BindingHelper.TryBindAny(e.Instance, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
+            };
+
             ResetComponent();
         }
+
+        public InstanceRegistry<ProjectPanelComponent> ComponentManager { get; private set; }
 
         private void ResetComponent ()
         {
@@ -69,6 +79,9 @@ namespace Treefrog.Windows.Panels
             _levelNode = new TreeNode("Levels", IconIndex.FolderLevels, IconIndex.FolderLevels);
             //_tileNode = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles);
             //_objectNode = new TreeNode("Object Groups", IconIndex.FolderObjects, IconIndex.FolderObjects);
+
+            foreach (var component in ComponentManager.RegisteredInstances)
+                component.Reset(_rootNode);
 
             _rootNode.Nodes.AddRange(new TreeNode[] {
                 _levelNode, /*_tileNode,*/ /*_objectNode,*/
@@ -108,6 +121,9 @@ namespace Treefrog.Windows.Panels
                 //_controller.TilePoolAdded -= TilePoolAddedHandler;
                 //_controller.TilePoolRemoved -= TilePoolRemovedHandler;
                 //_controller.TilePoolModified -= TilePoolModifiedHandler;
+
+                foreach (var component in ComponentManager.RegisteredInstances)
+                    BindingHelper.TryBindAny(component, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, null)));
             }
 
             _controller = controller;
@@ -144,16 +160,19 @@ namespace Treefrog.Windows.Panels
                 objectComponentPres.Bind(_controller.Editor.Presentation.ObjectPoolCollection);*/
 
                 // TODO: This goes somewhere?
-                TileSetExplorerPanelComponent tileSetComponent = new TileSetExplorerPanelComponent(_rootNode);
-                BindingHelper.TryBindAny(tileSetComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
+                //TileSetExplorerPanelComponent tileSetComponent = new TileSetExplorerPanelComponent(_rootNode);
+                //BindingHelper.TryBindAny(tileSetComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
                 
-                ObjectExplorerPanelComponent objectComponent = new ObjectExplorerPanelComponent(_rootNode);
-                BindingHelper.TryBindAny(objectComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
+                //ObjectExplorerPanelComponent objectComponent = new ObjectExplorerPanelComponent(_rootNode);
+                //BindingHelper.TryBindAny(objectComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
 
                 //objectComponent.Bind(objectComponentPres);
 
-                _components.Add(tileSetComponent);
-                _components.Add(objectComponent);
+                //_components.Add(tileSetComponent);
+                //_components.Add(objectComponent);
+
+                foreach (var component in ComponentManager.RegisteredInstances)
+                    BindingHelper.TryBindAny(component, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
 
                 SyncAll();
             }
@@ -252,7 +271,8 @@ namespace Treefrog.Windows.Panels
             //SyncTilePools();
             //SyncObjectPools();
 
-            _components.ForEach(c => c.Sync());
+            foreach (var component in ComponentManager.RegisteredInstances)
+                component.Sync();
         }
 
         private void SyncLibraries ()
@@ -462,7 +482,7 @@ namespace Treefrog.Windows.Panels
 
             Guid tag = (Guid)e.Node.Tag;
 
-            ProjectPanelComponent targetComponent = _components.FirstOrDefault(c => c.ShouldHandle(tag));
+            ProjectPanelComponent targetComponent = ComponentManager.RegisteredInstances.FirstOrDefault(c => c.ShouldHandle(tag));
             if (targetComponent != null) {
                 targetComponent.DefaultAction(tag);
                 return;
@@ -482,7 +502,7 @@ namespace Treefrog.Windows.Panels
             Guid tag = (Guid)e.Node.Tag;
 
             if (e.Button == MouseButtons.Right) {
-                ProjectPanelComponent targetComponent = _components.FirstOrDefault(c => c.ShouldHandle(tag));
+                ProjectPanelComponent targetComponent = ComponentManager.RegisteredInstances.FirstOrDefault(c => c.ShouldHandle(tag));
                 if (targetComponent != null) {
                     targetComponent.ShowContextMenu(_commandController, e.Location, tag);
                     return;
@@ -499,7 +519,7 @@ namespace Treefrog.Windows.Panels
             }
         }
 
-        private List<ProjectPanelComponent> _components = new List<ProjectPanelComponent>();
+        //private List<ProjectPanelComponent> _components = new List<ProjectPanelComponent>();
     }
 
     

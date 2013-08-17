@@ -64,11 +64,11 @@ namespace Treefrog.Plugins.Object
             InitializeCommandManager();
 
             // Temporary until exported by MEF??
-            OnAttach<ProjectExplorerPresenter>(p => {
+            /*OnAttach<ProjectExplorerPresenter>(p => {
                 ObjectExplorerComponent objExplorer = new ObjectExplorerComponent();
                 objExplorer.Bind(this);
                 p.Components.Register(objExplorer);
-            });
+            });*/
         }
 
         /*public ObjectPoolCollectionPresenter (EditorPresenter editor)

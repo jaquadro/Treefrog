@@ -55,6 +55,8 @@ namespace Treefrog.Windows.Forms
             _pm = loader.InitializePresenterManager();
             _editor = _pm.Lookup<EditorPresenter>();
 
+            loader.InitializeProjectPanelComponents(projectPanel1.ComponentManager);
+
             //pm.Register(_editor);
 
             //_editor.SyncContentTabs += SyncContentTabsHandler;
