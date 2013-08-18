@@ -8,6 +8,7 @@ using Treefrog.Framework.Model;
 using Treefrog.Plugins.Tiles;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
+using Treefrog.Plugins.Object;
 
 namespace Treefrog.Presentation
 {
@@ -100,26 +101,6 @@ namespace Treefrog.Presentation
         public PropertyListPresenter PropertyList
         {
             get { return _pm.Lookup<PropertyListPresenter>(); }
-        }
-
-        public ProjectExplorerPresenter ProjectExplorer
-        {
-            get { return _pm.Lookup<ProjectExplorerPresenter>(); }
-        }
-
-        public MinimapPresenter Minimap
-        {
-            get { return _pm.Lookup<MinimapPresenter>(); }
-        }
-
-        public TilePoolListPresenter TilePoolList
-        {
-            get { return _pm.Lookup<TilePoolListPresenter>(); }
-        }
-
-        public TileBrushManagerPresenter TileBrushes
-        {
-            get { return _pm.Lookup<TileBrushManagerPresenter>(); }
         }
     }
 
@@ -498,9 +479,9 @@ namespace Treefrog.Presentation
         {
             _commandManager = new ForwardingCommandManager();
 
-            _commandManager.AddCommandSubscriber(_presentation.TilePoolList);
-            //_commandManager.AddCommandSubscriber(_presentation.ObjectPoolCollection);
-            _commandManager.AddCommandSubscriber(_presentation.TileBrushes);
+            _commandManager.AddCommandSubscriber(Manager.Lookup<TilePoolListPresenter>());
+            _commandManager.AddCommandSubscriber(Manager.Lookup<ObjectPoolCollectionPresenter>());
+            _commandManager.AddCommandSubscriber(Manager.Lookup<TileBrushManagerPresenter>());
 
             _commandManager.Register(CommandKey.NewProject, CommandCanCreateProject, CommandCreateProject);
             _commandManager.Register(CommandKey.OpenProject, CommandCanOpenProject, CommandOpenProject);

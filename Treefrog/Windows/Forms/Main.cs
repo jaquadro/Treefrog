@@ -9,6 +9,7 @@ using Treefrog.Windows.Controllers;
 using Treefrog.Windows.Controls.Composite;
 using Treefrog.Core;
 using Treefrog.Plugins.Object;
+using Treefrog.Plugins.Tiles;
 
 namespace Treefrog.Windows.Forms
 {
@@ -153,27 +154,27 @@ namespace Treefrog.Windows.Forms
             }*/
 
             if (_editor.CanShowProjectPanel)
-                projectPanel1.BindController(_editor.Presentation.ProjectExplorer);
+                projectPanel1.BindController(_pm.Lookup<ProjectExplorerPresenter>());
 
             if (_editor.CanShowLayerPanel)
                 layerPane1.BindController(_editor.Presentation.LayerList);
 
             if (_editor.CanShowTilePoolPanel)
-                tilePoolPane1.BindController(_editor.Presentation.TilePoolList);
+                tilePoolPane1.BindController(_pm.Lookup<TilePoolListPresenter>());
 
             if (_editor.CanShowObjectPoolPanel)
                 objectPanel1.BindController(_pm.Lookup<ObjectPoolCollectionPresenter>());
                 //objectPanel1.BindController(_editor.Presentation.ObjectPoolCollection);
 
             if (_editor.CanShowPropertyPanel)
-                propertyPane1.BindController(_editor.Presentation.PropertyList);
+                propertyPane1.BindController(_pm.Lookup<PropertyListPresenter>());
 
             if (_editor.CanShowTileBrushPanel) {
-                tileBrushPanel1.BindController(_editor.Presentation.TileBrushes);
-                tileBrushPanel1.BindTileController(_editor.Presentation.TilePoolList);
+                tileBrushPanel1.BindController(_pm.Lookup<TileBrushManagerPresenter>());
+                tileBrushPanel1.BindTileController(_pm.Lookup<TilePoolListPresenter>());
             }
 
-            minimapPanel1.BindController(_editor.Presentation.Minimap);
+            minimapPanel1.BindController(_pm.Lookup<MinimapPresenter>());
 
             _menu.BindController(_editor);
             _menu.BindCommandManager(_editor.CommandManager);
