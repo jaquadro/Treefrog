@@ -115,7 +115,7 @@ namespace Treefrog.Plugins.Tiles
 
         public CommandManager CommandManager
         {
-            get { return _controller.CommandManager; }
+            get { return (_controller != null) ? _controller.CommandManager : null; }
         }
 
         public void DefaultAction (Guid uid)
@@ -126,7 +126,7 @@ namespace Treefrog.Plugins.Tiles
 
         public CommandMenu Menu (Guid uid)
         {
-            if (_controller.TilePoolManager.Contains(uid))
+            if (_controller != null && _controller.TilePoolManager.Contains(uid))
                 return TileSetMenu(uid);
 
             return new CommandMenu("");

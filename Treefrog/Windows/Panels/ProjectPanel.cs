@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using Treefrog.Presentation;
-using Treefrog.Framework.Model;
-using Treefrog.Framework;
-using Treefrog.Windows.Controllers;
-using Treefrog.Utility;
-using Treefrog.Presentation.Commands;
-//using Treefrog.Plugins.Object;
 using Treefrog.Extensibility;
-//using Treefrog.Plugins.Tiles;
+using Treefrog.Framework;
+using Treefrog.Framework.Model;
+using Treefrog.Presentation;
+using Treefrog.Utility;
+using Treefrog.Windows.Controllers;
 
 namespace Treefrog.Windows.Panels
 {
@@ -39,9 +32,6 @@ namespace Treefrog.Windows.Panels
         private ProjectExplorerPresenter _controller;
 
         private TreeNode _rootNode;
-        private TreeNode _levelNode;
-        //private TreeNode _objectNode;
-        //private TreeNode _tileNode;
 
         private TreeNode _libraryRoot;
 
@@ -76,16 +66,9 @@ namespace Treefrog.Windows.Panels
             _tree.Nodes.Clear();
 
             _rootNode = new TreeNode("Project", IconIndex.Application, IconIndex.Application);
-            _levelNode = new TreeNode("Levels", IconIndex.FolderLevels, IconIndex.FolderLevels);
-            //_tileNode = new TreeNode("Tilesets", IconIndex.FolderTiles, IconIndex.FolderTiles);
-            //_objectNode = new TreeNode("Object Groups", IconIndex.FolderObjects, IconIndex.FolderObjects);
 
             foreach (var component in ComponentManager.RegisteredInstances)
                 component.Reset(_rootNode);
-
-            _rootNode.Nodes.AddRange(new TreeNode[] {
-                _levelNode, /*_tileNode,*/ /*_objectNode,*/
-            });
 
             _tree.Nodes.Add(_rootNode);
 
@@ -94,7 +77,6 @@ namespace Treefrog.Windows.Panels
             _tree.Nodes.Add(_libraryRoot);
 
             _rootNode.Expand();
-            _levelNode.Expand();
         }
 
         public void BindController (ProjectExplorerPresenter controller)
@@ -109,18 +91,6 @@ namespace Treefrog.Windows.Panels
                 _controller.LibraryAdded -= LibraryAddedHandler;
                 _controller.LibraryRemoved -= LibraryRemovedHandler;
                 _controller.LibraryModified -= LibraryModifiedHandler;
-
-                _controller.LevelAdded -= LevelAddedHandler;
-                _controller.LevelRemoved -= LevelRemovedHandler;
-                _controller.LevelModified -= LevelModifiedHandler;
-
-                //_controller.ObjectAdded -= ObjectAddedHandler;
-                //_controller.ObjectRemoved -= ObjectRemovedHandler;
-                //_controller.ObjectModified -= ObjectModifiedHandler;
-
-                //_controller.TilePoolAdded -= TilePoolAddedHandler;
-                //_controller.TilePoolRemoved -= TilePoolRemovedHandler;
-                //_controller.TilePoolModified -= TilePoolModifiedHandler;
 
                 foreach (var component in ComponentManager.RegisteredInstances)
                     BindingHelper.TryBindAny(component, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, null)));
@@ -138,38 +108,8 @@ namespace Treefrog.Windows.Panels
                 _controller.LibraryRemoved += LibraryRemovedHandler;
                 _controller.LibraryModified += LibraryModifiedHandler;
 
-                _controller.LevelAdded += LevelAddedHandler;
-                _controller.LevelRemoved += LevelRemovedHandler;
-                _controller.LevelModified += LevelModifiedHandler;
-
-                //_controller.ObjectAdded += ObjectAddedHandler;
-                //_controller.ObjectRemoved += ObjectRemovedHandler;
-                //_controller.ObjectModified += ObjectModifiedHandler;
-
-                //_controller.TilePoolAdded += TilePoolAddedHandler;
-                //_controller.TilePoolRemoved += TilePoolRemovedHandler;
-                //_controller.TilePoolModified += TilePoolModifiedHandler;
-
                 _rootNode.Tag = _controller.ProjectManagerTag;
-                _levelNode.Tag = _controller.ProjectLevelsTag;
-                //_objectNode.Tag = _controller.ProjectObjectsTag;
-                //_tileNode.Tag = _controller.ProjectTilesetsTag;
                 _libraryRoot.Tag = _controller.LibraryManagerTag;
-
-                /*ProjectExplorerExt objectComponentPres = new ProjectExplorerExt();
-                objectComponentPres.Bind(_controller.Editor.Presentation.ObjectPoolCollection);*/
-
-                // TODO: This goes somewhere?
-                //TileSetExplorerPanelComponent tileSetComponent = new TileSetExplorerPanelComponent(_rootNode);
-                //BindingHelper.TryBindAny(tileSetComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
-                
-                //ObjectExplorerPanelComponent objectComponent = new ObjectExplorerPanelComponent(_rootNode);
-                //BindingHelper.TryBindAny(objectComponent, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
-
-                //objectComponent.Bind(objectComponentPres);
-
-                //_components.Add(tileSetComponent);
-                //_components.Add(objectComponent);
 
                 foreach (var component in ComponentManager.RegisteredInstances)
                     BindingHelper.TryBindAny(component, _controller.Components.Select(c => new KeyValuePair<Type, object>(c.Key, c.Value)));
@@ -242,34 +182,9 @@ namespace Treefrog.Windows.Panels
 
         }
 
-        private void SyncLevels ()
-        {
-            SyncNode(_levelNode, (node) => AddResources<Level>(_levelNode, _controller.Project.Levels, IconIndex.Level, (subNode, r) => {
-                //subNode.ContextMenuStrip = CommandMenuBuilder.BuildContextMenu(_controller.LevelMenu(r.Uid));
-            }));
-        }
-
-        private void LevelAddedHandler (object sender, ResourceEventArgs<Level> e)
-        {
-            AddResource(_levelNode, e.Resource, IconIndex.Level);
-        }
-
-        private void LevelRemovedHandler (object sender, ResourceEventArgs<Level> e)
-        {
-            RemoveResource(e.Resource);
-        }
-
-        private void LevelModifiedHandler (object sender, ResourceEventArgs<Level> e)
-        {
-            ModifyResource(e.Resource);
-        }
-
         private void SyncAll ()
         {
             SyncLibraries();
-            SyncLevels();
-            //SyncTilePools();
-            //SyncObjectPools();
 
             foreach (var component in ComponentManager.RegisteredInstances)
                 component.Sync();
@@ -298,68 +213,6 @@ namespace Treefrog.Windows.Panels
             if (_libraryRoot.Nodes.Count > 0)
                 _libraryRoot.Expand();
         }
-
-        /*private void SyncTilePools ()
-        {
-            SyncNode(_tileNode, (node) => AddResources<TilePool>(_tileNode, _controller.Project.TilePoolManager.Pools, IconIndex.TileGroup));
-        }
-
-        private void TilePoolAddedHandler (object sender, ResourceEventArgs<TilePool> e)
-        {
-            AddResource(_tileNode, e.Resource, IconIndex.TileGroup);
-
-            Library library = _controller.Project.LibraryManager.Libraries.First(lib => {
-                return lib.TilePoolManager.Pools.Contains(e.Uid);
-            });
-
-            List<TreeNode> nodeList;
-            if (library == null || !_nodeMap.TryGetValue(library.Uid, out nodeList))
-                return;
-
-            foreach (TreeNode node in nodeList)
-                AddResource(node.Nodes["Tilesets"], e.Resource, IconIndex.TileGroup);
-        }
-
-        private void TilePoolRemovedHandler (object sender, ResourceEventArgs<TilePool> e)
-        {
-            RemoveResource(e.Resource);
-        }
-
-        private void TilePoolModifiedHandler (object sender, ResourceEventArgs<TilePool> e)
-        {
-            ModifyResource(e.Resource);
-        }*/
-
-        /*private void SyncObjectPools ()
-        {
-            SyncNode(_objectNode, (node) => AddResources<ObjectPool>(_objectNode, _controller.Project.ObjectPoolManager.Pools, IconIndex.ObjectGroup, (subNode, r) => {
-                AddResources<ObjectClass>(subNode, r.Objects, IconIndex.ObjectGroup);
-            }));
-        }
-
-        private void ObjectAddedHandler (object sender, ResourceEventArgs<ObjectClass> e)
-        {
-            ObjectPool pool = _controller.Project.ObjectPoolManager.Pools.First(p => {
-                return p.Objects.Contains(e.Uid);
-            });
-
-            List<TreeNode> nodeList;
-            if (pool == null || !_nodeMap.TryGetValue(pool.Uid, out nodeList))
-                return;
-
-            foreach (TreeNode poolNode in nodeList)
-                AddResource(poolNode, e.Resource, IconIndex.ObjectGroup);
-        }
-
-        private void ObjectRemovedHandler (object sender, ResourceEventArgs<ObjectClass> e)
-        {
-            RemoveResource(e.Resource);
-        }
-
-        private void ObjectModifiedHandler (object sender, ResourceEventArgs<ObjectClass> e)
-        {
-            ModifyResource(e.Resource);
-        }*/
 
         private void SyncNode (TreeNode node, Action<TreeNode> action)
         {
@@ -518,8 +371,6 @@ namespace Treefrog.Windows.Panels
                 contextMenu.Show(_tree, e.Location);
             }
         }
-
-        //private List<ProjectPanelComponent> _components = new List<ProjectPanelComponent>();
     }
 
     

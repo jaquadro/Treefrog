@@ -2,15 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Treefrog.Extensibility;
 using Treefrog.Framework;
 using Treefrog.Framework.Model;
+using Treefrog.Plugins.Tiles;
 using Treefrog.Presentation.Commands;
 using Treefrog.Windows.Forms;
-//using Treefrog.Plugins.Object;
-using System.Collections.Generic;
-using Treefrog.Extensibility;
-using Treefrog.Plugins.Tiles;
-//using Treefrog.Plugins.Tiles;
 
 namespace Treefrog.Presentation
 {
@@ -51,8 +48,6 @@ namespace Treefrog.Presentation
         private PresenterManager _pm;
         private EditorPresenter _editor;
 
-        //private ObjectClassCommandActions _objectClassActions;
-        //private TilePoolCommandActions _tilePoolActions;
         private LibraryCommandActions _libraryActions;
 
         public CommandActions (PresenterManager pm, EditorPresenter editor)
@@ -60,38 +55,14 @@ namespace Treefrog.Presentation
             _pm = pm;
             _editor = editor;
 
-            //_objectClassActions = new ObjectClassCommandActions(pm);
-            //_tilePoolActions = new TilePoolCommandActions(_editor);
             _libraryActions = new LibraryCommandActions(_editor);
         }
-
-        //public ObjectClassCommandActions ObjectClassActions
-        //{
-        //    get
-        //    {
-        //        var presenter = _pm.Lookup<ObjectPoolCollectionPresenter>();
-        //        return (presenter != null) ? presenter.ObjectClassActions : null;
-        //    }
-            //get { return _objectClassActions; }
-        //}
-
-        /*public TilePoolCommandActions TilePoolActions
-        {
-            get { return _tilePoolActions; }
-        }*/
 
         public LibraryCommandActions LibraryActions
         {
             get { return _libraryActions; }
         }
     }
-
-    //public interface IPresenter
-    //{
-    //    void Initialize (PresenterManager pm);
-    //}
-
-    
 
     public class PresenterManager : InstanceRegistry<Presenter>
     { }
@@ -101,15 +72,6 @@ namespace Treefrog.Presentation
         private PresenterManager _pm;
         private EditorPresenter _editor;
 
-        //private TilePoolListPresenter _tilePoolList;
-        //private ObjectPoolCollectionPresenter _objectPoolCollection;
-        //private TileBrushManagerPresenter _tileBrushManager;
-        //private PropertyListPresenter _propertyList;
-        //private ProjectExplorerPresenter _projectExplorer;
-        //private MinimapPresenter _minimap;
-
-        //private StandardToolsPresenter _stdTools;
-        //private DocumentToolsPresenter _docTools;
         private ContentInfoArbitrationPresenter _contentInfo;
 
         public Presentation (PresenterManager pm, EditorPresenter editor)
@@ -117,36 +79,13 @@ namespace Treefrog.Presentation
             _pm = pm;
             _editor = editor;
 
-            //_stdTools = new StandardToolsPresenter(_editor);
-            //_docTools = new DocumentToolsPresenter(_editor);
             _contentInfo = new ContentInfoArbitrationPresenter(_editor);
-
-            //_tilePoolList = new TilePoolListPresenter(_editor);
-            //pm.Register(new TilePoolListPresenter().Initialize(pm));
-            //_objectPoolCollection = new ObjectPoolCollectionPresenter(pm);
-            //pm.Register(new ObjectPoolCollectionPresenter().Initialize(pm));
-
-            //_tileBrushManager = new TileBrushManagerPresenter(_editor);
-            //pm.Register(new TileBrushManagerPresenter().Initialize(pm));
-
-            //_propertyList = new PropertyListPresenter();
-            //pm.Register(new PropertyListPresenter().Initialize(pm));
-            //_projectExplorer = new ProjectExplorerPresenter(pm);
-            //pm.Register(new ProjectExplorerPresenter().Initialize(pm));
-
-            //_minimap = new MinimapPresenter(_editor);
-            //pm.Register(new MinimapPresenter().Initialize(pm));
         }
 
         public IContentInfoPresenter ContentInfo
         {
             get { return _contentInfo; }
         }
-
-        /*public IDocumentToolsPresenter DocumentTools
-        {
-            get { return _docTools; }
-        }*/
 
         public LevelPresenter LayerList
         {
@@ -161,42 +100,26 @@ namespace Treefrog.Presentation
         public PropertyListPresenter PropertyList
         {
             get { return _pm.Lookup<PropertyListPresenter>(); }
-            //get { return _propertyList; }
         }
 
         public ProjectExplorerPresenter ProjectExplorer
         {
             get { return _pm.Lookup<ProjectExplorerPresenter>(); }
-            //get { return _projectExplorer; }
         }
 
         public MinimapPresenter Minimap
         {
             get { return _pm.Lookup<MinimapPresenter>(); }
-            //get { return _minimap; }
         }
-
-        /*public StandardToolsPresenter StandardTools
-        {
-            get { return _stdTools; }
-        }*/
 
         public TilePoolListPresenter TilePoolList
         {
             get { return _pm.Lookup<TilePoolListPresenter>(); }
-            //get { return _tilePoolList; }
         }
 
-        //public ObjectPoolCollectionPresenter ObjectPoolCollection
-        //{
-        //    get { return _pm.Lookup<ObjectPoolCollectionPresenter>(); }
-        //    get { return _objectPoolCollection; }
-        //}
-    
         public TileBrushManagerPresenter TileBrushes
         {
             get { return _pm.Lookup<TileBrushManagerPresenter>(); }
-            //get { return _tileBrushManager; }
         }
     }
 
@@ -212,6 +135,8 @@ namespace Treefrog.Presentation
 
         private Presentation _presentation;
         private CommandActions _commandActions;
+
+        private LevelCommandActions _levelCommandActions;
 
         public EditorPresenter ()
         { }
@@ -235,6 +160,8 @@ namespace Treefrog.Presentation
 
             _content = new ContentWorkspacePresenter(this);
             _content.AddContentController(_levelContentController);
+
+            _levelCommandActions = new LevelCommandActions(Manager);
 
             InitializeCommandManager();
         }
@@ -583,6 +510,12 @@ namespace Treefrog.Presentation
             _commandManager.Register(CommandKey.ProjectAddLevel, CommandCanAddLevel, CommandAddLevel);
             _commandManager.Register(CommandKey.LevelClose, CommandCanCloseLevel, CommandCloseLevel);
             _commandManager.Register(CommandKey.LevelCloseAllOther, CommandCanCloseAllOtherLevels, CommandCloseAllOtherLevels);
+
+            _commandManager.Register(CommandKey.LevelOpen, _levelCommandActions.CanOpenLevel, _levelCommandActions.CommandOpen);
+            _commandManager.Register(CommandKey.LevelClone, _levelCommandActions.LevelExists, _levelCommandActions.CommandClone);
+            _commandManager.Register(CommandKey.LevelDelete, _levelCommandActions.LevelExists, _levelCommandActions.CommandDelete);
+            _commandManager.Register(CommandKey.LevelRename, _levelCommandActions.LevelExists, _levelCommandActions.CommandRename);
+            _commandManager.Register(CommandKey.LevelProperties, _levelCommandActions.LevelExists, _levelCommandActions.CommandProperties);
         }
 
         public CommandManager CommandManager

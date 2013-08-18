@@ -146,18 +146,18 @@ namespace Treefrog.Plugins.Object
 
         public CommandManager CommandManager
         {
-            get { return _controller.CommandManager; }
+            get { return (_controller != null) ? _controller.CommandManager : null; }
         }
 
         public void DefaultAction (Guid uid)
         {
-            if (_controller.ObjectPoolManager.Contains(uid))
+            if (_controller != null && _controller.ObjectPoolManager.Contains(uid))
                 _controller.CommandManager.Perform(CommandKey.ObjectProtoEdit, uid);
         }
 
         public CommandMenu Menu (Guid uid)
         {
-            if (_controller.ObjectPoolManager.Contains(uid))
+            if (_controller != null && _controller.ObjectPoolManager.Contains(uid))
                 return ObjectProtoMenu(uid);
 
             return new CommandMenu("");

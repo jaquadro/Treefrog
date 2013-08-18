@@ -54,8 +54,10 @@ namespace Treefrog.Framework.Model
             GridColor = Color.ParseArgbHex(proxy.GridColor);
             Level = level;
 
-            foreach (var blockProxy in proxy.Blocks)
-                ParseTileBlockString(blockProxy.Data);
+            if (proxy.Blocks != null) {
+                foreach (var blockProxy in proxy.Blocks)
+                    ParseTileBlockString(blockProxy.Data);
+            }
 
             if (proxy.Properties != null) {
                 foreach (var propertyProxy in proxy.Properties)
