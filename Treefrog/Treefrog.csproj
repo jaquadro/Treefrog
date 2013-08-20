@@ -102,10 +102,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\Debug\OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK.GLControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\Debug\OpenTK.GLControl.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
@@ -341,6 +337,18 @@
     <Compile Include="Windows\Forms\ResizeLevelForm.Designer.cs">
       <DependentUpon>ResizeLevelForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\GLControl\CarbonGLControl.cs" />
+    <Compile Include="Windows\GLControl\DummyGLControl.cs" />
+    <Compile Include="Windows\GLControl\GLControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\GLControl\GLControl.designer.cs">
+      <DependentUpon>GLControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\GLControl\GLControlFactory.cs" />
+    <Compile Include="Windows\GLControl\IGLControl.cs" />
+    <Compile Include="Windows\GLControl\WinGLControl.cs" />
+    <Compile Include="Windows\GLControl\X11GLControl.cs" />
     <Compile Include="Windows\GraphicsDeviceService.cs" />
     <Compile Include="Render\Layers\CanvasLayer.cs" />
     <Compile Include="Render\Layers\GroupLayer.cs" />
@@ -532,6 +540,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\ResizeLevelForm.resx">
       <DependentUpon>ResizeLevelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\GLControl\GLControl.resx">
+      <DependentUpon>GLControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Panels\LayerPane.resx">
       <DependentUpon>LayerPane.cs</DependentUpon>
