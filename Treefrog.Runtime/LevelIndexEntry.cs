@@ -17,7 +17,7 @@ namespace Treefrog.Runtime
             Properties = new PropertyCollection();
         }
 
-        public int Id { get; internal set; }
+        public Guid Id { get; internal set; }
         public string Name { get; internal set; }
         public string Asset { get; internal set; }
 

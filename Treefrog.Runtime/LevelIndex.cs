@@ -13,13 +13,13 @@ namespace Treefrog.Runtime
 
         private Dictionary<int, LevelIndexEntry> _index;
         private Dictionary<string, LevelIndexEntry> _nameIndex;
-        private Dictionary<string, LevelIndexEntry> _assetIndex;
+        //private Dictionary<string, LevelIndexEntry> _assetIndex;
 
         internal LevelIndex ()
         {
             _index = new Dictionary<int, LevelIndexEntry>();
             _nameIndex = new Dictionary<string, LevelIndexEntry>();
-            _assetIndex = new Dictionary<string, LevelIndexEntry>();
+            //_assetIndex = new Dictionary<string, LevelIndexEntry>();
         }
 
         internal LevelIndex (ContentReader reader)
@@ -32,15 +32,14 @@ namespace Treefrog.Runtime
             for (int i = 0; i < lieCount; i++) {
                 LevelIndexEntry entry = new LevelIndexEntry(reader.ContentManager)
                 {
-                    Id = reader.ReadInt32(),
+                    Id = new Guid(reader.ReadBytes(16)),
                     Name = reader.ReadString(),
-                    Asset = reader.ReadString(),
                     Properties = new PropertyCollection(reader),
                 };
 
                 _index[i] = entry;
                 _nameIndex[entry.Name] = entry;
-                _assetIndex[entry.Asset] = entry;
+                //_assetIndex[entry.Asset] = entry;
             }
         }
 
@@ -62,14 +61,14 @@ namespace Treefrog.Runtime
             return null;
         }
 
-        public LevelIndexEntry ByAsset (string assetName)
+        /*public LevelIndexEntry ByAsset (string assetName)
         {
             LevelIndexEntry entry;
             if (_assetIndex.TryGetValue(assetName, out entry)) {
                 return entry;
             }
             return null;
-        }
+        }*/
 
         public IEnumerable<LevelIndexEntry> ByProperty (string propertyName)
         {
@@ -135,7 +134,7 @@ namespace Treefrog.Runtime
                 }
                 _index.Clear();
                 _nameIndex.Clear();
-                _assetIndex.Clear();
+                //_assetIndex.Clear();
 
                 _disposed = true;
             }
